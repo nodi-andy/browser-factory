@@ -44,6 +44,7 @@ function render(){
         });
     }
     context.beginPath();
+    context.font = "16px Arial";
     context.fillText("🚶", player1.pos.x-6, player1.pos.y);
     context.stroke();
 

@@ -95,8 +95,8 @@
 
 
 
-    document.addEventListener("keydown", e => {ws.send(JSON.stringify({cmd: "keydown", data: e.code}));});
-    document.addEventListener("keyup", e => {ws.send(JSON.stringify({cmd: "keyup", data: e.code}))});
+    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("keyup", onKeyUp);
     document.addEventListener( 'wheel', (e) => adjustZoom(e.deltaY* SCROLL_SENSITIVITY))
     context.canvas.oncontextmenu = function (e) {e.preventDefault();};
     context.canvas.addEventListener('pointerdown', onPointerDown);

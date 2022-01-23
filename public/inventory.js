@@ -2,6 +2,7 @@ class Inventory extends Array{
     constructor(items) {
         super();
         this.items = items;
+        this.pos = {x: 0, y:0};
     }
 
     draw(ctx) {

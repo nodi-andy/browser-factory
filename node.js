@@ -43,7 +43,7 @@ function addCity(nID, x, y, t) {
         let type = nCity.rmap[ax][ay][c.layers.terrain];
         if (type > 7 && nCity.rmap[ax][ay][c.layers.res].id == 0) {
           let res = Math.random();
-          if (res > 0.9) resFill(nCity.rmap, ax, ay,  {id: c.resDB.tree.id, n: Math.random()*5+5});
+          if (res > 0.9) resFill(nCity.rmap, ax, ay,  {id: c.resDB.tree.id, n: Math.floor(Math.random()*8)+3});
           else if (res > 0.7) resFill(nCity.rmap, ax, ay, {id: c.resDB.coal.id, n : 100});
           else if (res > 0.4) resFill(nCity.rmap, ax, ay, {id: c.resDB.stone.id, n : 100});
           else if (res > 0.2) resFill(nCity.rmap, ax, ay, {id: c.resDB.iron.id, n : 100});
@@ -51,7 +51,7 @@ function addCity(nID, x, y, t) {
         } else {
           if (nCity.rmap[ax][ay][c.layers.res].id == 0 && nCity.rmap[ax][ay][c.layers.terrain] > 2) {
             let randomRes = Math.random();
-            if (randomRes > 0.9) nCity.rmap[ax][ay][c.layers.res] = {id: c.resDB.tree.id, n: 10};
+            if (randomRes > 0.9) nCity.rmap[ax][ay][c.layers.res] = {id: c.resDB.tree.id, n: Math.floor(Math.random()*8)+3};
             if (randomRes > 0.99) nCity.rmap[ax][ay][c.layers.res] = {id: c.resDB.stone.id, n : 100};
           }
         }
@@ -86,7 +86,8 @@ function addCity(nID, x, y, t) {
 function resFill(map, x, y, res) {
   if (map[x] && map[x][y] && map[x][y][c.layers.res].id == 0 && map[x][y][c.layers.terrain] > 7) {
     map[x][y][c.layers.res].id = res.id;
-    map[x][y][c.layers.res].n = res.n;
+    if (res.id == c.resDB.tree.id) map[x][y][c.layers.res].n = Math.floor(Math.random()*8)+3; 
+    else map[x][y][c.layers.res].n = res.n;
     resFill(map, x + 1, y, res);
     resFill(map, x, y + 1, res);
     resFill(map, x+1, y+1, res);
