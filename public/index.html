@@ -1,0 +1,163 @@
+<style>
+    html,
+    body {
+        margin: 0;
+        height: 100%;
+        overflow: hidden;
+    }
+</style>
+<html><canvas id="myCanvas" style = "display:block;border:none; margin:0"></canvas></html>
+
+<script type="text/javascript" src ="inventory.js"></script>
+<script type="text/javascript" src ="common.js"></script>
+
+<script type="text/javascript" src ="button.js"></script>
+<script type="text/javascript" src ="input.js"></script>
+<script type="text/javascript" src ="render.js"></script>
+<script type="text/javascript">
+
+    const ws        = new WebSocket('ws://192.168.1.22');
+    canvas = document.getElementById("myCanvas");
+    let context = canvas.getContext("2d");
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+    let city        = {};
+    //let map         = undefined;
+    let camera      = {x: 0, y: 0, zoom: 4}
+    let mousePos    = {x: 0, y: 0}
+    //let mapType     = ["darkgray", "blue", "sandybrown", "green", "darkgreen", "black", "gold", "FireBrick", "SlateGray"];
+    let mapType     = ["darkblue", "blue", "sandybrown", "sandybrown", "darkgreen", "green", "green", "green", "green", "green"];
+    var selCity     = undefined;
+
+    let isDragging = false;
+    let dragStart = { x: 0, y: 0 }
+    let isClicking = false;
+    let workInterval = undefined;
+    beltMenu.pos = {x:canvas.width / 2 - 300, y:canvas.height - 60};
+    let craftButton = new Button (beltMenu.pos.x + 60*10 + 10, beltMenu.pos.y, 60, 60, "🛠️", 0, () => {invMenu.vis = !invMenu.vis;buildMenu.vis = !buildMenu.vis;});
+    beltMenu.items.push(craftButton);
+
+    invMenu.pos = {x:canvas.width / 2 - 300, y:canvas.height / 2 - 300};
+    for (let i = 0; i < 5; i++) {
+        for (let j = 0; j < 5; j++) {
+            invMenu.items.push(new Button (invMenu.pos.x + j * 60, invMenu.pos.y + i * 60, 60, 60))
+        }
+    }
+    buildMenu.items.push(new Button (invMenu.pos.x + 310, invMenu.pos.y, 60, 60, resDB.furnace.emo, 0, () => {bookFromInv(player1.inv, resDB.furnace)}))
+    buildMenu.items.push(new Button (invMenu.pos.x + 370, invMenu.pos.y, 60, 60, resDB.chest.emo, 0, () => {bookFromInv(player1.inv, resDB.chest)}))
+
+    function getCityById(searchID) {
+        for (let i = 0; i < city.w.length; i++) {
+            let c = city.w[i];
+            if (c.id == searchID) return c;
+        }
+    }
+
+    function bookFromInv(inv, item) {
+        let itemsExist = true;
+        let enoughItems = false;
+        for(let c = 0; c < item.cost.length && itemsExist; c++) {
+            itemsExist = false;
+            for(let i = 0; i < inv.items.length && !itemsExist; i++) {
+                let invObj = inv.items[i];
+                if (invObj.id == item.cost[c].id) {
+                    itemsExist = true;
+                    if (invObj.n >= item.cost[c].n) {
+                        if (c == item.cost.length-1) enoughItems = true;
+                    }
+                }
+            }
+        }
+        if (enoughItems)  ws.send(JSON.stringify({cmd: "craftToInv", data: item}));
+        
+    }
+
+    ws.onmessage = function(e) {
+        let socketMsg = JSON.parse(e.data);
+        if(socketMsg.msg == "update") {
+            player1 = socketMsg.data.player1;
+            city = socketMsg.data.city;
+
+            for (let i = 0; i < player1.inv.items.length; i++) {
+                let itemId = player1.inv.items[i].id;
+                invMenu.items[i].t = Object.entries(resDB)[itemId][1].emo;
+                invMenu.items[i].n = player1.inv.items[i].n;
+            }
+            for (let i = player1.inv.items.length; i < invMenu.items.length; i++) {
+                invMenu.items[i].t = "";
+                invMenu.items[i].n = 0;
+            }
+
+        }
+
+        if(socketMsg.msg == "id") console.log("Received: '" + socketMsg.data + "'");
+    };
+
+
+
+    document.addEventListener("keydown", e => {ws.send(JSON.stringify({cmd: "keydown", data: e.code}));});
+    document.addEventListener("keyup", e => {ws.send(JSON.stringify({cmd: "keyup", data: e.code}))});
+    document.addEventListener( 'wheel', (e) => adjustZoom(e.deltaY* SCROLL_SENSITIVITY))
+    context.canvas.oncontextmenu = function (e) {e.preventDefault();};
+    context.canvas.addEventListener('pointerdown', onPointerDown);
+    context.canvas.addEventListener('pointermove', onPointerMove);
+    context.canvas.addEventListener('pointerup', onPointerUp);
+    /*context.canvas.addEventListener('dblclick', e => {
+        let upSelCity = undefined;
+        let pointerPos = screenToWorld({x: e.offsetX, y: e.offsetY});
+        pointerPos.r = 15;
+        city.w.forEach(b => {
+            if (getDistance(pointerPos, b) < 0) {
+                upSelCity = b;
+            }
+        })
+        if (upSelCity) ws.send(JSON.stringify({cmd: "selCity", data: upSelCity.id}));
+        else {
+            ws.send(JSON.stringify({cmd: "addCity", data: pointerPos}));
+        } 
+    });*/
+    
+
+
+    requestAnimationFrame( render );
+    
+
+    function adjustZoom(zoomFactor)
+    {
+        if (!isDragging)
+        {
+            //console.log(zoomFactor)
+
+            let zoomAmount = (1 + zoomFactor);
+            camera.zoom *= zoomAmount;
+           
+            //camera.zoom = Math.min( camera.zoom, MAX_ZOOM )
+            //camera.zoom = Math.max( camera.zoom, MIN_ZOOM )
+
+            camera.x += (mousePos.x / camera.zoom) - (mousePos.x / (camera.zoom / zoomAmount));
+            camera.y += (mousePos.y / camera.zoom) - (mousePos.y / (camera.zoom / zoomAmount));
+            if (camera.x > 0) camera.x = 0;
+            if (camera.y > 0) camera.y = 0;
+            ws.send(JSON.stringify({cmd: "camera", data: camera}));
+        }
+    }
+
+    // Gets the relevant location from a mouse or single touch event
+    function getEventLocation(e)
+    {
+        if (e.touches && e.touches.length == 1)
+        {
+            return { x:e.touches[0].clientX, y: e.touches[0].clientY }
+        }
+        else if (e.clientX && e.clientY)
+        {
+            return { x: e.clientX, y: e.clientY }        
+        }
+    }
+
+    function mineToInv(inv) {
+        ws.send(JSON.stringify({cmd: "mineToInv", data: inv}));
+    }
+
+
+</script>
