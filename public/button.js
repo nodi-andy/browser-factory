@@ -1,10 +1,10 @@
 class Button {
-    constructor(x, y, h, w, t, n = 0, onClick) {
+    constructor(x, y, h, w, id, n = 0, onClick) {
         this.x = x;
         this.y = y;
         this.h = h;
         this.w = w;
-        this.t = t;
+        this.id = id;
         this.n = n;
         this.onClick = onClick;
     }
@@ -18,9 +18,9 @@ class Button {
         ctx.fillStyle = "rgba(120, 120, 120, 0.9)";
         ctx.rect(this.x, this.y, this.w, this.h);
         ctx.fill();
-        if (this.t) {
+        if (this.id) {
             ctx.font = "48px Arial";
-            ctx.fillText(this.t, this.x, this.y + 48);
+            ctx.fillText(resName[this.id].emo, this.x, this.y + 48);
         }
         ctx.font = "24px Arial";
         ctx.fillStyle = "black";

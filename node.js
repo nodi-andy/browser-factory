@@ -23,7 +23,6 @@ addCity(cityID++, 50, 50, "city")
 let city = getCityById(0); //{id: 0, name: "", type: "city", x: 50, y: 50, map: Array(80).fill(0).map(()=>Array(80).fill(0).map(()=>Array(2).fill(1))), rmap:Array(80).fill(0).map(()=>Array(80).fill(0).map(()=>Array(2).fill(1))), camera: {x: 0, y:0, zoom:4}, res: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], nb:[], p: 0, w: [], population: [], dist: []}
 
 
-
 function addCity(nID, x, y, t) {
   if (nID == 0) parentID = 0; else parentID = city.id;
   let nCity = {id: nID, name: "", type: t, x: Math.floor(x/10)*10, y: Math.floor(y/10)*10, map: Array(80).fill(0).map(()=>Array(80).fill(0).map(()=>[0, 0, {id:0, n:0}, 0, 0])), camera: {x: 0, y:0, zoom:4}, res: [0, 100, 0, 0, 0, 0, 100, 0, 0, 0, 0], nb:[], p: parentID, w: [], population : [], dist: []};
@@ -212,10 +211,11 @@ app.ws('/', function(ws, req) {
     }
     if(msg.cmd == 'keydown' && msg.data == "ArrowRight") ws.player.dir = 5;
     if(msg.cmd == "addCity") addCity(cityID++, msg.data.x, msg.data.y, msg.data.type);
+    if(msg.cmd == "addBuilding") addBuilding(msg.data);
     //if(msg.cmd == "addTask") addTask(msg.data);
     if(msg.cmd == "addToInv") addToInvs(msg.data);
     if(msg.cmd == "mineToInv") mineToInv(msg.data);
-    if(msg.cmd == "craftToInv") craftToInv(msg.data);
+    if(msg.cmd == "craftToInv") {craftToInv(msg.data); updatePlayer();}
     if(msg.cmd == "camera") city.camera = msg.data.camera;
     if(msg.cmd == "selCity") {
       console.log(msg);
@@ -236,13 +236,19 @@ app.ws('/', function(ws, req) {
     if (ws.uuid) users.delete(ws.uuid);
   });
   ws.send(JSON.stringify({msg: "id" , data:JSON.stringify(ws.uuid)}));
-  //ws.send(JSON.stringify({msg: "map", data: {map}}));
+  ws.send(JSON.stringify({msg:"updateMap", data:city}));
+  ws.send(JSON.stringify({msg:"updatePlayer", data: player1}));
 });
 
 function sendAll(message) {
   users.forEach((val, key) => {
     val.send(message);
   })
+}
+
+function addBuilding(newBuilding) {
+  city.rmap[newBuilding.x][newBuilding.y][c.layers.buildings] = newBuilding.id;
+  sendAll(JSON.stringify({msg:"updateBuilding", data:newBuilding}));
 }
 
 function worldToGrid(x, y) {
@@ -270,8 +276,12 @@ function move(x, y) {
       //sendAll(JSON.stringify({msg:"map", data: {city.rmap}}));
     }
   }
+  updatePlayer();
 }
 
+function updatePlayer() {
+  sendAll(JSON.stringify({msg:"updatePlayer", data: player1}));
+}
 function discover(x,y) {
   if (city.map[x][y] != city.rmap[x][y]) {
     city.map[x][y] = city.rmap[x][y];
@@ -309,10 +319,9 @@ function fillArray(arr, x, y, dx, dy, d) {
 }
 
 
-
 tact();
 
 function tact() {
   setTimeout(tact, 200);
-  sendAll(JSON.stringify({msg:"update", data: {player1, city}}));
+  
 }

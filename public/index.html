@@ -12,6 +12,7 @@
 <script type="text/javascript" src ="common.js"></script>
 
 <script type="text/javascript" src ="button.js"></script>
+<script type="text/javascript" src ="entity.js"></script>
 <script type="text/javascript" src ="input.js"></script>
 <script type="text/javascript" src ="render.js"></script>
 <script type="text/javascript">
@@ -25,8 +26,6 @@
     //let map         = undefined;
     let camera      = {x: 0, y: 0, zoom: 4}
     let mousePos    = {x: 0, y: 0}
-    //let mapType     = ["darkgray", "blue", "sandybrown", "green", "darkgreen", "black", "gold", "FireBrick", "SlateGray"];
-    let mapType     = ["darkblue", "blue", "sandybrown", "sandybrown", "darkgreen", "green", "green", "green", "green", "green"];
     var selCity     = undefined;
 
     let isDragging = false;
@@ -34,17 +33,19 @@
     let isClicking = false;
     let workInterval = undefined;
     beltMenu.pos = {x:canvas.width / 2 - 300, y:canvas.height - 60};
-    let craftButton = new Button (beltMenu.pos.x + 60*10 + 10, beltMenu.pos.y, 60, 60, "🛠️", 0, () => {invMenu.vis = !invMenu.vis;buildMenu.vis = !buildMenu.vis;});
+    let craftButton = new Button (beltMenu.pos.x + 60*10 + 10, beltMenu.pos.y, 60, 60, 0, 0, () => {invMenu.vis = !invMenu.vis;buildMenu.vis = !buildMenu.vis;});
     beltMenu.items.push(craftButton);
 
     invMenu.pos = {x:canvas.width / 2 - 300, y:canvas.height / 2 - 300};
     for (let i = 0; i < 5; i++) {
         for (let j = 0; j < 5; j++) {
-            invMenu.items.push(new Button (invMenu.pos.x + j * 60, invMenu.pos.y + i * 60, 60, 60))
+            let newButton = new Button (invMenu.pos.x + j * 60, invMenu.pos.y + i * 60, 60, 60, 0, 0, invMenu, ()=>{});
+            newButton.onClick = () => {pointerButton = newButton;};
+            invMenu.items.push(newButton);
         }
     }
-    buildMenu.items.push(new Button (invMenu.pos.x + 310, invMenu.pos.y, 60, 60, resDB.furnace.emo, 0, () => {bookFromInv(player1.inv, resDB.furnace)}))
-    buildMenu.items.push(new Button (invMenu.pos.x + 370, invMenu.pos.y, 60, 60, resDB.chest.emo, 0, () => {bookFromInv(player1.inv, resDB.chest)}))
+    buildMenu.items.push(new Button (invMenu.pos.x + 310, invMenu.pos.y, 60, 60, resDB.furnace.id, 0, () => {bookFromInv(player1.inv, resDB.furnace)}))
+    buildMenu.items.push(new Button (invMenu.pos.x + 370, invMenu.pos.y, 60, 60, resDB.chest.id, 0, () => {bookFromInv(player1.inv, resDB.chest)}))
 
     function getCityById(searchID) {
         for (let i = 0; i < city.w.length; i++) {
@@ -74,20 +75,26 @@
 
     ws.onmessage = function(e) {
         let socketMsg = JSON.parse(e.data);
-        if(socketMsg.msg == "update") {
-            player1 = socketMsg.data.player1;
-            city = socketMsg.data.city;
+
+        if(socketMsg.msg == "updateBuilding") {
+            let b = socketMsg.data;
+            city.map[b.x][b.y][layers.buildings] = b.id;
+        }
+        if(socketMsg.msg == "updatePlayer") {
+            player1 = socketMsg.data;
 
             for (let i = 0; i < player1.inv.items.length; i++) {
                 let itemId = player1.inv.items[i].id;
-                invMenu.items[i].t = Object.entries(resDB)[itemId][1].emo;
+                invMenu.items[i].id = itemId;
                 invMenu.items[i].n = player1.inv.items[i].n;
             }
             for (let i = player1.inv.items.length; i < invMenu.items.length; i++) {
-                invMenu.items[i].t = "";
+                invMenu.items[i].id = 0;
                 invMenu.items[i].n = 0;
             }
-
+        }
+        if(socketMsg.msg == "updateMap") {
+            city = socketMsg.data;
         }
 
         if(socketMsg.msg == "id") console.log("Received: '" + socketMsg.data + "'");
