@@ -18,9 +18,17 @@ class Button {
         ctx.fillStyle = "rgba(120, 120, 120, 0.9)";
         ctx.rect(this.x, this.y, this.w, this.h);
         ctx.fill();
-        if (this.id) {
+        if (this.id && resName[this.id].emo) {
             ctx.font = "48px Arial";
             ctx.fillText(resName[this.id].emo, this.x, this.y + 48);
+        }
+        else if (this.id && resName[this.id].svg) {
+            ctx.translate(this.x, this.y);
+            ctx.scale(3, 3);
+            let v = canvg.Canvg.fromString(ctx, resName[this.id].svg);
+            v.documentElement.renderChildren(ctx);
+            ctx.scale(0.33, 0.33);
+            ctx.translate(-this.x, -this.y);
         }
         ctx.font = "24px Arial";
         ctx.fillStyle = "black";

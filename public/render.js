@@ -9,13 +9,15 @@ function render(){
         for(let ax = 0; ax < city.map.length; ax++) {
             for(let ay = 0; ay < city.map[ax].length; ay++) {
                 let tile = city.map[ax][ay];
+
+                // MAP
                 context.beginPath();
                 let type = tile[layers.terrain];
                 context.fillStyle = mapType[type];
                 context.rect(ax*10, ay*10, 11, 11);
                 context.fill();
 
-                context.beginPath();
+                // RESOURCES
                 context.font = "8px Arial";
                 type = tile[layers.res].id;
                 let n = tile[layers.res].n;
@@ -24,10 +26,32 @@ function render(){
                 if (resName[type].emo) context.fillText(resName[type].emo, ax*10, ay*10 + 8);
 
                 // BUILDING
-                context.beginPath();
                 context.font = "8px Arial";
-                type = tile[layers.buildings];
-                if (type && resName[type].emo) context.fillText(resName[type].emo, ax*10, ay*10 + 8);
+                let entID = tile[layers.buildings];
+                if (entID != undefined) {
+                    let b = allEnts[entID];
+                    if (resName[b.type].emo) context.fillText(resName[b.type].emo, ax*10, ay*10 + 8);
+                    if (resName[b.type].svg) {
+                        context.translate(ax*10, ay*10);
+                        context.scale(0.5, 0.5);
+                        v = canvg.Canvg.fromString(context, resName[b.type].svg);
+                        v.documentElement.renderChildren(context);
+                        context.scale(2, 2);
+                        context.translate(-ax*10, -ay*10);
+                    }
+                }
+
+                // ITEMS
+                context.font = "8px Arial";
+                let itemID = tile[layers.items];
+                if (itemID) {
+                    let iForEach = 0;
+                    context.font = "4px Arial";
+                    let items = allInvs[itemID].items;
+                    items.forEach(item => {
+                        context.fillText(resName[item.id].emo, ax*10 + (iForEach%2) * 5, ay * 10 + 4 + Math.floor(iForEach/2)*5); iForEach++;
+                    });
+                }
             }
         }
     }
@@ -51,12 +75,25 @@ function render(){
     if (pointerButton) {
         context.font = "8px Arial";
         context.fillStyle = "black";
-        context.fillText(resName[pointerButton.id].emo, curResPos.x * tileSize, curResPos.y * tileSize + 8);
+        let type = pointerButton.id;
+        if (resName[type].emo)         context.fillText(resName[pointerButton.id].emo, curResPos.x * tileSize, curResPos.y * tileSize + 8);
+        else if (resName[type].svg) {
+            context.translate(curResPos.x * tileSize, curResPos.y * tileSize);
+            context.scale(0.5, 0.5);
+            v = canvg.Canvg.fromString(context, resName[type].svg);
+            v.documentElement.renderChildren(context);
+            context.scale(2, 2);
+            context.translate(-curResPos.x * tileSize, -curResPos.y * tileSize);
+        }
     }
     context.stroke();
 
+
+
     // OVERLAY
     context.resetTransform();
+
+
     var xpos = beltMenu.pos.x;
     var ypos = beltMenu.pos.y;
 

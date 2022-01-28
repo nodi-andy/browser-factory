@@ -18,6 +18,8 @@ const resID =
     stone: 20,
     iron_plate: 21
 }
+var svgPic = '<path d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V4.5z"/>';
+
 const mapType     = ["darkblue", "blue", "sandybrown", "sandybrown", "darkgreen", "green", "green", "green", "green", "green"];
 const resDB =
 {   none            : {id: 0                    , name: "none"          , emo: ""       , open: 0   , type: 0},
@@ -25,11 +27,11 @@ const resDB =
     input           : {id: 11                   , name: "input"         , emo: "📥"     , open: 0   , type: "building"},
     output          : {id: 12                   , name: "output"        , emo: "📤"     , open: 0   , type: "building"},
     chest           : {id: resID.chest          , name: "chest"         , emo: "📦"     , open: 1   , type: "building", size: [1, 1], cost: [{id: resID.tree, n: 2}]},
-    miner           : {id: resID.miner          , name: "miner"         , emo: "📤"     , open: 1   , type: "building"},
-    inserter        : {id: resID.inserter       , name: "miner"         , emo: "📤"     , open: 1   , type: "building"},
-    furnace         : {id: resID.furnace        , name: "miner"         , emo: "🍙"     , open: 1   , type: "building", size: [1, 1], cost: [{id: resID.stone, n: 5}], output: [{id:resID.iron_plate, n:1}, {id:resID.copper_plate, n:1}, {id:resID.stone_brick, n:1}, {id:resID.steel_plate, n:1}]},
+    miner           : {id: resID.miner          , name: "miner"         , emo: undefined     , open: 1   , type: "building", size: [1, 1], cost: [{id: resID.coal, n: 2}], svg: svgPic},
+    inserter        : {id: resID.inserter       , name: "inserter"      , emo: undefined     , open: 1   , type: "building", cost: [{id: resID.coal, n: 2}], svg: svgPic},
+    furnace         : {id: resID.furnace        , name: "furnace"       , emo: "🍙"     , open: 1   , type: "building", size: [1, 1], cost: [{id: resID.stone, n: 5}], output: [{id:resID.iron_plate, n:1}, {id:resID.copper_plate, n:1}, {id:resID.stone_brick, n:1}, {id:resID.steel_plate, n:1}]},
     tree            : {id: resID.tree           , name: "tree"          , emo: "🌳"     , open: 1   , type: "building"},
-    coal            : {id: resID.coal           , name: "coal"          , emo: "🌑"     , open: 1   , type: "item"},
+    coal            : {id: resID.coal           , name: "coal"          , open: 1   , type: "item"   , emo: "🌑", svg : svgPic  },
     iron            : {id: resID.iron           , name: "iron"          , emo: "⛰️"     , open: 1   , type: "item"},
     copper          : {id: resID.copper         , name: "copper"        , emo: "🌕"     , open: 1   , type: "item"},
     stone           : {id: resID.stone          , name: "stone"         , emo: "🌫️"     , open: 1   , type: "item"},
@@ -47,6 +49,7 @@ const resName =
     3: resDB.copper_plate,
     4: resDB.inserter,
     5: resDB.copper_cable,
+    6: resDB.miner,
     13: resDB.chest,
     15: resDB.furnace,
     16: resDB.tree,
@@ -57,7 +60,10 @@ const resName =
     21: resDB.iron_plate
 }
 
-const  layers = {terrain: 0, floor:1, res: 2, vis:3 } 
+const  layers = {terrain: 0, floor:1, res: 2, buildings:3, items:4, vis:5 } 
+var global = Object;
+var allInvs = [];
+var allEnts = [];
 
 let player1             = {pos: {x: 200, y: 200}, inv: [], belt: []};
 var pointerButton = undefined;
@@ -98,6 +104,27 @@ function getNbOccur(arr, val) {
 function screenToWorld(p) { return {x: p.x/camera.zoom - camera.x, y: p.y/camera.zoom - camera.y}; }
 function worldToGrid(p) {return { x: Math.floor(p.x / tileSize), y: Math.floor(p.y / tileSize) } }
 
+function mineToInv(inv) {
+    ws.send(JSON.stringify({cmd: "mineToInv", data: inv}));
+ }
+ 
+ function bookFromInv(inv, its, updateMsg = true) {
+    its.forEach(item => {
+        let itemsExist = true;
+        for(let c = 0; c < resName[item.id].cost.length && itemsExist; c++) {
+            itemsExist = false;
+            itemsExist = inv.hasItems(resName[item.id].cost);
+        }
+        if (itemsExist) { 
+            inv.addItem(item); 
+            if (updateMsg) ws.send(JSON.stringify({cmd: "craftToInv", data: item}));
+        }
+        return itemsExist;
+    })
+
+}
+
+
 if (exports == undefined) var exports = {};
 exports.resDB = resDB;
 exports.layers = layers;
@@ -107,3 +134,7 @@ exports.distV = distV;
 exports.toUnitV = toUnitV;
 exports.getNbOccur = getNbOccur;      
 exports.worldToTile = worldToTile;
+exports.allInvs = allInvs;
+exports.allEnts = allEnts;
+exports.bookFromInv = bookFromInv;
+exports.resName = resName;

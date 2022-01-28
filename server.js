@@ -7,7 +7,9 @@ const users = new Map();
 require('express-ws')(app);
 var c = require('./public/common.js');
 var inventory = require('./public/inventory.js');
+const { items } = require('./public/item.js');
 var perlin = require('perlin-noise');
+const { Entity } = require('./public/entity.js');
 var perlinmap = perlin.generatePerlinNoise(80, 80).map(function(x) { return Math.round(x * 10); });
 app.listen(80);
 
@@ -15,9 +17,9 @@ app.listen(80);
 let cityDB = [];
 
 let player1 = c.player1;
-player1.inv = {items: new inventory.Inventory, pos: {x:0, y:0}};
-player1.inv.items.push({id: c.resDB.stone.id, n: 23});
-player1.inv.items.push({id: c.resDB.coal.id, n: 87});
+player1.inv = new inventory.Inventory(c.allInvs);
+player1.inv.addItem({id: c.resDB.stone.id, n: 23});
+player1.inv.addItem({id: c.resDB.coal.id, n: 87});
 let cityID = 0, pID = 0;
 addCity(cityID++, 50, 50, "city")
 let city = getCityById(0); //{id: 0, name: "", type: "city", x: 50, y: 50, map: Array(80).fill(0).map(()=>Array(80).fill(0).map(()=>Array(2).fill(1))), rmap:Array(80).fill(0).map(()=>Array(80).fill(0).map(()=>Array(2).fill(1))), camera: {x: 0, y:0, zoom:4}, res: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], nb:[], p: 0, w: [], population: [], dist: []}
@@ -25,8 +27,8 @@ let city = getCityById(0); //{id: 0, name: "", type: "city", x: 50, y: 50, map: 
 
 function addCity(nID, x, y, t) {
   if (nID == 0) parentID = 0; else parentID = city.id;
-  let nCity = {id: nID, name: "", type: t, x: Math.floor(x/10)*10, y: Math.floor(y/10)*10, map: Array(80).fill(0).map(()=>Array(80).fill(0).map(()=>[0, 0, {id:0, n:0}, 0, 0])), camera: {x: 0, y:0, zoom:4}, res: [0, 100, 0, 0, 0, 0, 100, 0, 0, 0, 0], nb:[], p: parentID, w: [], population : [], dist: []};
-  nCity.rmap = Array(80).fill(0).map(()=>Array(80).fill(0).map(()=>[0, 0, {id:0, n:0}, 0, 0]));
+  let nCity = {id: nID, name: "", type: t, x: Math.floor(x/10)*10, y: Math.floor(y/10)*10, map: Array(80).fill(0).map(()=>Array(80).fill(0).map(()=>[0, 0, {id:0, n:0}, undefined, undefined, 0])), camera: {x: 0, y:0, zoom:4}, res: [0, 100, 0, 0, 0, 0, 100, 0, 0, 0, 0], nb:[], p: parentID, w: [], population : [], dist: []};
+  nCity.rmap = Array(80).fill(0).map(()=>Array(80).fill(0).map(()=>[0, 0, {id:0, n:0}, undefined, undefined, 0]));
 
 
   if (nID == 0) {
@@ -117,20 +119,22 @@ function addToInv(newItem) {
 
 
 function mineToInv(newItem) {
+  if (!newItem) return;
+  let tile = city.rmap[newItem.source.x][newItem.source.y];
   for(let i = 0; i < player1.inv.items.length && newItem; i++) {
     let invObj = player1.inv.items[i];
     if (invObj.id == newItem.id) {
       invObj.n += newItem.n;
-      city.rmap[newItem.source.x][newItem.source.y][c.layers.res].n -= newItem.n;
-      if (city.rmap[newItem.source.x][newItem.source.y][c.layers.res].n == 0) city.rmap[newItem.source.x][newItem.source.y][c.layers.res].id = 0;
+      tile[c.layers.res].n -= newItem.n;
+      if (tile[c.layers.res].n == 0) tile[c.layers.res].id = 0;
       newItem = null;
     }
   }
   if (newItem) {
-    player1.inv.items.push(newItem);
-    city.rmap[newItem.source.x][newItem.source.y][c.layers.res].n -= newItem.n;
+    player1.inv.addItem({id: newItem.id, n: newItem.n});
+    tile[c.layers.res].n -= newItem.n;
   }
-
+  updatePlayer();
 }
 
 function craftToInv(newItem) {
@@ -211,7 +215,8 @@ app.ws('/', function(ws, req) {
     }
     if(msg.cmd == 'keydown' && msg.data == "ArrowRight") ws.player.dir = 5;
     if(msg.cmd == "addCity") addCity(cityID++, msg.data.x, msg.data.y, msg.data.type);
-    if(msg.cmd == "addBuilding") addBuilding(msg.data);
+    if(msg.cmd == "addEntity") addEntity(msg.data);
+    if (msg.cmd == "addItem") addItem(msg.data);
     //if(msg.cmd == "addTask") addTask(msg.data);
     if(msg.cmd == "addToInv") addToInvs(msg.data);
     if(msg.cmd == "mineToInv") mineToInv(msg.data);
@@ -236,8 +241,10 @@ app.ws('/', function(ws, req) {
     if (ws.uuid) users.delete(ws.uuid);
   });
   ws.send(JSON.stringify({msg: "id" , data:JSON.stringify(ws.uuid)}));
-  ws.send(JSON.stringify({msg:"updateMap", data:city}));
-  ws.send(JSON.stringify({msg:"updatePlayer", data: player1}));
+  ws.send(JSON.stringify({msg: "updateMap", data:city}));
+  ws.send(JSON.stringify({msg: "updatePlayer", data: player1}));
+  ws.send(JSON.stringify({msg: "updateInv", data:c.allInvs}));
+  ws.send(JSON.stringify({msg: "updateEntities", data: c.allEnts}));
 });
 
 function sendAll(message) {
@@ -246,9 +253,34 @@ function sendAll(message) {
   })
 }
 
-function addBuilding(newBuilding) {
-  city.rmap[newBuilding.x][newBuilding.y][c.layers.buildings] = newBuilding.id;
-  sendAll(JSON.stringify({msg:"updateBuilding", data:newBuilding}));
+function addEntity(newEntity) {
+  if(!newEntity) return;
+  city.rmap[newEntity.pos.x][newEntity.pos.y][c.layers.buildings] = newEntity.id;
+
+  let ent = undefined;
+  let entID = city.rmap[newEntity.pos.x][newEntity.pos.y][c.layers.buildings];
+  if (entID == undefined) {
+    ent = new Entity(c.allEnts, newEntity.x, newEntity.y, newEntity.w, newEntity.h, newEntity.type);
+    city.rmap[newEntity.pos.x][newEntity.pos.y][c.layers.buildings] = ent.id;
+  } else {
+    ent = ent = c.allInvs[entID];
+  }
+  
+  sendAll(JSON.stringify({msg:"updateEntities", data: c.allEnts}));
+  sendAll(JSON.stringify({msg:"updateMap", data:city}));
+}
+
+function addItem(newItem) {
+  let inv = undefined;
+  let invID = city.rmap[newItem.pos.x][newItem.pos.y][c.layers.items];
+  if (invID == undefined) {
+    inv = new inventory.Inventory(c.allInvs);
+    city.rmap[newItem.pos.x][newItem.pos.y][c.layers.items] = inv.id;
+  } else inv = inv = c.allInvs[invID];
+  
+  inv.addItem( {id: newItem.inv.id, n: newItem.inv.n});
+  sendAll(JSON.stringify({msg:"updateInv", data:c.allInvs}));
+  sendAll(JSON.stringify({msg:"updateMap", data:city}));
 }
 
 function worldToGrid(x, y) {
@@ -282,6 +314,7 @@ function move(x, y) {
 function updatePlayer() {
   sendAll(JSON.stringify({msg:"updatePlayer", data: player1}));
 }
+
 function discover(x,y) {
   if (city.map[x][y] != city.rmap[x][y]) {
     city.map[x][y] = city.rmap[x][y];
@@ -293,20 +326,21 @@ function discover(x,y) {
 render();
 function render(){ 
   setTimeout(render, 50);
-  /*for (let i = 0; i < personDB.length; i++) {
-    let p = personDB[i];
-    if (p.path.length) {
-      if (p.to >= 0 && c.dist(p.pos, p.path[p.to].pos) > 5){
-        let dir = c.toUnitV(c.distV(p.pos, p.path[p.to].pos));
-        p.pos.x -= dir.x;
-        p.pos.y -= dir.y;
-      } else {
-        if (p.to < p.path.length) p.to++;
-        if (p.to == p.path.length) p.to = 0;
-      }
-    }
-  }*/
+  for(let ax = 0; ax < city.map.length; ax++) {
+    for(let ay = 0; ay < city.map[ax].length; ay++) {
+      let tile = city.map[ax][ay];
+      let bID = tile[c.layers.buildings];
 
+      if (bID && tile[c.layers.items] ) {
+        let b = c.allEnts[bID].type;
+        let inv = c.allInvs[tile[c.layers.items]];
+        c.bookFromInv(inv, c.resName[b].output, false);
+      }
+      let entity = c.allEnts[bID];
+      //if(bID && entity && entity.update) entity.update(city.map);
+    }
+  }
+  sendAll(JSON.stringify({msg:"updateInv", data:c.allInvs}));
 }
 
 function fillArray(arr, x, y, dx, dy, d) {
@@ -318,10 +352,10 @@ function fillArray(arr, x, y, dx, dy, d) {
   }
 }
 
-
 tact();
 
 function tact() {
   setTimeout(tact, 200);
+
   
 }
