@@ -7,7 +7,6 @@
     }
 </style>
 <html><canvas id="myCanvas" style = "display:block;border:none; margin:0"></canvas></html>
-<script type="text/javascript" src="https://unpkg.com/canvg@3.0.4/lib/umd.js"></script>
 
 <script type="text/javascript" src ="common.js"></script>
 <script type="text/javascript" src ="inventory.js"></script>
@@ -22,9 +21,9 @@
     let context = canvas.getContext("2d");
     canvas.width  = window.innerWidth;
     canvas.height = window.innerHeight;
-    let city        = {};
+
     //let map         = undefined;
-    let camera      = {x: 0, y: 0, zoom: 4}
+
     let mousePos    = {x: 0, y: 0}
     var selCity     = undefined;
 
@@ -45,10 +44,11 @@
         }
     }
 
-    buildMenu.items.push(new Button (invMenu.pos.x + 310, invMenu.pos.y, 60, 60, resDB.miner.id, 0, () => {bookFromInv(player1.inv, [resDB.miner])}))
+    buildMenu.items.push(new Button (invMenu.pos.x + 310, invMenu.pos.y, 60, 60, resDB.extractor.id, 0, () => {bookFromInv(player1.inv, [resDB.extractor])}))
     buildMenu.items.push(new Button (invMenu.pos.x + 370, invMenu.pos.y, 60, 60, resDB.furnace.id, 0, () => {bookFromInv(player1.inv, [resDB.furnace])}))
     buildMenu.items.push(new Button (invMenu.pos.x + 430, invMenu.pos.y, 60, 60, resDB.chest.id, 0, () => {bookFromInv(player1.inv, [resDB.chest])}))
-    buildMenu.items.push(new Button (invMenu.pos.x + 490, invMenu.pos.y, 60, 60, resDB.inserter.id, 0, () => {bookFromInv(player1.inv, [resDB.inserter])}))
+    buildMenu.items.push(new Button (invMenu.pos.x + 490, invMenu.pos.y, 60, 60, resDB.shifter.id, 0, () => {bookFromInv(player1.inv, [resDB.shifter])}))
+    buildMenu.items.push(new Button (invMenu.pos.x + 550, invMenu.pos.y, 60, 60, resDB.belt.id, 0, () => {bookFromInv(player1.inv, [resDB.belt])}))
 
     function getCityById(searchID) {
         for (let i = 0; i < city.w.length; i++) {
@@ -70,7 +70,7 @@
         }
         if(socketMsg.msg == "updatePlayer") {
             player1 = socketMsg.data;
-            player1.invOb = new Inventory();
+            player1.invOb = new Inventory(undefined, {x: 0, y:0});
             player1.invOb.addItems(player1.inv.items);
             player1.inv = player1.invOb;
             delete player1.invOb;
@@ -86,9 +86,8 @@
                 invMenu.items[i].n = 0;
             }
         }
-        if(socketMsg.msg == "updateMap") {
-            city = socketMsg.data;
-        }
+        if(socketMsg.msg == "updateMap") { city = socketMsg.data; }
+        if(socketMsg.msg == "updateMapData") { city.map = socketMsg.data; }
 
         if(socketMsg.msg == "id") console.log("Received: '" + socketMsg.data + "'");
     };
@@ -98,6 +97,7 @@
     }
 
     function onKeyUp(e){
+        if(e.code == "KeyR") buildDir = (buildDir+1)%4
         ws.send(JSON.stringify({cmd: "keyup", data: e.code}));
     }
 
@@ -131,6 +131,7 @@
         if (!isDragging)
         {
             //console.log(zoomFactor)
+            zoomFactor *= -1;
 
             let zoomAmount = (1 + zoomFactor);
             camera.zoom *= zoomAmount;
@@ -162,5 +163,14 @@
         ws.send(JSON.stringify({cmd: "mineToInv", data: inv}));
     }
 
+
+Object.keys(resDB).forEach(key => {
+    if(resDB[key].imgFile) {
+        const image = new Image(60, 60);
+        image.src = "/assets/" + key + ".png";
+        resDB[key].img = image;
+    }
+    }
+)
 
 </script>

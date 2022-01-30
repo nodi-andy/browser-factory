@@ -24,10 +24,9 @@ class InputModule {
             if (res && d < 80) workInterval = setInterval(function() { mineToInv({source: tileCoordinate, id:res.id, n: 1}); }, 1000);
             if (pointerButton) {
                 if (resName[pointerButton.id].type == "building") {
-                    let newEntity = new Entity(undefined, tileCoordinate.x, tileCoordinate.y, 1, 1, pointerButton.id);
-                    ws.send(JSON.stringify({cmd: "addEntity", data: {pos: {x: newEntity.pos.x, y: newEntity.pos.y}, type: newEntity.type}}));
+                    ws.send(JSON.stringify({cmd: "addEntity", data: {pos: {x: tileCoordinate.x, y: tileCoordinate.y}, dir: buildDir, type: pointerButton.id}}));
                 } else {
-                    ws.send(JSON.stringify({cmd: "addItem", data: {pos: tileCoordinate, inv: pointerButton}}));
+                    ws.send(JSON.stringify({cmd: "addItem", data: {pos: tileCoordinate, dir: buildDir, inv: pointerButton}}));
                 }
             }
         }

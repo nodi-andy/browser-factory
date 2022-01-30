@@ -1,6 +1,7 @@
 class Entity {
-    constructor(inv, x, y, h, w, type, onClick) {
+    constructor(inv, x, y, dir, h, w, type, onClick) {
         this.pos = {x: x, y: y};
+        this.dir = dir;
         this.h = h;
         this.w = w;
         if (inv) {
@@ -8,7 +9,6 @@ class Entity {
             this.id = inv.length - 1;
         }
         this.type = type;
-        this.dir = 0;
         this.onClick = onClick;
     }
 
@@ -25,7 +25,7 @@ class Entity {
     update(map) {
         let myTile = map[this.x][this.y];
         let tileR = map[this.x + 1][this.y];
-        if (myTile[layers.items]) {
+        if (myTile[layers.inv]) {
 
         }
     }

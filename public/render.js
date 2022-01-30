@@ -2,8 +2,8 @@ function render(){
     context.clearRect(0, 0, context.canvas.width, context.canvas.height);
     context.resetTransform();
     context.scale(camera.zoom, camera.zoom);
-    //console.log(camera);
-    context.translate(camera.x, camera.y);
+    context.translate(camera.x, camera.y); //console.log(camera);
+
 
     if (city.map) {
         for(let ax = 0; ax < city.map.length; ax++) {
@@ -13,44 +13,53 @@ function render(){
                 // MAP
                 context.beginPath();
                 let type = tile[layers.terrain];
-                context.fillStyle = mapType[type];
-                context.rect(ax*10, ay*10, 11, 11);
+                context.fillStyle = "black";//mapType[type];
+                context.rect(ax * tileSize, ay * tileSize, tileSize+1, tileSize+1);
                 context.fill();
 
                 // RESOURCES
-                context.font = "8px Arial";
+                //context.font = "50px Arial";
                 type = tile[layers.res].id;
                 let n = tile[layers.res].n;
-                if (n < 8) context.font = n + "px Arial";
-                context.fillStyle = mapType[type];
-                if (resName[type].emo) context.fillText(resName[type].emo, ax*10, ay*10 + 8);
-
-                // BUILDING
-                context.font = "8px Arial";
-                let entID = tile[layers.buildings];
-                if (entID != undefined) {
-                    let b = allEnts[entID];
-                    if (resName[b.type].emo) context.fillText(resName[b.type].emo, ax*10, ay*10 + 8);
-                    if (resName[b.type].svg) {
-                        context.translate(ax*10, ay*10);
-                        context.scale(0.5, 0.5);
-                        v = canvg.Canvg.fromString(context, resName[b.type].svg);
-                        v.documentElement.renderChildren(context);
-                        context.scale(2, 2);
-                        context.translate(-ax*10, -ay*10);
-                    }
+                //if (n < 8) context.font = n * 4+ "px Arial";
+                //context.fillStyle = mapType[type];
+                //if (resName[type].emo && n) context.fillText(resName[type].emo, ax*tileSize, ay*tileSize + 8);
+                if (resName[type].img) {
+                    context.drawImage(resName[type].img, ax * tileSize, ay * tileSize)
                 }
 
+                // BUILDING
+                let entID = tile[layers.buildings];
+                var b;
+                if (entID != undefined) {
+                    b = allEnts[entID];
+                    context.save();
+                    if (resName[b.type].img) {
+                        context.translate((ax + 0.5) * tileSize, (ay + 0.5) *tileSize);
+                        context.rotate(b.dir * Math.PI/2);
+                        context.translate(-tileSize / 2, -tileSize / 2);
+                        context.drawImage(resName[b.type].img, 0, 0)
+                    }
+                    context.restore();
+            }
+
                 // ITEMS
-                context.font = "8px Arial";
-                let itemID = tile[layers.items];
+                let itemID = tile[layers.inv];
                 if (itemID) {
                     let iForEach = 0;
-                    context.font = "4px Arial";
                     let items = allInvs[itemID].items;
+                    context.save();
                     items.forEach(item => {
-                        context.fillText(resName[item.id].emo, ax*10 + (iForEach%2) * 5, ay * 10 + 4 + Math.floor(iForEach/2)*5); iForEach++;
+                        let dx = iForEach * 5;
+                        iForEach++;
+                        context.translate((ax + 0.5 + dx) * tileSize, (ay + 0.5) *tileSize);
+                        if (b) context.rotate(b.dir * Math.PI/2);
+                        context.translate(-tileSize / 2, -tileSize / 2);
+                        context.scale(0.5, 0.5);
+                        context.drawImage(resName[item.id].img, 0, 0)
+                        context.scale(2, 2);
                     });
+                    context.restore();
                 }
             }
         }
@@ -67,26 +76,31 @@ function render(){
     
     // PLAYER
     context.beginPath();
-    context.font = "16px Arial";
+    context.font = "40px Arial";
     context.fillText("🚶", player1.pos.x-6, player1.pos.y);
     context.stroke();
 
     // BUILDING CANDIDATE
     if (pointerButton) {
-        context.font = "8px Arial";
-        context.fillStyle = "black";
         let type = pointerButton.id;
-        if (resName[type].emo)         context.fillText(resName[pointerButton.id].emo, curResPos.x * tileSize, curResPos.y * tileSize + 8);
-        else if (resName[type].svg) {
-            context.translate(curResPos.x * tileSize, curResPos.y * tileSize);
-            context.scale(0.5, 0.5);
-            v = canvg.Canvg.fromString(context, resName[type].svg);
-            v.documentElement.renderChildren(context);
-            context.scale(2, 2);
-            context.translate(-curResPos.x * tileSize, -curResPos.y * tileSize);
+        if (resName[type].img) {
+            context.save();
+            if (resName[type].img) {
+                context.translate((curResPos.x + 0.5) * tileSize, (curResPos.y + 0.5) *tileSize);
+                context.rotate(buildDir * Math.PI/2);
+                context.translate(-tileSize / 2, -tileSize / 2);
+                context.drawImage(resName[type].img, 0, 0)
+            }
+            context.restore();
         }
     }
-    context.stroke();
+
+    if (curResPos && city.map) {
+        let inv = city.map[curResPos.x][curResPos.y][layers.inv];
+        context.fillStyle = "white";
+        if (inv) context.fillText(JSON.stringify(allInvs[inv].items), curResPos.x * tileSize, curResPos.y * tileSize);
+        context.stroke();
+    }
 
 
 

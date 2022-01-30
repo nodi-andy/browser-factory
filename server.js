@@ -7,17 +7,21 @@ const users = new Map();
 require('express-ws')(app);
 var c = require('./public/common.js');
 var inventory = require('./public/inventory.js');
+var extractor = require('./public/extractor.js');
+var shifter = require('./public/shifter.js');
 const { items } = require('./public/item.js');
 var perlin = require('perlin-noise');
 const { Entity } = require('./public/entity.js');
 var perlinmap = perlin.generatePerlinNoise(80, 80).map(function(x) { return Math.round(x * 10); });
 app.listen(80);
 
+new extractor.Extractor();
+new shifter.Shifter();
 //let personDB = [];
 let cityDB = [];
 
 let player1 = c.player1;
-player1.inv = new inventory.Inventory(c.allInvs);
+player1.inv = new inventory.Inventory(c.allInvs, {x: 0, y:0});
 player1.inv.addItem({id: c.resDB.stone.id, n: 23});
 player1.inv.addItem({id: c.resDB.coal.id, n: 87});
 let cityID = 0, pID = 0;
@@ -27,8 +31,8 @@ let city = getCityById(0); //{id: 0, name: "", type: "city", x: 50, y: 50, map: 
 
 function addCity(nID, x, y, t) {
   if (nID == 0) parentID = 0; else parentID = city.id;
-  let nCity = {id: nID, name: "", type: t, x: Math.floor(x/10)*10, y: Math.floor(y/10)*10, map: Array(80).fill(0).map(()=>Array(80).fill(0).map(()=>[0, 0, {id:0, n:0}, undefined, undefined, 0])), camera: {x: 0, y:0, zoom:4}, res: [0, 100, 0, 0, 0, 0, 100, 0, 0, 0, 0], nb:[], p: parentID, w: [], population : [], dist: []};
-  nCity.rmap = Array(80).fill(0).map(()=>Array(80).fill(0).map(()=>[0, 0, {id:0, n:0}, undefined, undefined, 0]));
+  let nCity = {id: nID, name: "", type: t, x: Math.floor(x/10)*10, y: Math.floor(y/10)*10, map: Array(80).fill(0).map(()=>Array(80).fill(0).map(()=>[0, 0, {id:0, n:0}, undefined, undefined, undefined, 0])), camera: {x: 0, y:0, zoom:4}, res: [0, 100, 0, 0, 0, 0, 100, 0, 0, 0, 0], nb:[], p: parentID, w: [], population : [], dist: []};
+  nCity.rmap = Array(80).fill(0).map(()=>Array(80).fill(0).map(()=>[0, 0, {id:0, n:0}, undefined, undefined, undefined, 0]));
 
 
   if (nID == 0) {
@@ -52,7 +56,7 @@ function addCity(nID, x, y, t) {
         } else {
           if (nCity.rmap[ax][ay][c.layers.res].id == 0 && nCity.rmap[ax][ay][c.layers.terrain] > 2) {
             let randomRes = Math.random();
-            if (randomRes > 0.9) nCity.rmap[ax][ay][c.layers.res] = {id: c.resDB.tree.id, n: Math.floor(Math.random()*8)+3};
+            if (randomRes > 0.98) nCity.rmap[ax][ay][c.layers.res] = {id: c.resDB.tree.id, n: Math.floor(Math.random()*8)+3};
             if (randomRes > 0.99) nCity.rmap[ax][ay][c.layers.res] = {id: c.resDB.stone.id, n : 100};
           }
         }
@@ -153,32 +157,7 @@ function craftToInv(newItem) {
   addToInv({id:newItem.id, n: 1});
 }
 
-/*function addTask(task) {
-  let p = getPersonById(task.p);
-  p.path = task.t;
-  p.to = 0;
-  p.job = "miner";
-}
 
-function findNextRes(sx, sy, r) {
-  let x = 0, y=0;
-  let d = 1
- 
-  for(let m = 0; m < 20; m++) {
-    while (2 * x * d < m) {
-      console.log("x:", city.rmap[sx+x][sy+y][0]);
-      if(city.rmap[sx+x][sy+y][0] == r) return {x:10*(sx+x), y:10*(sy+y)};
-      x += d;
-    }
-    while (2 * y * d < m) {
-      if(city.rmap[sx+x][sy+y][0] == r) return {x:10*(sx+x), y:10*(sy+y)};
-      y += d
-    }
-    d *= -1;
-  }
-  return undefined;
-}
-*/
 function getCityById(searchID) {
   for (let i = 0; i < cityDB.length; i++) {
     let c = cityDB[i];
@@ -217,7 +196,6 @@ app.ws('/', function(ws, req) {
     if(msg.cmd == "addCity") addCity(cityID++, msg.data.x, msg.data.y, msg.data.type);
     if(msg.cmd == "addEntity") addEntity(msg.data);
     if (msg.cmd == "addItem") addItem(msg.data);
-    //if(msg.cmd == "addTask") addTask(msg.data);
     if(msg.cmd == "addToInv") addToInvs(msg.data);
     if(msg.cmd == "mineToInv") mineToInv(msg.data);
     if(msg.cmd == "craftToInv") {craftToInv(msg.data); updatePlayer();}
@@ -260,11 +238,15 @@ function addEntity(newEntity) {
   let ent = undefined;
   let entID = city.rmap[newEntity.pos.x][newEntity.pos.y][c.layers.buildings];
   if (entID == undefined) {
-    ent = new Entity(c.allEnts, newEntity.x, newEntity.y, newEntity.w, newEntity.h, newEntity.type);
+    ent = new Entity(c.allEnts, newEntity.pos.x, newEntity.pos.y, newEntity.dir, newEntity.w, newEntity.h, newEntity.type);
     city.rmap[newEntity.pos.x][newEntity.pos.y][c.layers.buildings] = ent.id;
   } else {
     ent = ent = c.allInvs[entID];
   }
+/*  let mach = c.resName[ent.type].mach;
+  if (mach) {
+    ent.m = new mach(ent);
+  }*/
   
   sendAll(JSON.stringify({msg:"updateEntities", data: c.allEnts}));
   sendAll(JSON.stringify({msg:"updateMap", data:city}));
@@ -272,10 +254,10 @@ function addEntity(newEntity) {
 
 function addItem(newItem) {
   let inv = undefined;
-  let invID = city.rmap[newItem.pos.x][newItem.pos.y][c.layers.items];
+  let invID = city.rmap[newItem.pos.x][newItem.pos.y][c.layers.inv];
   if (invID == undefined) {
-    inv = new inventory.Inventory(c.allInvs);
-    city.rmap[newItem.pos.x][newItem.pos.y][c.layers.items] = inv.id;
+    inv = new inventory.Inventory(c.allInvs, newItem.pos);
+    city.rmap[newItem.pos.x][newItem.pos.y][c.layers.inv] = inv.id;
   } else inv = inv = c.allInvs[invID];
   
   inv.addItem( {id: newItem.inv.id, n: newItem.inv.n});
@@ -325,22 +307,71 @@ function discover(x,y) {
 
 render();
 function render(){ 
-  setTimeout(render, 50);
+  setTimeout(render, 500);
+
+  for(let ient = 0; ient < c.allEnts.length; ient++) {
+      let entity = c.allEnts[ient];
+      let x = entity.pos.x;
+      let y = entity.pos.y;
+      let tile = city.map[x][y];
+      let inv = tile[c.layers.inv];
+
+      /*if (entity.type == c.resDB.belt.id) {
+        let nbPos = c.dirToVec[entity.dir];
+        let nbTile = city.map[x + nbPos.x][y + nbPos.y];
+      
+        if (entity != undefined && inv) {
+          let nb = c.allEnts[nbTile[c.layers.buildings]]; // next building
+          let nbInv = nbTile[c.layers.inv];
+          if (nb && nbInv == undefined) {
+            let type = nb.type;
+            if (type == c.resDB.belt.id &&   // this belt?
+              nb && nb.type == c.resDB.belt.id && // adj. belt?
+              nbTile[c.layers.inext] == undefined // adj. next time empty?
+            ) 
+            {
+              nbTile[c.layers.inext] = inv;
+            } 
+          } else {
+            tile[c.layers.inext] = inv;
+          }        
+        }
+      } else {
+        c.bookFromInv(c.allInvs[inv], c.resName[entity.type].output, false);
+      }*/
+
+      if(entity && c.resName[entity.type].mach) {
+        c.resName[entity.type].mach.update(city.map, entity);
+      }
+  }
+  c.allInvs.forEach(inv => {
+    let ent = city.map[inv.pos.x][inv.pos.y][c.layers.buildings];
+    if (ent == undefined) {
+      inv.addItems(inv.items, true);
+    }
+  }
+  );
+
+  // time switch
+  c.allInvs.forEach(inv => {
+    inv.items = JSON.parse(JSON.stringify(inv.nextitems));
+    inv.nextitems = [];
+  }
+  );
+  /*for(let ax = 0; ax < city.map.length; ax++) {
+    for(let ay = 0; ay < city.map[ax].length; ay++) {
+      let tile = city.map[ax][ay];
+      tile[c.layers.inv] = tile[c.layers.inext];
+    }
+  }
   for(let ax = 0; ax < city.map.length; ax++) {
     for(let ay = 0; ay < city.map[ax].length; ay++) {
       let tile = city.map[ax][ay];
-      let bID = tile[c.layers.buildings];
-
-      if (bID && tile[c.layers.items] ) {
-        let b = c.allEnts[bID].type;
-        let inv = c.allInvs[tile[c.layers.items]];
-        c.bookFromInv(inv, c.resName[b].output, false);
-      }
-      let entity = c.allEnts[bID];
-      //if(bID && entity && entity.update) entity.update(city.map);
+      tile[c.layers.inext] = undefined;
     }
-  }
+  }*/
   sendAll(JSON.stringify({msg:"updateInv", data:c.allInvs}));
+  sendAll(JSON.stringify({msg: "updateMapData", data:city.map}));
 }
 
 function fillArray(arr, x, y, dx, dy, d) {
@@ -350,12 +381,4 @@ function fillArray(arr, x, y, dx, dy, d) {
       arr[x+ix][y+iy][1] = d;
     }
   }
-}
-
-tact();
-
-function tact() {
-  setTimeout(tact, 200);
-
-  
 }
