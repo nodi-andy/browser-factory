@@ -71,17 +71,18 @@
         if(socketMsg.msg == "updatePlayer") {
             player1 = socketMsg.data;
             player1.invOb = new Inventory(undefined, {x: 0, y:0});
-            player1.invOb.addItems(player1.inv.items);
+            player1.invOb.packsize = 10;
+            player1.invOb.addItems(player1.inv.packs);
             player1.inv = player1.invOb;
             delete player1.invOb;
 
-            for (let i = 0; i < player1.inv.items.length; i++) {
-                let itemId = player1.inv.items[i].id;
+            for (let i = 0; i < player1.inv.packs.length; i++) {
+                let itemId = player1.inv.packs[i].id;
                 invMenu.items[i].id = itemId;
-                invMenu.items[i].n = player1.inv.items[i].n;
+                invMenu.items[i].n = player1.inv.packs[i].n;
             }
 
-            for (let i = player1.inv.items.length; i < invMenu.items.length; i++) {
+            for (let i = player1.inv.packs.length; i < invMenu.items.length; i++) {
                 invMenu.items[i].id = 0;
                 invMenu.items[i].n = 0;
             }

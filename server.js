@@ -9,28 +9,38 @@ var c = require('./public/common.js');
 var inventory = require('./public/inventory.js');
 var extractor = require('./public/extractor.js');
 var shifter = require('./public/shifter.js');
-const { items } = require('./public/item.js');
+var belt = require('./public/belt.js');
+var furnace = require('./public/furnace.js');
+
+
 var perlin = require('perlin-noise');
 const { Entity } = require('./public/entity.js');
 var perlinmap = perlin.generatePerlinNoise(80, 80).map(function(x) { return Math.round(x * 10); });
 app.listen(80);
 
-new extractor.Extractor();
+new belt.Belt();
 new shifter.Shifter();
+new extractor.Extractor();
+new furnace.Furnace();
 //let personDB = [];
 let cityDB = [];
 
 let player1 = c.player1;
-player1.inv = new inventory.Inventory(c.allInvs, {x: 0, y:0});
-player1.inv.addItem({id: c.resDB.stone.id, n: 23});
+player1.inv = new inventory.Inventory(undefined, {x: 0, y:0});
+player1.inv.packsize = 20;
+player1.inv.itemsize = 20;
+player1.inv.addItem({id: c.resDB.stone.id, n: 1});
 player1.inv.addItem({id: c.resDB.coal.id, n: 87});
+player1.inv.addItem({id: c.resDB.furnace.id, n: 7});
+player1.inv.addItem({id: c.resDB.belt.id, n: 7});
+player1.inv.addItem({id: c.resDB.chest.id, n: 7});
 let cityID = 0, pID = 0;
-addCity(cityID++, 50, 50, "city")
-let city = getCityById(0); //{id: 0, name: "", type: "city", x: 50, y: 50, map: Array(80).fill(0).map(()=>Array(80).fill(0).map(()=>Array(2).fill(1))), rmap:Array(80).fill(0).map(()=>Array(80).fill(0).map(()=>Array(2).fill(1))), camera: {x: 0, y:0, zoom:4}, res: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], nb:[], p: 0, w: [], population: [], dist: []}
+addCity(cityID++, 50, 50, "c.city")
+c.city = getCityById(0); //{id: 0, name: "", type: "c.city", x: 50, y: 50, map: Array(80).fill(0).map(()=>Array(80).fill(0).map(()=>Array(2).fill(1))), rmap:Array(80).fill(0).map(()=>Array(80).fill(0).map(()=>Array(2).fill(1))), camera: {x: 0, y:0, zoom:4}, res: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], nb:[], p: 0, w: [], population: [], dist: []}
 
 
 function addCity(nID, x, y, t) {
-  if (nID == 0) parentID = 0; else parentID = city.id;
+  if (nID == 0) parentID = 0; else parentID = c.city.id;
   let nCity = {id: nID, name: "", type: t, x: Math.floor(x/10)*10, y: Math.floor(y/10)*10, map: Array(80).fill(0).map(()=>Array(80).fill(0).map(()=>[0, 0, {id:0, n:0}, undefined, undefined, undefined, 0])), camera: {x: 0, y:0, zoom:4}, res: [0, 100, 0, 0, 0, 0, 100, 0, 0, 0, 0], nb:[], p: parentID, w: [], population : [], dist: []};
   nCity.rmap = Array(80).fill(0).map(()=>Array(80).fill(0).map(()=>[0, 0, {id:0, n:0}, undefined, undefined, undefined, 0]));
 
@@ -73,18 +83,6 @@ function addCity(nID, x, y, t) {
   }
 
   nCity.map = nCity.rmap;
-  /*let p = {x: nCity.x, y: nCity.y}
-  console.log("POS:", p);
-  nCity.dist[c.resDB.water.id] = findNextRes(nCity.x/10, nCity.y/10, c.resDB.water.id);
-  nCity.dist[c.resDB.forest.id] = findNextRes(nCity.x/10, nCity.y/10, c.resDB.forest.id);
-  nCity.dist[c.resDB.idea.id] = {x:nCity.x, y:nCity.y}
-
-  for(let i = 0; i < 12; i++) {
-    let p = {id:pID++, job:"jobless", path: [], to: -1, pos: {x: nCity.x + i *10, y: nCity.y}};
-    nCity.population.push(p);
-    personDB.push(p);
-  }*/
-
   cityDB.push(nCity);
 }
 
@@ -111,22 +109,22 @@ function addToInvs(newItems) {
 
 
 function addToInv(newItem) {
-  for(let i = 0; i < player1.inv.items.length && newItem; i++) {
-    let invObj = player1.inv.items[i];
+  for(let i = 0; i < player1.inv.packs.length && newItem; i++) {
+    let invObj = player1.inv.packs[i];
     if (invObj.id == newItem.id) {
       invObj.n += newItem.n;
       newItem = null;
     }
   }
-  if (newItem) player1.inv.items.push(newItem);
+  if (newItem) player1.inv.packs.push(newItem);
 }
 
 
 function mineToInv(newItem) {
   if (!newItem) return;
-  let tile = city.rmap[newItem.source.x][newItem.source.y];
-  for(let i = 0; i < player1.inv.items.length && newItem; i++) {
-    let invObj = player1.inv.items[i];
+  let tile = c.city.rmap[newItem.source.x][newItem.source.y];
+  for(let i = 0; i < player1.inv.packs.length && newItem; i++) {
+    let invObj = player1.inv.packs[i];
     if (invObj.id == newItem.id) {
       invObj.n += newItem.n;
       tile[c.layers.res].n -= newItem.n;
@@ -143,12 +141,12 @@ function mineToInv(newItem) {
 
 function craftToInv(newItem) {
   for(let c = 0; c < newItem.cost.length; c++) {
-    for(let i = 0; i < player1.inv.items.length; i++) {
-        let invObj = player1.inv.items[i];
+    for(let i = 0; i < player1.inv.packs.length; i++) {
+        let invObj = player1.inv.packs[i];
         if (invObj.id == newItem.cost[c].id) {
             invObj.n -= newItem.cost[c].n;
             if (invObj.n == 0) {
-              player1.inv.items.splice(i, 1);
+              player1.inv.packs.splice(i, 1);
               i--;
             }
         }
@@ -189,8 +187,8 @@ app.ws('/', function(ws, req) {
     if(msg.cmd == 'keydown' && msg.data == "KeyS") { move(player1.pos.x + 0, player1.pos.y + 4); }
     if(msg.cmd == 'keydown' && msg.data == "Space") { addCity(cityID++, player1.pos.x, player1.pos.y) }
     if(msg.cmd == 'keydown' && msg.data == "ArrowLeft") { 
-      //console.log("up:", city); 
-      city = getCityById(city.p);/* console.log(city);*/
+      //console.log("up:", c.city); 
+      c.city = getCityById(c.city.p);/* console.log(c.city);*/
     }
     if(msg.cmd == 'keydown' && msg.data == "ArrowRight") ws.player.dir = 5;
     if(msg.cmd == "addCity") addCity(cityID++, msg.data.x, msg.data.y, msg.data.type);
@@ -199,27 +197,14 @@ app.ws('/', function(ws, req) {
     if(msg.cmd == "addToInv") addToInvs(msg.data);
     if(msg.cmd == "mineToInv") mineToInv(msg.data);
     if(msg.cmd == "craftToInv") {craftToInv(msg.data); updatePlayer();}
-    if(msg.cmd == "camera") city.camera = msg.data.camera;
-    if(msg.cmd == "selCity") {
-      console.log(msg);
-      city = getCityById(msg.data);
-      //console.log(city);
-    }
-    if(msg.cmd == "conCity") {
-      console.log(msg);
-      let cityA = getCityById(msg.data.a);
-       let cityB = getCityById(msg.data.b);
-       //console.log(cityA, cityB);
-       cityA.nb.push(cityB.id);
-       cityB.nb.push(cityA.id);
-     }
+    if(msg.cmd == "camera") c.city.camera = msg.data.camera;
 
   });
   ws.on('close', function() {
     if (ws.uuid) users.delete(ws.uuid);
   });
   ws.send(JSON.stringify({msg: "id" , data:JSON.stringify(ws.uuid)}));
-  ws.send(JSON.stringify({msg: "updateMap", data:city}));
+  ws.send(JSON.stringify({msg: "updateMap", data:c.city}));
   ws.send(JSON.stringify({msg: "updatePlayer", data: player1}));
   ws.send(JSON.stringify({msg: "updateInv", data:c.allInvs}));
   ws.send(JSON.stringify({msg: "updateEntities", data: c.allEnts}));
@@ -233,15 +218,11 @@ function sendAll(message) {
 
 function addEntity(newEntity) {
   if(!newEntity) return;
-  city.rmap[newEntity.pos.x][newEntity.pos.y][c.layers.buildings] = newEntity.id;
 
-  let ent = undefined;
-  let entID = city.rmap[newEntity.pos.x][newEntity.pos.y][c.layers.buildings];
+  let entID = c.city.rmap[newEntity.pos.x][newEntity.pos.y][c.layers.buildings];
   if (entID == undefined) {
-    ent = new Entity(c.allEnts, newEntity.pos.x, newEntity.pos.y, newEntity.dir, newEntity.w, newEntity.h, newEntity.type);
-    city.rmap[newEntity.pos.x][newEntity.pos.y][c.layers.buildings] = ent.id;
-  } else {
-    ent = ent = c.allInvs[entID];
+    let ent = new Entity(c.allEnts, newEntity.pos.x, newEntity.pos.y, newEntity.dir, newEntity.w, newEntity.h, newEntity.type);
+    c.city.rmap[newEntity.pos.x][newEntity.pos.y][c.layers.buildings] = ent.id;
   }
 /*  let mach = c.resName[ent.type].mach;
   if (mach) {
@@ -249,20 +230,20 @@ function addEntity(newEntity) {
   }*/
   
   sendAll(JSON.stringify({msg:"updateEntities", data: c.allEnts}));
-  sendAll(JSON.stringify({msg:"updateMap", data:city}));
+  sendAll(JSON.stringify({msg:"updateMap", data:c.city}));
 }
 
 function addItem(newItem) {
   let inv = undefined;
-  let invID = city.rmap[newItem.pos.x][newItem.pos.y][c.layers.inv];
+  let invID = c.city.rmap[newItem.pos.x][newItem.pos.y][c.layers.inv];
   if (invID == undefined) {
     inv = new inventory.Inventory(c.allInvs, newItem.pos);
-    city.rmap[newItem.pos.x][newItem.pos.y][c.layers.inv] = inv.id;
+    c.city.rmap[newItem.pos.x][newItem.pos.y][c.layers.inv] = inv.id;
   } else inv = inv = c.allInvs[invID];
   
   inv.addItem( {id: newItem.inv.id, n: newItem.inv.n});
   sendAll(JSON.stringify({msg:"updateInv", data:c.allInvs}));
-  sendAll(JSON.stringify({msg:"updateMap", data:city}));
+  sendAll(JSON.stringify({msg:"updateMap", data:c.city}));
 }
 
 function worldToGrid(x, y) {
@@ -273,7 +254,7 @@ function move(x, y) {
 
   let gp = worldToGrid(x, y);
 //  console.log(rmap[gp.x][gp.y]);
-  if (city.rmap[gp.x][gp.y][0] != 1) {
+  if (c.city.rmap[gp.x][gp.y][0] != 1) {
     player1.pos.x = x;
     player1.pos.y = y;
 
@@ -287,7 +268,7 @@ function move(x, y) {
 
     if (d) {
       //console.log(dx,dy);
-      //sendAll(JSON.stringify({msg:"map", data: {city.rmap}}));
+      //sendAll(JSON.stringify({msg:"map", data: {c.city.rmap}}));
     }
   }
   updatePlayer();
@@ -298,8 +279,8 @@ function updatePlayer() {
 }
 
 function discover(x,y) {
-  if (city.map[x][y] != city.rmap[x][y]) {
-    city.map[x][y] = city.rmap[x][y];
+  if (c.city.map[x][y] != c.city.rmap[x][y]) {
+    c.city.map[x][y] = c.city.rmap[x][y];
     return true;
   }
   return false;
@@ -309,69 +290,67 @@ render();
 function render(){ 
   setTimeout(render, 500);
 
+  // Inertia: no entity, no movement
+  c.allInvs.forEach(inv => { inv.changed = false; }  );
+
+  
+  // shifter, extractor
   for(let ient = 0; ient < c.allEnts.length; ient++) {
-      let entity = c.allEnts[ient];
-      let x = entity.pos.x;
-      let y = entity.pos.y;
-      let tile = city.map[x][y];
-      let inv = tile[c.layers.inv];
-
-      /*if (entity.type == c.resDB.belt.id) {
-        let nbPos = c.dirToVec[entity.dir];
-        let nbTile = city.map[x + nbPos.x][y + nbPos.y];
-      
-        if (entity != undefined && inv) {
-          let nb = c.allEnts[nbTile[c.layers.buildings]]; // next building
-          let nbInv = nbTile[c.layers.inv];
-          if (nb && nbInv == undefined) {
-            let type = nb.type;
-            if (type == c.resDB.belt.id &&   // this belt?
-              nb && nb.type == c.resDB.belt.id && // adj. belt?
-              nbTile[c.layers.inext] == undefined // adj. next time empty?
-            ) 
-            {
-              nbTile[c.layers.inext] = inv;
-            } 
-          } else {
-            tile[c.layers.inext] = inv;
-          }        
-        }
-      } else {
-        c.bookFromInv(c.allInvs[inv], c.resName[entity.type].output, false);
-      }*/
-
-      if(entity && c.resName[entity.type].mach) {
-        c.resName[entity.type].mach.update(city.map, entity);
-      }
-  }
-  c.allInvs.forEach(inv => {
-    let ent = city.map[inv.pos.x][inv.pos.y][c.layers.buildings];
-    if (ent == undefined) {
-      inv.addItems(inv.items, true);
+    let entity = c.allEnts[ient];
+    if(entity && (entity.type == c.resDB.shifter.id || entity.type == c.resDB.extractor.id || entity.type == c.resDB.furnace.id) && c.resName[entity.type].mach) {
+      c.resName[entity.type].mach.update(c.city.map, entity);
     }
   }
-  );
+
+  // BELT
+  let belts = [];
+  for(let ient = 0; ient < c.allEnts.length; ient++) {
+    let entity = c.allEnts[ient];
+    if (entity.type == c.resDB.belt.id) belts.push(entity);
+  }
+
+  for(let ibelt = 0; ibelt < belts.length;) {
+    let belt = belts[ibelt];
+    if (belt.done) ibelt++
+    else {
+      while(belt) {
+        let x = belt.pos.x;
+        let y = belt.pos.y;
+
+        let nbPos = c.dirToVec[belt.dir];
+        let nbTile = c.city.map[x + nbPos.x][y + nbPos.y];
+        let nbEntity = c.allEnts[nbTile[c.layers.buildings]];
+        if (nbEntity && nbEntity.type == c.resDB.belt.id && nbEntity.done == false) belt = nbEntity;
+        else break;
+      }
+      c.resDB.belt.mach.update(c.city.map, belt);
+    }
+  }
+
+  /*// Inertia: no entity, no movement
+  c.allInvs.forEach(inv => {
+    let ent = c.city.map[inv.pos.x][inv.pos.y][c.layers.buildings];
+    if (ent == undefined) {
+      inv.addItems(inv.packs, true);
+    }
+  }
+  );*/
 
   // time switch
   c.allInvs.forEach(inv => {
-    inv.items = JSON.parse(JSON.stringify(inv.nextitems));
-    inv.nextitems = [];
+    if (inv.changed) {
+      inv.packs = JSON.parse(JSON.stringify(inv.nextpacks));
+      inv.nextpacks = [];
+    }
   }
   );
-  /*for(let ax = 0; ax < city.map.length; ax++) {
-    for(let ay = 0; ay < city.map[ax].length; ay++) {
-      let tile = city.map[ax][ay];
-      tile[c.layers.inv] = tile[c.layers.inext];
-    }
+
+  for(let ibelt = 0; ibelt < belts.length; ibelt++) {
+    belts[ibelt].done = false;
   }
-  for(let ax = 0; ax < city.map.length; ax++) {
-    for(let ay = 0; ay < city.map[ax].length; ay++) {
-      let tile = city.map[ax][ay];
-      tile[c.layers.inext] = undefined;
-    }
-  }*/
+
   sendAll(JSON.stringify({msg:"updateInv", data:c.allInvs}));
-  sendAll(JSON.stringify({msg: "updateMapData", data:city.map}));
+  sendAll(JSON.stringify({msg: "updateMapData", data:c.city.map}));
 }
 
 function fillArray(arr, x, y, dx, dy, d) {

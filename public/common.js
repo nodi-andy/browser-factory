@@ -1,4 +1,4 @@
-const tileSize = 60;
+const tileSize = 64;
 const SCROLL_SENSITIVITY = 0.0005;
 let camera      = {x: 0, y: 0, zoom: 1}
 let buildDir = 0;
@@ -25,24 +25,24 @@ const resID =
 
 const mapType     = ["darkblue", "blue", "sandybrown", "sandybrown", "darkgreen", "green", "green", "green", "green", "green"];
 const resDB =
-{   none            : {id: 0                            , name: "none"          , emo: ""       , open: 0   , type: 0},
-    steel_plate     : {id: resID.steel_plate            , name: "steel plate"   , emo: "S"      , open: 1   , type: "item", cost: [{id: resID.iron_plate, n: 1}, {id: resID.coal, n:1}]},
-    input           : {id: 11                           , name: "input"         , emo: "📥"     , open: 0   , type: "building"},
-    output          : {id: 12                           , name: "output"        , emo: "📤"     , open: 0   , type: "building"},
-    chest           : {id: resID.chest                  , name: "chest"         , emo: "📦"     , open: 1   , type: "building", size: [1, 1], cost: [{id: resID.tree, n: 2}]},
-    extractor       : {id: resID.extractor              , name: "extractor"     , open: 1   ,   imgFile: "a",  type: "building", size: [1, 1], cost: [{id: resID.coal, n: 2}], svg: undefined},
-    shifter         : {id: resID.shifter                , name: "shifter"       , imgFile: "a" , open: 1   , type: "building", cost: [{id: resID.coal, n: 2}], svg: undefined},
-    belt            : {id: resID.belt                   , name: "shifter"       , imgFile: "a", open: 1   , type: "building", cost: [{id: resID.coal, n: 2}], svg: undefined},
-    furnace         : {id: resID.furnace                , name: "furnace"       , emo: "🍙"     , open: 1   , type: "building", size: [1, 1], cost: [{id: resID.stone, n: 5}], output: [{id:resID.iron_plate, n:1}, {id:resID.copper_plate, n:1}, {id:resID.stone_brick, n:1}, {id:resID.steel_plate, n:1}]},
-    tree            : {id: resID.tree                   , name: "tree"          , emo: "🌳"     , imgFile: "asteroid.png", open: 1   , type: "building"},
-    coal            : {id: resID.coal                   , name: "coal"          , open: 1   , type: "item"   , emo: undefined  },
-    iron            : {id: resID.iron                   , name: "iron"          , emo: "⛰️"     , open: 1   , type: "item"},
-    copper          : {id: resID.copper                 , name: "copper"        , emo: "🌕"     , open: 1   , type: "item"},
-    stone           : {id: resID.stone                  , name: "stone"         , imgFile: "stone.png" , emo: undefined    , open: 1   , type: "item"},
-    iron_plate      : {id: resID.iron_plate             , name: "iron plate"    , emo: "🦾"     , open: 1   , type: "item", cost: [{id: resID.iron, n: 1}, {id: resID.coal, n:1}]},
-    copper_plate    : {id: resID.copper_plate           , name: "copper plate"  , emo: "CP"     , open: 1   , type: "item", cost: [{id: resID.copper, n: 1}, {id: resID.coal, n:1}]},
-    copper_cable    : {id: resID.copper_cable           , name: "copper cable"  , emo: "CC"     , open: 1   , type: "item", cost: [{id: resID.copper, n: 1}]},
-    stone_brick     : {id: resID.stone_brick            , name: "stone brick"   , emo: "🧱"     , open: 1   , type: "item", cost: [{id: resID.stone, n: 1}, {id: resID.coal, n:1}]},
+{   none            : {id: 0                   , name: "none"          , packsize: 1, emo: ""       , open: 0   , type: 0},
+    steel_plate     : {id: resID.steel_plate   , name: "steel plate"   , packsize: 1, imgFile: "a"  , open: 1   , type: "item", cost: [{id: resID.chest, n: 1}, {id: resID.coal, n:1}]},
+    input           : {id: 11                  , name: "input"         , packsize: 1, emo: "📥"     , open: 0   , type: "building"},
+    output          : {id: 12                  , name: "output"        , packsize: 1, emo: "📤"     , open: 0   , type: "building"},
+    chest           : {id: resID.chest         , name: "chest"         , packsize: 1, imgFile: "a"  , open: 1   , type: "building", size: [1, 1], cost: [{id: resID.tree, n: 2}]},
+    extractor       : {id: resID.extractor     , name: "extractor"     , packsize: 1, imgFile: "a"  , open: 1   ,     type: "building", size: [1, 1], cost: [{id: resID.coal, n: 2}], svg: undefined},
+    shifter         : {id: resID.shifter       , name: "shifter"       , packsize: 1, imgFile: "a"   , open: 1   , type: "building", cost: [{id: resID.coal, n: 2}], svg: undefined},
+    belt            : {id: resID.belt          , name: "shifter"       , packsize: 1, imgFile: "a"    , open: 1   , type: "building", cost: [{id: resID.coal, n: 2}], svg: undefined},
+    furnace         : {id: resID.furnace       , name: "furnace"       , packsize: 2, imgFile: "a",  open: 1   , type: "building", size: [1, 1], cost: [{id: resID.stone, n: 5}], output: [{id:resID.iron_plate, n:1}, {id:resID.copper_plate, n:1}, {id:resID.stone_brick, n:1}, {id:resID.steel_plate, n:1}]},
+    tree            : {id: resID.tree          , name: "tree"          , packsize: 1, emo: "🌳"     , imgFile: "asteroid.png", open: 1   , type: "building"},
+    coal            : {id: resID.coal          , name: "coal"          , packsize: 1, imgFile: "a", open: 1   , type: "item"   , emo: undefined  },
+    iron            : {id: resID.iron          , name: "iron"          , packsize: 1, imgFile: "a"     , open: 1   , type: "item"},
+    copper          : {id: resID.copper        , name: "copper"        , packsize: 1, emo: "🌕"     , open: 1   , type: "item"},
+    stone           : {id: resID.stone         , name: "stone"         , packsize: 1, imgFile: "stone.png" , emo: undefined    , open: 1   , type: "item"},
+    iron_plate      : {id: resID.iron_plate    , name: "iron plate"    , packsize: 1, imgFile: "a"  ,  open: 1   , type: "item", cost: [{id: resID.iron, n: 1}, {id: resID.coal, n:1}]},
+    copper_plate    : {id: resID.copper_plate  , name: "copper plate"  , packsize: 1, emo: "CP"     , open: 1   , type: "item", cost: [{id: resID.copper, n: 1}, {id: resID.coal, n:1}]},
+    copper_cable    : {id: resID.copper_cable  , name: "copper cable"  , packsize: 1, emo: "CC"     , open: 1   , type: "item", cost: [{id: resID.copper, n: 1}]},
+    stone_brick     : {id: resID.stone_brick   , name: "stone brick"   , packsize: 1, imgFile: "a"  , open: 1   , type: "item", cost: [{id: resID.stone, n: 1}, {id: resID.coal, n:1}]},
 }
 
 const resName =
@@ -115,7 +115,7 @@ function mineToInv(inv) {
  }
  
  function bookFromInv(inv, its, updateMsg = true) {
-     if (!its) return;
+    if (!its) return;
     its.forEach(item => {
         let itemsExist = true;
         for(let c = 0; c < resName[item.id].cost.length && itemsExist; c++) {
@@ -123,7 +123,7 @@ function mineToInv(inv) {
             itemsExist = inv.hasItems(resName[item.id].cost);
         }
         if (itemsExist) { 
-            inv.addItem(item); 
+            if (inv.addItem(item)) inv.remItems(resName[item.id].cost);
             if (updateMsg) ws.send(JSON.stringify({cmd: "craftToInv", data: item}));
         }
         return itemsExist;

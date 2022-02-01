@@ -22,7 +22,7 @@ class InputModule {
             let res = city.map[tileCoordinate.x][tileCoordinate.y][layers.res];
             let d = dist(player1.pos, worldCordinate);
             if (res && d < 80) workInterval = setInterval(function() { mineToInv({source: tileCoordinate, id:res.id, n: 1}); }, 1000);
-            if (pointerButton) {
+            if (pointerButton && pointerButton.id) {
                 if (resName[pointerButton.id].type == "building") {
                     ws.send(JSON.stringify({cmd: "addEntity", data: {pos: {x: tileCoordinate.x, y: tileCoordinate.y}, dir: buildDir, type: pointerButton.id}}));
                 } else {

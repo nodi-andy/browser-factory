@@ -1,15 +1,17 @@
 class Entity {
-    constructor(inv, x, y, dir, h, w, type, onClick) {
+    constructor(entList, x, y, dir, h, w, type, onClick) {
         this.pos = {x: x, y: y};
         this.dir = dir;
         this.h = h;
         this.w = w;
-        if (inv) {
-            inv.push(this);
-            this.id = inv.length - 1;
+        if (entList) {
+            entList.push(this);
+            this.id = entList.length - 1;
         }
+
         this.type = type;
-        this.onClick = onClick;
+        this.done = false;        
+
     }
 
     collision(p) {
@@ -23,8 +25,8 @@ class Entity {
     }
 
     update(map) {
-        let myTile = map[this.x][this.y];
-        let tileR = map[this.x + 1][this.y];
+        let myTile = map[this.pos.x][this.pos.y];
+        let tileR = map[this.pos,x + 1][this.pos.y];
         if (myTile[layers.inv]) {
 
         }

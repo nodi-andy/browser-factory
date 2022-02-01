@@ -4,9 +4,12 @@ if (typeof window === 'undefined') {
 
 class Inventory {
     constructor(inv, pos, newItem = undefined) {
-        this.items = [];
-        this.nextitems = [];
+        this.packs = [];
+        this.nextpacks = [];
         this.pos = {x: pos.x, y: pos.y};
+        this.packsize = 1;
+        this.itemsize = 1;
+        this.changed = false;
         if (inv) {
           inv.push(this);
           this.id = inv.length - 1;
@@ -15,17 +18,27 @@ class Inventory {
     }
 
     addItem(newItem, reserve) {
-      let selectedItems = this.items;
-      if (reserve) selectedItems = this.nextitems;
-        for(let i = 0; i < selectedItems.length && newItem; i++) {
-          let invObj = selectedItems[i];
-          if (invObj.id == newItem.id) {
+      if (newItem == undefined) return false;
+
+      let selectedPacks = this.packs;
+      if (reserve) selectedPacks = this.nextpacks;
+
+      for(let i = 0; i < selectedPacks.length && newItem; i++) {
+        let invObj = selectedPacks[i];
+        if (invObj.id == newItem.id) {
+          if (invObj.n + newItem.n< this.itemsize) {
             invObj.n += newItem.n;
-            newItem = null;
-          }
+            return true;
+          } else return false;
         }
-        if (newItem) selectedItems.push({id: newItem.id, n: newItem.n});
+      }
+
+      if (selectedPacks.length < this.packsize) {
+        selectedPacks.push({id: newItem.id, n: newItem.n});
         return true;
+      }
+
+      return false;
     }
 
     addItems(newItems, reserve) {
@@ -33,8 +46,8 @@ class Inventory {
     }
 
     remItem(newItem, reserve) {
-      let selectedItems = this.items;
-      if (reserve) selectedItems = this.nextitems;
+      let selectedItems = this.packs;
+      if (reserve) selectedItems = this.nextpacks;
       for(let i = 0; i < selectedItems.length && newItem; i++) {
         let invObj = selectedItems[i];
         if (invObj.id == newItem.id) {
@@ -51,14 +64,14 @@ class Inventory {
   
     remItems(newItems) {
       for(let i = 0; i < newItems.length; i++) {
-        this.remItem(this.items[i]);
+        this.remItem(newItems[i]);
       }
       return false;
     }
 
     hasItem(newItem) {
-        for(let i = 0; i < this.items.length; i++) {
-          let invObj = this.items[i];
+        for(let i = 0; i < this.packs.length; i++) {
+          let invObj = this.packs[i];
           if (invObj.id == newItem.id)  return (invObj.n >= newItem.n);
         }
         return false;
@@ -80,8 +93,12 @@ class Inventory {
     }
 }
 
-function getInv(id){
-  if (id) return c.allInvs[id];
+function getInv(tile){
+  if (tile[c.layers.inv] != undefined) return c.allInvs[tile[c.layers.inv]];
+}
+
+function getEnt(tile){
+  if (tile[c.layers.buildings] != undefined) return c.allEnts[tile[c.layers.buildings]];
 }
 
 function createInv(map, pos){
@@ -99,4 +116,5 @@ function createInv(map, pos){
 if (exports == undefined) var exports = {};
 exports.Inventory = Inventory;
 exports.getInv = getInv;
+exports.getEnt = getEnt;
 exports.createInv = createInv;

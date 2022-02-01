@@ -13,7 +13,7 @@ function render(){
                 // MAP
                 context.beginPath();
                 let type = tile[layers.terrain];
-                context.fillStyle = "black";//mapType[type];
+                context.fillStyle = mapType[type];//"black";//mapType[type];
                 context.rect(ax * tileSize, ay * tileSize, tileSize+1, tileSize+1);
                 context.fill();
 
@@ -45,19 +45,17 @@ function render(){
 
                 // ITEMS
                 let itemID = tile[layers.inv];
-                if (itemID) {
+                if (itemID != undefined) {
                     let iForEach = 0;
-                    let items = allInvs[itemID].items;
+                    let items = allInvs[itemID].packs;
                     context.save();
+                    context.translate(ax * tileSize, (ay + 0.25) * tileSize);
                     items.forEach(item => {
-                        let dx = iForEach * 5;
-                        iForEach++;
-                        context.translate((ax + 0.5 + dx) * tileSize, (ay + 0.5) *tileSize);
-                        if (b) context.rotate(b.dir * Math.PI/2);
-                        context.translate(-tileSize / 2, -tileSize / 2);
+                        context.translate( iForEach / 8 * tileSize, 0);
                         context.scale(0.5, 0.5);
                         context.drawImage(resName[item.id].img, 0, 0)
                         context.scale(2, 2);
+                        iForEach++;
                     });
                     context.restore();
                 }
@@ -97,8 +95,10 @@ function render(){
 
     if (curResPos && city.map) {
         let inv = city.map[curResPos.x][curResPos.y][layers.inv];
+        context.font = "12px Arial";
         context.fillStyle = "white";
-        if (inv) context.fillText(JSON.stringify(allInvs[inv].items), curResPos.x * tileSize, curResPos.y * tileSize);
+        context.fillText(curResPos.x + ", " + curResPos.y, curResPos.x * tileSize, curResPos.y * tileSize);
+        if (inv != undefined) context.fillText(JSON.stringify(allInvs[inv].packs), curResPos.x * tileSize, curResPos.y * tileSize + 24);
         context.stroke();
     }
 

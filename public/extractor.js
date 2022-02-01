@@ -16,11 +16,14 @@ class Extractor {
             let invID = tile[layers.inv];
             if (invID == undefined) {
               inv = new Inventory(allInvs, ent.pos);
+              inv.itemsize = 1;
               tile[layers.inext] = inv.id;
               tile[layers.inv] = inv.id;
             } else inv = inv = allInvs[invID];
             
-            inv.addItem( {id: newItem.type, n: newItem.n});
+            inv.addItems(inv.packs, true);
+            inv.changed = true;
+            inv.addItem( {id: newItem.type, n: newItem.n}, true);
             tile[layers.res].n -= newItem.n;
         }
     }
