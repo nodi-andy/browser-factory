@@ -1,5 +1,5 @@
 if (typeof window === 'undefined') {
-  var c = require('./common.js');
+  var c = require('../common.js');
 } 
 
 class Inventory {
@@ -17,7 +17,7 @@ class Inventory {
         this.addItem(newItem);
     }
 
-    addItem(newItem, reserve) {
+    addItem(newItem, dir, reserve) {
       if (newItem == undefined) return false;
 
       let selectedPacks = this.packs;
@@ -34,15 +34,15 @@ class Inventory {
       }
 
       if (selectedPacks.length < this.packsize) {
-        selectedPacks.push({id: newItem.id, n: newItem.n});
+        selectedPacks.push({id: newItem.id, n: newItem.n, dir: true});
         return true;
       }
 
       return false;
     }
 
-    addItems(newItems, reserve) {
-      newItems.forEach(item => {this.addItem(item, reserve)});
+    addItems(newItems, dir, reserve) {
+      newItems.forEach(item => {this.addItem(item, dir, reserve)});
     }
 
     remItem(newItem, reserve) {
@@ -93,20 +93,23 @@ class Inventory {
     }
 }
 
-function getInv(tile){
-  if (tile[c.layers.inv] != undefined) return c.allInvs[tile[c.layers.inv]];
+function getInv(x, y){
+  let tile = c.game.map[x][y];
+  if (tile[c.layers.inv] == undefined)  createInv(x, y);
+  return c.allInvs[tile[c.layers.inv]];
 }
 
-function getEnt(tile){
+function getEnt(x, y){
+  let tile = c.game.map[x][y];
   if (tile[c.layers.buildings] != undefined) return c.allEnts[tile[c.layers.buildings]];
 }
 
-function createInv(map, pos){
-  if (!pos) return;
-  let invID = map[pos.x][pos.y][c.layers.inv];
+function createInv(x, y){
+  
+  let invID = c.game.map[x][y][c.layers.inv];
   if (invID == undefined) {
-      inv = new Inventory(c.allInvs, pos);
-      map[pos.x][pos.y][c.layers.inv] = inv.id;
+      inv = new Inventory(c.allInvs, {x: x, y:y});
+      c.game.map[x][y][c.layers.inv] = inv.id;
       invID = inv.id;
   }
   return invID;

@@ -1,7 +1,9 @@
+<meta name="HandheldFriendly" content="true" />
 <style>
     html,
     body {
         margin: 0;
+        width:  100%;
         height: 100%;
         overflow: hidden;
     }
@@ -9,46 +11,45 @@
 <html><canvas id="myCanvas" style = "display:block;border:none; margin:0"></canvas></html>
 
 <script type="text/javascript" src ="common.js"></script>
-<script type="text/javascript" src ="inventory.js"></script>
-<script type="text/javascript" src ="entity.js"></script>
+<script type="text/javascript" src ="core/inventory.js"></script>
+<script type="text/javascript" src ="core/entity.js"></script>
 
-<script type="text/javascript" src ="button.js"></script>
-<script type="text/javascript" src ="input.js"></script>
-<script type="text/javascript" src ="render.js"></script>
+<script type="text/javascript" src ="core/button.js"></script>
+<script type="text/javascript" src ="core/input.js"></script>
+<script type="text/javascript" src ="core/render.js"></script>
+<script type="text/javascript" src ="core/view.js"></script>
 <script type="text/javascript">
     const ws        = new WebSocket('ws://192.168.1.22');
     canvas = document.getElementById("myCanvas");
+
+
     let context = canvas.getContext("2d");
     canvas.width  = window.innerWidth;
     canvas.height = window.innerHeight;
-
-    //let map         = undefined;
 
     let mousePos    = {x: 0, y: 0}
     var selCity     = undefined;
 
     let isDragging = false;
     let dragStart = { x: 0, y: 0 }
-    let isClicking = false;
+    let isBuilding = false;
     let workInterval = undefined;
-    beltMenu.pos = {x:canvas.width / 2 - 300, y:canvas.height - 60};
-    let craftButton = new Button (beltMenu.pos.x + 60*10 + 10, beltMenu.pos.y, 60, 60, 0, 0, () => {invMenu.vis = !invMenu.vis;buildMenu.vis = !buildMenu.vis; pointerButton = undefined;});
-    beltMenu.items.push(craftButton);
-
-    invMenu.pos = {x:canvas.width / 2 - 300, y:canvas.height / 2 - 300};
+    
+    //BUTTONS
+    pointerButton = new Button(0,0,tileSize, tileSize);
     for (let i = 0; i < 5; i++) {
         for (let j = 0; j < 5; j++) {
-            let newButton = new Button (invMenu.pos.x + j * 60, invMenu.pos.y + i * 60, 60, 60, 0, 0, invMenu, ()=>{});
-            newButton.onClick = () => {pointerButton = newButton;};
+            let newButton = new Button (j * tileSize, i * tileSize, tileSize, tileSize, undefined, invMenu);
+            newButton.onClick = () => {pointerButton.item = newButton.item;};
             invMenu.items.push(newButton);
         }
     }
 
-    buildMenu.items.push(new Button (invMenu.pos.x + 310, invMenu.pos.y, 60, 60, resDB.extractor.id, 0, () => {bookFromInv(player1.inv, [resDB.extractor])}))
-    buildMenu.items.push(new Button (invMenu.pos.x + 370, invMenu.pos.y, 60, 60, resDB.furnace.id, 0, () => {bookFromInv(player1.inv, [resDB.furnace])}))
-    buildMenu.items.push(new Button (invMenu.pos.x + 430, invMenu.pos.y, 60, 60, resDB.chest.id, 0, () => {bookFromInv(player1.inv, [resDB.chest])}))
-    buildMenu.items.push(new Button (invMenu.pos.x + 490, invMenu.pos.y, 60, 60, resDB.shifter.id, 0, () => {bookFromInv(player1.inv, [resDB.shifter])}))
-    buildMenu.items.push(new Button (invMenu.pos.x + 550, invMenu.pos.y, 60, 60, resDB.belt.id, 0, () => {bookFromInv(player1.inv, [resDB.belt])}))
+    buildMenu.items.push(new Button (5 * tileSize + 10, 0, tileSize, tileSize, {id: resDB.extractor.id, n: 0}   , invMenu, () => {bookFromInv(player1.inv, [resDB.extractor])}  ))
+    buildMenu.items.push(new Button (6 * tileSize + 10, 0, tileSize, tileSize, {id: resDB.furnace.id, n: 0}     , invMenu, () => {bookFromInv(player1.inv, [resDB.furnace])}))
+    buildMenu.items.push(new Button (7 * tileSize + 10, 0, tileSize, tileSize, {id: resDB.chest.id, n: 0}       , invMenu, () => {bookFromInv(player1.inv, [resDB.chest])}))
+    buildMenu.items.push(new Button (8 * tileSize + 10, 0, tileSize, tileSize, {id: resDB.inserter.id, n: 0}       , invMenu, () => {bookFromInv(player1.inv, [resDB.inserter])}))
+    buildMenu.items.push(new Button (9 * tileSize + 10, 0, tileSize, tileSize, {id: resDB.belt.id, n: 0}        , invMenu, () => {bookFromInv(player1.inv, [resDB.belt])}))
 
     function getCityById(searchID) {
         for (let i = 0; i < city.w.length; i++) {
@@ -62,13 +63,13 @@
     ws.onmessage = function(e) {
         let socketMsg = JSON.parse(e.data);
 
-        if(socketMsg.msg == "updateInv") {
+        if (socketMsg.msg == "updateInv") {
             allInvs = JSON.parse(JSON.stringify(socketMsg.data));
         }
-        if(socketMsg.msg == "updateEntities") {
+        if (socketMsg.msg == "updateEntities") {
             allEnts = JSON.parse(JSON.stringify(socketMsg.data));
         }
-        if(socketMsg.msg == "updatePlayer") {
+        if (socketMsg.msg == "updatePlayer") {
             player1 = socketMsg.data;
             player1.invOb = new Inventory(undefined, {x: 0, y:0});
             player1.invOb.packsize = 10;
@@ -77,20 +78,18 @@
             delete player1.invOb;
 
             for (let i = 0; i < player1.inv.packs.length; i++) {
-                let itemId = player1.inv.packs[i].id;
-                invMenu.items[i].id = itemId;
-                invMenu.items[i].n = player1.inv.packs[i].n;
+                let item = player1.inv.packs[i];
+                invMenu.items[i].item = item;
             }
 
             for (let i = player1.inv.packs.length; i < invMenu.items.length; i++) {
-                invMenu.items[i].id = 0;
-                invMenu.items[i].n = 0;
+                invMenu.items[i].item = undefined
             }
         }
-        if(socketMsg.msg == "updateMap") { city = socketMsg.data; }
-        if(socketMsg.msg == "updateMapData") { city.map = socketMsg.data; }
+        if (socketMsg.msg == "updateMap") { game = socketMsg.data; }
+        if (socketMsg.msg == "updateMapData") { game.map = socketMsg.data; }
 
-        if(socketMsg.msg == "id") console.log("Received: '" + socketMsg.data + "'");
+        if (socketMsg.msg == "id") console.log("Received: '" + socketMsg.data + "'");
     };
 
     function onKeyDown(e){
@@ -107,22 +106,7 @@
     document.addEventListener("wheel", (e) => adjustZoom(e.deltaY* SCROLL_SENSITIVITY))
     context.canvas.oncontextmenu = function (e) {e.preventDefault();};
     let inp = new InputModule (context.canvas);
-    /*context.canvas.addEventListener('dblclick', e => {
-        let upSelCity = undefined;
-        let pointerPos = screenToWorld({x: e.offsetX, y: e.offsetY});
-        pointerPos.r = 15;
-        city.w.forEach(b => {
-            if (getDistance(pointerPos, b) < 0) {
-                upSelCity = b;
-            }
-        })
-        if (upSelCity) ws.send(JSON.stringify({cmd: "selCity", data: upSelCity.id}));
-        else {
-            ws.send(JSON.stringify({cmd: "addCity", data: pointerPos}));
-        } 
-    });*/
-    
-
+    let view = new ViewModule (window);
 
     requestAnimationFrame( render );
     
@@ -165,13 +149,18 @@
     }
 
 
-Object.keys(resDB).forEach(key => {
-    if(resDB[key].imgFile) {
-        const image = new Image(60, 60);
-        image.src = "/assets/" + key + ".png";
-        resDB[key].img = image;
-    }
-    }
-)
+    Object.keys(resDB).forEach(key => {
+            const image = new Image(tileSize, tileSize);
+            if (resDB[key].type == "machine") image.src =  "machine/" + key + "/" + key +".png";
+            else image.src =  "res/" + key +".png";
+            resDB[key].img = image;
+        }
+    )
+
+    let buildImage = new Image(tileSize, tileSize);
+    buildImage.src = "core/build.png";
+    let craftButton = new Button (tileSize*10 + 10, 0, tileSize, tileSize, undefined, beltMenu, () => {invMenu.vis = !invMenu.vis;buildMenu.vis = !buildMenu.vis; pointerButton.item = undefined;}, buildImage);
+    beltMenu.vis = true;
+    beltMenu.items.push(craftButton);
 
 </script>

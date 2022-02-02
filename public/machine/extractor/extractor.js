@@ -1,5 +1,5 @@
-const { resDB, layers, allInvs  } = require("./common");
-const { Inventory } = require("./inventory");
+const { resDB, layers, allInvs  } = require("../../common.js");
+const { Inventory } = require("../../core/inventory");
 
 class Extractor {
     constructor() {
@@ -21,9 +21,9 @@ class Extractor {
               tile[layers.inv] = inv.id;
             } else inv = inv = allInvs[invID];
             
-            inv.addItems(inv.packs, true);
+            inv.addItems(inv.packs, false, true);
             inv.changed = true;
-            inv.addItem( {id: newItem.type, n: newItem.n}, true);
+            inv.addItem( {id: newItem.type, n: newItem.n}, false, true);
             tile[layers.res].n -= newItem.n;
         }
     }

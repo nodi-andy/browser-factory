@@ -5,10 +5,10 @@ function render(){
     context.translate(camera.x, camera.y); //console.log(camera);
 
 
-    if (city.map) {
-        for(let ax = 0; ax < city.map.length; ax++) {
-            for(let ay = 0; ay < city.map[ax].length; ay++) {
-                let tile = city.map[ax][ay];
+    if (game.map) {
+        for(let ax = 0; ax < game.map.length; ax++) {
+            for(let ay = 0; ay < game.map[ax].length; ay++) {
+                let tile = game.map[ax][ay];
 
                 // MAP
                 context.beginPath();
@@ -24,7 +24,7 @@ function render(){
                 //if (n < 8) context.font = n * 4+ "px Arial";
                 //context.fillStyle = mapType[type];
                 //if (resName[type].emo && n) context.fillText(resName[type].emo, ax*tileSize, ay*tileSize + 8);
-                if (resName[type].img) {
+                if (type && resName[type].img) {
                     context.drawImage(resName[type].img, ax * tileSize, ay * tileSize)
                 }
 
@@ -62,8 +62,8 @@ function render(){
             }
         }
     }
-    if (city && city.w) {
-        city.w.forEach((v) => {
+    if (game && game.w) {
+        game.w.forEach((v) => {
             context.beginPath();
             context.font = "10px Arial";
             context.fillText(resDB[v.type].emo, v.x - 1, v.y + 8);
@@ -79,9 +79,9 @@ function render(){
     context.stroke();
 
     // BUILDING CANDIDATE
-    if (pointerButton) {
-        let type = pointerButton.id;
-        if (resName[type].img) {
+    if (pointerButton.item) {
+        let type = pointerButton.item.id;
+        if (type && resName[type].img) {
             context.save();
             if (resName[type].img) {
                 context.translate((curResPos.x + 0.5) * tileSize, (curResPos.y + 0.5) *tileSize);
@@ -93,8 +93,8 @@ function render(){
         }
     }
 
-    if (curResPos && city.map) {
-        let inv = city.map[curResPos.x][curResPos.y][layers.inv];
+    if (curResPos && game.map) {
+        let inv = game.map[curResPos.x][curResPos.y][layers.inv];
         context.font = "12px Arial";
         context.fillStyle = "white";
         context.fillText(curResPos.x + ", " + curResPos.y, curResPos.x * tileSize, curResPos.y * tileSize);
@@ -115,7 +115,7 @@ function render(){
         let invObj = player1.inv[i];
         context.beginPath();
         context.fillStyle = "rgba(120, 120, 120, 0.9)";
-        context.rect(xpos, ypos, 60, 60);
+        context.rect(xpos, ypos, tileSize, tileSize);
         context.fill();
 
         context.fillStyle = "black";
@@ -126,7 +126,7 @@ function render(){
             context.fillText(invObj.n, xpos, ypos + 24);
             //menu.items.push(invObj.id);
         } 
-        xpos +=60;
+        xpos +=tileSize;
     }        
 
     beltMenu.items.forEach(b => b.draw(context));

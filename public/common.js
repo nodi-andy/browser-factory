@@ -1,6 +1,10 @@
 const tileSize = 64;
+const gridSize = {x: 64, y: 64}
 const SCROLL_SENSITIVITY = 0.0005;
 let camera      = {x: 0, y: 0, zoom: 1}
+var tick = 0;
+
+
 let buildDir = 0;
 const resID =
 {
@@ -8,7 +12,7 @@ const resID =
     stone_brick: 1,
     steel_plate: 2,
     copper_plate: 3,
-    shifter: 4,
+    inserter: 4,
     copper_cable: 5,
     extractor: 6,
     belt: 7,
@@ -25,24 +29,22 @@ const resID =
 
 const mapType     = ["darkblue", "blue", "sandybrown", "sandybrown", "darkgreen", "green", "green", "green", "green", "green"];
 const resDB =
-{   none            : {id: 0                   , name: "none"          , packsize: 1, emo: ""       , open: 0   , type: 0},
-    steel_plate     : {id: resID.steel_plate   , name: "steel plate"   , packsize: 1, imgFile: "a"  , open: 1   , type: "item", cost: [{id: resID.chest, n: 1}, {id: resID.coal, n:1}]},
-    input           : {id: 11                  , name: "input"         , packsize: 1, emo: "📥"     , open: 0   , type: "building"},
-    output          : {id: 12                  , name: "output"        , packsize: 1, emo: "📤"     , open: 0   , type: "building"},
-    chest           : {id: resID.chest         , name: "chest"         , packsize: 1, imgFile: "a"  , open: 1   , type: "building", size: [1, 1], cost: [{id: resID.tree, n: 2}]},
-    extractor       : {id: resID.extractor     , name: "extractor"     , packsize: 1, imgFile: "a"  , open: 1   ,     type: "building", size: [1, 1], cost: [{id: resID.coal, n: 2}], svg: undefined},
-    shifter         : {id: resID.shifter       , name: "shifter"       , packsize: 1, imgFile: "a"   , open: 1   , type: "building", cost: [{id: resID.coal, n: 2}], svg: undefined},
-    belt            : {id: resID.belt          , name: "shifter"       , packsize: 1, imgFile: "a"    , open: 1   , type: "building", cost: [{id: resID.coal, n: 2}], svg: undefined},
-    furnace         : {id: resID.furnace       , name: "furnace"       , packsize: 2, imgFile: "a",  open: 1   , type: "building", size: [1, 1], cost: [{id: resID.stone, n: 5}], output: [{id:resID.iron_plate, n:1}, {id:resID.copper_plate, n:1}, {id:resID.stone_brick, n:1}, {id:resID.steel_plate, n:1}]},
-    tree            : {id: resID.tree          , name: "tree"          , packsize: 1, emo: "🌳"     , imgFile: "asteroid.png", open: 1   , type: "building"},
-    coal            : {id: resID.coal          , name: "coal"          , packsize: 1, imgFile: "a", open: 1   , type: "item"   , emo: undefined  },
-    iron            : {id: resID.iron          , name: "iron"          , packsize: 1, imgFile: "a"     , open: 1   , type: "item"},
-    copper          : {id: resID.copper        , name: "copper"        , packsize: 1, emo: "🌕"     , open: 1   , type: "item"},
-    stone           : {id: resID.stone         , name: "stone"         , packsize: 1, imgFile: "stone.png" , emo: undefined    , open: 1   , type: "item"},
-    iron_plate      : {id: resID.iron_plate    , name: "iron plate"    , packsize: 1, imgFile: "a"  ,  open: 1   , type: "item", cost: [{id: resID.iron, n: 1}, {id: resID.coal, n:1}]},
-    copper_plate    : {id: resID.copper_plate  , name: "copper plate"  , packsize: 1, emo: "CP"     , open: 1   , type: "item", cost: [{id: resID.copper, n: 1}, {id: resID.coal, n:1}]},
-    copper_cable    : {id: resID.copper_cable  , name: "copper cable"  , packsize: 1, emo: "CC"     , open: 1   , type: "item", cost: [{id: resID.copper, n: 1}]},
-    stone_brick     : {id: resID.stone_brick   , name: "stone brick"   , packsize: 1, imgFile: "a"  , open: 1   , type: "item", cost: [{id: resID.stone, n: 1}, {id: resID.coal, n:1}]},
+{
+    steel_plate     : {id: resID.steel_plate   , name: "steel plate"   , packsize: 1, open: 1   , type: "res", cost: [{id: resID.chest, n: 1}, {id: resID.coal, n:1}]},
+    chest           : {id: resID.chest         , name: "chest"         , packsize: 1, open: 1   , type: "machine", size: [1, 1], cost: [{id: resID.tree, n: 2}]},
+    extractor       : {id: resID.extractor     , name: "extractor"     , packsize: 1, open: 1   , type: "machine", size: [1, 1], cost: [{id: resID.coal, n: 2}], svg: undefined},
+    inserter         : {id: resID.inserter       , name: "inserter"    , packsize: 1, open: 1   , type: "machine", cost: [{id: resID.coal, n: 2}], svg: undefined},
+    belt            : {id: resID.belt          , name: "belt"          , packsize: 1, open: 1   , type: "machine", cost: [{id: resID.coal, n: 2}], svg: undefined},
+    furnace         : {id: resID.furnace       , name: "furnace"       , packsize: 2, open: 1   , type: "machine", size: [1, 1], cost: [{id: resID.stone, n: 5}], output: [{id:resID.iron_plate, n:1}, {id:resID.copper_plate, n:1}, {id:resID.stone_brick, n:1}, {id:resID.steel_plate, n:1}]},
+    tree            : {id: resID.tree          , name: "tree"          , packsize: 1, open: 1   , type: "res"},
+    coal            : {id: resID.coal          , name: "coal"          , packsize: 1, open: 1   , type: "res"   , emo: undefined  },
+    iron            : {id: resID.iron          , name: "iron"          , packsize: 1, open: 1   , type: "res"},
+    copper          : {id: resID.copper        , name: "copper"        , packsize: 1, open: 1   , type: "res"},
+    stone           : {id: resID.stone         , name: "stone"         , packsize: 1, open: 1   , type: "res"},
+    iron_plate      : {id: resID.iron_plate    , name: "iron plate"    , packsize: 1, open: 1   , type: "res", cost: [{id: resID.iron, n: 1}, {id: resID.coal, n:1}]},
+    copper_plate    : {id: resID.copper_plate  , name: "copper plate"  , packsize: 1, open: 1   , type: "res", cost: [{id: resID.copper, n: 1}, {id: resID.coal, n:1}]},
+    copper_cable    : {id: resID.copper_cable  , name: "copper cable"  , packsize: 1, open: 1   , type: "res", cost: [{id: resID.copper, n: 1}]},
+    stone_brick     : {id: resID.stone_brick   , name: "stone brick"   , packsize: 1, open: 1   , type: "res", cost: [{id: resID.stone, n: 1}, {id: resID.coal, n:1}]},
 }
 
 const resName =
@@ -51,7 +53,7 @@ const resName =
     1: resDB.stone_brick,
     2: resDB.steel_plate,
     3: resDB.copper_plate,
-    4: resDB.shifter,
+    4: resDB.inserter,
     5: resDB.copper_cable,
     6: resDB.extractor,
     7: resDB.belt,
@@ -70,10 +72,11 @@ const  layers = {terrain: 0, floor:1, res: 2, buildings:3, inv:4, inext: 5, vis:
 var global = Object;
 var allInvs = [];
 var allEnts = [];
-let city        = {};
+let game        = {};
 let player1             = {pos: {x: 200, y: 200}, inv: [], belt: []};
-var pointerButton = undefined;
+var pointerButton;
 var curResPos = {x: 0, y: 0};
+var lastResPos = {x: 0, y: 0};
 var canvas = undefined;
 var beltMenu = {items:[], pos: {x: 0, y: 0}};
 var invMenu = {items:[], pos: {x: 0, y: 0}};
@@ -83,7 +86,11 @@ var buildMenu = {items:[], pos: {x: 0, y: 0}};
 
 function floorTile(p) {return {x: Math.floor(p.x/10)*10, y: Math.floor(p.y/10)*10}};
 function ceilTile(p) {return {x: Math.ceil(p.x/10), y: Math.ceil(p.y/10)}};
-function worldToTile(p) {return ({x: Math.floor(p.x/tileSize), y:Math.floor(p.y/tileSize)})}
+function worldToTile(p) {
+    return (
+        {x: Math.min(Math.floor(p.x/tileSize), gridSize.x), 
+         y: Math.min(Math.floor(p.y/tileSize), gridSize.y)});
+}
 function dist(a, b) {return Math.hypot(a.x-b.x, a.y-b.y);}
 function getDistance(b1, b2) {
     var d = {x: b1.x - b2.x, y: b1.y - b2.y}
@@ -108,15 +115,14 @@ function getNbOccur(arr, val) {
 }
 
 function screenToWorld(p) { return {x: p.x/camera.zoom - camera.x, y: p.y/camera.zoom - camera.y}; }
-function worldToGrid(p) {return { x: Math.floor(p.x / tileSize), y: Math.floor(p.y / tileSize) } }
 
 function mineToInv(inv) {
     ws.send(JSON.stringify({cmd: "mineToInv", data: inv}));
  }
  
- function bookFromInv(inv, its, updateMsg = true) {
-    if (!its) return;
-    its.forEach(item => {
+ function bookFromInv(inv, items, updateMsg = true) {
+    if (!items) return;
+    items.forEach(item => {
         let itemsExist = true;
         for(let c = 0; c < resName[item.id].cost.length && itemsExist; c++) {
             itemsExist = false;
@@ -135,8 +141,9 @@ function mineToInv(inv) {
 if (exports == undefined) var exports = {};
 exports.resDB = resDB;
 exports.layers = layers;
+exports.gridSize = gridSize;
 exports.player1 = player1;
-exports.city = city;
+exports.game = game;
 exports.dist = dist;
 exports.distV = distV;
 exports.toUnitV = toUnitV;
@@ -147,3 +154,4 @@ exports.allEnts = allEnts;
 exports.bookFromInv = bookFromInv;
 exports.resName = resName;
 exports.dirToVec = dirToVec;
+exports.tick = tick;
