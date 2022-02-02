@@ -3,7 +3,7 @@ const gridSize = {x: 64, y: 64}
 const SCROLL_SENSITIVITY = 0.0005;
 let camera      = {x: 0, y: 0, zoom: 1}
 var tick = 0;
-
+const DIR = {in: true, out: false}
 
 let buildDir = 0;
 const resID =
@@ -78,9 +78,9 @@ var pointerButton;
 var curResPos = {x: 0, y: 0};
 var lastResPos = {x: 0, y: 0};
 var canvas = undefined;
-var beltMenu = {items:[], pos: {x: 0, y: 0}};
-var invMenu = {items:[], pos: {x: 0, y: 0}};
-var buildMenu = {items:[], pos: {x: 0, y: 0}};
+var beltMenu = {items:[], pos: {x: 0, y: 0}, vis: true};
+var invMenu = {items:[], pos: {x: 0, y: 0}, vis: false};
+var buildMenu = {items:[], pos: {x: 0, y: 0}, vis: false};
 
 
 
@@ -140,6 +140,7 @@ function mineToInv(inv) {
 
 if (exports == undefined) var exports = {};
 exports.resDB = resDB;
+exports.DIR = DIR;
 exports.layers = layers;
 exports.gridSize = gridSize;
 exports.player1 = player1;

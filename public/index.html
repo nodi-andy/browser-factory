@@ -97,7 +97,8 @@
     }
 
     function onKeyUp(e){
-        if(e.code == "KeyR") buildDir = (buildDir+1)%4
+        if(e.code == "KeyR") buildDir = (buildDir+1)%4;
+        if(e.code == "KeyE") invMenu.vis = !invMenu.vis;
         ws.send(JSON.stringify({cmd: "keyup", data: e.code}));
     }
 

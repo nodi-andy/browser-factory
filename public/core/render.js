@@ -98,7 +98,7 @@ function render(){
         context.font = "12px Arial";
         context.fillStyle = "white";
         context.fillText(curResPos.x + ", " + curResPos.y, curResPos.x * tileSize, curResPos.y * tileSize);
-        if (inv != undefined) context.fillText(JSON.stringify(allInvs[inv].packs), curResPos.x * tileSize, curResPos.y * tileSize + 24);
+        if (inv != undefined) context.fillText(JSON.stringify(allInvs[inv].packs, null, 1), curResPos.x * tileSize, curResPos.y * tileSize + 24);
         context.stroke();
     }
 

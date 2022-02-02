@@ -83,6 +83,28 @@ class Inventory {
         }
         return true;
     }
+
+    setAllPacksDir(d) {
+      for(let i = 0; i < this.packs.length; i++) {
+        this.packs[i]. dir = d;
+      }
+    }
+
+    setAsOutput(item) {
+      for(let i = 0; i < this.packs.length; i++) {
+        let invPack = this.packs[i];
+        if (invPack.id == item.id) invPack.dir = c.DIR.out;
+      }
+    }
+
+    getOutputPackIndex() {
+      for(let i = 0; i < this.packs.length; i++) {
+        let invPack = this.packs[i];
+        if (invPack.dir == c.DIR.out) return i;
+      }
+      return undefined;
+    }
+    
     draw(ctx) {
         context.beginPath();
         ctx.fillStyle = "rgba(120, 120, 120, 0.9)";

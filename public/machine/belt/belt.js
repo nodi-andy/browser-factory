@@ -11,6 +11,8 @@ class Belt {
         ent.done = true;
         
         let beltFrom = getEnt(ent.pos.x - nbPos.x, ent.pos.y - nbPos.y);
+        if (beltFrom && beltFrom.id != resDB.belt.id) beltFrom = undefined;
+        
         let beltTo = getEnt(ent.pos.x + nbPos.x, ent.pos.y + nbPos.y);
         let invThis = getInv(ent.pos.x, ent.pos.y, true);
         if (invThis == undefined) {

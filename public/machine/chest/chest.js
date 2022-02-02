@@ -1,5 +1,5 @@
-const { resDB, layers, allInvs  } = require("../../common");
-const { Inventory } = require("../../inventory");
+const { resDB, layers, DIR  } = require("../../common");
+const { getInv, createInv} = require("../../core/inventory");
 
 class Chest {
     constructor() {
@@ -10,6 +10,7 @@ class Chest {
         let inv = getInv(ent.pos.x, ent.pos.y);
         inv.packsize = 10;
         inv.itemsize = 50;
+        inv.setAllPacksDir(DIR.out);
     }
 }
 

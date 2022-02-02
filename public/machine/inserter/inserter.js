@@ -1,4 +1,4 @@
-const { resDB, layers, dirToVec} = require("../../common");
+const { resDB, layers, dirToVec, DIR} = require("../../common");
 const { getInv, createInv} = require("../../core/inventory");
 
 class Inserter {
@@ -12,21 +12,17 @@ class Inserter {
         let invThis = getInv(ent.pos.x, ent.pos.y);
         let invTo = getInv(ent.pos.x + nbPos.x, ent.pos.y + nbPos.y);
 
+        let iOut = invFrom.getOutputPackIndex();
+
         // PICK
-        if (invFrom && invThis.packs.length == 0 && invFrom.packs.length) {
-            if (invThis.addItem({id: invFrom.packs[0].id, n: 1}, false, true)) {
-                 invFrom.remItem({id: invFrom.packs[0].id, n: 1});
-                 invFrom.changed = true;
-                 invThis.changed = true;
+        if (invThis.packs.length == 0 && invFrom && iOut != undefined && invFrom.packs.length) {
+            if (invThis.addItem({id: invFrom.packs[iOut].id, n: 1})) {
+                 invFrom.remItem({id: invFrom.packs[iOut].id, n: 1});
             }
         }// PLACE
-        else if (invThis && invTo && invThis.packs.length) {
+        else if (invThis.packs.length) {
             if (invTo.addItem({id: invThis.packs[0].id, n: 1})) {
                 invThis.remItem({id: invThis.packs[0].id, n: 1});
-            }
-            else {
-                invThis.addItems(invThis.packs, false, true);
-                invThis.changed = true;
             }
         }
     }

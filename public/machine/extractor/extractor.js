@@ -1,5 +1,5 @@
-const { resDB, layers, allInvs  } = require("../../common.js");
-const { Inventory } = require("../../core/inventory");
+const { resDB, layers, allInvs, DIR } = require("../../common.js");
+const { Inventory, getInv } = require("../../core/inventory");
 
 class Extractor {
     constructor() {
@@ -7,6 +7,9 @@ class Extractor {
     }
 
     update(map, ent){
+        let inv = getInv(ent.pos.x, ent.pos.y);
+        inv.setAllPacksDir(DIR.out);
+
         let tile = map[ent.pos.x][ent.pos.y];
         if (tile[layers.res] && tile[layers.res].n) {
 

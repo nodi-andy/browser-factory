@@ -18,6 +18,7 @@ class Button {
     }
 
     draw(ctx) {
+        if (this.parent.vis == false) return;
         if (this.parent) this.screen = {x: this.parent.pos.x + this.x, y: this.parent.pos.y + this.y}
         else this.screen = {x: 0, y: 0}
         ctx.beginPath();

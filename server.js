@@ -11,6 +11,7 @@ var extractor = require('./public/machine/extractor/extractor.js');
 var inserter = require('./public/machine/inserter/inserter.js');
 var belt = require('./public/machine/belt/belt.js');
 var furnace = require('./public/machine/furnace/furnace.js');
+var chest = require('./public/machine/chest/chest.js');
 
 
 var perlin = require('perlin-noise');
@@ -22,6 +23,7 @@ new belt.Belt();
 new inserter.Inserter();
 new extractor.Extractor();
 new furnace.Furnace();
+new chest.Chest();
 //let personDB = [];
 let cityDB = [];
 
@@ -31,6 +33,7 @@ player1.inv.packsize = 20;
 player1.inv.itemsize = 20;
 player1.inv.addItem({id: c.resDB.stone.id, n: 1});
 player1.inv.addItem({id: c.resDB.coal.id, n: 87});
+player1.inv.addItem({id: c.resDB.iron.id, n: 17});
 player1.inv.addItem({id: c.resDB.furnace.id, n: 7});
 player1.inv.addItem({id: c.resDB.belt.id, n: 7});
 player1.inv.addItem({id: c.resDB.chest.id, n: 7});
@@ -46,7 +49,7 @@ function addCity(nID, x, y, t) {
   if (nID == 0) {
     for(let ax = 0; ax < nCity.map.length; ax++) {
       for(let ay = 0; ay < nCity.map[ax].length; ay++) {
-        let type = perlinmap[ax*c.gridSize.x+ay];
+        let type = perlinmap[ax * c.gridSize.x + ay];
         nCity.map[ax][ay][c.layers.terrain] = type;
         nCity.map[ax][ay][c.layers.vis] = 0;
       }
@@ -54,7 +57,7 @@ function addCity(nID, x, y, t) {
     for(let ax = 0; ax < nCity.map.length; ax++) {
       for(let ay = 0; ay < nCity.map[ax].length; ay++) {
         let type = nCity.map[ax][ay][c.layers.terrain];
-        if (type > 7 && nCity.map[ax][ay][c.layers.res].id == 0) {
+        if (type > 7 && nCity.map[ax][ay][c.layers.res].id == undefined) {
           let res = Math.random();
           if (res > 0.9) resFill(nCity.map, ax, ay,  {id: c.resDB.tree.id, n: Math.floor(Math.random()*8)+3});
           else if (res > 0.7) resFill(nCity.map, ax, ay, {id: c.resDB.coal.id, n : 100});
@@ -80,12 +83,11 @@ function addCity(nID, x, y, t) {
     pCity.w.push(nCity);
   }
 
-  nCity.map = nCity.map;
   cityDB.push(nCity);
 }
 
 function resFill(map, x, y, res) {
-  if (map[x] && map[x][y] && map[x][y][c.layers.res].id == 0 && map[x][y][c.layers.terrain] > 7) {
+  if (map[x] && map[x][y] && map[x][y][c.layers.res].id == undefined && map[x][y][c.layers.terrain] > 7) {
     map[x][y][c.layers.res].id = res.id;
     if (res.id == c.resDB.tree.id) map[x][y][c.layers.res].n = Math.floor(Math.random()*8)+3; 
     else map[x][y][c.layers.res].n = res.n;
@@ -246,7 +248,7 @@ function addItem(newItem) {
 
 function move(x, y) {
 
-  let gp = worldToTile(x, y);
+  let gp = c.worldToTile({x:x, y:y});
 //  console.log(rmap[gp.x][gp.y]);
   if (c.game.map[gp.x][gp.y][0] != 1) {
     player1.pos.x = x;
