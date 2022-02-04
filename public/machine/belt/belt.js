@@ -1,5 +1,5 @@
-const { resDB, layers, dirToVec, DIR } = require("../../common");
-const { getEnt, getInv, createInv } = require("../../core/inventory");
+const { resDB, layers, dirToVec } = require("../../common");
+const { getEnt, getInv } = require("../../core/inventory");
 
 class Belt {
     constructor() {

@@ -6,7 +6,7 @@ class Inventory {
     constructor(inv, pos, newItem = undefined) {
         this.packs = [];
         this.nextpacks = [];
-        this.pos = {x: pos.x, y: pos.y};
+        if (pos) this.pos = {x: pos.x, y: pos.y};
         this.packsize = 1;
         this.itemsize = 1;
         this.changed = false;

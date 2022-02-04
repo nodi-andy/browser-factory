@@ -1,5 +1,5 @@
-const { resDB, layers, allInvs, DIR } = require("../../common.js");
-const { Inventory, getInv } = require("../../core/inventory");
+const { resDB, layers, allInvs, DIR, getInv } = require("../../common.js");
+const { Inventory } = require("../../core/inventory");
 
 class Extractor {
     constructor() {

@@ -1,5 +1,5 @@
-const { resDB, layers, bookFromInv, DIR  } = require("../../common");
-const { Inventory , getInv} = require("../../core/inventory");
+const { resDB, bookFromInv, DIR  } = require("../../common");
+const { getInv} = require("../../core/inventory");
 class Furnace {
     constructor() {
        resDB.furnace.mach = this;

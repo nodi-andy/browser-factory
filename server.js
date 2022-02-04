@@ -6,17 +6,19 @@ app.use(express.static('public'));
 const users = new Map();
 require('express-ws')(app);
 var c = require('./public/common.js');
-var inventory = require('./public/core/inventory.js');
+require('./public/core/inventory.js');
 var extractor = require('./public/machine/extractor/extractor.js');
 var inserter = require('./public/machine/inserter/inserter.js');
 var belt = require('./public/machine/belt/belt.js');
 var furnace = require('./public/machine/furnace/furnace.js');
 var chest = require('./public/machine/chest/chest.js');
+var player = require('./public/machine/player/player.js');
 
 
 var perlin = require('perlin-noise');
 const { Entity } = require('./public/core/entity.js');
-var perlinmap = perlin.generatePerlinNoise(c.gridSize.x, c.gridSize.y).map(function(x) { return Math.round(x * 10); });
+const inventory = require('./public/core/inventory.js');
+var perlinmap = perlin.generatePerlinNoise(c.gridSize.x, c.gridSize.y).map(function(x) { return (x * 10); });
 app.listen(80);
 
 new belt.Belt();
@@ -24,11 +26,13 @@ new inserter.Inserter();
 new extractor.Extractor();
 new furnace.Furnace();
 new chest.Chest();
+c.player1 = new player.Player();
 //let personDB = [];
 let cityDB = [];
 
 let player1 = c.player1;
-player1.inv = new inventory.Inventory(undefined, {x: 0, y:0});
+player1.setup();
+player1.inv = new inventory.Inventory();
 player1.inv.packsize = 20;
 player1.inv.itemsize = 20;
 player1.inv.addItem({id: c.resDB.stone.id, n: 1});
@@ -37,35 +41,55 @@ player1.inv.addItem({id: c.resDB.iron.id, n: 17});
 player1.inv.addItem({id: c.resDB.furnace.id, n: 7});
 player1.inv.addItem({id: c.resDB.belt.id, n: 7});
 player1.inv.addItem({id: c.resDB.chest.id, n: 7});
+c.allEnts.push(player1);
+player1.id = c.allEnts.length-1;
+
 let cityID = 0, pID = 0;
 addCity(cityID++, 50, 50, "c.game")
-c.game = getCityById(0); //{id: 0, name: "", type: "c.game", x: 50, y: 50, map: Array(80).fill(0).map(()=>Array(80).fill(0).map(()=>Array(2).fill(1))), rmap:Array(80).fill(0).map(()=>Array(80).fill(0).map(()=>Array(2).fill(1))), camera: {x: 0, y:0, zoom:4}, res: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], nb:[], p: 0, w: [], population: [], dist: []}
+c.game = getCityById(0);
 
 
 function addCity(nID, x, y, t) {
   if (nID == 0) parentID = 0; else parentID = c.game.id;
-  let nCity = {id: nID, name: "", type: t, x: Math.floor(x/10)*10, y: Math.floor(y/10)*10, map: Array(c.gridSize.x).fill(0).map(()=>Array(c.gridSize.y).fill(0).map(()=>[undefined, undefined, {id:undefined, n:0}, undefined, undefined, undefined, 0])), camera: {x: 0, y:0, zoom:4}, res: [0, 100, 0, 0, 0, 0, 100, 0, 0, 0, 0], nb:[], p: parentID, w: [], dist: [], tick : 0};
+  let nCity = {
+    id: nID, name: "", 
+    type: t, 
+    x: Math.floor(x/10)*10, 
+    y: Math.floor(y/10)*10, 
+    map: Array(c.gridSize.x).fill(0).map(()=>Array(c.gridSize.y).fill(0).map(()=>[[undefined, 0], undefined, {id:undefined, n:0}, undefined, undefined, undefined, 0])), 
+    camera: {x: 0, y:0, zoom:4}, 
+    res: [0, 100, 0, 0, 0, 0, 100, 0, 0, 0, 0], 
+    nb:[],
+    p: parentID,
+    w: [],
+    dist: [],
+    tick : 0
+  };
   
   if (nID == 0) {
+    // discrete perlin
     for(let ax = 0; ax < nCity.map.length; ax++) {
       for(let ay = 0; ay < nCity.map[ax].length; ay++) {
-        let type = perlinmap[ax * c.gridSize.x + ay];
-        nCity.map[ax][ay][c.layers.terrain] = type;
+        nCity.map[ax][ay][c.layers.terrain] = [perlinmap[ax * c.gridSize.x + ay], 0];
         nCity.map[ax][ay][c.layers.vis] = 0;
       }
     }
+
     for(let ax = 0; ax < nCity.map.length; ax++) {
       for(let ay = 0; ay < nCity.map[ax].length; ay++) {
-        let type = nCity.map[ax][ay][c.layers.terrain];
+        let type = nCity.map[ax][ay][c.layers.terrain][0];
+        nCity.map[ax][ay][c.layers.terrain][0] = Math.round(type); // terrain type
+        //nCity.map[ax][ay][c.layers.terrain][1] = Math.round(Math.random() * 4);
+
         if (type > 7 && nCity.map[ax][ay][c.layers.res].id == undefined) {
           let res = Math.random();
           if (res > 0.9) resFill(nCity.map, ax, ay,  {id: c.resDB.tree.id, n: Math.floor(Math.random()*8)+3});
-          else if (res > 0.7) resFill(nCity.map, ax, ay, {id: c.resDB.coal.id, n : 100});
-          else if (res > 0.4) resFill(nCity.map, ax, ay, {id: c.resDB.stone.id, n : 100});
-          else if (res > 0.2) resFill(nCity.map, ax, ay, {id: c.resDB.iron.id, n : 100});
-          else resFill(nCity.map, ax, ay, {id: c.resDB.copper.id, n : 100});
+          else if (res > 0.7) resFill(nCity.map, ax, ay, {id: c.resDB.coal_ore.id});
+          else if (res > 0.4) resFill(nCity.map, ax, ay, {id: c.resDB.stone_ore.id});
+          else if (res > 0.2) resFill(nCity.map, ax, ay, {id: c.resDB.iron_ore.id});
+          else resFill(nCity.map, ax, ay, {id: c.resDB.copper_ore.id, n : 100});
         } else {
-          if (nCity.map[ax][ay][c.layers.res].id == 0 && nCity.map[ax][ay][c.layers.terrain] > 2) {
+          if (nCity.map[ax][ay][c.layers.res].id == 0 && nCity.map[ax][ay][c.layers.terrain][0] > 2) {
             let randomRes = Math.random();
             if (randomRes > 0.98) nCity.map[ax][ay][c.layers.res] = {id: c.resDB.tree.id, n: Math.floor(Math.random()*8)+3};
             if (randomRes > 0.99) nCity.map[ax][ay][c.layers.res] = {id: c.resDB.stone.id, n : 100};
@@ -77,7 +101,7 @@ function addCity(nID, x, y, t) {
     let pCity = getCityById(nCity.p);
     for(let ax = 0; ax < nCity.map.length; ax++) {
       for(let ay = 0; ay < nCity.map[ax].length; ay++) {
-        nCity.map[ax][ay][c.layers.terrain] = pCity.map[Math.floor(nCity.x/10) - 4 + Math.floor(ax/10)][Math.floor(nCity.y/10) - 4 + Math.floor(ay/10)][0];
+        nCity.map[ax][ay][c.layers.terrain][0] = pCity.map[Math.floor(nCity.x/10) - 4 + Math.floor(ax/10)][Math.floor(nCity.y/10) - 4 + Math.floor(ay/10)][0];
       }
     }
     pCity.w.push(nCity);
@@ -87,10 +111,9 @@ function addCity(nID, x, y, t) {
 }
 
 function resFill(map, x, y, res) {
-  if (map[x] && map[x][y] && map[x][y][c.layers.res].id == undefined && map[x][y][c.layers.terrain] > 7) {
+  if (map[x] && map[x][y] && map[x][y][c.layers.res].id == undefined && map[x][y][c.layers.terrain][0] > 7) {
     map[x][y][c.layers.res].id = res.id;
-    if (res.id == c.resDB.tree.id) map[x][y][c.layers.res].n = Math.floor(Math.random()*8)+3; 
-    else map[x][y][c.layers.res].n = res.n;
+    map[x][y][c.layers.res].n = Math.round((map[x][y][c.layers.terrain][0]-7) * 500);
     resFill(map, x + 1, y, res);
     resFill(map, x, y + 1, res);
     resFill(map, x+1, y+1, res);
@@ -216,6 +239,28 @@ function sendAll(message) {
   })
 }
 
+function getInv(x, y){
+  let tile = c.game.map[x][y];
+  if (tile[c.layers.inv] == undefined)  createInv(x, y);
+  return c.allInvs[tile[c.layers.inv]];
+}
+
+function getEnt(x, y){
+  let tile = c.game.map[x][y];
+  if (tile[c.layers.buildings] != undefined) return c.allEnts[tile[c.layers.buildings]];
+}
+
+function createInv(x, y){
+  
+  let invID = c.game.map[x][y][c.layers.inv];
+  if (invID == undefined) {
+      inv = new Inventory(c.allInvs, {x: x, y:y});
+      c.game.map[x][y][c.layers.inv] = inv.id;
+      invID = inv.id;
+  }
+  return invID;
+}
+
 function addEntity(newEntity) {
   if(!newEntity) return;
 
@@ -238,7 +283,7 @@ function addItem(newItem) {
   let inv = undefined;
   let invID = c.game.map[newItem.pos.x][newItem.pos.y][c.layers.inv];
   if (invID == undefined) {
-    inv = new inventory.Inventory(c.allInvs, newItem.pos);
+    inv = new Inventory(c.allInvs, newItem.pos);
     c.game.map[newItem.pos.x][newItem.pos.y][c.layers.inv] = inv.id;
   } else inv = inv = c.allInvs[invID];
   
@@ -276,6 +321,7 @@ function updatePlayer() {
 }
 
 function discover(x,y) {
+  if (x < 0 || y < 0) return;
   if (c.game.map[x][y] != c.game.map[x][y]) {
     c.game.map[x][y] = c.game.map[x][y];
     return true;
@@ -289,10 +335,13 @@ function update(){
   // Inertia: no entity, no movement
   c.allInvs.forEach(inv => { inv.changed = false; }  );
   
-  // machines,  belt is excluded
+  // machines,  belts and player excluded
   for(let ient = 0; ient < c.allEnts.length; ient++) {
     let entity = c.allEnts[ient];
-    if(entity && entity.type != c.resDB.belt.id && c.resName[entity.type].mach) {
+    if (!entity) continue;
+    if(entity.type == c.resDB.belt.id) continue;
+    if(entity.type == c.resDB.player.id) continue;
+    if(c.resName[entity.type].mach) {
       c.resName[entity.type].mach.update(c.game.map, entity);
     }
   }

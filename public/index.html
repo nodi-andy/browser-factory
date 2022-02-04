@@ -18,11 +18,11 @@
 <script type="text/javascript" src ="core/input.js"></script>
 <script type="text/javascript" src ="core/render.js"></script>
 <script type="text/javascript" src ="core/view.js"></script>
+<script type="text/javascript" src ="core/socket.js"></script>
+<script type="text/javascript" src ="machine/player/player.js"></script>
 <script type="text/javascript">
-    const ws        = new WebSocket('ws://192.168.1.22');
+
     canvas = document.getElementById("myCanvas");
-
-
     let context = canvas.getContext("2d");
     canvas.width  = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -34,6 +34,10 @@
     let dragStart = { x: 0, y: 0 }
     let isBuilding = false;
     let workInterval = undefined;
+    
+    player1 = new Player();
+    player1.inv = new Inventory();
+    player1.setup();
     
     //BUTTONS
     pointerButton = new Button(0,0,tileSize, tileSize);
@@ -60,40 +64,13 @@
 
 
 
-    ws.onmessage = function(e) {
-        let socketMsg = JSON.parse(e.data);
-
-        if (socketMsg.msg == "updateInv") {
-            allInvs = JSON.parse(JSON.stringify(socketMsg.data));
-        }
-        if (socketMsg.msg == "updateEntities") {
-            allEnts = JSON.parse(JSON.stringify(socketMsg.data));
-        }
-        if (socketMsg.msg == "updatePlayer") {
-            player1 = socketMsg.data;
-            player1.invOb = new Inventory(undefined, {x: 0, y:0});
-            player1.invOb.packsize = 10;
-            player1.invOb.addItems(player1.inv.packs);
-            player1.inv = player1.invOb;
-            delete player1.invOb;
-
-            for (let i = 0; i < player1.inv.packs.length; i++) {
-                let item = player1.inv.packs[i];
-                invMenu.items[i].item = item;
-            }
-
-            for (let i = player1.inv.packs.length; i < invMenu.items.length; i++) {
-                invMenu.items[i].item = undefined
-            }
-        }
-        if (socketMsg.msg == "updateMap") { game = socketMsg.data; }
-        if (socketMsg.msg == "updateMapData") { game.map = socketMsg.data; }
-
-        if (socketMsg.msg == "id") console.log("Received: '" + socketMsg.data + "'");
-    };
-
+    
     function onKeyDown(e){
-        ws.send(JSON.stringify({cmd: "keydown", data: e.code}));
+        //ws.send(JSON.stringify({cmd: "keydown", data: e.code}));
+        if(e.code == "KeyW") player1.dir = {x: 0, y:-1};
+        if(e.code == "KeyD") player1.dir = {x: 0, y:1};
+        if(e.code == "KeyD") player1.dir = {x: 1, y:0};
+        if(e.code == "KeyA") player1.dir = {x: -1, y:0};
     }
 
     function onKeyUp(e){
@@ -109,14 +86,9 @@
     let inp = new InputModule (context.canvas);
     let view = new ViewModule (window);
 
-    requestAnimationFrame( render );
-    
-
-    function mineToInv(inv) {
-        ws.send(JSON.stringify({cmd: "mineToInv", data: inv}));
-    }
 
 
+    // LOAD IMAGES
     Object.keys(resDB).forEach(key => {
             const image = new Image(tileSize, tileSize);
             if (resDB[key].type == "machine") image.src =  "machine/" + key + "/" + key +".png";
@@ -130,5 +102,16 @@
     let craftButton = new Button (tileSize*10 + 10, 0, tileSize, tileSize, undefined, beltMenu, () => {invMenu.vis = !invMenu.vis;buildMenu.vis = !buildMenu.vis; pointerButton.item = undefined;}, buildImage);
     beltMenu.vis = true;
     beltMenu.items.push(craftButton);
+
+    requestAnimationFrame( render );
+
+    gameLoop();
+    function gameLoop(){
+        /*setTimeout(gameLoop, 100);
+        Object.keys(resDB).forEach(key => {
+            if(resDB[key].mach.loop) resDB[key].mach.loop();
+        }
+    )*/
+    }
 
 </script>

@@ -1,5 +1,4 @@
-const { resDB, layers, dirToVec, DIR} = require("../../common");
-const { getInv, createInv} = require("../../core/inventory");
+const { resDB, getInv, dirToVec, DIR} = require("../../common");
 
 class Inserter {
     constructor() {

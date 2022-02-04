@@ -16,7 +16,13 @@ const resID =
     copper_cable: 5,
     extractor: 6,
     belt: 7,
+    grassland: 8,
+    coal_ore: 9,
+    stone_ore: 10,
+    copper_ore: 11,
+    iron_ore: 12,
     chest: 13,
+    player: 14,
     furnace: 15,
     tree: 16,
     coal: 17,
@@ -27,24 +33,32 @@ const resID =
 }
 
 
+
+
 const mapType     = ["darkblue", "blue", "sandybrown", "sandybrown", "darkgreen", "green", "green", "green", "green", "green"];
 const resDB =
 {
-    steel_plate     : {id: resID.steel_plate   , name: "steel plate"   , packsize: 1, open: 1   , type: "res", cost: [{id: resID.chest, n: 1}, {id: resID.coal, n:1}]},
-    chest           : {id: resID.chest         , name: "chest"         , packsize: 1, open: 1   , type: "machine", size: [1, 1], cost: [{id: resID.tree, n: 2}]},
-    extractor       : {id: resID.extractor     , name: "extractor"     , packsize: 1, open: 1   , type: "machine", size: [1, 1], cost: [{id: resID.coal, n: 2}], svg: undefined},
-    inserter         : {id: resID.inserter       , name: "inserter"    , packsize: 1, open: 1   , type: "machine", cost: [{id: resID.coal, n: 2}], svg: undefined},
-    belt            : {id: resID.belt          , name: "belt"          , packsize: 1, open: 1   , type: "machine", cost: [{id: resID.coal, n: 2}], svg: undefined},
-    furnace         : {id: resID.furnace       , name: "furnace"       , packsize: 2, open: 1   , type: "machine", size: [1, 1], cost: [{id: resID.stone, n: 5}], output: [{id:resID.iron_plate, n:1}, {id:resID.copper_plate, n:1}, {id:resID.stone_brick, n:1}, {id:resID.steel_plate, n:1}]},
-    tree            : {id: resID.tree          , name: "tree"          , packsize: 1, open: 1   , type: "res"},
-    coal            : {id: resID.coal          , name: "coal"          , packsize: 1, open: 1   , type: "res"   , emo: undefined  },
-    iron            : {id: resID.iron          , name: "iron"          , packsize: 1, open: 1   , type: "res"},
-    copper          : {id: resID.copper        , name: "copper"        , packsize: 1, open: 1   , type: "res"},
-    stone           : {id: resID.stone         , name: "stone"         , packsize: 1, open: 1   , type: "res"},
-    iron_plate      : {id: resID.iron_plate    , name: "iron plate"    , packsize: 1, open: 1   , type: "res", cost: [{id: resID.iron, n: 1}, {id: resID.coal, n:1}]},
-    copper_plate    : {id: resID.copper_plate  , name: "copper plate"  , packsize: 1, open: 1   , type: "res", cost: [{id: resID.copper, n: 1}, {id: resID.coal, n:1}]},
-    copper_cable    : {id: resID.copper_cable  , name: "copper cable"  , packsize: 1, open: 1   , type: "res", cost: [{id: resID.copper, n: 1}]},
-    stone_brick     : {id: resID.stone_brick   , name: "stone brick"   , packsize: 1, open: 1   , type: "res", cost: [{id: resID.stone, n: 1}, {id: resID.coal, n:1}]},
+    copper_ore      : {id: resID.copper_ore     , name: "copper ore"    , type: "ore"},
+    coal_ore        : {id: resID.coal_ore       , name: "coal ore"      , type: "ore"},
+    stone_ore       : {id: resID.stone_ore      , name: "stone ore"     , type: "ore"},
+    iron_ore        : {id: resID.iron_ore       , name: "iron ore"      , type: "ore"},
+    grassland       : {id: resID.grassland      , name: "grassland"     , type: "ore"},
+    player          : {id: resID.player         , name: "player"        , type: "machine"},
+    steel_plate     : {id: resID.steel_plate   , name: "steel plate"    , packsize: 1, open: 1   , type: "res", cost: [{id: resID.chest, n: 1}, {id: resID.coal, n:1}]},
+    chest           : {id: resID.chest         , name: "chest"          , packsize: 1, open: 1   , type: "machine", size: [1, 1], cost: [{id: resID.tree, n: 2}]},
+    extractor       : {id: resID.extractor     , name: "extractor"      , packsize: 1, open: 1   , type: "machine", size: [1, 1], cost: [{id: resID.coal, n: 2}], svg: undefined},
+    inserter        : {id: resID.inserter       , name: "inserter"      , packsize: 1, open: 1   , type: "machine", cost: [{id: resID.coal, n: 2}], svg: undefined},
+    belt            : {id: resID.belt          , name: "belt"           , packsize: 1, open: 1   , type: "machine", cost: [{id: resID.coal, n: 2}], svg: undefined},
+    furnace         : {id: resID.furnace       , name: "furnace"        , packsize: 2, open: 1   , type: "machine", size: [1, 1], cost: [{id: resID.stone, n: 5}], output: [{id:resID.iron_plate, n:1}, {id:resID.copper_plate, n:1}, {id:resID.stone_brick, n:1}, {id:resID.steel_plate, n:1}]},
+    tree            : {id: resID.tree          , name: "tree"           , packsize: 1, open: 1   , type: "res"},
+    coal            : {id: resID.coal          , name: "coal"           , packsize: 1, open: 1   , type: "res"   , emo: undefined  },
+    iron            : {id: resID.iron          , name: "iron"           , packsize: 1, open: 1   , type: "res"},
+    copper          : {id: resID.copper        , name: "copper"         , packsize: 1, open: 1   , type: "res"},
+    stone           : {id: resID.stone         , name: "stone"          , packsize: 1, open: 1   , type: "res"},
+    iron_plate      : {id: resID.iron_plate    , name: "iron plate"     , packsize: 1, open: 1   , type: "res", cost: [{id: resID.iron, n: 1}, {id: resID.coal, n:1}]},
+    copper_plate    : {id: resID.copper_plate  , name: "copper plate"   , packsize: 1, open: 1   , type: "res", cost: [{id: resID.copper, n: 1}, {id: resID.coal, n:1}]},
+    copper_cable    : {id: resID.copper_cable  , name: "copper cable"   , packsize: 1, open: 1   , type: "res", cost: [{id: resID.copper, n: 1}]},
+    stone_brick     : {id: resID.stone_brick   , name: "stone brick"    , packsize: 1, open: 1   , type: "res", cost: [{id: resID.stone, n: 1}, {id: resID.coal, n:1}]},
 }
 
 const resName =
@@ -57,7 +71,13 @@ const resName =
     5: resDB.copper_cable,
     6: resDB.extractor,
     7: resDB.belt,
+    8: resDB.grassland,
+    9: resDB.coal_ore,
+    10: resDB.stone_ore,
+    11: resDB.copper_ore,
+    12: resDB.iron_ore,
     13: resDB.chest,
+    14: resDB.player,
     15: resDB.furnace,
     16: resDB.tree,
     17: resDB.coal,
@@ -72,7 +92,7 @@ const  layers = {terrain: 0, floor:1, res: 2, buildings:3, inv:4, inext: 5, vis:
 var allInvs = [];
 var allEnts = [];
 let game        = {};
-let player1             = {pos: {x: 200, y: 200}, inv: [], belt: []};
+let player1;
 var pointerButton;
 var curResPos = {x: 0, y: 0};
 var lastResPos = {x: 0, y: 0};
@@ -137,13 +157,18 @@ function mineToInv(inv) {
 }
 
 
+  
+var c = Object()
+c.resID = resID;
+c.game = game;
+
 if (exports == undefined) var exports = {};
 exports.resDB = resDB;
+exports.resID = resID;
 exports.DIR = DIR;
 exports.layers = layers;
 exports.gridSize = gridSize;
 exports.player1 = player1;
-exports.game = game;
 exports.dist = dist;
 exports.distV = distV;
 exports.toUnitV = toUnitV;
@@ -155,3 +180,4 @@ exports.bookFromInv = bookFromInv;
 exports.resName = resName;
 exports.dirToVec = dirToVec;
 exports.tick = tick;
+exports.c = c;

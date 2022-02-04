@@ -1,5 +1,4 @@
-const { resDB, layers, DIR  } = require("../../common");
-const { getInv, createInv} = require("../../core/inventory");
+const { resDB, getInv, DIR  } = require("../../common");
 
 class Chest {
     constructor() {

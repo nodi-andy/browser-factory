@@ -12,12 +12,19 @@ function render(){
 
                 // MAP
                 context.beginPath();
-                let type = tile[layers.terrain];
+                let type = tile[layers.terrain][0];
                 context.fillStyle = mapType[type];//"black";//mapType[type];
                 context.rect(ax * tileSize, ay * tileSize, tileSize+1, tileSize+1);
                 context.fill();
 
-                // RESOURCES
+                // PLAYER
+                if (ax == Math.floor(player1.pos.x/10) && ay == Math.floor(player1.pos.y/10)) {
+                    context.drawImage(resDB.player.img, player1.ss.x * 96, player1.ss.y * 128, 96, 128, player1.pos.x, player1.pos.y, 96, 128)
+                }
+                /*context.fillStyle = "#03A062";
+                context.font = "16px Arial";
+                context.fillText(tile[layers.terrain], ax * tileSize, ay * tileSize);*/
+            // RESOURCES
                 //context.font = "50px Arial";
                 type = tile[layers.res].id;
                 let n = tile[layers.res].n;
@@ -25,10 +32,10 @@ function render(){
                 //context.fillStyle = mapType[type];
                 //if (resName[type].emo && n) context.fillText(resName[type].emo, ax*tileSize, ay*tileSize + 8);
                 if (type && resName[type].img && n) {
-                    context.drawImage(resName[type].img, ax * tileSize, ay * tileSize)
+                    context.drawImage(resName[type].img, Math.min(Math.floor(n / 250), 3) * 64, 2, 60, 60, ax * tileSize, ay * tileSize, 64, 64)
                 }
 
-                // BUILDING
+                // ENTITY
                 let entID = tile[layers.buildings];
                 var b;
                 if (entID != undefined) {
@@ -89,13 +96,9 @@ function render(){
         });
     }
     
-    // PLAYER
-    context.beginPath();
-    context.font = "40px Arial";
-    context.fillText("🚶", player1.pos.x-6, player1.pos.y);
-    context.stroke();
 
-    // BUILDING CANDIDATE
+
+    // ENTITY CANDIDATE
     if (pointerButton.item) {
         let type = pointerButton.item.id;
         if (type && resName[type].img) {
@@ -112,10 +115,12 @@ function render(){
 
     if (curResPos && game.map) {
         let inv = game.map[curResPos.x][curResPos.y][layers.inv];
+        let res = game.map[curResPos.x][curResPos.y][layers.res];
         context.font = "12px Arial";
         context.fillStyle = "white";
         context.fillText(curResPos.x + ", " + curResPos.y, curResPos.x * tileSize, curResPos.y * tileSize);
         if (inv != undefined && allInvs[inv]) context.fillText(JSON.stringify(allInvs[inv].packs, null, 1), curResPos.x * tileSize, curResPos.y * tileSize + 24);
+        if (res != undefined) context.fillText(JSON.stringify(res, null, 1), curResPos.x * tileSize, curResPos.y * tileSize + 48);
         context.stroke();
     }
 
@@ -123,7 +128,6 @@ function render(){
 
     // OVERLAY
     context.resetTransform();
-
 
     var xpos = beltMenu.pos.x;
     var ypos = beltMenu.pos.y;
