@@ -24,10 +24,7 @@ class Extractor {
               tile[layers.inv] = inv.id;
             } else inv = inv = allInvs[invID];
             
-            inv.addItems(inv.packs, false, true);
-            inv.changed = true;
-            inv.addItem( {id: newItem.type, n: newItem.n}, false, true);
-            tile[layers.res].n -= newItem.n;
+            if(inv.addItem( {id: newItem.type, n: newItem.n})) tile[layers.res].n -= newItem.n;
         }
     }
 }

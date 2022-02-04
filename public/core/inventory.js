@@ -17,32 +17,34 @@ class Inventory {
         this.addItem(newItem);
     }
 
-    addItem(newItem, dir, reserve) {
+    addItem(newItem, reserve) {
       if (newItem == undefined) return false;
 
       let selectedPacks = this.packs;
       if (reserve) selectedPacks = this.nextpacks;
 
-      for(let i = 0; i < selectedPacks.length && newItem; i++) {
-        let invObj = selectedPacks[i];
-        if (invObj.id == newItem.id) {
-          if (invObj.n + newItem.n< this.itemsize) {
-            invObj.n += newItem.n;
-            return true;
-          } else return false;
+      if (newItem.fixed != true) {
+        for(let i = 0; i < selectedPacks.length && newItem; i++) {
+          let pack = selectedPacks[i];
+          if (pack.id == undefined) pack.id = newItem.id;
+          if (pack.id == newItem.id) {
+            if (pack.n + newItem.n <= this.itemsize) {
+              pack.n += newItem.n;
+              return true;
+            } //else return false;
+          }
         }
       }
 
       if (selectedPacks.length < this.packsize) {
-        selectedPacks.push({id: newItem.id, n: newItem.n, dir: true});
+        selectedPacks.push({id: newItem.id, n: newItem.n, dir: false, fixed: newItem.fixed});
         return true;
       }
-
-      return false;
+    return false;
     }
 
     addItems(newItems, dir, reserve) {
-      newItems.forEach(item => {this.addItem(item, dir, reserve)});
+      newItems.forEach(item => {this.addItem(item, reserve)});
     }
 
     remItem(newItem, reserve) {
@@ -53,8 +55,12 @@ class Inventory {
         if (invObj.id == newItem.id) {
           invObj.n -= newItem.n;
           if (invObj.n == 0) {
-            selectedItems.splice(i, 1);
-            i--;
+            if (newItem.fixed == true) {
+              invObj.id = undefined;
+            } else {
+              selectedItems.splice(i, 1);
+              i--;
+            }
           }
           newItem = null;
         }

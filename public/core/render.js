@@ -24,7 +24,7 @@ function render(){
                 //if (n < 8) context.font = n * 4+ "px Arial";
                 //context.fillStyle = mapType[type];
                 //if (resName[type].emo && n) context.fillText(resName[type].emo, ax*tileSize, ay*tileSize + 8);
-                if (type && resName[type].img) {
+                if (type && resName[type].img && n) {
                     context.drawImage(resName[type].img, ax * tileSize, ay * tileSize)
                 }
 
@@ -34,30 +34,47 @@ function render(){
                 if (entID != undefined) {
                     b = allEnts[entID];
                     context.save();
-                    if (resName[b.type].img) {
+                    if (b && b.type && resName[b.type].img) {
                         context.translate((ax + 0.5) * tileSize, (ay + 0.5) *tileSize);
                         context.rotate(b.dir * Math.PI/2);
                         context.translate(-tileSize / 2, -tileSize / 2);
                         context.drawImage(resName[b.type].img, 0, 0)
                     }
                     context.restore();
+                }
             }
+        }
 
-                // ITEMS
-                let itemID = tile[layers.inv];
-                if (itemID != undefined) {
-                    let iForEach = 0;
-                    let items = allInvs[itemID].packs;
-                    context.save();
-                    context.translate(ax * tileSize, (ay + 0.25) * tileSize);
-                    items.forEach(item => {
-                        context.translate( iForEach / 8 * tileSize, 0);
+
+        for(let ax = 0; ax < game.map.length; ax++) {
+            for(let ay = 0; ay < game.map[ax].length; ay++) {
+            let tile = game.map[ax][ay];
+            let entID = tile[layers.buildings];
+            var b, dirV;
+            if (entID != undefined) b = allEnts[entID];
+            if (b) {
+                    dirV = dirToVec[b.dir];
+                    // ITEMS
+                    let itemID = tile[layers.inv];
+                    if (itemID != undefined && allInvs[itemID]) {
+                        let packs = allInvs[itemID].packs;
+                        context.save();
+                        let dx = ax + 0.3 + (0.0 * Math.abs(dirV.y)) - (0.25 * dirV.x) ;
+                        let dy = ay + 0.3 * Math.abs(dirV.x) - 0.25 * dirV.y;
+
+                        context.translate(dx * tileSize, dy * tileSize);
                         context.scale(0.5, 0.5);
-                        context.drawImage(resName[item.id].img, 0, 0)
+
+                        for (let iitem = 0; iitem < packs.length; iitem++) {
+                            let item = packs[iitem];
+                            if (item.id != undefined) {
+                                context.drawImage(resName[item.id].img, 0, 0)
+                            }
+                            context.translate(tileSize * 0.5 * dirV.x, tileSize * 0.5 * dirV.y);
+                        }
                         context.scale(2, 2);
-                        iForEach++;
-                    });
-                    context.restore();
+                        context.restore();
+                    }
                 }
             }
         }
@@ -98,7 +115,7 @@ function render(){
         context.font = "12px Arial";
         context.fillStyle = "white";
         context.fillText(curResPos.x + ", " + curResPos.y, curResPos.x * tileSize, curResPos.y * tileSize);
-        if (inv != undefined) context.fillText(JSON.stringify(allInvs[inv].packs, null, 1), curResPos.x * tileSize, curResPos.y * tileSize + 24);
+        if (inv != undefined && allInvs[inv]) context.fillText(JSON.stringify(allInvs[inv].packs, null, 1), curResPos.x * tileSize, curResPos.y * tileSize + 24);
         context.stroke();
     }
 

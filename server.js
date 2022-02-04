@@ -224,6 +224,7 @@ function addEntity(newEntity) {
     let ent = new Entity(c.allEnts, newEntity.pos.x, newEntity.pos.y, newEntity.dir, newEntity.w, newEntity.h, newEntity.type);
     c.game.map[newEntity.pos.x][newEntity.pos.y][c.layers.buildings] = ent.id;
   }
+  if (c.resName[newEntity.type].mach.setup) c.resName[newEntity.type].mach.setup(c.game.map, newEntity);
 /*  let mach = c.resName[ent.type].mach;
   if (mach) {
     ent.m = new mach(ent);
@@ -241,7 +242,7 @@ function addItem(newItem) {
     c.game.map[newItem.pos.x][newItem.pos.y][c.layers.inv] = inv.id;
   } else inv = inv = c.allInvs[invID];
   
-  inv.addItem( {id: newItem.inv.item.id, n: newItem.inv.item.n});
+  inv.addItem( {id: newItem.inv.item.id, n: 1});
   sendAll(JSON.stringify({msg:"updateInv", data:c.allInvs}));
   sendAll(JSON.stringify({msg:"updateMap", data:c.game}));
 }
@@ -307,6 +308,7 @@ function update(){
     let belt = belts[ibelt];
     if (belt.done) ibelt++
     else {
+      // go forward until the first belt
       while(belt) {
         let x = belt.pos.x;
         let y = belt.pos.y;
@@ -329,15 +331,13 @@ function update(){
   c.allInvs.forEach(inv => {
     if (inv.changed) {
       inv.packs = JSON.parse(JSON.stringify(inv.nextpacks));
-      inv.nextpacks = [];
     }
-  }
-  );
+  });
 
 
   sendAll(JSON.stringify({msg:"updateInv", data:c.allInvs}));
   sendAll(JSON.stringify({msg: "updateMapData", data:c.game.map}));
-  setTimeout(update, 500);
+  setTimeout(update, 50);
 }
 
 function fillArray(arr, x, y, dx, dy, d) {

@@ -8,7 +8,7 @@ class Furnace {
 
     update(map, ent){
         let inv = getInv(ent.pos.x, ent.pos.y);
-        inv.packsize = 10;
+        inv.packsize = 3;
         inv.itemsize = 50;
         inv.setAllPacksDir(DIR.in);
         inv.setAsOutput(resDB.stone_brick);
