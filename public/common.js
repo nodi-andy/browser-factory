@@ -69,7 +69,6 @@ const resName =
 
 const dirToVec = [{x: 1, y:0},{x: 0, y:1},{x: -1, y:0},{x: 0, y:-1}];
 const  layers = {terrain: 0, floor:1, res: 2, buildings:3, inv:4, inext: 5, vis:6 } 
-var global = Object;
 var allInvs = [];
 var allEnts = [];
 let game        = {};
