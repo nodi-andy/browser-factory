@@ -35,9 +35,10 @@
     let isBuilding = false;
     let workInterval = undefined;
     
-    player1 = new Player();
-    player1.inv = new Inventory();
-    player1.setup();
+    c.player1 = new Player();
+    c.player1.inv = new Inventory();
+    c.player1.setup();
+    player1 = c.player1;
     
     //BUTTONS
     pointerButton = new Button(0,0,tileSize, tileSize);
@@ -49,11 +50,11 @@
         }
     }
 
-    buildMenu.items.push(new Button (5 * tileSize + 10, 0, tileSize, tileSize, {id: resDB.extractor.id, n: 0}   , invMenu, () => {bookFromInv(player1.inv, [resDB.extractor])}  ))
-    buildMenu.items.push(new Button (6 * tileSize + 10, 0, tileSize, tileSize, {id: resDB.furnace.id, n: 0}     , invMenu, () => {bookFromInv(player1.inv, [resDB.furnace])}))
-    buildMenu.items.push(new Button (7 * tileSize + 10, 0, tileSize, tileSize, {id: resDB.chest.id, n: 0}       , invMenu, () => {bookFromInv(player1.inv, [resDB.chest])}))
-    buildMenu.items.push(new Button (8 * tileSize + 10, 0, tileSize, tileSize, {id: resDB.inserter.id, n: 0}       , invMenu, () => {bookFromInv(player1.inv, [resDB.inserter])}))
-    buildMenu.items.push(new Button (9 * tileSize + 10, 0, tileSize, tileSize, {id: resDB.belt.id, n: 0}        , invMenu, () => {bookFromInv(player1.inv, [resDB.belt])}))
+    buildMenu.items.push(new Button (5 * tileSize + 10, 0, tileSize, tileSize, {id: resDB.extractor.id, n: 0}   , invMenu, () => {bookFromInv(c.player1.inv, [resDB.extractor])}  ))
+    buildMenu.items.push(new Button (6 * tileSize + 10, 0, tileSize, tileSize, {id: resDB.furnace.id, n: 0}     , invMenu, () => {bookFromInv(c.player1.inv, [resDB.furnace])}))
+    buildMenu.items.push(new Button (7 * tileSize + 10, 0, tileSize, tileSize, {id: resDB.chest.id, n: 0}       , invMenu, () => {bookFromInv(c.player1.inv, [resDB.chest])}))
+    buildMenu.items.push(new Button (8 * tileSize + 10, 0, tileSize, tileSize, {id: resDB.inserter.id, n: 0}    , invMenu, () => {bookFromInv(c.player1.inv, [resDB.inserter])}))
+    buildMenu.items.push(new Button (9 * tileSize + 10, 0, tileSize, tileSize, {id: resDB.belt.id, n: 0}        , invMenu, () => {bookFromInv(c.player1.inv, [resDB.belt])}))
 
     function getCityById(searchID) {
         for (let i = 0; i < city.w.length; i++) {
@@ -62,18 +63,20 @@
         }
     }
 
-
-
     
     function onKeyDown(e){
         //ws.send(JSON.stringify({cmd: "keydown", data: e.code}));
-        if(e.code == "KeyW") player1.dir = {x: 0, y:-1};
-        if(e.code == "KeyD") player1.dir = {x: 0, y:1};
-        if(e.code == "KeyD") player1.dir = {x: 1, y:0};
-        if(e.code == "KeyA") player1.dir = {x: -1, y:0};
+        if(e.code == "KeyW") c.player1.dir.y = -1;
+        if(e.code == "KeyS") c.player1.dir.y =1;
+        if(e.code == "KeyD") c.player1.dir.x = 1;
+        if(e.code == "KeyA") c.player1.dir.x = -1;
     }
 
     function onKeyUp(e){
+        if(e.code == "KeyW") c.player1.dir.y = 0;
+        if(e.code == "KeyS") c.player1.dir.y = 0;
+        if(e.code == "KeyD") c.player1.dir.x = 0;
+        if(e.code == "KeyA") c.player1.dir.x = 0;
         if(e.code == "KeyR") buildDir = (buildDir+1)%4;
         if(e.code == "KeyE") invMenu.vis = !invMenu.vis;
         ws.send(JSON.stringify({cmd: "keyup", data: e.code}));
@@ -107,11 +110,12 @@
 
     gameLoop();
     function gameLoop(){
-        /*setTimeout(gameLoop, 100);
-        Object.keys(resDB).forEach(key => {
-            if(resDB[key].mach.loop) resDB[key].mach.loop();
+        setTimeout(gameLoop, 10);
+        /*Object.keys(resDB).forEach(key => {
+            if(resDB[key].mach && resDB[key].mach.loop) resDB[key].mach.loop();
         }
-    )*/
+        )*/
+        c.player1.loop();
     }
 
 </script>

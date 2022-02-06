@@ -29,20 +29,23 @@ const resID =
     iron: 18,
     copper: 19,
     stone: 20,
-    iron_plate: 21
+    iron_plate: 21,
+    deepwater: 22,
+    water: 23,
+    hills: 24
 }
-
-
-
 
 const mapType     = ["darkblue", "blue", "sandybrown", "sandybrown", "darkgreen", "green", "green", "green", "green", "green"];
 const resDB =
 {
+    hills           : {id: resID.hills     , name: "hills"    , type: "terrain"},
+    deepwater      : {id: resID.deepwater     , name: "deep water"    , type: "terrain"},
+    water          : {id: resID.water           , name: "water"    , type: "terrain"},
     copper_ore      : {id: resID.copper_ore     , name: "copper ore"    , type: "ore"},
     coal_ore        : {id: resID.coal_ore       , name: "coal ore"      , type: "ore"},
     stone_ore       : {id: resID.stone_ore      , name: "stone ore"     , type: "ore"},
     iron_ore        : {id: resID.iron_ore       , name: "iron ore"      , type: "ore"},
-    grassland       : {id: resID.grassland      , name: "grassland"     , type: "ore"},
+    grassland       : {id: resID.grassland      , name: "grassland"     , type: "terrain"},
     player          : {id: resID.player         , name: "player"        , type: "machine"},
     steel_plate     : {id: resID.steel_plate   , name: "steel plate"    , packsize: 1, open: 1   , type: "res", cost: [{id: resID.chest, n: 1}, {id: resID.coal, n:1}]},
     chest           : {id: resID.chest         , name: "chest"          , packsize: 1, open: 1   , type: "machine", size: [1, 1], cost: [{id: resID.tree, n: 2}]},
@@ -84,7 +87,10 @@ const resName =
     18: resDB.iron,
     19: resDB.copper,
     20: resDB.stone,
-    21: resDB.iron_plate
+    21: resDB.iron_plate,
+    22: resDB.deepwater,
+    23: resDB.water,
+    24: resDB.hills
 }
 
 const dirToVec = [{x: 1, y:0},{x: 0, y:1},{x: -1, y:0},{x: 0, y:-1}];
@@ -119,6 +125,7 @@ function getDistance(b1, b2) {
 }
 function distV(a, b) {return {x: a.x-b.x, y: a.y-b.y};}
 function toUnitV(v) {
+    if (v.x == 0 && v.y == 0) return {x:0, y:0};
     let len = Math.hypot(v.x, v.y);
     return {x: v.x / len, y: v.y / len}
 }
@@ -158,9 +165,11 @@ function mineToInv(inv) {
 
 
   
-var c = Object()
+var c = {};
+c.resDB = resDB;
 c.resID = resID;
 c.game = game;
+c.player1 = player1;
 
 if (exports == undefined) var exports = {};
 exports.resDB = resDB;
@@ -168,7 +177,6 @@ exports.resID = resID;
 exports.DIR = DIR;
 exports.layers = layers;
 exports.gridSize = gridSize;
-exports.player1 = player1;
 exports.dist = dist;
 exports.distV = distV;
 exports.toUnitV = toUnitV;

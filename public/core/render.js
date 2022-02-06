@@ -6,33 +6,37 @@ function render(){
 
 
     if (game.map) {
-        for(let ax = 0; ax < game.map.length; ax++) {
-            for(let ay = 0; ay < game.map[ax].length; ay++) {
+        let minTile = worldToTile(screenToWorld({x: 0, y: 0}));
+        let maxTile = worldToTile(screenToWorld({x: context.canvas.width, y: context.canvas.height}));
+        for(let ax = minTile.x; ax < Math.min(maxTile.x + 1, gridSize.x); ax++) {
+            for(let ay = minTile.y; ay < Math.min(maxTile.y + 1, gridSize.y); ay++) {
                 let tile = game.map[ax][ay];
 
                 // MAP
                 context.beginPath();
                 let type = tile[layers.terrain][0];
-                context.fillStyle = mapType[type];//"black";//mapType[type];
+                let variant = tile[layers.terrain][1];
+/*                context.fillStyle = mapType[type];//"black";
                 context.rect(ax * tileSize, ay * tileSize, tileSize+1, tileSize+1);
-                context.fill();
+                context.fill();*/
+                context.drawImage(resName[type].img, variant * 64, 0, tileSize, tileSize, ax * tileSize, ay * tileSize, tileSize, tileSize)
 
                 // PLAYER
-                if (ax == Math.floor(player1.pos.x/10) && ay == Math.floor(player1.pos.y/10)) {
-                    context.drawImage(resDB.player.img, player1.ss.x * 96, player1.ss.y * 128, 96, 128, player1.pos.x, player1.pos.y, 96, 128)
+                if (ax-2 == Math.floor(c.player1.pos.x / tileSize) && ay-2 == Math.floor(c.player1.pos.y / tileSize)) {
+                    context.drawImage(resDB.player.img, c.player1.ss.x * 96, c.player1.ss.y * 132, 96, 132, c.player1.pos.x, c.player1.pos.y, 96, 132)
                 }
                 /*context.fillStyle = "#03A062";
                 context.font = "16px Arial";
                 context.fillText(tile[layers.terrain], ax * tileSize, ay * tileSize);*/
-            // RESOURCES
-                //context.font = "50px Arial";
+    
+                // RESOURCES
                 type = tile[layers.res].id;
                 let n = tile[layers.res].n;
                 //if (n < 8) context.font = n * 4+ "px Arial";
                 //context.fillStyle = mapType[type];
                 //if (resName[type].emo && n) context.fillText(resName[type].emo, ax*tileSize, ay*tileSize + 8);
                 if (type && resName[type].img && n) {
-                    context.drawImage(resName[type].img, Math.min(Math.floor(n / 250), 3) * 64, 2, 60, 60, ax * tileSize, ay * tileSize, 64, 64)
+                    context.drawImage(resName[type].img, Math.min(Math.floor(n / 200), 7) * 64, 2, 60, 60, ax * tileSize, ay * tileSize, 64, 64)
                 }
 
                 // ENTITY

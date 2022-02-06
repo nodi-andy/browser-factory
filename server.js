@@ -6,8 +6,8 @@ app.use(express.static('public'));
 const users = new Map();
 require('express-ws')(app);
 var c = require('./public/common.js');
-require('./public/core/inventory.js');
-var extractor = require('./public/machine/extractor/extractor.js');
+
+new (require('./public/machine/extractor/extractor.js').Extractor)();
 var inserter = require('./public/machine/inserter/inserter.js');
 var belt = require('./public/machine/belt/belt.js');
 var furnace = require('./public/machine/furnace/furnace.js');
@@ -18,19 +18,19 @@ var player = require('./public/machine/player/player.js');
 var perlin = require('perlin-noise');
 const { Entity } = require('./public/core/entity.js');
 const inventory = require('./public/core/inventory.js');
-var perlinmap = perlin.generatePerlinNoise(c.gridSize.x, c.gridSize.y).map(function(x) { return (x * 10); });
+var terrainmap = perlin.generatePerlinNoise(c.gridSize.x, c.gridSize.y).map(function(x) { return (x * 10); });
+
 app.listen(80);
 
 new belt.Belt();
 new inserter.Inserter();
-new extractor.Extractor();
 new furnace.Furnace();
 new chest.Chest();
-c.player1 = new player.Player();
+let player1 = new player.Player();
 //let personDB = [];
 let cityDB = [];
 
-let player1 = c.player1;
+c.player1 = player1;
 player1.setup();
 player1.inv = new inventory.Inventory();
 player1.inv.packsize = 20;
@@ -70,18 +70,41 @@ function addCity(nID, x, y, t) {
     // discrete perlin
     for(let ax = 0; ax < nCity.map.length; ax++) {
       for(let ay = 0; ay < nCity.map[ax].length; ay++) {
-        nCity.map[ax][ay][c.layers.terrain] = [perlinmap[ax * c.gridSize.x + ay], 0];
+        let perlinVal = terrainmap[ax * c.gridSize.x + ay];
+        let resVal = 0;
+        if (perlinVal < 1) resVal = [c.resDB.deepwater.id, 0];
+        else if (perlinVal < 2) resVal = [c.resDB.water.id, 0];
+        else if (perlinVal < 8) resVal = [c.resDB.grassland.id, Math.round(Math.random() * 3)];
+        else resVal = [c.resDB.hills.id, Math.round(Math.random() * 3)];
+
+        nCity.map[ax][ay][c.layers.terrain] = resVal;
         nCity.map[ax][ay][c.layers.vis] = 0;
       }
     }
 
-    for(let ax = 0; ax < nCity.map.length; ax++) {
-      for(let ay = 0; ay < nCity.map[ax].length; ay++) {
-        let type = nCity.map[ax][ay][c.layers.terrain][0];
-        nCity.map[ax][ay][c.layers.terrain][0] = Math.round(type); // terrain type
-        //nCity.map[ax][ay][c.layers.terrain][1] = Math.round(Math.random() * 4);
+    Object.keys(c.resDB).forEach(name => {
+      let res = c.resDB[name];
+      if (res.type == "ore") {
+        var resmap = perlin.generatePerlinNoise(c.gridSize.x, c.gridSize.y).map(function(x) { return (x * 10); });
+        for(let ax = 0; ax < nCity.map.length; ax++) {
+          for(let ay = 0; ay < nCity.map[ax].length; ay++) {
+            let type = nCity.map[ax][ay][c.layers.terrain][0];
+            let perlinVal = resmap[ax * c.gridSize.x + ay];
+            if (perlinVal > 5 && 
+                nCity.map[ax][ay][c.layers.res].id == undefined &&
+                nCity.map[ax][ay][c.layers.terrain][0] == c.resDB.grassland.id)
+            {
+              nCity.map[ax][ay][c.layers.res].id = res.id;
+              nCity.map[ax][ay][c.layers.res].n = (perlinVal - 7) * 500;
+            }
+          }
+        }
+    
+      }
+    });
 
-        if (type > 7 && nCity.map[ax][ay][c.layers.res].id == undefined) {
+    
+        /*if (type > 7 && nCity.map[ax][ay][c.layers.res].id == undefined) {
           let res = Math.random();
           if (res > 0.9) resFill(nCity.map, ax, ay,  {id: c.resDB.tree.id, n: Math.floor(Math.random()*8)+3});
           else if (res > 0.7) resFill(nCity.map, ax, ay, {id: c.resDB.coal_ore.id});
@@ -94,9 +117,8 @@ function addCity(nID, x, y, t) {
             if (randomRes > 0.98) nCity.map[ax][ay][c.layers.res] = {id: c.resDB.tree.id, n: Math.floor(Math.random()*8)+3};
             if (randomRes > 0.99) nCity.map[ax][ay][c.layers.res] = {id: c.resDB.stone.id, n : 100};
           }
-        }
-      }
-    }
+        }*/
+
   } else {
     let pCity = getCityById(nCity.p);
     for(let ax = 0; ax < nCity.map.length; ax++) {
