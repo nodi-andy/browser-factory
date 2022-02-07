@@ -6,18 +6,19 @@ app.use(express.static('public'));
 const users = new Map();
 require('express-ws')(app);
 var c = require('./public/common.js');
+const Inventory = require('./public/core/inventory.js').Inventory;
 
-new (require('./public/machine/extractor/extractor.js').Extractor)();
-var inserter = require('./public/machine/inserter/inserter.js');
-var belt = require('./public/machine/belt/belt.js');
-var furnace = require('./public/machine/furnace/furnace.js');
-var chest = require('./public/machine/chest/chest.js');
-var player = require('./public/machine/player/player.js');
+new (require('./public/entity/extractor/extractor.js').Extractor)();
+var inserter = require('./public/entity/inserter/inserter.js');
+var belt = require('./public/entity/belt/belt.js');
+var furnace = require('./public/entity/stone_furnace/stone_furnace.js');
+var chest = require('./public/entity/chest/chest.js');
+var player = require('./public/entity/player/player.js');
 
 
 var perlin = require('perlin-noise');
 const { Entity } = require('./public/core/entity.js');
-const inventory = require('./public/core/inventory.js');
+
 var terrainmap = perlin.generatePerlinNoise(c.gridSize.x, c.gridSize.y).map(function(x) { return (x * 10); });
 
 app.listen(80);
@@ -32,13 +33,13 @@ let cityDB = [];
 
 c.player1 = player1;
 player1.setup();
-player1.inv = new inventory.Inventory();
+player1.inv = new Inventory();
 player1.inv.packsize = 20;
 player1.inv.itemsize = 20;
 player1.inv.addItem({id: c.resDB.stone.id, n: 1});
 player1.inv.addItem({id: c.resDB.coal.id, n: 87});
 player1.inv.addItem({id: c.resDB.iron.id, n: 17});
-player1.inv.addItem({id: c.resDB.furnace.id, n: 7});
+player1.inv.addItem({id: c.resDB.stone_furnace.id, n: 7});
 player1.inv.addItem({id: c.resDB.belt.id, n: 7});
 player1.inv.addItem({id: c.resDB.chest.id, n: 7});
 c.allEnts.push(player1);
@@ -84,18 +85,18 @@ function addCity(nID, x, y, t) {
 
     Object.keys(c.resDB).forEach(name => {
       let res = c.resDB[name];
-      if (res.type == "ore") {
+      if (res.type == "res") {
         var resmap = perlin.generatePerlinNoise(c.gridSize.x, c.gridSize.y).map(function(x) { return (x * 10); });
         for(let ax = 0; ax < nCity.map.length; ax++) {
           for(let ay = 0; ay < nCity.map[ax].length; ay++) {
             let type = nCity.map[ax][ay][c.layers.terrain][0];
             let perlinVal = resmap[ax * c.gridSize.x + ay];
-            if (perlinVal > 5 && 
+            if (perlinVal > 8 && 
                 nCity.map[ax][ay][c.layers.res].id == undefined &&
                 nCity.map[ax][ay][c.layers.terrain][0] == c.resDB.grassland.id)
             {
               nCity.map[ax][ay][c.layers.res].id = res.id;
-              nCity.map[ax][ay][c.layers.res].n = (perlinVal - 7) * 500;
+              nCity.map[ax][ay][c.layers.res].n = Math.round((perlinVal - 8) * 300);
             }
           }
         }
@@ -249,7 +250,7 @@ app.ws('/', function(ws, req) {
     if (ws.uuid) users.delete(ws.uuid);
   });
   ws.send(JSON.stringify({msg: "id" , data:JSON.stringify(ws.uuid)}));
-  ws.send(JSON.stringify({msg: "updateMap", data:c.game}));
+  ws.send(JSON.stringify({msg: "updateMapData", data:c.game.map}));
   ws.send(JSON.stringify({msg: "updatePlayer", data: player1}));
   ws.send(JSON.stringify({msg: "updateInv", data:c.allInvs}));
   ws.send(JSON.stringify({msg: "updateEntities", data: c.allEnts}));
@@ -298,7 +299,6 @@ function addEntity(newEntity) {
   }*/
   
   sendAll(JSON.stringify({msg:"updateEntities", data: c.allEnts}));
-  sendAll(JSON.stringify({msg:"updateMap", data:c.game}));
 }
 
 function addItem(newItem) {
@@ -311,7 +311,6 @@ function addItem(newItem) {
   
   inv.addItem( {id: newItem.inv.item.id, n: 1});
   sendAll(JSON.stringify({msg:"updateInv", data:c.allInvs}));
-  sendAll(JSON.stringify({msg:"updateMap", data:c.game}));
 }
 
 function move(x, y) {
@@ -407,7 +406,6 @@ function update(){
 
 
   sendAll(JSON.stringify({msg:"updateInv", data:c.allInvs}));
-  sendAll(JSON.stringify({msg: "updateMapData", data:c.game.map}));
   setTimeout(update, 50);
 }
 

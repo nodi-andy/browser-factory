@@ -50,7 +50,7 @@ class InputModule {
         let overlayClicked = false;
         beltMenu.items.forEach  (b => {if (b.collision(e) && b.onClick) { b.onClick();overlayClicked = true; }})
         invMenu.items.forEach   (b => {if (b.collision(e) && b.onClick) { b.onClick();overlayClicked = true; }})
-        buildMenu.items.forEach (b => {if (b.collision(e) && b.onClick) { b.onClick();overlayClicked = true; }})
+        craftMenu.items.forEach (b => {if (b.collision(e) && b.onClick) { b.onClick();overlayClicked = true; }})
         
         if (overlayClicked == false) {
             dragStart = screenToWorld(getEventLocation(e));

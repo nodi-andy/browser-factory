@@ -26,7 +26,7 @@ ws.onmessage = function(e) {
         }
     }
     if (socketMsg.msg == "updateMap") { game = socketMsg.data; }
-    if (socketMsg.msg == "updateMapData") { game.map = socketMsg.data; }
+    if (socketMsg.msg == "updateMapData") { game.map = socketMsg.data; updateMap();}
 
     if (socketMsg.msg == "id") console.log("Received: '" + socketMsg.data + "'");
 };

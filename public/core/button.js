@@ -1,9 +1,9 @@
 class Button {
-    constructor(x, y, h, w, item, parent, onClick, img) {
+    constructor(x, y, item, parent, onClick, img) {
         this.x = x;
         this.y = y;
-        this.h = h;
-        this.w = w;
+        this.h = buttonSize;
+        this.w = buttonSize;
         this.item = item;
         this.onClick = onClick;
         this.img = img;

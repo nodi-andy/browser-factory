@@ -1,8 +1,8 @@
 const { resDB, bookFromInv, DIR  } = require("../../common");
 const { getInv} = require("../../core/inventory");
-class Furnace {
+class StoneFurnace {
     constructor() {
-       resDB.furnace.mach = this;
+       resDB.stone_furnace.mach = this;
     }
 
 
@@ -11,11 +11,11 @@ class Furnace {
         inv.packsize = 3;
         inv.itemsize = 50;
         inv.setAllPacksDir(DIR.in);
-        inv.setAsOutput(resDB.stone_brick);
+        inv.setAsOutput(resDB.stone);
         inv.setAsOutput(resDB.iron_plate);
         bookFromInv(inv, resDB.furnace.output, false);
     }
 }
 
 if (exports == undefined) var exports = {};
-exports.Furnace = Furnace;
+exports.Furnace = StoneFurnace;
