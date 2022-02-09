@@ -40,7 +40,7 @@ function render(){
                 let entID = tile[layers.buildings];
                 var b;
                 if (entID != undefined) {
-                    b = allEnts[entID];
+                    b = c.allEnts[entID];
                     context.save();
                     if (b && b.type && resName[b.type].img) {
                         context.translate((ax + 0.5) * tileSize, (ay + 0.5) *tileSize);
@@ -60,13 +60,13 @@ function render(){
             let tile = game.map[ax][ay];
             let entID = tile[layers.buildings];
             var b, dirV;
-            if (entID != undefined) b = allEnts[entID];
+            if (entID != undefined) b = c.allEnts[entID];
             if (b) {
                     dirV = dirToVec[b.dir];
                     // ITEMS
                     let itemID = tile[layers.inv];
-                    if (itemID != undefined && allInvs[itemID]) {
-                        let packs = allInvs[itemID].packs;
+                    if (itemID != undefined && c.allInvs[itemID]) {
+                        let packs = c.allInvs[itemID].packs;
                         context.save();
                         let dx = ax + 0.3 + (0.0 * Math.abs(dirV.y)) - (0.25 * dirV.x) ;
                         let dy = ay + 0.3 * Math.abs(dirV.x) - 0.25 * dirV.y;
@@ -91,27 +91,27 @@ function render(){
     }
     
     // ENTITY CANDIDATE
-    if (pointerButton.item) {
-        let type = pointerButton.item.id;
-        if (type && resName[type].img) {
+    if (pointerButton) {
+        let type = pointerButton.id;
+        if (pointerButton.id) {
             context.save();
-            if (resName[type].img) {
-                context.translate((curResPos.x + 0.5) * tileSize, (curResPos.y + 0.5) *tileSize);
-                context.rotate(buildDir * Math.PI/2);
-                context.translate(-tileSize / 2, -tileSize / 2);
-                context.drawImage(resName[type].img, 0, 0)
-            }
+            context.translate((curResPos.x + 0.5) * tileSize, (curResPos.y + 0.5) *tileSize);
+            context.rotate(buildDir * Math.PI/2);
+            context.translate(-tileSize / 2, -tileSize / 2);
+            if (resName[type].mach) resName[type].mach.draw(context, pointerButton);
+            else context.drawImage(resName[type].img, 0, 0);
             context.restore();
         }
     }
 
+    // DEBUG
     if (curResPos && game.map) {
         let inv = game.map[curResPos.x][curResPos.y][layers.inv];
         let res = game.map[curResPos.x][curResPos.y][layers.res];
         context.font = "12px Arial";
         context.fillStyle = "white";
         context.fillText(curResPos.x + ", " + curResPos.y, curResPos.x * tileSize, curResPos.y * tileSize);
-        if (inv != undefined && allInvs[inv]) context.fillText(JSON.stringify(allInvs[inv].packs, null, 1), curResPos.x * tileSize, curResPos.y * tileSize + 24);
+        if (inv != undefined && c.allInvs[inv]) context.fillText(JSON.stringify(c.allInvs[inv].packs, null, 1), curResPos.x * tileSize, curResPos.y * tileSize + 24);
         if (res != undefined) context.fillText(JSON.stringify(res, null, 1), curResPos.x * tileSize, curResPos.y * tileSize + 48);
         context.stroke();
     }
@@ -157,6 +157,25 @@ function render(){
             receiptMenu.pos.h = dy + 100;
         }
     }
+
+    if(c.selEntity) {
+        context.font = "12px Arial";
+        context.fillStyle = "black";
+        let selPos = c.selEntity.pos;
+        let dy = 0;
+        context.beginPath();
+        context.fillStyle = "rgba(150, 150, 0, 0.95)";
+        context.fillRect(craftMenu.pos.x , craftMenu.pos.y, craftMenu.w , craftMenu.h);
+        context.font = "24px Arial";
+        context.fillStyle = "black";
+        let selInv = inventory.getInv(selPos.x, selPos.y);
+        if (selInv) {
+            for(f in selInv.packs) {
+                context.fillText(JSON.stringify(f), craftMenu.pos.x, craftMenu.pos.y + dy);
+                dy += 64;
+            }
+        }
+    }
     
     // FPS
     const now = performance.now();
@@ -174,14 +193,13 @@ function render(){
 
 function imgLoaded(imgElement) {
     return imgElement.complete && imgElement.naturalHeight !== 0;
-  }
+}
 
 function updateMap() {
     canvas.offScreenCanvas.width = gridSize.x * tileSize;
     canvas.offScreenCanvas.height = gridSize.y * tileSize;
     var offScreencontext = canvas.offScreenCanvas.getContext("2d");
 
-    let allImagesLoaded = true;
 
     for(let ax = 0; ax < gridSize.x; ax++) {
         for(let ay = 0; ay < gridSize.y; ay++) {
@@ -191,8 +209,7 @@ function updateMap() {
             let type = tile[layers.terrain][0];
             let variant = tile[layers.terrain][1];
             offScreencontext.drawImage(resName[type].img, variant * 64, 0, tileSize, tileSize, ax * tileSize, ay * tileSize, tileSize, tileSize)
-            allImagesLoaded &&= imgLoaded(resName[type].img);
         }
     }
-    return allImagesLoaded;
+
 }

@@ -3,10 +3,10 @@ ws.onmessage = function(e) {
     let socketMsg = JSON.parse(e.data);
 
     if (socketMsg.msg == "updateInv") {
-        allInvs = JSON.parse(JSON.stringify(socketMsg.data));
+        c.allInvs = JSON.parse(JSON.stringify(socketMsg.data));
     }
     if (socketMsg.msg == "updateEntities") {
-        allEnts = JSON.parse(JSON.stringify(socketMsg.data));
+        c.allEnts = JSON.parse(JSON.stringify(socketMsg.data));
     }
     if (socketMsg.msg == "updatePlayer") {
         play = socketMsg.data;
@@ -46,7 +46,9 @@ ws.onmessage = function(e) {
     }
     if (socketMsg.msg == "updateMapData") { 
         game.map = socketMsg.data;
-        while(updateMap()==false) updateMap();
+        updateMap();
+        // TOOOO HACKY
+        //while(updateMap()==false) updateMap();
     }
 
     if (socketMsg.msg == "id") console.log("Received: '" + socketMsg.data + "'");

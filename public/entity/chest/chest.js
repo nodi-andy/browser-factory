@@ -1,15 +1,17 @@
-const { resDB, getInv, DIR  } = require("../../common");
-
+if (typeof window === 'undefined') {
+    c = require("../../common");
+    inventory = require("../../core/inventory");
+} 
 class Chest {
     constructor() {
-       resDB.chest.mach = this;
+       c.resDB.chest.mach = this;
     }
 
     update(map, ent){
-        let inv = getInv(ent.pos.x, ent.pos.y);
+        let inv = inventory.getInv(ent.pos.x, ent.pos.y);
         inv.packsize = 10;
         inv.itemsize = 50;
-        inv.setAllPacksDir(DIR.out);
+        inv.setAllPacksDir(c.DIR.out);
     }
 }
 

@@ -9,11 +9,12 @@ var c = require('./public/common.js');
 var inventory = require("./public/core/inventory")
 const Inventory = require('./public/core/inventory.js').Inventory;
 
-new (require('./public/entity/extractor/extractor.js').Extractor)();
+//new (require('./public/entity/extractor/extractor.js').Extractor)();
+new (require('./public/entity/burner_miner/burner_miner.js').BurnerMiner)();
 var inserter = require('./public/entity/inserter/inserter.js');
 var belt = require('./public/entity/belt1/belt1.js');
 var belt2 = require('./public/entity/belt2/belt2.js');
-var furnace = require('./public/entity/stone_furnace/stone_furnace.js');
+var stone_furnace = require('./public/entity/stone_furnace/stone_furnace.js');
 var chest = require('./public/entity/chest/chest.js');
 var player = require('./public/entity/player/player.js');
 
@@ -28,7 +29,7 @@ app.listen(80);
 new belt.Belt();
 new belt2.Belt2();
 new inserter.Inserter();
-new furnace.Furnace();
+new stone_furnace.StoneFurnace();
 new chest.Chest();
 let player1 = new player.Player();
 //let personDB = [];
@@ -39,7 +40,8 @@ player1.setup();
 player1.inv = new Inventory();
 player1.inv.packsize = 20;
 player1.inv.itemsize = 20;
-player1.inv.addItem({id: c.resDB.stone.id, n: 10});
+player1.inv.addItem({id: c.resDB.stone.id, n: 100});
+player1.inv.addItem({id: c.resDB.raw_wood.id, n: 100});
 player1.inv.addItem({id: c.resDB.coal.id, n: 87});
 player1.inv.addItem({id: c.resDB.iron_plate.id, n: 170});
 player1.inv.addItem({id: c.resDB.copper_plate.id, n: 170});
@@ -166,7 +168,7 @@ function remFromInv(remItems) {
 function addToInv(newItem) {
   for(let i = 0; i < player1.inv.packs.length && newItem; i++) {
     let invObj = player1.inv.packs[i];
-    if (invObj.id == newItem.res.id) {
+    if (newItem.res && invObj.id == newItem.res.id) {
       if (newItem.n == undefined) newItem.n = 1;
       invObj.n += newItem.n;
       newItem = null;
@@ -408,6 +410,7 @@ function update(){
 
 
   sendAll(JSON.stringify({msg:"updateInv", data:c.allInvs}));
+  sendAll(JSON.stringify({msg:"updateEntities", data:c.allEnts}));
   setTimeout(update, 50);
 }
 

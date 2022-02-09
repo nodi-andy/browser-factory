@@ -22,6 +22,8 @@
 <script type="text/javascript" src ="entity/player/player.js"></script>
 <script type="text/javascript" src ="entity/belt1/belt1.js"></script>
 <script type="text/javascript" src ="entity/belt2/belt2.js"></script>
+<script type="text/javascript" src ="entity/assembling_machine_1/assembling_machine_1.js"></script>
+<script type="text/javascript" src ="entity/burner_miner/burner_miner.js"></script>
 <script type="text/javascript">
 
     canvas = document.getElementById("myCanvas");
@@ -43,14 +45,16 @@
     
     new Belt();
     new Belt2();
+    new AssemblingMachine1();
+    new BurnerMiner();
     //BUTTONS
-    pointerButton = new Button(0,0);
+    pointerButton = new Entity();
 
     // INV MENU
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
             let newButton = new Button (j * (buttonSize+2), i * (buttonSize+2), undefined, invMenu);
-            newButton.onClick = () => {pointerButton.item = newButton.item;};
+            newButton.onClick = () => {pointerButton.id = newButton.item.id; pointerButton.type = resName[newButton.item.id].type;};
             invMenu.items.push(newButton);
         }
     }
@@ -84,7 +88,7 @@
         if(e.code == "KeyS") c.player1.dir.y =1;
         if(e.code == "KeyD") c.player1.dir.x = 1;
         if(e.code == "KeyA") c.player1.dir.x = -1;
-        if(e.code == "Escape") pointerButton.item = undefined;
+        if(e.code == "Escape") pointerButton.id = undefined;
     }
 
     function onKeyUp(e){
@@ -93,7 +97,7 @@
         if(e.code == "KeyD") c.player1.dir.x = 0;
         if(e.code == "KeyA") c.player1.dir.x = 0;
         if(e.code == "KeyR") buildDir = (buildDir+1)%4;
-        if(e.code == "KeyE") { invMenu.vis = !invMenu.vis; craftMenu.vis = !craftMenu.vis}
+        if(e.code == "KeyE") { invMenu.vis = !invMenu.vis; craftMenu.vis = invMenu.vis}
         ws.send(JSON.stringify({cmd: "keyup", data: e.code}));
     }
 
@@ -131,4 +135,8 @@
         c.game.tick++;
         setTimeout(gameLoop, 1000/100);
     }
+
+    window.addEventListener('load', function () {
+        updateMap();
+    })
 </script>

@@ -32,7 +32,13 @@ class Player {
     checkCollision(pos) {
         let terrain = game.map[pos.x][pos.y][layers.terrain][0];
         let building = game.map[pos.x][pos.y][layers.buildings];
-        return (terrain == resID.deepwater || terrain == resID.water || terrain == resID.hills || building != undefined)
+        let canWalkOn = true;
+        if (building) {
+            canWalkOn = false;
+            if(resName[c.allEnts[building].type].playerCanWalkOn) canWalkOn  = building.playerCanWalkOn;
+        }
+         
+        return (terrain == resID.deepwater || terrain == resID.water || terrain == resID.hills || canWalkOn == false)
     }
 
     loop() {

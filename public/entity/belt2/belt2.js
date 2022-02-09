@@ -30,10 +30,10 @@ class Belt2 {
         ent.done = true;
         
         let beltFrom = inventory.getEnt(ent.pos.x - nbPos.x, ent.pos.y - nbPos.y);
-        if (beltFrom && beltFrom.type != resDB.belt.id) beltFrom = undefined;
+        if (beltFrom && beltFrom.type != c.resDB.belt1.id) beltFrom = undefined;
 
         let beltTo = inventory.getEnt(ent.pos.x + nbPos.x, ent.pos.y + nbPos.y);
-        if (beltTo && beltTo.type != resDB.belt1.id) beltTo = undefined;
+        if (beltTo && beltTo.type != c.resDB.belt1.id) beltTo = undefined;
 
         if (beltTo) {
             let invTo = inventory.getInv(ent.pos.x + nbPos.x, ent.pos.y + nbPos.y);
@@ -69,7 +69,7 @@ class Belt2 {
     }
 
     draw(ctx, ent) {
-        ctx.drawImage(resName[ent.type].anim, Math.round(c.game.tick/2)%15*64, 0, 64, 64, 0, 0, 64, 64);
+        ctx.drawImage(c.resDB.belt2.anim, Math.round(c.game.tick/2)%16 * 64, 0, 64, 64, 0, 0, 64, 64);
     }
 }
 

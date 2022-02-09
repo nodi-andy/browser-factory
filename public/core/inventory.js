@@ -117,6 +117,10 @@ class Inventory {
       }
     }
 
+    setPackSize(n){
+      while(this.packs.length < n) this.packs.push({id:undefined, n:0});
+    }
+
     getOutputPackIndex() {
       for(let i = 0; i < this.packs.length; i++) {
         let invPack = this.packs[i];
