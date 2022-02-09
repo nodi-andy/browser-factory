@@ -1,13 +1,21 @@
-const { resDB, layers, dirToVec, ENT } = require("../../common");
-const { getEnt, getInv } = require("../../core/inventory");
+if (typeof window === 'undefined') {
+    c = require("../../common");
+    inventory = require("../../core/inventory");
+} 
+
 
 class Belt {
     constructor() {
-       resDB.belt.mach = this;
+       c.resDB.belt1.mach = this;
+       if (typeof Image !== 'undefined') {
+        const image = new Image(512, 32);
+        image.src =  c.resDB.belt1.type + "/belt1/belt1_anim.png";
+        c.resDB.belt1.anim = image;
+       }
     }
 
     setup(map, ent) {
-        let invThis = getInv(ent.pos.x, ent.pos.y, true);
+        let invThis = inventory.getInv(ent.pos.x, ent.pos.y, true);
         invThis.packsize = 4;
         invThis.itemsize = 1;
         while (invThis.packs.length < 4) invThis.addItem({id: undefined, n: 0, fixed: true});
@@ -15,20 +23,20 @@ class Belt {
     }
 
     update(map, ent){
-        let invThis = getInv(ent.pos.x, ent.pos.y, true);
-        let beltThis = getEnt(ent.pos.x, ent.pos.y);
+        let invThis = inventory.getInv(ent.pos.x, ent.pos.y, true);
+        let beltThis = inventory.getEnt(ent.pos.x, ent.pos.y);
 
-        let nbPos = dirToVec[ent.dir];
+        let nbPos = c.dirToVec[ent.dir];
         ent.done = true;
         
-        let beltFrom = getEnt(ent.pos.x - nbPos.x, ent.pos.y - nbPos.y);
+        let beltFrom = inventory.getEnt(ent.pos.x - nbPos.x, ent.pos.y - nbPos.y);
         if (beltFrom && beltFrom.type != resDB.belt.id) beltFrom = undefined;
 
-        let beltTo = getEnt(ent.pos.x + nbPos.x, ent.pos.y + nbPos.y);
-        if (beltTo && beltTo.type != resDB.belt.id) beltTo = undefined;
+        let beltTo = inventory.getEnt(ent.pos.x + nbPos.x, ent.pos.y + nbPos.y);
+        if (beltTo && beltTo.type != resDB.belt1.id) beltTo = undefined;
 
         if (beltTo) {
-            let invTo = getInv(ent.pos.x + nbPos.x, ent.pos.y + nbPos.y);
+            let invTo = inventory.getInv(ent.pos.x + nbPos.x, ent.pos.y + nbPos.y);
             let pos = 0;
             if (beltTo.dir != beltThis.dir) pos = 2;
             //let invFrom = getInv(ent.pos.x - nbPos.x, ent.pos.y - nbPos.y);
@@ -58,6 +66,10 @@ class Belt {
         invThis.changed = true;
 
         if (beltFrom) this.update(map, beltFrom)
+    }
+
+    draw(ctx, ent) {
+        ctx.drawImage(resName[ent.type].anim, Math.round(c.game.tick/4)%15*64, 0, 64, 64, 0, 0, 64, 64);
     }
 }
 

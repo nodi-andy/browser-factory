@@ -1,19 +1,20 @@
-const { resDB, bookFromInv, DIR  } = require("../../common");
-const { getInv} = require("../../core/inventory");
+let c = require("../../common");
+let inventory = require("../../core/inventory");
+
 class StoneFurnace {
     constructor() {
-       resDB.stone_furnace.mach = this;
+       c.resDB.stone_furnace.mach = this;
     }
 
 
     update(map, ent){
-        let inv = getInv(ent.pos.x, ent.pos.y);
+        let inv = inventory.getInv(ent.pos.x, ent.pos.y);
         inv.packsize = 3;
         inv.itemsize = 50;
-        inv.setAllPacksDir(DIR.in);
-        inv.setAsOutput(resDB.stone);
-        inv.setAsOutput(resDB.iron_plate);
-        bookFromInv(inv, resDB.furnace.output, false);
+        inv.setAllPacksDir(c.DIR.in);
+        inv.setAsOutput(c.resDB.stone);
+        inv.setAsOutput(c.resDB.iron_plate);
+        //bookFromInv(inv, resDB.stone_furnace.output, false);
     }
 }
 

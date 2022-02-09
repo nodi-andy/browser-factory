@@ -8,12 +8,14 @@ class Button {
         this.onClick = onClick;
         this.img = img;
         this.parent = parent;
+        this.hover = false;
         if (this.parent) this.screen = {x: this.parent.pos.x + this.x, y: this.parent.pos.y + this.y}
         else this.screen = {x: 0, y: 0}
     }
 
     collision(p) {
         if (this.parent == undefined) return false;
+        if (this.parent.vis == false || this.screen.x < this.parent.pos.x || this.screen.x > (this.parent.pos.x + this.parent.w)) return false;
         return this.parent.vis && (p.x > this.screen.x && p.y > this.screen.y && p.x < this.screen.x + this.w && p.y < this.screen.y + this.h)
     }
 
@@ -22,7 +24,13 @@ class Button {
         if (this.parent) this.screen = {x: this.parent.pos.x + this.x, y: this.parent.pos.y + this.y}
         else this.screen = {x: 0, y: 0}
         ctx.beginPath();
-        ctx.fillStyle = "rgba(120, 120, 120, 0.9)";
+
+        if (this.hover) {
+            if (this.type && this.type == "craft") receiptMenu.item = this.item; else receiptMenu.item = undefined;
+        }
+
+        if (this.hover) ctx.fillStyle = "rgba(100, 100, 0, 1)";
+        else ctx.fillStyle = "rgba(60, 60, 60, 0.9)";
         ctx.rect(this.screen.x, this.screen.y, this.w, this.h);
         ctx.fill();
         if (this.item != undefined) {
@@ -34,8 +42,8 @@ class Button {
 
             if (this.item.n!= undefined) {
                 ctx.font = "24px Arial";
-                ctx.fillStyle = "black";
-                ctx.fillText(this.item.n, this.screen.x, this.screen.y + 24);
+                ctx.fillStyle = "white";
+                ctx.fillText(this.item.n, this.screen.x, this.screen.y + buttonSize);
             }
         }
     }

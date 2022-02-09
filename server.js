@@ -6,11 +6,13 @@ app.use(express.static('public'));
 const users = new Map();
 require('express-ws')(app);
 var c = require('./public/common.js');
+var inventory = require("./public/core/inventory")
 const Inventory = require('./public/core/inventory.js').Inventory;
 
 new (require('./public/entity/extractor/extractor.js').Extractor)();
 var inserter = require('./public/entity/inserter/inserter.js');
-var belt = require('./public/entity/belt/belt.js');
+var belt = require('./public/entity/belt1/belt1.js');
+var belt2 = require('./public/entity/belt2/belt2.js');
 var furnace = require('./public/entity/stone_furnace/stone_furnace.js');
 var chest = require('./public/entity/chest/chest.js');
 var player = require('./public/entity/player/player.js');
@@ -24,6 +26,7 @@ var terrainmap = perlin.generatePerlinNoise(c.gridSize.x, c.gridSize.y).map(func
 app.listen(80);
 
 new belt.Belt();
+new belt2.Belt2();
 new inserter.Inserter();
 new furnace.Furnace();
 new chest.Chest();
@@ -36,12 +39,13 @@ player1.setup();
 player1.inv = new Inventory();
 player1.inv.packsize = 20;
 player1.inv.itemsize = 20;
-player1.inv.addItem({id: c.resDB.stone.id, n: 1});
+player1.inv.addItem({id: c.resDB.stone.id, n: 10});
 player1.inv.addItem({id: c.resDB.coal.id, n: 87});
-player1.inv.addItem({id: c.resDB.iron.id, n: 17});
+player1.inv.addItem({id: c.resDB.iron_plate.id, n: 170});
+player1.inv.addItem({id: c.resDB.copper_plate.id, n: 170});
 player1.inv.addItem({id: c.resDB.stone_furnace.id, n: 7});
-player1.inv.addItem({id: c.resDB.belt.id, n: 7});
-player1.inv.addItem({id: c.resDB.chest.id, n: 7});
+//player1.inv.addItem({id: c.resDB.belt1.id, n: 7});
+//player1.inv.addItem({id: c.resDB.chest.id, n: 7});
 c.allEnts.push(player1);
 player1.id = c.allEnts.length-1;
 
@@ -153,16 +157,23 @@ function addToInvs(newItems) {
   }
 }
 
+function remFromInv(remItems) {
+  player1.inv.remItems(remItems);
+  updatePlayer();
+}
+
 
 function addToInv(newItem) {
   for(let i = 0; i < player1.inv.packs.length && newItem; i++) {
     let invObj = player1.inv.packs[i];
-    if (invObj.id == newItem.id) {
+    if (invObj.id == newItem.res.id) {
+      if (newItem.n == undefined) newItem.n = 1;
       invObj.n += newItem.n;
       newItem = null;
     }
   }
-  if (newItem) player1.inv.packs.push(newItem);
+  if (newItem) player1.inv.packs.push({id: newItem.res.id, n: newItem.n});
+  updatePlayer();
 }
 
 
@@ -189,7 +200,7 @@ function craftToInv(newItem) {
   for(let c = 0; c < newItem.cost.length; c++) {
     for(let i = 0; i < player1.inv.packs.length; i++) {
         let invObj = player1.inv.packs[i];
-        if (invObj.id == newItem.cost[c].id) {
+        if (invObj.id == newItem.cost[c].res.id) {
             invObj.n -= newItem.cost[c].n;
             if (invObj.n == 0) {
               player1.inv.packs.splice(i, 1);
@@ -240,6 +251,7 @@ app.ws('/', function(ws, req) {
     if(msg.cmd == "addCity") addCity(cityID++, msg.data.x, msg.data.y, msg.data.type);
     if(msg.cmd == "addEntity") addEntity(msg.data);
     if (msg.cmd == "addItem") addItem(msg.data);
+    if (msg.cmd == "remFromInv") remFromInv(msg.data);
     if(msg.cmd == "addToInv") addToInvs(msg.data);
     if(msg.cmd == "mineToInv") mineToInv(msg.data);
     if(msg.cmd == "craftToInv") {craftToInv(msg.data); updatePlayer();}
@@ -262,17 +274,6 @@ function sendAll(message) {
   })
 }
 
-function getInv(x, y){
-  let tile = c.game.map[x][y];
-  if (tile[c.layers.inv] == undefined)  createInv(x, y);
-  return c.allInvs[tile[c.layers.inv]];
-}
-
-function getEnt(x, y){
-  let tile = c.game.map[x][y];
-  if (tile[c.layers.buildings] != undefined) return c.allEnts[tile[c.layers.buildings]];
-}
-
 function createInv(x, y){
   
   let invID = c.game.map[x][y][c.layers.inv];
@@ -292,13 +293,14 @@ function addEntity(newEntity) {
     let ent = new Entity(c.allEnts, newEntity.pos.x, newEntity.pos.y, newEntity.dir, newEntity.w, newEntity.h, newEntity.type);
     c.game.map[newEntity.pos.x][newEntity.pos.y][c.layers.buildings] = ent.id;
   }
-  if (c.resName[newEntity.type].mach.setup) c.resName[newEntity.type].mach.setup(c.game.map, newEntity);
+  if (c.resName[newEntity.type].mach && c.resName[newEntity.type].mach.setup) c.resName[newEntity.type].mach.setup(c.game.map, newEntity);
 /*  let mach = c.resName[ent.type].mach;
   if (mach) {
     ent.m = new mach(ent);
   }*/
   
   sendAll(JSON.stringify({msg:"updateEntities", data: c.allEnts}));
+  sendAll(JSON.stringify({msg: "updateMapData", data:c.game.map}));
 }
 
 function addItem(newItem) {
@@ -360,7 +362,7 @@ function update(){
   for(let ient = 0; ient < c.allEnts.length; ient++) {
     let entity = c.allEnts[ient];
     if (!entity) continue;
-    if(entity.type == c.resDB.belt.id) continue;
+    if(entity.type == c.resDB.belt1.id) continue;
     if(entity.type == c.resDB.player.id) continue;
     if(c.resName[entity.type].mach) {
       c.resName[entity.type].mach.update(c.game.map, entity);
@@ -371,7 +373,7 @@ function update(){
   let belts = [];
   for(let ient = 0; ient < c.allEnts.length; ient++) {
     let entity = c.allEnts[ient];
-    if (entity.type == c.resDB.belt.id) belts.push(entity);
+    if (entity.type == c.resDB.belt1.id) belts.push(entity);
   }
 
   for(let ibelt = 0; ibelt < belts.length;) {
@@ -386,10 +388,10 @@ function update(){
         let nbPos = c.dirToVec[belt.dir];
         let nbTile = c.game.map[x + nbPos.x][y + nbPos.y];
         let nbEntity = c.allEnts[nbTile[c.layers.buildings]];
-        if (nbEntity && nbEntity.type == c.resDB.belt.id && nbEntity.done == false) belt = nbEntity;
+        if (nbEntity && nbEntity.type == c.resDB.belt1.id && nbEntity.done == false) belt = nbEntity;
         else break;
       }
-      c.resDB.belt.mach.update(c.game.map, belt);
+      c.resDB.belt1.mach.update(c.game.map, belt);
     }
   }
 

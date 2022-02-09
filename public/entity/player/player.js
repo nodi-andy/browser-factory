@@ -26,7 +26,13 @@ class Player {
         inv.setAllPacksDir(DIR.in);
         inv.setAsOutput(resDB.stone);
         inv.setAsOutput(resDB.iron_plate);
-        bookFromInv(inv, resDB.furnace.output, false);*/
+        bookFromInv(inv, resDB.stone_furnace.output, false);*/
+    }
+
+    checkCollision(pos) {
+        let terrain = game.map[pos.x][pos.y][layers.terrain][0];
+        let building = game.map[pos.x][pos.y][layers.buildings];
+        return (terrain == resID.deepwater || terrain == resID.water || terrain == resID.hills || building != undefined)
     }
 
     loop() {
@@ -36,14 +42,11 @@ class Player {
 
         this.nextPos.x = this.pos.x + 5 * this.unitdir.x;
         let nextXTile = worldToTile({x: this.nextPos.x, y: this.pos.y});
-        let nextTerrain = game.map[nextXTile.x][thisTile.y][layers.terrain][0];
-        if (nextXTile.x > 0 && nextXTile.x < gridSize.x - 1 && nextTerrain != resID.deepwater && nextTerrain != resID.water && resID.hills) this.pos.x = this.nextPos.x;
+        if (nextXTile.x > 0 && nextXTile.x < gridSize.x - 1 && this.checkCollision({x: nextXTile.x, y: thisTile.y}) == false) this.pos.x = this.nextPos.x;
 
         this.nextPos.y = this.pos.y + 5 * this.unitdir.y;
         let nextYTile = worldToTile({x: this.pos.x, y: this.nextPos.y});
-        if (nextYTile.y < 0 || nextXTile.y > gridSize.y) return;
-        nextTerrain = game.map[thisTile.x][nextYTile.y][layers.terrain][0];
-        if (nextXTile.y > 0 && nextXTile.y < gridSize.y - 1 && nextTerrain != resID.deepwater && nextTerrain != resID.water && resID.hills) this.pos.y = this.nextPos.y;
+        if (nextYTile.y > 0 && nextYTile.y < gridSize.y - 1 && this.checkCollision({x: thisTile.x, y: nextYTile.y}) == false) this.pos.y = this.nextPos.y;
 
 
 
@@ -68,12 +71,12 @@ class Player {
     draw(ctx) {
         ctx.save();
         ctx.translate(this.pos.x, this.pos.y);
-        ctx.drawImage(c.resDB.player.img, this.ss.x * 96, this.ss.y * 132, 96, 132, - 48, - 66, 96, 132)
+        ctx.drawImage(c.resDB.player.img, this.ss.x * 96, this.ss.y * 132, 96, 132, - 48, -100, 96, 132)
         ctx.beginPath();
         ctx.fillStyle = "red";
-        ctx.fillRect(-25,-80, 50, 10);
+        ctx.fillRect(-25,-120, 50, 10);
         ctx.fillStyle = "green";
-        ctx.fillRect(-25,-80, (this.live / 100) * 50, 10);
+        ctx.fillRect(-25,-120, (this.live / 100) * 50, 10);
         ctx.restore();
     }
 }

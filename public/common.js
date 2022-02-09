@@ -3,60 +3,19 @@ const gridSize = {x: 64, y: 64}
 const buttonSize = 68;
 const SCROLL_SENSITIVITY = 0.0005;
 let camera      = {x: 0, y: 0, zoom: 1}
-var tick = 0;
+
 const DIR = {in: true, out: false}
 
 let buildDir = 0;
-/*const resID =
-{
-    none: 0,
-    stone: 1,
-    steel_plate: 2,
-    copper_plate: 3,
-    inserter: 4,
-    copper_cable: 5,
-    extractor: 6,
-    belt: 7,
-    grassland: 8,
-    coal_ore: 9,
-    stone_ore: 10,
-    copper_ore: 11,
-    iron_ore: 12,
-    chest: 13,
-    player: 14,
-    furnace: 15,
-    tree: 16,
-    coal: 17,
-    iron: 18,
-    copper: 19,
-    stone: 20,
-    iron_plate: 21,
-    deepwater: 22,
-    water: 23,
-    hills: 24,
-    wood: 25,
-    wooden_stick: 26,
-    sharp_stone: 27,
-    iron_stick: 28,
-    gear_wheel: 29,
-    hydraulic_piston: 30,
-    circuit: 31,
-    stone_axe: 32,
-    iron_axe: 33,
-    gun: 34,
-    rocket_launcher: 35,
-    bullet: 36,
-    rocket: 37,
-}*/
 
-const mapType     = ["darkblue", "blue", "sandybrown", "sandybrown", "darkgreen", "green", "green", "green", "green", "green"];
+
 const resDB = Object();
 
 resDB["E"]              = {name: "Energy"       , type: "Energy"};
 resDB["hills"]          = {name: "hills"        , type: "terrain"};
-resDB["deepwater"]      = {name: "deep water"    , type: "terrain"};
+resDB["deepwater"]      = {name: "deep water"   , type: "terrain"};
 resDB["water"]          = {name: "water"        , type: "terrain"};
-resDB["grassland"]      = {name: "grassland"     , type: "terrain"};
+resDB["grassland"]      = {name: "grassland"    , type: "terrain"};
 
 resDB["tree"]           = {name: "tree"          , type: "res"};
 resDB["copper_ore"]     = {name: "copper ore"    , type: "res"};
@@ -64,23 +23,42 @@ resDB["coal_ore"]       = {name: "coal ore"      , type: "res", E: 500};
 resDB["stone_ore"]      = {name: "stone ore"     , type: "res"};
 resDB["iron_ore"]       = {name: "iron ore"      , type: "res"};
 
-resDB["coal"]           = {name: "coal"          , packsize: 1, type: "item"};
-resDB["stone"]          = {name: "stone"         , packsize: 1, type: "item", cost: [{id: resDB.stone_ore.id, n: 1}, {id: resDB.coal.id, n:1}]};
-resDB["raw_wood"]       = {name: "raw_wood"      , type: "item", E: 100};
-resDB["wood"]           = {name: "raw_wood"      , type: "item", E: 100};
-resDB["iron"]           = {name: "iron"          , packsize: 1, type: "item"};
-resDB["copper"]         = {name: "copper"        , packsize: 1, type: "item"};
-resDB["stone"]          = {name: "stone"         , packsize: 1, type: "item"};
-resDB["iron_plate"]     = {name: "iron plate"    , packsize: 1, type: "item", cost: [{id: resDB.iron.id, n: 1}, {id: resDB.coal.id, n:1}, {id: resDB.E.id, n:100}]};
-resDB["copper_plate"]   = {name: "copper plate"  , packsize: 1, type: "item", cost: [{id: resDB.copper.id, n: 1}, {id: resDB.coal.id, n:1}]};
-resDB["copper_cable"]   = {name: "copper cable"  , packsize: 1, type: "item", cost: [{id: resDB.copper.id, n: 1}]};
+resDB["coal"]           = {name: "coal"          , packsize: 1, type: "item", from: resDB.coal_ore};
+resDB["stone"]          = {name: "stone"         , packsize: 1, type: "item", from: resDB.stone_ore};
+resDB["raw_wood"]       = {name: "raw_wood"      ,              type: "item", E: 100, from: resDB.tree};
+resDB["iron"]           = {name: "iron"          , packsize: 1, type: "item", E: 100, from: resDB.iron_ore};
+resDB["copper"]         = {name: "copper"        , packsize: 1, type: "item", E: 100, from: resDB.copper_ore};
+resDB["stone"]          = {name: "stone"         , packsize: 1, type: "item", E: 100, from: resDB.stone_ore};
+resDB["iron_plate"]     = {name: "iron plate"    , packsize: 1, type: "item", cost: [{res: resDB.iron, n: 1}, {res: resDB.coal, n:1}, {res: resDB.E, n:100}]};
+resDB["copper_plate"]   = {name: "copper plate"  , packsize: 1, type: "item", cost: [{res: resDB.copper, n: 1}, {res: resDB.coal, n:1}]};
+resDB["copper_cable"]   = {name: "copper cable"  , packsize: 1, type: "item", cost: [{res: resDB.copper_plate, n: 1}]};
+resDB["wood"]           = {name: "wood"          , type: "item", E: 100, cost: [{res: resDB.raw_wood, n: 1}]};
+resDB["wooden_stick"]   = {name: "wooden stick"  , type: "item", E: 100, cost: [{res: resDB.wood, n: 1}] };
+resDB["sharp_stone"]    = {name: "sharp stone"   , type: "item", E: 100, cost: [{res: resDB.stone, n: 2}]};
+resDB["iron_stick"]     = {name: "iron stick"    , type: "item", E: 100, cost: [{res: resDB.iron_plate, n: 1}]};
 
-resDB["player"]         = {name: "player"        , type: "entity"};
-resDB["chest"]          = {name: "chest"         , packsize: 1, type: "entity", size: [1, 1], cost: [{id: resDB.raw_wood.id, n: 2}]};
-resDB["belt"]           = {name: "belt"          , packsize: 1, type: "entity", cost: [{id: resDB.coal.id, n: 2}]};
-resDB["stone_furnace"]  = {name: "stone furnace" , packsize: 2, type: "entity", size: [1, 1], cost: [{id: resDB.stone.id, n: 5}], output: [{id:resDB.iron_plate.id, n:1}, {id:resDB.copper_plate.id, n:1}, {id:resDB.stone.id, n:1}]};
-resDB["extractor"]      = {name: "extractor"     , packsize: 1, type: "entity", size: [1, 1], cost: [{id: resDB.coal.id, n: 2}]};
-resDB["inserter"]       = {name: "inserter"      , packsize: 1,  type: "entity", cost: [{id: resDB.coal.id, n: 2}]};
+resDB["stone_furnace"]  = {name: "stone furnace" , packsize: 2, type: "entity", size: [1, 1], cost: [{res: resDB.stone, n: 5}], output: [{res:resDB.iron_plate, n:1}, {res:resDB.copper_plate, n:1}, {res:resDB.stone, n:1}]};
+resDB["weak_armor"]     = {name: "weak armor"         , packsize: 1, type: "item", size: [1, 1], cost: [{res: resDB.wood, n: 2}, {res: resDB.iron_plate, n: 2}]};
+resDB["strong_armor"]   = {name: "strong armor"         , packsize: 1, type: "item", size: [1, 1], cost: [{res: resDB.wood, n: 2}]};
+resDB["iron_chest"]     = {name: "iron chest"         , packsize: 1, type: "item", size: [1, 1], cost: [{res: resDB.wood, n: 2}]};
+resDB["chest"]          = {name: "chest"         , packsize: 1, type: "entity", size: [1, 1], cost: [{res: resDB.wood, n: 4}]};
+resDB["gear"]           = {name: "gear"         , packsize: 1, type: "item", size: [1, 1], cost: [{res: resDB.iron_plate, n: 2}]};
+resDB["hydraulic_piston"]     = {name: "hydraulic_piston"    , packsize: 1, type: "item", size: [1, 1], cost: [{res: resDB.iron_plate, n: 1}, {res: resDB.iron_stick, n: 1}]};
+resDB["circuit"]        = {name: "circuit"    , packsize: 1, type: "item", size: [1, 1], cost: [{res: resDB.iron_plate, n: 1}, {res: resDB.copper_cable, n: 3}]};
+resDB["stone_axe"]      = {name: "stone_axe"    , packsize: 1, type: "item", size: [1, 1], cost: [{res: resDB.wooden_stick, n: 2}, {res: resDB.sharp_stone, n: 2}]};
+resDB["iron_axe"]       = {name: "iron_axe"    , packsize: 1, type: "item", size: [1, 1], cost: [{res: resDB.iron_stick, n: 2}, {res: resDB.iron_plate, n: 2}]};
+resDB["gun"]            = {name: "gun"    , packsize: 1, type: "item", size: [1, 1], cost: [{res: resDB.wood, n: 2}]};
+resDB["rocket_launcher"]     = {name: "rocket_launcher"    , packsize: 1, type: "item", size: [1, 1], cost: [{res: resDB.wood, n: 2}]};
+resDB["bullet"]         = {name: "bullet"    , packsize: 1, type: "item", size: [1, 1], cost: [{res: resDB.wood, n: 2}]};
+resDB["rocket"]         = {name: "rocket"    , packsize: 1, type: "item", size: [1, 1], cost: [{res: resDB.wood, n: 2}]};
+resDB["extractor"]      = {name: "extractor"     , packsize: 1, type: "entity", size: [1, 1], cost: [{res: resDB.coal, n: 2}]};
+resDB["inserter"]       = {name: "inserter"      , packsize: 1,  type: "entity", cost: [{res: resDB.coal.id, n: 2}]};
+resDB["burner_miner"]       = {name: "burner mining platform"      , packsize: 1,  type: "entity", cost: [{res: resDB.coal, n: 2}]};
+resDB["electrical_miner"]       = {name: "electrical mining platform"      , packsize: 1,  type: "entity", cost: [{res: resDB.coal, n: 2}]};
+resDB["belt1"]           = {name: "transport belt"          , packsize: 1, type: "entity", cost: [{res: resDB.coal, n: 2}]};
+resDB["belt2"]           = {name: "transport belt"          , packsize: 1, type: "entity", cost: [{res: resDB.coal, n: 2}]};
+resDB["belt3"]           = {name: "transport belt"          , packsize: 1, type: "entity", cost: [{res: resDB.coal, n: 2}]};
+resDB["player"]         = {name: "player"        , type: "entity", P: 100, output: [resDB.wood, resDB.wooden_stick, resDB.sharp_stone, resDB.iron_stick, resDB.gear, resDB.hydraulic_piston, resDB.copper_cable, resDB.circuit, resDB.stone_axe, resDB.iron_axe, resDB.gun, resDB.rocket_launcher, resDB.bullet, resDB.rocket, resDB.weak_armor, resDB.strong_armor, resDB.chest, resDB.iron_chest, resDB.stone_furnace, resDB.burner_miner, resDB.electrical_miner, resDB.belt1, resDB.belt2, resDB.belt3]};
 
 const resID = Object();
 const resName = Array();
@@ -90,48 +68,21 @@ Object.keys(resDB).forEach((k) => {
     resName.push(resDB[k]);
 })
 
-/*const resName =
-{
-    0: resDB.none,
-    1: resDB.stone,
-    2: resDB.steel_plate,
-    3: resDB.copper_plate,
-    4: resDB.inserter,
-    5: resDB.copper_cable,
-    6: resDB.extractor,
-    7: resDB.belt,
-    8: resDB.grassland,
-    9: resDB.coal_ore,
-    10: resDB.stone_ore,
-    11: resDB.copper_ore,
-    12: resDB.iron_ore,
-    13: resDB.chest,
-    14: resDB.player,
-    15: resDB.furnace,
-    16: resDB.tree,
-    17: resDB.coal,
-    18: resDB.iron,
-    19: resDB.copper,
-    20: resDB.stone,
-    21: resDB.iron_plate,
-    22: resDB.deepwater,
-    23: resDB.water,
-    24: resDB.hills
-}*/
 
 const dirToVec = [{x: 1, y:0},{x: 0, y:1},{x: -1, y:0},{x: 0, y:-1}];
 const  layers = {terrain: 0, floor:1, res: 2, buildings:3, inv:4, inext: 5, vis:6 } 
 var allInvs = [];
 var allEnts = [];
-let game        = {};
-let player1;
+var game        = {};
+var player1;
 var pointerButton;
 var curResPos = {x: 0, y: 0};
 var lastResPos = {x: 0, y: 0};
 var canvas = undefined;
-var beltMenu = {items:[], pos: {x: 0, y: 0}, vis: true};
-var invMenu = {items:[], pos: {x: 0, y: 0}, vis: false};
-var craftMenu = {items:[], pos: {x: 0, y: 0}, vis: false};
+var beltMenu = {items:[], pos: {x: 0, y: 0, w: 0, h:0}, vis: true};
+var invMenu = {items:[], pos: {x: 0, y: 0, w: 0, h:0}, vis: false};
+var craftMenu = {items:[], pos: {x: 0, y: 0, w: 0, h:0}, vis: false};
+var receiptMenu = {item: undefined, items:[], pos: {x: 0, y: 0, w: 300, h:50}, vis: false};
 
 
 
@@ -169,20 +120,31 @@ function getNbOccur(arr, val) {
 function screenToWorld(p) { return {x: p.x/camera.zoom - camera.x, y: p.y/camera.zoom - camera.y}; }
 
 function mineToInv(inv) {
-    ws.send(JSON.stringify({cmd: "mineToInv", data: inv}));
+    let addItem = {};
+    for(let minedItem of resName) {
+        if (minedItem.from && minedItem.from.id == inv.id) {
+            addItem = {res: minedItem, n: inv.n} ;
+            break;
+        }
+    };
+    ws.send(JSON.stringify({cmd: "addToInv", data: [addItem]}));
  }
  
  function bookFromInv(inv, items, updateMsg = true) {
     if (!items) return;
     items.forEach(item => {
         let itemsExist = true;
-        for(let c = 0; c < resName[item.id].cost.length && itemsExist; c++) {
+        for(let c = 0; c < item.cost.length && itemsExist; c++) {
             itemsExist = false;
-            itemsExist = inv.hasItems(resName[item.id].cost);
+            itemsExist = inv.hasItems(item.cost);
         }
         if (itemsExist) { 
-            if (inv.addItem(item)) inv.remItems(resName[item.id].cost);
-            if (updateMsg) ws.send(JSON.stringify({cmd: "craftToInv", data: item}));
+            if (inv.addItem(item)) inv.remItems(item.cost);
+            if (updateMsg) {
+                let addItem = {res: item, n: 1} ;
+                ws.send(JSON.stringify({cmd: "addToInv", data: [addItem]}));
+                ws.send(JSON.stringify({cmd: "remFromInv", data: item.cost}));
+            }
         }
         return itemsExist;
     })
@@ -190,15 +152,13 @@ function mineToInv(inv) {
 }
 
 
+
   
-var c = {};
-c.resDB = resDB;
-c.resID = resID;
-c.game = game;
-c.player1 = player1;
+
 
 if (exports == undefined) var exports = {};
 exports.resDB = resDB;
+exports.game = game;
 exports.resID = resID;
 exports.DIR = DIR;
 exports.layers = layers;
@@ -213,5 +173,10 @@ exports.allEnts = allEnts;
 exports.bookFromInv = bookFromInv;
 exports.resName = resName;
 exports.dirToVec = dirToVec;
-exports.tick = tick;
-exports.c = c;
+
+
+var c = {};
+c.resDB = resDB;
+c.resID = resID;
+c.game = game;
+c.player1 = player1;

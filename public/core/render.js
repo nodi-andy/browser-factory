@@ -14,8 +14,8 @@ function render(){
 
         let minTile = worldToTile(screenToWorld({x: 0, y: 0}));
         let maxTile = worldToTile(screenToWorld({x: context.canvas.width, y: context.canvas.height}));
-        for(let ax = minTile.x; ax < Math.min(maxTile.x + 1, gridSize.x); ax++) {
-            for(let ay = minTile.y; ay < Math.min(maxTile.y + 1, gridSize.y); ay++) {
+        for(let ax = minTile.x; ax < Math.min(maxTile.x + 2, gridSize.x); ax++) {
+            for(let ay = minTile.y; ay < Math.min(maxTile.y + 5, gridSize.y); ay++) {
                 let tile = game.map[ax][ay];
 
                 // PLAYER
@@ -46,7 +46,8 @@ function render(){
                         context.translate((ax + 0.5) * tileSize, (ay + 0.5) *tileSize);
                         context.rotate(b.dir * Math.PI/2);
                         context.translate(-tileSize / 2, -tileSize / 2);
-                        context.drawImage(resName[b.type].img, 0, 0)
+                        if (resName[b.type].mach) resName[b.type].mach.draw(context, b);
+                        else context.drawImage(resName[b.type].img, 0, 0);
                     }
                     context.restore();
                 }
@@ -120,6 +121,7 @@ function render(){
     // OVERLAY
 
     context.resetTransform();
+    receiptMenu.item = undefined;
 
     beltMenu.items.forEach(b => b.draw(context));
 
@@ -128,6 +130,32 @@ function render(){
     }
     if (craftMenu.vis) {
         craftMenu.items.forEach(b => b.draw(context));
+    }
+
+    if (receiptMenu.item) {
+        context.beginPath();
+        context.fillStyle = "rgba(150, 150, 0, 0.95)";
+        context.fillRect(receiptMenu.pos.x, receiptMenu.pos.y, receiptMenu.pos.w, receiptMenu.pos.h);
+        context.font = "24px Arial";
+        context.fillStyle = "black";
+        context.fillText(resName[receiptMenu.item.id].name, receiptMenu.pos.x + 6, receiptMenu.pos.y + 24);
+        let dy = 0;
+        for(let costItem of resName[receiptMenu.item.id].cost) {
+            context.fillRect(receiptMenu.pos.x + 6, receiptMenu.pos.y + 64 + dy, 32, 32)
+            context.drawImage(costItem.res.img, receiptMenu.pos.x + 6, receiptMenu.pos.y + 64 + dy, 32, 32)
+            let missingItems = "";
+            if (receiptMenu.item.n == 0) {
+                let existing = c.player1.inv.getNumberOfItems(costItem.res.id);
+                if (existing < costItem.n) {
+                    missingItems = existing + " / ";
+                    context.fillStyle = "red";
+                } else  context.fillStyle = "black";
+            }
+            else         context.fillStyle = "black";
+            context.fillText(missingItems + costItem.n + "x " + costItem.res.name, receiptMenu.pos.x + 46, receiptMenu.pos.y + 84 + dy);
+            dy += 64;
+            receiptMenu.pos.h = dy + 100;
+        }
     }
     
     // FPS
@@ -144,10 +172,16 @@ function render(){
     requestAnimationFrame( render );
 }
 
+function imgLoaded(imgElement) {
+    return imgElement.complete && imgElement.naturalHeight !== 0;
+  }
+
 function updateMap() {
     canvas.offScreenCanvas.width = gridSize.x * tileSize;
     canvas.offScreenCanvas.height = gridSize.y * tileSize;
     var offScreencontext = canvas.offScreenCanvas.getContext("2d");
+
+    let allImagesLoaded = true;
 
     for(let ax = 0; ax < gridSize.x; ax++) {
         for(let ay = 0; ay < gridSize.y; ay++) {
@@ -157,6 +191,8 @@ function updateMap() {
             let type = tile[layers.terrain][0];
             let variant = tile[layers.terrain][1];
             offScreencontext.drawImage(resName[type].img, variant * 64, 0, tileSize, tileSize, ax * tileSize, ay * tileSize, tileSize, tileSize)
+            allImagesLoaded &&= imgLoaded(resName[type].img);
         }
     }
+    return allImagesLoaded;
 }

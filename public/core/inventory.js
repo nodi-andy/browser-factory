@@ -47,38 +47,43 @@ class Inventory {
       newItems.forEach(item => {this.addItem(item, reserve)});
     }
 
-    remItem(newItem, reserve) {
-      let selectedItems = this.packs;
-      if (reserve) selectedItems = this.nextpacks;
-      for(let i = 0; i < selectedItems.length && newItem; i++) {
-        let invObj = selectedItems[i];
-        if (invObj.id == newItem.id) {
-          invObj.n -= newItem.n;
-          if (invObj.n == 0) {
-            if (newItem.fixed == true) {
-              invObj.id = undefined;
+    remItem(removingItem, reserve) {
+      let selectedPacks = this.packs;
+      if (reserve) selectedPacks = this.nextpacks;
+
+      for(let i = 0; i < selectedPacks.length && removingItem; i++) {
+        let invObj = selectedPacks[i];
+        if (invObj.id == removingItem.res.id) { // Find the pack
+          let n = invObj.n - removingItem.n;
+          if (n > 0) {
+            invObj.n = n;
+            return true;
+          } else if (n == 0) {
+            if (removingItem.fixed == true) { invObj.id = undefined;
             } else {
-              selectedItems.splice(i, 1);
+              selectedPacks.splice(i, 1); // Remove empty pack
               i--;
             }
-          }
-          newItem = null;
+            return true;
+          } else return false;
+          // newItem = null;
         }
       }
-      return true;
+      return false;
   }
   
     remItems(newItems) {
+      let ret = true;
       for(let i = 0; i < newItems.length; i++) {
-        this.remItem(newItems[i]);
+        ret = ret && this.remItem(newItems[i]);
       }
-      return false;
+      return ret;
     }
 
     hasItem(newItem) {
         for(let i = 0; i < this.packs.length; i++) {
           let invObj = this.packs[i];
-          if (invObj.id == newItem.id)  return (invObj.n >= newItem.n);
+          if (invObj.id == newItem.res.id)  return (invObj.n >= newItem.n);
         }
         return false;
     }
@@ -88,6 +93,15 @@ class Inventory {
           if (this.hasItem( newItems[i]) == false)  return false;
         }
         return true;
+    }
+
+    getNumberOfItems(type) {
+      let n = 0;
+      for(let i = 0; i < this.packs.length; i++) {
+        let invObj = this.packs[i];
+        if (invObj.id == type)  n += invObj.n;
+      }
+      return n;
     }
 
     setAllPacksDir(d) {
@@ -121,6 +135,7 @@ class Inventory {
     }
 }
 
+
 function getInv(x, y){
   let tile = c.game.map[x][y];
   if (tile[c.layers.inv] == undefined)  createInv(x, y);
@@ -143,9 +158,11 @@ function createInv(x, y){
   return invID;
 }
 
-
 if (exports == undefined) var exports = {};
 exports.Inventory = Inventory;
 exports.getInv = getInv;
 exports.getEnt = getEnt;
-exports.createInv = createInv;
+
+var inventory = {};
+inventory.getInv = getInv;
+inventory.getEnt = getEnt;

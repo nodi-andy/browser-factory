@@ -20,6 +20,8 @@
 <script type="text/javascript" src ="core/render.js"></script>
 <script type="text/javascript" src ="core/view.js"></script>
 <script type="text/javascript" src ="entity/player/player.js"></script>
+<script type="text/javascript" src ="entity/belt1/belt1.js"></script>
+<script type="text/javascript" src ="entity/belt2/belt2.js"></script>
 <script type="text/javascript">
 
     canvas = document.getElementById("myCanvas");
@@ -39,24 +41,34 @@
     c.player1.inv = new Inventory();
     player1 = c.player1;
     
+    new Belt();
+    new Belt2();
     //BUTTONS
     pointerButton = new Button(0,0);
 
     // INV MENU
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
-            let newButton = new Button (j * tileSize, i * tileSize, undefined, invMenu);
+            let newButton = new Button (j * (buttonSize+2), i * (buttonSize+2), undefined, invMenu);
             newButton.onClick = () => {pointerButton.item = newButton.item;};
             invMenu.items.push(newButton);
         }
     }
 
     // CRAFT MENU
-    craftMenu.items.push(new Button (0 * buttonSize, 0, {id: resDB.wood.id, n: 0}   , craftMenu, () => {bookFromInv(c.player1.inv, [resDB.wood])}  ))
-    craftMenu.items.push(new Button (1 * buttonSize, 0, {id: resDB.stone_furnace.id, n: 0}     , craftMenu, () => {bookFromInv(c.player1.inv, [resDB.furnace])}))
-    craftMenu.items.push(new Button (2 * buttonSize, 0, {id: resDB.chest.id, n: 0}       , craftMenu, () => {bookFromInv(c.player1.inv, [resDB.chest])}))
-    craftMenu.items.push(new Button (3 * buttonSize, 0, {id: resDB.inserter.id, n: 0}    , craftMenu, () => {bookFromInv(c.player1.inv, [resDB.inserter])}))
-    craftMenu.items.push(new Button (4 * buttonSize, 0, {id: resDB.belt.id, n: 0}        , craftMenu, () => {bookFromInv(c.player1.inv, [resDB.belt])}))
+    let items = resDB.player.output;
+    let pos = 0;
+    items.forEach(i => {
+        let newButton = new Button ((pos % 8) * (buttonSize+5), Math.floor(pos/8) * (buttonSize+5), {id: i.id, n: 0}   , craftMenu, () => {bookFromInv(c.player1.inv, [i])} );
+        newButton.type = "craft";
+        craftMenu.items.push(newButton)
+        pos++;
+        if (newButton.x + newButton.w > craftMenu.w) craftMenu.w = newButton.x + newButton.w;
+        if (newButton.y + newButton.h > craftMenu.h) craftMenu.h = newButton.y + newButton.h;
+    })
+    // BELT MENU
+    beltMenu.vis = true;
+
 
     function getCityById(searchID) {
         for (let i = 0; i < city.w.length; i++) {
@@ -72,6 +84,7 @@
         if(e.code == "KeyS") c.player1.dir.y =1;
         if(e.code == "KeyD") c.player1.dir.x = 1;
         if(e.code == "KeyA") c.player1.dir.x = -1;
+        if(e.code == "Escape") pointerButton.item = undefined;
     }
 
     function onKeyUp(e){
@@ -100,18 +113,14 @@
         }
     )
 
-    let buildImage = new Image(tileSize, tileSize);
-    buildImage.src = "core/build.png";
-    let craftButton = new Button (tileSize*5 + 10, 0, undefined, beltMenu, () => {invMenu.vis = !invMenu.vis;craftMenu.vis = !craftMenu.vis; pointerButton.item = undefined;}, buildImage);
-    beltMenu.vis = true;
-    beltMenu.items.push(craftButton);
+
 
     canvas.offScreenCanvas = document.createElement('canvas');
 
 
 
     requestAnimationFrame( render );
-
+    c.game.tick = 0;
     gameLoop();
     function gameLoop(){
         /*Object.keys(resDB).forEach(key => {
@@ -119,7 +128,7 @@
         }
         )*/
         c.player1.loop();
-        setTimeout(gameLoop, 1000/60);
+        c.game.tick++;
+        setTimeout(gameLoop, 1000/100);
     }
-
 </script>

@@ -58,16 +58,17 @@ class InputModule {
             let worldCordinate = {x: dragStart.x, y: dragStart.y};
             let tileCoordinate = worldToTile(worldCordinate);
             let res = game.map[tileCoordinate.x][tileCoordinate.y][layers.res];
-            let d = dist(player1.pos, worldCordinate);
-            if (res && d < 80) workInterval = setInterval(function() { mineToInv({source: tileCoordinate, id:res.id, n: 1}); }, 1000);
-                if (pointerButton && pointerButton.item && pointerButton.item.id) {
-                    isBuilding = true;
-                    if (resName[pointerButton.item.id].type == "machine") {
-                        ws.send(JSON.stringify({cmd: "addEntity", data: {pos: {x: tileCoordinate.x, y: tileCoordinate.y}, dir: buildDir, type: pointerButton.item.id}}));
-                    } else {
-                        ws.send(JSON.stringify({cmd: "addItem", data: {pos: tileCoordinate, dir: buildDir, inv: pointerButton}}));
-                    }
+            let d = dist(c.player1.pos, worldCordinate);
+            if (res && d < 5*tileSize) workInterval = setInterval(function() { mineToInv({source: tileCoordinate, id:res.id, n: 1}); }, 1000);
+
+            if (pointerButton && pointerButton.item && pointerButton.item.id) {
+                isBuilding = true;
+                if (resName[pointerButton.item.id].type == "entity") {
+                    ws.send(JSON.stringify({cmd: "addEntity", data: {pos: {x: tileCoordinate.x, y: tileCoordinate.y}, dir: buildDir, type: pointerButton.item.id}}));
+                } else {
+                    ws.send(JSON.stringify({cmd: "addItem", data: {pos: tileCoordinate, dir: buildDir, inv: pointerButton}}));
                 }
+            }
         }
     }
 
@@ -91,14 +92,21 @@ class InputModule {
         if ( pointer != undefined) {
             mousePos.x =  pointer.x;
             mousePos.y =  pointer.y;
+
+            beltMenu.items.forEach  (b => { b.hover = b.collision(e); })
+            invMenu.items.forEach  (b => { b.hover = b.collision(e); })
+            craftMenu.items.forEach  (b => { b.hover = b.collision(e); })
+
             let p = worldToTile(screenToWorld(mousePos));
             curResPos.x = p.x;
             curResPos.y = p.y;
+            receiptMenu.pos.x = mousePos.x;
+            receiptMenu.pos.y = mousePos.y;
 
             if (e.buttons == 1 && dragStart) {
                 if (isBuilding) {
                     if (lastResPos.x != curResPos.x || lastResPos.y != curResPos.y) {
-                        if (resName[pointerButton.item.id].type == "machine") {
+                        if (resName[pointerButton.item.id].type == "entity") {
                             ws.send(JSON.stringify({cmd: "addEntity", data: {pos: {x: curResPos.x, y: curResPos.y}, dir: buildDir, type: pointerButton.item.id}}));
                         } else {
                             ws.send(JSON.stringify({cmd: "addItem", data: {pos: curResPos, dir: buildDir, inv: pointerButton}}));

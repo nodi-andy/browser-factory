@@ -11,7 +11,7 @@ class ViewModule {
         canvas.width  = window.innerWidth;
         canvas.height = window.innerHeight;
         beltMenu.pos = {x:canvas.width / 2 - 300, y:canvas.height - tileSize};
-        invMenu.pos = {x:canvas.width / 2 - buttonSize * 5, y:canvas.height / 2 - buttonSize * 2.5};
-        craftMenu.pos = {x:canvas.width / 2 + buttonSize / 2, y:canvas.height / 2 - buttonSize * 2.5};
+        invMenu.pos = {x:canvas.width / 2 - buttonSize * 8, y:canvas.height / 2 - buttonSize * 4};
+        craftMenu.pos = {x:canvas.width / 2 + buttonSize / 2, y:canvas.height / 2 - buttonSize * 4};
     }
 }
