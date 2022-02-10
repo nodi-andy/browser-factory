@@ -31,7 +31,7 @@
     canvas.width  = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    let mousePos    = {x: 0, y: 0}
+
     var selCity     = undefined;
 
     let isDragging = false;
@@ -54,7 +54,6 @@
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
             let newButton = new Button (j * (buttonSize+2), i * (buttonSize+2), undefined, invMenu);
-            newButton.onClick = () => {pointerButton.id = newButton.item.id; pointerButton.type = resName[newButton.item.id].type;};
             invMenu.items.push(newButton);
         }
     }

@@ -91,7 +91,7 @@ function render(){
     }
     
     // ENTITY CANDIDATE
-    if (pointerButton) {
+    if (pointerButton && pointerButton.overlay == false) {
         let type = pointerButton.id;
         if (pointerButton.id) {
             context.save();
@@ -111,7 +111,7 @@ function render(){
         context.font = "12px Arial";
         context.fillStyle = "white";
         context.fillText(curResPos.x + ", " + curResPos.y, curResPos.x * tileSize, curResPos.y * tileSize);
-        if (inv != undefined && c.allInvs[inv]) context.fillText(JSON.stringify(c.allInvs[inv].packs, null, 1), curResPos.x * tileSize, curResPos.y * tileSize + 24);
+        if (inv != undefined && c.allInvs[inv]) context.fillText(JSON.stringify(c.allInvs[inv].stack, null, 1), curResPos.x * tileSize, curResPos.y * tileSize + 24);
         if (res != undefined) context.fillText(JSON.stringify(res, null, 1), curResPos.x * tileSize, curResPos.y * tileSize + 48);
         context.stroke();
     }
@@ -162,21 +162,38 @@ function render(){
         context.font = "12px Arial";
         context.fillStyle = "black";
         let selPos = c.selEntity.pos;
-        let dy = 0;
+        let dy = 36;
         context.beginPath();
-        context.fillStyle = "rgba(150, 150, 0, 0.95)";
-        context.fillRect(craftMenu.pos.x , craftMenu.pos.y, craftMenu.w , craftMenu.h);
+        context.fillStyle = "rgba(150, 150, 150, 0.95)";
+        context.fillRect(entityMenu.pos.x , entityMenu.pos.y, entityMenu.w , entityMenu.h);
         context.font = "24px Arial";
         context.fillStyle = "black";
-        let selInv = inventory.getInv(selPos.x, selPos.y);
-        if (selInv) {
-            for(f in selInv.packs) {
-                context.fillText(JSON.stringify(f), craftMenu.pos.x, craftMenu.pos.y + dy);
+        let selInv = c.allInvs[c.selEntity.invID]//inventory.getInv(selPos.x, selPos.y);
+        if (selInv && entityMenu.vis) {
+            for(f in selInv.stack) {
+                context.fillText(JSON.stringify(f).replaceAll('"', ''), craftMenu.pos.x + 16, craftMenu.pos.y + dy);
+                if (c.buttons[f]) {
+                    c.buttons[f][0].draw(context);
+                    //c.buttons[f][1].draw(context);
+                }
                 dy += 64;
             }
         }
     }
     
+    // MOVING RESOURCES
+    if (pointerButton && pointerButton.overlay == true) {
+        let type = pointerButton.id;
+        if (pointerButton.id) {
+            context.save();
+            context.translate(mousePos.x, mousePos.y);
+            context.rotate(buildDir * Math.PI/2);
+            context.translate(-tileSize / 2, -tileSize / 2);
+            if (resName[type].mach) resName[type].mach.draw(context, pointerButton);
+            else context.drawImage(resName[type].img, 0, 0);
+            context.restore();
+        }
+    }
     // FPS
     const now = performance.now();
     while (times.length > 0 && times[0] <= now - 1000) {

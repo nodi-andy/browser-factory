@@ -5,7 +5,6 @@ class Button {
         this.h = buttonSize;
         this.w = buttonSize;
         this.item = item;
-        this.onClick = onClick;
         this.img = img;
         this.parent = parent;
         this.hover = false;
@@ -37,7 +36,7 @@ class Button {
             if (this.img) {
                 context.drawImage(this.img, this.screen.x, this.screen.y)
             } else if (this.item.id && resName[this.item.id].img) {
-                context.drawImage(resName[this.item.id].img, this.screen.x, this.screen.y)
+                context.drawImage(resName[this.item.id].img, this.screen.x + 2, this.screen.y + 2)
             }
 
             if (this.item.n!= undefined) {
@@ -47,4 +46,13 @@ class Button {
             }
         }
     }
+
+    onClick() {
+        if (pointerButton.id == undefined) {
+            pointerButton.inv = c.player1.inv;
+            pointerButton.id = this.item.id;
+            pointerButton.type = resName[this.item.id].type;
+        }
+    };
+
   }

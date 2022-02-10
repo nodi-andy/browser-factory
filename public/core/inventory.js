@@ -4,6 +4,7 @@ if (typeof window === 'undefined') {
 
 class Inventory {
     constructor(inv, pos, newItem = undefined) {
+        this.stack = {};
         this.packs = [];
         this.nextpacks = [];
         if (pos) this.pos = {x: pos.x, y: pos.y};

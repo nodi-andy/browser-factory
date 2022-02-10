@@ -7,15 +7,14 @@ class StoneFurnace {
     }
 
     setup(map, ent) {
-        let inv = inventory.getInv(ent.pos.x, ent.pos.y);
+        let entity = inventory.getEnt(ent.pos.x, ent.pos.y);
+        let inv = new inventory.Inventory(c.allInvs);//inventory.getInv(ent.pos.x, ent.pos.y);
+        entity.invID = inv.id;
         inv.setPackSize(6);
         inv.itemsize = 50;
-        inv.packs[0].t = "FUEL";
-        inv.packs[1].t = "FUEL";
-        inv.packs[2].t = "INPUT";
-        inv.packs[3].t = "INPUT";
-        inv.packs[4].t = "OUTPUT";
-        inv.packs[5].t = "OUTPUT";
+        inv.stack["FUEL"] = [c.item(undefined, 0)];
+        inv.stack["INPUT"] = [c.item(undefined, 0), c.item(undefined, 0)];
+        inv.stack["OUTPUT"] = [c.item(undefined, 0)];
     }
 
 

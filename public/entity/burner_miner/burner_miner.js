@@ -18,13 +18,14 @@ class BurnerMiner {
         db.anim2 = image;
       }
       db.size = [2, 2];
+
     }
 
     setup(map, ent) {
         let inv = inventory.getInv(ent.pos.x, ent.pos.y);
-        inv.setPackSize(1);
-        inv.packs[0].n = 0;
-        inv.packs[0].size = 1;
+        inv.stack["FUEL"] = [c.item(undefined, 0)];
+//        inv.setPackSize(1);
+        inv.stack["OUTPUT"] = [c.item(undefined, 0)];
 
         let myEnt = inventory.getEnt(ent.pos.x, ent.pos.y);
         myEnt.power = 100;
@@ -36,17 +37,17 @@ class BurnerMiner {
             let tile = map[ent.pos.x][ent.pos.y];
             let inv = inventory.getInv(ent.pos.x, ent.pos.y);
 
-            if (tile[c.layers.res] && tile[c.layers.res].n && inv.packs[0].n == 0) {
-                if (inv.packs[0].id == undefined) inv.packs[0].id = c.resName[tile[c.layers.res].id].becomes.id;
+            if (tile[c.layers.res] && tile[c.layers.res].n && inv.stack["OUTPUT"][0].n == 0) {
+                if (inv.stack["OUTPUT"][0].id == undefined) inv.stack["OUTPUT"][0].id = c.resName[tile[c.layers.res].id].becomes.id;
                 tile[c.layers.res].n--;
-                inv.packs[0].n++
+                inv.stack["OUTPUT"][0].n++
             }
 
             let targetInv = inventory.getInv(ent.pos.x, ent.pos.y-1);
-            if (inv.packs[0].n && targetInv.addItem({id: inv.packs[0].id, n:1})) inv.packs[0].n=0;
+            if (inv.stack["OUTPUT"][0].n && targetInv.addItem({id: inv.stack["OUTPUT"][0].id, n:1})) inv.stack["OUTPUT"][0].n=0;
 
             let myEnt = inventory.getEnt(ent.pos.x, ent.pos.y);
-            if(inv.packs[0].n == 0) {
+            if(inv.stack["OUTPUT"][0].n == 0) {
                 myEnt.power = 100;
             } else myEnt.power = 0;
         }
@@ -69,11 +70,11 @@ class BurnerMiner {
 
         if (ent && ent.pos && ent.pos.x) {
             let inv = inventory.getInv(ent.pos.x, ent.pos.y);
-            if (inv && inv.packs[0] && inv.packs[0].id !=undefined && inv.packs[0].n) {
+            if (inv && inv.stack["OUTPUT"][0] && inv.stack["OUTPUT"][0].id !=undefined && inv.stack["OUTPUT"][0].n) {
                 context.save();
                 ctx.translate(tileSize/2, -tileSize/2);
                 context.scale(0.5, 0.5);
-                context.drawImage(resName[inv.packs[0].id].img, 0, 0)
+                context.drawImage(resName[inv.stack["OUTPUT"][0].id].img, 0, 0)
                 context.scale(2, 2);
                 context.restore();
             }

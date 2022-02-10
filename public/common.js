@@ -1,3 +1,4 @@
+
 const tileSize = 64;
 const gridSize = {x: 64, y: 64}
 const buttonSize = 68;
@@ -18,18 +19,17 @@ resDB["water"]          = {name: "water"        , type: "terrain"};
 resDB["grassland"]      = {name: "grassland"    , type: "terrain"};
 
 resDB["coal"]           = {name: "coal"          , packsize: 1, type: "item"};
-
-resDB["tree"]           = {name: "tree"          , type: "res"};
-resDB["copper_ore"]     = {name: "copper ore"    , type: "res"};
-resDB["coal_ore"]       = {name: "coal ore"      , type: "res", E: 500, becomes: resDB.coal};
-resDB["stone_ore"]      = {name: "stone ore"     , type: "res"};
-resDB["iron_ore"]       = {name: "iron ore"      , type: "res"};
-
-resDB["stone"]          = {name: "stone"         , packsize: 1, type: "item", from: resDB.stone_ore};
+resDB["stone"]          = {name: "stone"         , packsize: 1, type: "item"};
+resDB["iron"]           = {name: "iron"          , packsize: 1, type: "item"};
+resDB["copper"]         = {name: "copper"        , packsize: 1, type: "item"};
 resDB["raw_wood"]       = {name: "raw_wood"      ,              type: "item", E: 100, from: resDB.tree};
-resDB["iron"]           = {name: "iron"          , packsize: 1, type: "item", E: 100, from: resDB.iron_ore};
-resDB["copper"]         = {name: "copper"        , packsize: 1, type: "item", E: 100, from: resDB.copper_ore};
-resDB["stone"]          = {name: "stone"         , packsize: 1, type: "item", E: 100, from: resDB.stone_ore};
+
+resDB["tree"]           = {name: "tree"          , type: "res", E: 500, becomes: resDB.raw_wood};
+resDB["copper_ore"]     = {name: "copper ore"    , type: "res", E: 500, becomes: resDB.copper};
+resDB["coal_ore"]       = {name: "coal ore"      , type: "res", E: 500, becomes: resDB.coal};
+resDB["stone_ore"]      = {name: "stone ore"     , type: "res", E: 500, becomes: resDB.stone};
+resDB["iron_ore"]       = {name: "iron ore"      , type: "res", E: 500, becomes: resDB.iron};
+
 
 resDB["iron_plate"]     = {name: "iron plate"    , packsize: 1, type: "item", cost: [{res: resDB.iron, n: 1}, {res: resDB.coal, n:1}, {res: resDB.E, n:100}]};
 resDB["copper_plate"]   = {name: "copper plate"  , packsize: 1, type: "item", cost: [{res: resDB.copper, n: 1}, {res: resDB.coal, n:1}]};
@@ -92,9 +92,10 @@ var canvas = undefined;
 var beltMenu = {items:[], pos: {x: 0, y: 0, w: 0, h:0}, vis: true};
 var invMenu = {items:[], pos: {x: 0, y: 0, w: 0, h:0}, vis: false};
 var craftMenu = {items:[], pos: {x: 0, y: 0, w: 0, h:0}, vis: false};
+var entityMenu = {items:[], pos: {x: 0, y: 0}, w: 600, h:300, vis: false};
 var receiptMenu = {item: undefined, items:[], pos: {x: 0, y: 0, w: 300, h:50}, vis: false};
 
-
+function item(type, n) {return {id: type, n: n}}
 
 function floorTile(p) {return {x: Math.floor(p.x/10)*10, y: Math.floor(p.y/10)*10}};
 function ceilTile(p) {return {x: Math.ceil(p.x/10), y: Math.ceil(p.y/10)}};
@@ -183,6 +184,7 @@ exports.allEnts = allEnts;
 exports.bookFromInv = bookFromInv;
 exports.resName = resName;
 exports.dirToVec = dirToVec;
+exports.item = item;
 
 
 var c = {};
@@ -194,3 +196,4 @@ c.layers = layers;
 c.allEnts = allEnts;
 c.allInvs = allInvs;
 c.selEntity = selEntity;
+c.item = item;
