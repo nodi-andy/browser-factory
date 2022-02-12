@@ -37,15 +37,19 @@ let cityDB = [];
 
 c.player1 = player1;
 player1.setup();
-player1.inv = new Inventory();
+player1.inv = new Inventory(c.allInvs);
 player1.inv.packsize = 20;
 player1.inv.itemsize = 20;
-player1.inv.addItem({id: c.resDB.stone.id, n: 100});
-player1.inv.addItem({id: c.resDB.raw_wood.id, n: 100});
-player1.inv.addItem({id: c.resDB.coal.id, n: 87});
-player1.inv.addItem({id: c.resDB.iron_plate.id, n: 170});
-player1.inv.addItem({id: c.resDB.copper_plate.id, n: 170});
-player1.inv.addItem({id: c.resDB.stone_furnace.id, n: 7});
+//player1.inv.addItem({id: c.resDB.stone.id, n: 100});
+player1.inv.stack["INV"] = [];
+player1.inv.stack["INV"].push({id: c.resDB.stone_ore.id, n: 100});
+player1.inv.stack["INV"].push({id: c.resDB.raw_wood.id, n: 100});
+player1.inv.stack["INV"].push({id: c.resDB.coal.id, n: 87});
+player1.inv.stack["INV"].push({id: c.resDB.iron_plate.id, n: 170});
+player1.inv.stack["INV"].push({id: c.resDB.copper_plate.id, n: 170});
+player1.inv.stack["INV"].push({id: c.resDB.stone_furnace.id, n: 7});
+player1.inv.stack["INV"].push({id: c.resDB.belt1.id, n: 100});
+player1.inv.stack["INV"].push({id: c.resDB.belt2.id, n: 100});
 //player1.inv.addItem({id: c.resDB.belt1.id, n: 7});
 //player1.inv.addItem({id: c.resDB.chest.id, n: 7});
 c.allEnts.push(player1);
@@ -164,6 +168,22 @@ function remFromInv(remItems) {
   updatePlayer();
 }
 
+function remStack(rem) {
+  delete c.allInvs[rem.invID].stack[rem.invKey];
+  sendAll(JSON.stringify({msg:"updateInv", data:c.allInvs}));
+}
+
+function addStack(rem) {
+  c.allInvs[rem.invID].stack[rem.invKey] = rem.item;
+  sendAll(JSON.stringify({msg:"updateInv", data:c.allInvs}));
+}
+
+function moveStack(data) {
+  let from = c.allInvs[data.fromInvID].stack[data.fromInvKey][data.fromStackPos];
+  c.allInvs[data.toInvID].stack[data.toInvKey][data.toStackPos] = from;
+  c.allInvs[data.fromInvID].stack[data.fromInvKey][data.fromStackPos] = undefined;
+  sendAll(JSON.stringify({msg:"updateInv", data:c.allInvs}));
+}
 
 function addToInv(newItem) {
   for(let i = 0; i < player1.inv.packs.length && newItem; i++) {
@@ -177,7 +197,6 @@ function addToInv(newItem) {
   if (newItem) player1.inv.packs.push({id: newItem.res.id, n: newItem.n});
   updatePlayer();
 }
-
 
 function mineToInv(newItem) {
   if (!newItem) return;
@@ -249,15 +268,18 @@ app.ws('/', function(ws, req) {
       //console.log("up:", c.game); 
       c.game = getCityById(c.game.p);/* console.log(c.game);*/
     }
-    if(msg.cmd == 'keydown' && msg.data == "ArrowRight") ws.player.dir = 5;
-    if(msg.cmd == "addCity") addCity(cityID++, msg.data.x, msg.data.y, msg.data.type);
-    if(msg.cmd == "addEntity") addEntity(msg.data);
+    if (msg.cmd == 'keydown' && msg.data == "ArrowRight") ws.player.dir = 5;
+    if (msg.cmd == "addCity") addCity(cityID++, msg.data.x, msg.data.y, msg.data.type);
+    if (msg.cmd == "addEntity") addEntity(msg.data);
     if (msg.cmd == "addItem") addItem(msg.data);
     if (msg.cmd == "remFromInv") remFromInv(msg.data);
-    if(msg.cmd == "addToInv") addToInvs(msg.data);
-    if(msg.cmd == "mineToInv") mineToInv(msg.data);
-    if(msg.cmd == "craftToInv") {craftToInv(msg.data); updatePlayer();}
-    if(msg.cmd == "camera") c.game.camera = msg.data.camera;
+    if (msg.cmd == "remStack") remStack(msg.data);
+    if (msg.cmd == "addStack") addStack(msg.data);
+    if (msg.cmd == "moveStack") moveStack(msg.data);
+    if (msg.cmd == "addToInv") addToInvs(msg.data);
+    if (msg.cmd == "mineToInv") mineToInv(msg.data);
+    if (msg.cmd == "craftToInv") {craftToInv(msg.data); updatePlayer();}
+    if (msg.cmd == "camera") c.game.camera = msg.data.camera;
 
   });
   ws.on('close', function() {

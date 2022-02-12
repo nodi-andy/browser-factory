@@ -163,8 +163,35 @@ function mineToInv(inv) {
 }
 
 
-
+function setShowInventory(inv) {
+    let showStack = inv.stack;
   
+    entityMenu.vis = true;
+    let init = entityMenu.invID != inv.id;
+    entityMenu.invID = inv.id;
+    if (init) entityMenu.buttons = {};
+    let dx = 200;
+    let dy = 64;
+    for(let s of Object.keys(showStack)) {
+        dx = 200;
+        if (init) entityMenu.buttons[s] = [];
+        for(let stackPos in showStack[s]) {
+            let item = showStack[s][stackPos];
+            let button;
+            if (init) button = new Button(dx , dy, item, entityMenu, c.selEntity.inv);
+            else button = entityMenu.buttons[s][stackPos];
+            dx += buttonSize;
+            button.invKey = s;
+            button.stackPos = stackPos;
+            button.item = item;
+
+            if (init) entityMenu.items.push(button);
+            if (init) entityMenu.buttons[s].push(button);
+
+        }
+        dy += buttonSize;
+    }
+}
 
 
 if (exports == undefined) var exports = {};

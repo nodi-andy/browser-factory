@@ -14,6 +14,10 @@ class Inventory {
         if (inv) {
           inv.push(this);
           this.id = inv.length - 1;
+          if (pos) {
+            let tile = c.game.map[pos.x][pos.y];
+            tile[c.layers.inv] = this.id;
+          }
         }
         this.addItem(newItem);
     }
@@ -72,6 +76,10 @@ class Inventory {
       }
       return false;
   }
+
+    remStack(stackKey) {
+      delete this.stack[stackKey];
+    }
   
     remItems(newItems) {
       let ret = true;

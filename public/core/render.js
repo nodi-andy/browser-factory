@@ -92,13 +92,13 @@ function render(){
     
     // ENTITY CANDIDATE
     if (pointerButton && pointerButton.overlay == false) {
-        let type = pointerButton.id;
-        if (pointerButton.id) {
+        let type = pointerButton.item.id;
+        if (pointerButton.item.id) {
             context.save();
             context.translate((curResPos.x + 0.5) * tileSize, (curResPos.y + 0.5) *tileSize);
             context.rotate(buildDir * Math.PI/2);
             context.translate(-tileSize / 2, -tileSize / 2);
-            if (resName[type].mach) resName[type].mach.draw(context, pointerButton);
+            if (resName[type].mach) resName[type].mach.draw(context, pointerButton.item);
             else context.drawImage(resName[type].img, 0, 0);
             context.restore();
         }
@@ -159,21 +159,21 @@ function render(){
     }
 
     if(c.selEntity) {
-        context.font = "12px Arial";
-        context.fillStyle = "black";
-        let selPos = c.selEntity.pos;
-        let dy = 36;
+        let dy = 96;
         context.beginPath();
         context.fillStyle = "rgba(150, 150, 150, 0.95)";
         context.fillRect(entityMenu.pos.x , entityMenu.pos.y, entityMenu.w , entityMenu.h);
         context.font = "24px Arial";
         context.fillStyle = "black";
+        context.fillText(resName[c.allEnts[c.selEntity.entID].type].name, entityMenu.pos.x + 16, entityMenu.pos.y + 32);
         let selInv = c.allInvs[c.selEntity.invID]//inventory.getInv(selPos.x, selPos.y);
         if (selInv && entityMenu.vis) {
             for(f in selInv.stack) {
+                context.font = "24px Arial";
+                context.fillStyle = "black";
                 context.fillText(JSON.stringify(f).replaceAll('"', ''), craftMenu.pos.x + 16, craftMenu.pos.y + dy);
-                if (c.buttons[f]) {
-                    c.buttons[f][0].draw(context);
+                if (entityMenu.buttons[f]) {
+                    entityMenu.buttons[f].forEach(b => {b.draw(context)});
                     //c.buttons[f][1].draw(context);
                 }
                 dy += 64;
@@ -183,8 +183,8 @@ function render(){
     
     // MOVING RESOURCES
     if (pointerButton && pointerButton.overlay == true) {
-        let type = pointerButton.id;
-        if (pointerButton.id) {
+        let type = pointerButton.item.id;
+        if (pointerButton.item.id) {
             context.save();
             context.translate(mousePos.x, mousePos.y);
             context.rotate(buildDir * Math.PI/2);

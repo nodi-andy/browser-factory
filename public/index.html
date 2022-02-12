@@ -47,8 +47,6 @@
     new Belt2();
     new AssemblingMachine1();
     new BurnerMiner();
-    //BUTTONS
-    pointerButton = new Entity();
 
     // INV MENU
     for (let i = 0; i < 8; i++) {
@@ -62,13 +60,15 @@
     let items = resDB.player.output;
     let pos = 0;
     items.forEach(i => {
-        let newButton = new Button ((pos % 8) * (buttonSize+5), Math.floor(pos/8) * (buttonSize+5), {id: i.id, n: 0}   , craftMenu, () => {bookFromInv(c.player1.inv, [i])} );
+        let newButton = new Button ((pos % 8) * (buttonSize+5), Math.floor(pos/8) * (buttonSize+5), {id: i.id, n: 0} , craftMenu);
+        newButton.onClick = () => {bookFromInv(c.player1.inv, [i])};
         newButton.type = "craft";
         craftMenu.items.push(newButton)
         pos++;
         if (newButton.x + newButton.w > craftMenu.w) craftMenu.w = newButton.x + newButton.w;
         if (newButton.y + newButton.h > craftMenu.h) craftMenu.h = newButton.y + newButton.h;
     })
+
     // BELT MENU
     beltMenu.vis = true;
 
@@ -87,7 +87,7 @@
         if(e.code == "KeyS") c.player1.dir.y =1;
         if(e.code == "KeyD") c.player1.dir.x = 1;
         if(e.code == "KeyA") c.player1.dir.x = -1;
-        if(e.code == "Escape") pointerButton.id = undefined;
+        if(e.code == "Escape") pointerButton = undefined;
     }
 
     function onKeyUp(e){

@@ -52,6 +52,7 @@ class InputModule {
         beltMenu.items.forEach  (b => {if (b.collision(e)) { overlayClicked = true; }})
         invMenu.items.forEach   (b => {if (b.collision(e)) { overlayClicked = true; }})
         craftMenu.items.forEach (b => {if (b.collision(e)) { overlayClicked = true; }})
+        entityMenu.items.forEach (b => {if (b.collision(e)) { overlayClicked = true; }})
         
         if (overlayClicked == false) {
             dragStart = screenToWorld(getEventLocation(e));
@@ -62,16 +63,17 @@ class InputModule {
             let d = dist(c.player1.pos, worldCordinate);
             if (res && d < 5*tileSize) workInterval = setInterval(function() { mineToInv({source: tileCoordinate, id:res.id, n: 1}); }, 1000);
 
-            if (pointerButton && pointerButton.id) {
-                isBuilding = true;
-                if (pointerButton.type == "entity") {
-                    ws.send(JSON.stringify({cmd: "addEntity", data: {pos: {x: tileCoordinate.x, y: tileCoordinate.y}, dir: buildDir, type: pointerButton.id}}));
+            if (pointerButton && pointerButton.item.id) {
+                let buildType = resName[pointerButton.item.id].type;
+                if (buildType == "entity") {
+                    ws.send(JSON.stringify({cmd: "addEntity", data: {pos: {x: tileCoordinate.x, y: tileCoordinate.y}, dir: buildDir, type: pointerButton.item.id}}));
                 } else {
                     ws.send(JSON.stringify({cmd: "addItem", data: {pos: tileCoordinate, dir: buildDir, inv: {item: pointerButton}}}));
                 }
             }
         }
     }
+
 
     onPointerUp(e) {
         clearInterval(workInterval);
@@ -80,33 +82,23 @@ class InputModule {
         beltMenu.items.forEach  (b => {if (b.collision(e) && b.onClick) { b.onClick(); overlayClicked = true; }})
         invMenu.items.forEach   (b => {if (b.collision(e) && b.onClick) { b.onClick(); overlayClicked = true; }})
         craftMenu.items.forEach (b => {if (b.collision(e) && b.onClick) { b.onClick(); overlayClicked = true; }})
+        entityMenu.items.forEach (b => {if (b.collision(e) && b.onClick) { b.onClick(); overlayClicked = true; }})
+
+        let pointerPos = screenToWorld({x: e.offsetX, y: e.offsetY});
+        let worldPos = worldToTile(screenToWorld(getEventLocation(e)));
+        let entity = inventory.getEnt(worldPos.x, worldPos.y);
         
         if (overlayClicked == false) {
 
             let picked = undefined;
-            let pointerPos = screenToWorld({x: e.offsetX, y: e.offsetY});
-            let worldPos = worldToTile(screenToWorld(getEventLocation(e)));
-            if (pointerButton == undefined || pointerButton.id == undefined) {
-                let entity = inventory.getEnt(worldPos.x, worldPos.y);
-                if (entity) {
-                    c.selEntity = entity;
-                    c.selEntity.inv = c.allInvs[c.selEntity.invID];
-                    c.buttons ={};
-                    let dx = 200;
-                    let dy = 16;
-                    for(let s of Object.keys(c.selEntity.inv.stack)) {
-                        c.buttons[s] = [];
-                        for(let item in  c.selEntity.inv.stack[s]) {
-                            let button = new Button(dx , dy, {id:3, n:19}, entityMenu);
-                            c.buttons[s].push(button);
-                            entityMenu.items.push(button);
-                        }
-                    }
-                    //entityMenu.items.push();
-                    if (entity) {entityMenu.vis = invMenu.vis = true; craftMenu.vis = false; }
-                    else {entityMenu.vis = invMenu.vis = false; craftMenu.vis = true;}
-                    if (picked == undefined) picked = {pos: floorTile(pointerPos), type:"tile"}
-                }
+            if ((pointerButton == undefined || pointerButton.item == undefined) && entity) {
+                c.selEntity = {entID: entity.id, inv: c.allInvs[entity.invID], invID: entity.invID};
+
+                setShowInventory(c.selEntity.inv);
+
+                if (entity) {entityMenu.vis = invMenu.vis = true; craftMenu.vis = false; }
+                else {entityMenu.vis = invMenu.vis = false; craftMenu.vis = true;}
+                if (picked == undefined) picked = {pos: floorTile(pointerPos), type:"tile"}
             }
 
             isDragging = false;
@@ -127,7 +119,7 @@ class InputModule {
         invMenu.items.forEach  (b => {b.hover = b.collision(e); if (b.hover) { isOverlay = true; }})
         craftMenu.items.forEach  (b => {b.hover = b.collision(e); if (b.hover) { isOverlay = true; }})
         entityMenu.items.forEach  (b => {b.hover = b.collision(e); if (b.hover) { isOverlay = true; }})
-        pointerButton.overlay = isOverlay;
+        if (pointerButton) pointerButton.overlay = isOverlay;
         receiptMenu.pos.x = mousePos.x;
         receiptMenu.pos.y = mousePos.y;
 
@@ -142,7 +134,7 @@ class InputModule {
                 if (isBuilding) {
                     if (lastResPos.x != curResPos.x || lastResPos.y != curResPos.y) {
                         if (pointerButton.type == "entity") {
-                            ws.send(JSON.stringify({cmd: "addEntity", data: {pos: {x: curResPos.x, y: curResPos.y}, dir: buildDir, type: pointerButton.id}}));
+                            ws.send(JSON.stringify({cmd: "addEntity", data: {pos: {x: curResPos.x, y: curResPos.y}, dir: buildDir, type: pointerButton.item}}));
                         } else {
                             ws.send(JSON.stringify({cmd: "addItem", data: {pos: curResPos, dir: buildDir, inv: pointerButton}}));
                         }

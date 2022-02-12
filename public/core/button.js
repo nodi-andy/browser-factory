@@ -1,11 +1,11 @@
 class Button {
-    constructor(x, y, item, parent, onClick, img) {
+    constructor(x, y, item, parent, inv) {
         this.x = x;
         this.y = y;
         this.h = buttonSize;
         this.w = buttonSize;
         this.item = item;
-        this.img = img;
+        this.inv = inv;
         this.parent = parent;
         this.hover = false;
         if (this.parent) this.screen = {x: this.parent.pos.x + this.x, y: this.parent.pos.y + this.y}
@@ -48,10 +48,12 @@ class Button {
     }
 
     onClick() {
-        if (pointerButton.id == undefined) {
-            pointerButton.inv = c.player1.inv;
-            pointerButton.id = this.item.id;
-            pointerButton.type = resName[this.item.id].type;
+        if (pointerButton == undefined) {
+            if (this.inv) pointerButton = this;
+        } else {
+//            pointerButton.inv.remStack(pointerButton.invKey);
+            ws.send(JSON.stringify({cmd: "moveStack", data: {toInvID: this.inv.id, toInvKey: this.invKey, toStackPos: this.stackPos, fromInvID: pointerButton.inv.id, fromInvKey: pointerButton.invKey, fromStackPos : pointerButton.stackPos}}));
+            pointerButton = undefined;
         }
     };
 
