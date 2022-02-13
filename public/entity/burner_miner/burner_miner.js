@@ -28,7 +28,7 @@ class BurnerMiner {
         inv.stack["OUTPUT"] = [c.item(undefined, 0)];
 
         let myEnt = inventory.getEnt(ent.pos.x, ent.pos.y);
-        myEnt.power = 100;
+        myEnt.power = 0;
     }
 
 
@@ -36,20 +36,20 @@ class BurnerMiner {
         if (c.game.tick%100 == 0) {
             let tile = map[ent.pos.x][ent.pos.y];
             let inv = inventory.getInv(ent.pos.x, ent.pos.y);
+            let myEnt = inventory.getEnt(ent.pos.x, ent.pos.y);
+            myEnt.power = 0;
 
-            if (tile[c.layers.res] && tile[c.layers.res].n && inv.stack["OUTPUT"][0].n == 0) {
+            if (tile[c.layers.res] && tile[c.layers.res].n && inv.stack["OUTPUT"][0].n == 0 && inv.stack["FUEL"][0].n > 0) {
                 if (inv.stack["OUTPUT"][0].id == undefined) inv.stack["OUTPUT"][0].id = c.resName[tile[c.layers.res].id].becomes.id;
+                myEnt.power = 100;
                 tile[c.layers.res].n--;
                 inv.stack["OUTPUT"][0].n++
             }
 
+            // Shift output on next tile
             let targetInv = inventory.getInv(ent.pos.x, ent.pos.y-1);
-            if (inv.stack["OUTPUT"][0].n && targetInv.addItem({id: inv.stack["OUTPUT"][0].id, n:1})) inv.stack["OUTPUT"][0].n=0;
+            if (inv.stack["OUTPUT"][0].n && targetInv.addStackItem({id: inv.stack["OUTPUT"][0].id, n:1})) inv.stack["OUTPUT"][0].n=0;
 
-            let myEnt = inventory.getEnt(ent.pos.x, ent.pos.y);
-            if(inv.stack["OUTPUT"][0].n == 0) {
-                myEnt.power = 100;
-            } else myEnt.power = 0;
         }
     }
 

@@ -45,6 +45,7 @@ player1.inv.stack["INV"] = [];
 player1.inv.stack["INV"].push({id: c.resDB.stone_ore.id, n: 100});
 player1.inv.stack["INV"].push({id: c.resDB.raw_wood.id, n: 100});
 player1.inv.stack["INV"].push({id: c.resDB.coal.id, n: 87});
+player1.inv.stack["INV"].push({id: c.resDB.coal.id, n: 27});
 player1.inv.stack["INV"].push({id: c.resDB.iron_plate.id, n: 170});
 player1.inv.stack["INV"].push({id: c.resDB.copper_plate.id, n: 170});
 player1.inv.stack["INV"].push({id: c.resDB.stone_furnace.id, n: 7});
@@ -218,19 +219,12 @@ function mineToInv(newItem) {
 }
 
 function craftToInv(newItem) {
-  for(let c = 0; c < newItem.cost.length; c++) {
-    for(let i = 0; i < player1.inv.packs.length; i++) {
-        let invObj = player1.inv.packs[i];
-        if (invObj.id == newItem.cost[c].res.id) {
-            invObj.n -= newItem.cost[c].n;
-            if (invObj.n == 0) {
-              player1.inv.packs.splice(i, 1);
-              i--;
-            }
-        }
-    }
+  let costs = c.resName[newItem[0].res.id].cost;
+  for(let iCost = 0; iCost < costs.length; iCost++) {
+    let cost = costs[iCost];
+    c.player1.inv.remStackItem(cost);      
   }
-  addToInv({id:newItem.id, n: 1});
+  c.player1.inv.addStackItem({id:newItem[0].res.id, n: 1});
 }
 
 
@@ -328,6 +322,14 @@ function addEntity(newEntity) {
 }
 
 function addItem(newItem) {
+  /*let inv = undefined;
+  let invID = c.game.map[newItem.pos.x][newItem.pos.y][c.layers.inv];
+  if (invID == undefined) {
+    inv = new Inventory(c.allInvs, newItem.pos);
+    c.game.map[newItem.pos.x][newItem.pos.y][c.layers.inv] = inv.id;
+  } else inv = inv = c.allInvs[invID];
+  
+  inv.addItem( {id: newItem.inv.item.id, n: 1});*/
   let inv = undefined;
   let invID = c.game.map[newItem.pos.x][newItem.pos.y][c.layers.inv];
   if (invID == undefined) {
@@ -335,7 +337,7 @@ function addItem(newItem) {
     c.game.map[newItem.pos.x][newItem.pos.y][c.layers.inv] = inv.id;
   } else inv = inv = c.allInvs[invID];
   
-  inv.addItem( {id: newItem.inv.item.id, n: 1});
+  inv.addStackItem( {id: newItem.inv.item.id, n: 1});
   sendAll(JSON.stringify({msg:"updateInv", data:c.allInvs}));
 }
 

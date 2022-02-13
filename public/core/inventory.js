@@ -48,6 +48,71 @@ class Inventory {
     return false;
     }
 
+    addStackItem(newItem) {
+      if (newItem == undefined) return false;
+      let keys = Object.keys(this.stack);
+      for(let iStack = 0; iStack < keys.length && newItem; iStack++) {
+        let key = keys[iStack];
+        for(let iPack = 0; iPack < this.stack[key].length && newItem; iPack++) {
+
+            let pack = this.stack[keys][iPack];
+            if (pack.id == undefined) pack.id = newItem.id;
+            if (pack.id == newItem.id) {
+              if (pack.n + newItem.n <= this.itemsize) {
+                pack.n += newItem.n;
+                return true;
+              }
+            }
+        }
+      }
+      if (keys.length < this.packsize) {
+        if (this.stack["INV"] == undefined) this.stack["INV"] = [];
+        this.stack["INV"].push({id: newItem.id, n: newItem.n, dir: false, fixed: newItem.fixed});
+        return true;
+      }
+      return false;
+    }
+
+    addStackItems(newItems) {
+      let ret = true;
+      for(let i = 0; i < newItems.length; i++) {
+        ret = ret && this.addStackItem(newItems[i]);
+      }
+      return ret;
+    }
+
+      remStackItem(removingItem) {
+        if (removingItem == undefined) return false;
+
+        let keys = Object.keys(this.stack);
+        for(let iStack = 0; iStack < keys.length && removingItem; iStack++) {
+          let key = keys[iStack];
+          for(let iPack = 0; iPack < this.stack[key].length && removingItem; iPack++) {
+            let pack = this.stack[keys][iPack];
+            if (pack && pack.id == removingItem.res.id) { // Find the pack
+              let n = pack.n - removingItem.n;
+              if (n > 0) {
+                pack.n = n;
+                return true;
+              } else if (n == 0) {
+                this.stack[keys].splice(iPack, 1); // Remove empty pack
+                iPack--;
+                return true;
+              } else return false;
+            }
+          }
+        }
+        return false;
+    }
+
+    remStackItems(newItems) {
+      let ret = true;
+      for(let i = 0; i < newItems.length; i++) {
+        ret = ret && this.remStackItem(newItems[i]);
+      }
+      return ret;
+    }
+
     addItems(newItems, dir, reserve) {
       newItems.forEach(item => {this.addItem(item, reserve)});
     }
@@ -88,6 +153,35 @@ class Inventory {
       }
       return ret;
     }
+
+    hasStackItem(searchItem) {
+      let keys = Object.keys(this.stack);
+      for(let iStack = 0; iStack < keys.length && searchItem; iStack++) {
+        let key = keys[iStack];
+        for(let iPack = 0; iPack < this.stack[key].length && searchItem; iPack++) {
+          let pack = this.stack[keys][iPack];
+          if (pack.id == searchItem.res.id) { // Find the pack
+             return (pack.n >= searchItem.n);
+          }
+        }
+      }
+      return false;
+    }
+
+    hasStackItems(searchItem) {
+      let ret = true;
+      for(let i = 0; i < searchItem.length; i++) {
+        ret = ret && this.hasStackItem(searchItem[i]);
+      }
+      return ret;
+    }
+
+  hasItems(newItems) {
+      for(let i = 0; i < newItems.length; i++) {
+        if (this.hasItem( newItems[i]) == false)  return false;
+      }
+      return true;
+  }
 
     hasItem(newItem) {
         for(let i = 0; i < this.packs.length; i++) {

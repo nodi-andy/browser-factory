@@ -68,7 +68,7 @@ class InputModule {
                 if (buildType == "entity") {
                     ws.send(JSON.stringify({cmd: "addEntity", data: {pos: {x: tileCoordinate.x, y: tileCoordinate.y}, dir: buildDir, type: pointerButton.item.id}}));
                 } else {
-                    ws.send(JSON.stringify({cmd: "addItem", data: {pos: tileCoordinate, dir: buildDir, inv: {item: pointerButton}}}));
+                    ws.send(JSON.stringify({cmd: "addItem", data: {pos: tileCoordinate, dir: buildDir, inv: {item: pointerButton.item}}}));
                 }
             }
         }
@@ -92,7 +92,8 @@ class InputModule {
 
             let picked = undefined;
             if ((pointerButton == undefined || pointerButton.item == undefined) && entity) {
-                c.selEntity = {entID: entity.id, inv: c.allInvs[entity.invID], invID: entity.invID};
+                let invID = inventory.getInv(worldPos.x, worldPos.y).id;
+                c.selEntity = {entID: entity.id, inv: c.allInvs[invID], invID: invID};
 
                 setShowInventory(c.selEntity.inv);
 

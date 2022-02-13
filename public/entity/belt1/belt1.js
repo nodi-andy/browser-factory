@@ -30,42 +30,43 @@ class Belt {
         if (c.game.tick%6 == 0) {
             let invThis = inventory.getInv(ent.pos.x, ent.pos.y, true);
             let beltThis = inventory.getEnt(ent.pos.x, ent.pos.y);
-
             let nbPos = c.dirToVec[ent.dir];
-            
             let beltFrom = inventory.getEnt(ent.pos.x - nbPos.x, ent.pos.y - nbPos.y);
-            if (beltFrom && beltFrom.type != c.resDB.belt1.id) beltFrom = undefined;
-
             let beltTo = inventory.getEnt(ent.pos.x + nbPos.x, ent.pos.y + nbPos.y);
-            if (beltTo && beltTo.type != c.resDB.belt1.id) beltTo = undefined;
 
+            if (invThis.stack["INV"]) {
+                if (invThis.stack.LA == undefined) invThis.stack.LA = invThis.stack["INV"][0];
+                else if (invThis.stack.LB == undefined) invThis.stack.LB = invThis.stack["INV"][0];
+                else if (invThis.stack.RA == undefined) invThis.stack.RA = invThis.stack["INV"][0];
+                else if (invThis.stack.RB == undefined) invThis.stack.RB = invThis.stack["INV"][0];
+                delete invThis.stack["INV"];
+            }
+
+          
+            if (beltFrom && beltFrom.type != c.resDB.belt1.id) beltFrom = undefined;
+            if (beltTo && beltTo.type != c.resDB.belt1.id) beltTo = undefined;
             if (beltTo) {
                 let invTo = inventory.getInv(ent.pos.x + nbPos.x, ent.pos.y + nbPos.y);
-                let pos = 0;
-                if (beltTo.dir != beltThis.dir) pos = 2;
-                //let invFrom = getInv(ent.pos.x - nbPos.x, ent.pos.y - nbPos.y);
-                if (invTo.nextpacks[pos].id == undefined) {
-                    invTo.nextpacks[pos].id = invThis.packs[3].id;
-                    invTo.nextpacks[pos].n = invThis.packs[3].n;
-                    invThis.packs[3].id = undefined; 
-                    invThis.packs[3].n = 0; 
+
+                if (invTo.stack.LB == undefined && invThis.stack.LA) {
+                    invTo.stack.LB = invThis.stack.LA;
+                    delete invThis.stack.LA;
                 }
-
-            }
-
-            for (let i = 3; i >= 0; i--) {
-                if (invThis.packs[i].id == undefined && i > 0) { 
-                    invThis.nextpacks[i].id = invThis.packs[i-1].id;
-                    invThis.nextpacks[i].n = invThis.packs[i-1].n;
-                    invThis.packs[i-1].id = undefined; 
-                    invThis.packs[i-1].n = 0; 
-                } else {                     // Shift to the same position as reservation
-                invThis.nextpacks[i].id = invThis.packs[i].id;
-                invThis.nextpacks[i].n = invThis.packs[i].n;
+                if (invTo.stack.RB == undefined && invThis.stack.RA) {
+                    invTo.stack.RB = invThis.stack.RA;
+                    delete invThis.stack.RA;
                 }
             }
 
+            if (invThis.stack.LB && invThis.stack.LA == undefined) {
+                invThis.stack.LA = invThis.stack.LB;
+                delete invThis.stack.LB;
+            }
 
+            if (invThis.stack.RB && invThis.stack.RA == undefined) {
+                invThis.stack.RA = invThis.stack.RB;
+                delete invThis.stack.RB;
+            }
 
             invThis.changed = true;
 
@@ -75,6 +76,31 @@ class Belt {
 
     draw(ctx, ent) {
         ctx.drawImage(c.resDB.belt1.anim, Math.round(c.game.tick/4)%16*64, 0, 64, 64, 0, 0, 64, 64);
+        if (ent.pos) {
+            let invThis = inventory.getInv(ent.pos.x, ent.pos.y, true);
+            if (invThis == undefined) return; // if the server is slow, no inventory for the entity
+            context.save();
+            context.scale(0.5, 0.5);
+            let myDir = c.dirToVec[ent.dir];
+            if (invThis.stack.LA) {
+                context.translate(tileSize * 0.0 * myDir.x, tileSize * 0.0 * myDir.y);
+                context.drawImage(resName[invThis.stack.LA.id].img, 0, 0);
+            }
+            if (invThis.stack.LB) {
+                context.translate(tileSize * 0.5 * myDir.y, tileSize * 0.5 * myDir.x);
+                context.drawImage(resName[invThis.stack.LB.id].img, 0, 0);
+            }
+            if (invThis.stack.RA) {
+                context.translate(tileSize * 0.5 * myDir.x, tileSize * 0.5 * myDir.y);
+                context.drawImage(resName[invThis.stack.LA.id].img, 0, 0);
+            }
+            if (invThis.stack.RB) {
+                context.translate(tileSize * 0.5 * myDir.y, tileSize * 0.5 * myDir.x);
+                context.drawImage(resName[invThis.stack.LB.id].img, 0, 0);
+            }
+            context.scale(2, 2);
+            context.restore();
+        }
     }
 }
 

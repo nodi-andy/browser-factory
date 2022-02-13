@@ -147,14 +147,13 @@ function mineToInv(inv) {
         let itemsExist = true;
         for(let c = 0; c < item.cost.length && itemsExist; c++) {
             itemsExist = false;
-            itemsExist = inv.hasItems(item.cost);
+            itemsExist = inv.hasStackItems(item.cost);
         }
         if (itemsExist) { 
-            if (inv.addItem(item)) inv.remItems(item.cost);
+            //if (inv.addItem(item)) inv.remItems(item.cost);
             if (updateMsg) {
                 let addItem = {res: item, n: 1} ;
-                ws.send(JSON.stringify({cmd: "addToInv", data: [addItem]}));
-                ws.send(JSON.stringify({cmd: "remFromInv", data: item.cost}));
+                ws.send(JSON.stringify({cmd: "craftToInv", data: [addItem]}));
             }
         }
         return itemsExist;
@@ -217,6 +216,7 @@ exports.item = item;
 var c = {};
 c.resDB = resDB;
 c.resID = resID;
+c.resName = resName;
 c.game = game;
 c.player1 = player1;
 c.layers = layers;
@@ -224,3 +224,4 @@ c.allEnts = allEnts;
 c.allInvs = allInvs;
 c.selEntity = selEntity;
 c.item = item;
+c.dirToVec = dirToVec;
