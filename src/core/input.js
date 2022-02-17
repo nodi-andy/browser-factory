@@ -1,4 +1,10 @@
 let mousePos    = {x: 0, y: 0}
+let isDragging = false;
+let dragStart = { x: 0, y: 0 }
+let isDragStarted = false;
+let isBuilding = false;
+let workInterval = undefined;
+
 function adjustZoom(zoomFactor)
 {
     if (!isDragging)
@@ -55,22 +61,28 @@ class InputModule {
         entityMenu.items.forEach (b => {if (b.collision(e)) { overlayClicked = true; }})
         
         if (overlayClicked == false) {
-            dragStart = screenToWorld(getEventLocation(e));
+            let worldCordinate = screenToWorld(getEventLocation(e));
 
-            let worldCordinate = {x: dragStart.x, y: dragStart.y};
+            dragStart = worldCordinate;
             let tileCoordinate = worldToTile(worldCordinate);
             let res = game.map[tileCoordinate.x][tileCoordinate.y][layers.res];
             let d = dist(c.player1.pos, worldCordinate);
             if (res && d < 5*tileSize) workInterval = setInterval(function() { mineToInv({source: tileCoordinate, id:res.id, n: 1}); }, 1000);
 
             if (pointerButton && pointerButton.item.id) {
-                let buildType = resName[pointerButton.item.id].type;
-                if (buildType == "entity") {
-                    ws.send(JSON.stringify({cmd: "addEntity", data: {pos: {x: tileCoordinate.x, y: tileCoordinate.y}, dir: buildDir, type: pointerButton.item.id}}));
+                pointerButton.type = resName[pointerButton.item.id].type;
+                if (pointerButton.type == "entity") {
+                    wssend({cmd: "addEntity", data: {pos: {x: tileCoordinate.x, y: tileCoordinate.y}, dir: buildDir, type: pointerButton.item.id}});
                 } else {
-                    ws.send(JSON.stringify({cmd: "addItem", data: {pos: tileCoordinate, dir: buildDir, inv: {item: pointerButton.item}}}));
+                    wssend({cmd: "addItem", data: {pos: tileCoordinate, dir: buildDir, inv: {item: pointerButton.item}}});
                 }
+                isDragStarted = false;
+                isBuilding = true;
+            } else {
+                isDragStarted = true;
+                isBuilding = false;
             }
+            
         }
     }
 
@@ -84,15 +96,15 @@ class InputModule {
         craftMenu.items.forEach (b => {if (b.collision(e) && b.onClick) { b.onClick(); overlayClicked = true; }})
         entityMenu.items.forEach (b => {if (b.collision(e) && b.onClick) { b.onClick(); overlayClicked = true; }})
 
-        let pointerPos = screenToWorld({x: e.offsetX, y: e.offsetY});
-        let worldPos = worldToTile(screenToWorld(getEventLocation(e)));
-        let entity = inventory.getEnt(worldPos.x, worldPos.y);
+        let worldPos = screenToWorld({x: e.offsetX, y: e.offsetY});
+        let tilePos = worldToTile(worldPos);
+        let entity = inventory.getEnt(tilePos.x, tilePos.y);
         
         if (overlayClicked == false) {
 
             let picked = undefined;
             if ((pointerButton == undefined || pointerButton.item == undefined) && entity) {
-                let invID = inventory.getInv(worldPos.x, worldPos.y).id;
+                let invID = inventory.getInv(tilePos.x, tilePos.y).id;
                 c.selEntity = {entID: entity.id, inv: c.allInvs[invID], invID: invID};
 
                 setShowInventory(c.selEntity.inv);
@@ -126,18 +138,17 @@ class InputModule {
 
         if (isOverlay) {
         } else {
-            let p = worldToTile(screenToWorld(mousePos));
-            curResPos.x = p.x;
-            curResPos.y = p.y;
+            let tileCoordinate = worldToTile(screenToWorld(mousePos));
+            curResPos.x = tileCoordinate.x;
+            curResPos.y = tileCoordinate.y;
 
-
-            if (e.buttons == 1 && dragStart) {
+            if (e.buttons == 1) {
                 if (isBuilding) {
                     if (lastResPos.x != curResPos.x || lastResPos.y != curResPos.y) {
                         if (pointerButton.type == "entity") {
-                            ws.send(JSON.stringify({cmd: "addEntity", data: {pos: {x: curResPos.x, y: curResPos.y}, dir: buildDir, type: pointerButton.item}}));
+                            ws.send(JSON.stringify({cmd: "addEntity", data: {pos: {x: tileCoordinate.x, y: tileCoordinate.y}, dir: buildDir, type: pointerButton.item.id}}));
                         } else {
-                            ws.send(JSON.stringify({cmd: "addItem", data: {pos: curResPos, dir: buildDir, inv: pointerButton}}));
+                            ws.send(JSON.stringify({cmd: "addItem", data: {pos: tileCoordinate, dir: buildDir, inv: {item: pointerButton.item}}}));
                         }
                     }
                 } else  {

@@ -15,12 +15,12 @@ class Inserter {
 
         // PICK
         if (invThis.packs.length == 0 && invFrom && iOut != undefined && invFrom.packs.length) {
-            if (invThis.addItem({id: invFrom.packs[iOut].id, n: 1})) {
+            if (invThis.addStackItem({id: invFrom.packs[iOut].id, n: 1})) {
                  invFrom.remItem({id: invFrom.packs[iOut].id, n: 1, fixed: invFrom.packs[iOut].fixed});
             }
         }// PLACE
         else if (invThis.packs.length) {
-            if (invTo.addItem({id: invThis.packs[0].id, n: 1})) {
+            if (invTo.addStackItem({id: invThis.packs[0].id, n: 1})) {
                 invThis.remItem({id: invThis.packs[0].id, n: 1});
             }
         }

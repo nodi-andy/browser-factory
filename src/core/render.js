@@ -38,55 +38,47 @@ function render(){
 
                 // ENTITY
                 let entID = tile[layers.buildings];
-                var b;
+                let b;
                 if (entID != undefined) {
                     b = c.allEnts[entID];
-                    context.save();
-                    if (b && b.type && resName[b.type].img) {
-                        context.translate((ax + 0.5) * tileSize, (ay + 0.5) *tileSize);
-                        context.rotate(b.dir * Math.PI/2);
-                        context.translate(-tileSize / 2, -tileSize / 2);
-                        if (resName[b.type].mach) resName[b.type].mach.draw(context, b);
-                        else context.drawImage(resName[b.type].img, 0, 0);
-                    }
-                    context.restore();
                 }
-            }
-        }
+                context.save();
+                context.translate((ax + 0.5) * tileSize, (ay + 0.5) *tileSize);
 
-
-        for(let ax = 0; ax < game.map.length; ax++) {
-            for(let ay = 0; ay < game.map[ax].length; ay++) {
-            let tile = game.map[ax][ay];
-            let entID = tile[layers.buildings];
-            var b, dirV;
-            if (entID != undefined) b = c.allEnts[entID];
-            if (b) {
-                    dirV = dirToVec[b.dir];
-                    // ITEMS
+                if (b && b.type && resName[b.type].img) {
+                    context.rotate(b.dir * Math.PI/2);
+                    context.translate(-tileSize / 2, -tileSize / 2);
+                    if (resName[b.type].mach) resName[b.type].mach.draw(context, b);
+                    else context.drawImage(resName[b.type].img, 0, 0);
+                } else {  // ITEMS ON GROUND
+                  
                     let itemID = tile[layers.inv];
                     if (itemID != undefined && c.allInvs[itemID]) {
-                        let packs = c.allInvs[itemID].packs;
-                        context.save();
-                        let dx = ax + 0.3 + (0.0 * Math.abs(dirV.y)) - (0.25 * dirV.x) ;
-                        let dy = ay + 0.3 * Math.abs(dirV.x) - 0.25 * dirV.y;
+                        let packs = c.allInvs[itemID].stack.INV;
+                        if (packs) {
+                            context.scale(0.5, 0.5);
 
-                        context.translate(dx * tileSize, dy * tileSize);
-                        context.scale(0.5, 0.5);
-
-                        for (let iitem = 0; iitem < packs.length; iitem++) {
-                            let item = packs[iitem];
-                            if (item.id != undefined) {
-                                context.drawImage(resName[item.id].img, 0, 0)
+                            context.translate(-1 * tileSize, -0.0 * tileSize);
+                            for (let iitem = 0; iitem < packs.length; iitem++) {
+                                let item = packs[iitem];
+                                if (item.id != undefined) {
+                                    context.drawImage(resName[item.id].img, 0, 0)
+                                    if (iitem != 1) {
+                                      context.translate(1.0 * tileSize, 0.0 * tileSize);
+                                    } else {
+                                      context.translate(-1.0 * tileSize, -1 * tileSize);
+                                    }
+                                }
                             }
-                            context.translate(tileSize * 0.5 * dirV.x, tileSize * 0.5 * dirV.y);
+                            context.scale(2, 2);
                         }
-                        context.scale(2, 2);
-                        context.restore();
                     }
                 }
+                context.restore();
             }
         }
+
+
         
     }
     
@@ -213,6 +205,7 @@ function imgLoaded(imgElement) {
 }
 
 function updateMap() {
+    if (game.map == undefined) return;
     canvas.offScreenCanvas.width = gridSize.x * tileSize;
     canvas.offScreenCanvas.height = gridSize.y * tileSize;
     var offScreencontext = canvas.offScreenCanvas.getContext("2d");

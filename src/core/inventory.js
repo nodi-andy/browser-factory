@@ -1,14 +1,16 @@
 if (typeof window === 'undefined') {
   var c = require('../common.js');
+  var s = require("../../socket.js");
 } 
 
 class Inventory {
-    constructor(inv, pos, newItem = undefined) {
+    constructor(inv, pos) {
         this.stack = {};
         this.packs = [];
         this.nextpacks = [];
         if (pos) this.pos = {x: pos.x, y: pos.y};
-        this.packsize = 1;
+        this.stacksize = 1;
+        this.packsize = 64;
         this.itemsize = 1;
         this.changed = false;
         if (inv) {
@@ -19,33 +21,11 @@ class Inventory {
             tile[c.layers.inv] = this.id;
           }
         }
-        this.addItem(newItem);
     }
 
-    addItem(newItem, reserve) {
-      if (newItem == undefined) return false;
-
-      let selectedPacks = this.packs;
-      if (reserve) selectedPacks = this.nextpacks;
-
-      if (newItem.fixed != true) {
-        for(let i = 0; i < selectedPacks.length && newItem; i++) {
-          let pack = selectedPacks[i];
-          if (pack.id == undefined) pack.id = newItem.id;
-          if (pack.id == newItem.id) {
-            if (pack.n + newItem.n <= this.itemsize) {
-              pack.n += newItem.n;
-              return true;
-            } //else return false;
-          }
-        }
-      }
-
-      if (selectedPacks.length < this.packsize) {
-        selectedPacks.push({id: newItem.id, n: newItem.n, dir: false, fixed: newItem.fixed});
-        return true;
-      }
-    return false;
+    moveItemTo(item, to) {
+      this.remStackItem({res: item, n: item.n});
+      to.addStackItem(item);
     }
 
     addStackItem(newItem) {
@@ -53,9 +33,10 @@ class Inventory {
       let keys = Object.keys(this.stack);
       for(let iStack = 0; iStack < keys.length && newItem; iStack++) {
         let key = keys[iStack];
-        for(let iPack = 0; iPack < this.stack[key].length && newItem; iPack++) {
 
-            let pack = this.stack[keys][iPack];
+        for(let iPack = 0; iPack < this.stack[key].length && newItem; iPack++) {
+            let pack = this.stack[key][iPack];
+            if (pack == undefined && this.stack[key].length < this.packsize) pack = {};
             if (pack.id == undefined) pack.id = newItem.id;
             if (pack.id == newItem.id) {
               if (pack.n + newItem.n <= this.itemsize) {
@@ -65,11 +46,15 @@ class Inventory {
             }
         }
       }
-      if (keys.length < this.packsize) {
+
+      if (keys.length <= this.stacksize) {
         if (this.stack["INV"] == undefined) this.stack["INV"] = [];
-        this.stack["INV"].push({id: newItem.id, n: newItem.n, dir: false, fixed: newItem.fixed});
-        return true;
+        if (this.stack["INV"].length < this.packsize) {
+          this.stack["INV"].push({id: newItem.id, n: newItem.n, dir: false, fixed: newItem.fixed});
+          return true;
+        }
       }
+      
       return false;
     }
 
@@ -81,24 +66,38 @@ class Inventory {
       return ret;
     }
 
-      remStackItem(removingItem) {
+    remStackItem(removingItem) {
         if (removingItem == undefined) return false;
 
         let keys = Object.keys(this.stack);
         for(let iStack = 0; iStack < keys.length && removingItem; iStack++) {
           let key = keys[iStack];
-          for(let iPack = 0; iPack < this.stack[key].length && removingItem; iPack++) {
-            let pack = this.stack[keys][iPack];
-            if (pack && pack.id == removingItem.res.id) { // Find the pack
+          if (Array.isArray(this.stack[key]) == false) {
+            let pack = this.stack[key];
+            if (pack && pack.id == removingItem.res.id) {
               let n = pack.n - removingItem.n;
               if (n > 0) {
                 pack.n = n;
                 return true;
               } else if (n == 0) {
-                this.stack[keys].splice(iPack, 1); // Remove empty pack
-                iPack--;
+                delete this.stack[key];
                 return true;
               } else return false;
+            }
+          } else {
+            for(let iPack = 0; iPack < this.stack[key].length && removingItem; iPack++) {
+              let pack = this.stack[keys][iPack];
+              if (pack && pack.id == removingItem.res.id) { // Find the pack
+                let n = pack.n - removingItem.n;
+                if (n > 0) {
+                  pack.n = n;
+                  return true;
+                } else if (n == 0) {
+                  this.stack[keys].splice(iPack, 1); // Remove empty pack
+                  iPack--;
+                  return true;
+                } else return false;
+              }
             }
           }
         }
@@ -112,35 +111,6 @@ class Inventory {
       }
       return ret;
     }
-
-    addItems(newItems, dir, reserve) {
-      newItems.forEach(item => {this.addItem(item, reserve)});
-    }
-
-    remItem(removingItem, reserve) {
-      let selectedPacks = this.packs;
-      if (reserve) selectedPacks = this.nextpacks;
-
-      for(let i = 0; i < selectedPacks.length && removingItem; i++) {
-        let invObj = selectedPacks[i];
-        if (invObj.id == removingItem.res.id) { // Find the pack
-          let n = invObj.n - removingItem.n;
-          if (n > 0) {
-            invObj.n = n;
-            return true;
-          } else if (n == 0) {
-            if (removingItem.fixed == true) { invObj.id = undefined;
-            } else {
-              selectedPacks.splice(i, 1); // Remove empty pack
-              i--;
-            }
-            return true;
-          } else return false;
-          // newItem = null;
-        }
-      }
-      return false;
-  }
 
     remStack(stackKey) {
       delete this.stack[stackKey];
@@ -176,28 +146,6 @@ class Inventory {
       return ret;
     }
 
-  hasItems(newItems) {
-      for(let i = 0; i < newItems.length; i++) {
-        if (this.hasItem( newItems[i]) == false)  return false;
-      }
-      return true;
-  }
-
-    hasItem(newItem) {
-        for(let i = 0; i < this.packs.length; i++) {
-          let invObj = this.packs[i];
-          if (invObj.id == newItem.res.id)  return (invObj.n >= newItem.n);
-        }
-        return false;
-    }
-
-    hasItems(newItems) {
-        for(let i = 0; i < newItems.length; i++) {
-          if (this.hasItem( newItems[i]) == false)  return false;
-        }
-        return true;
-    }
-
     getNumberOfItems(type) {
       let n = 0;
       for(let i = 0; i < this.packs.length; i++) {
@@ -207,29 +155,15 @@ class Inventory {
       return n;
     }
 
-    setAllPacksDir(d) {
-      for(let i = 0; i < this.packs.length; i++) {
-        this.packs[i]. dir = d;
-      }
-    }
-
-    setAsOutput(item) {
-      for(let i = 0; i < this.packs.length; i++) {
-        let invPack = this.packs[i];
-        if (invPack.id == item.id) invPack.dir = c.DIR.out;
-      }
-    }
-
     setPackSize(n){
       while(this.packs.length < n) this.packs.push({id:undefined, n:0});
     }
 
-    getOutputPackIndex() {
-      for(let i = 0; i < this.packs.length; i++) {
-        let invPack = this.packs[i];
-        if (invPack.dir == c.DIR.out) return i;
+    getFirst() {
+      let keys = Object.keys(this.stack);
+      if(keys.length && this.stack[keys[0]]) {
+        return this.stack[keys[0]];
       }
-      return undefined;
     }
     
     draw(ctx) {
@@ -262,7 +196,27 @@ function createInv(x, y){
       c.game.map[x][y][c.layers.inv] = inv.id;
       invID = inv.id;
   }
+  //ws.send(JSON.stringify({msg: "updateMapData", data:c.game.map}));
   return invID;
+}
+
+function addEntity(newEntity, updateDir) {
+  if(!newEntity) return;
+
+  let entID = c.game.map[newEntity.pos.x][newEntity.pos.y][c.layers.buildings];
+  if (entID == undefined) {
+    let ent = new Entity(c.allEnts, newEntity.pos.x, newEntity.pos.y, newEntity.dir, newEntity.w, newEntity.h, newEntity.type);
+    c.game.map[newEntity.pos.x][newEntity.pos.y][c.layers.buildings] = ent.id;
+  }
+  if (c.resName[newEntity.type].mach && c.resName[newEntity.type].mach.setup) c.resName[newEntity.type].mach.setup(c.game.map, newEntity);
+  
+  if (updateDir) {
+    sendAll(JSON.stringify({msg:"updateEntities", data: c.allEnts}));
+    sendAll(JSON.stringify({msg: "updateMapData", data:c.game.map}));
+  } else {
+    wssend({cmd: "updateEntities", data: c.allEnts});
+    wssend({cmd: "updateMapData", data: c.game.map});
+  }
 }
 
 if (exports == undefined) var exports = {};

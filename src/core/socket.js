@@ -20,6 +20,9 @@ function updatePlayerInv(newInv) {
 
     for (let i = pack.length; i < invMenu.items.length; i++) {
         invMenu.items[i].item = undefined
+        invMenu.items[i].inv = c.player1.inv;
+        invMenu.items[i].invKey = "INV";
+        invMenu.items[i].stackPos = i;
     }
 
     for(let craftItem of craftMenu.items ) {
@@ -33,6 +36,26 @@ function updatePlayerInv(newInv) {
     }
 }
 
+function wssend(msg) {
+
+    if (msg.cmd == "addEntity") addEntity(msg.data);
+    else     ws.send(JSON.stringify(msg));
+}
+
+function updateMapData(data) {
+    game.map = data;
+    updateMap();
+}
+
+ws.onerror = function (e) {
+    /*var localServer = new Worker('../server/localserver.js');
+    localServer.postMessage("start");
+    webworker.onmessage = function(n) {
+        alert("Ergebnis: " + n.data);
+    };*/
+    console.log('WebSocket error: ', e);
+}
+
 ws.onmessage = function(e) {
     let socketMsg = JSON.parse(e.data);
 
@@ -44,16 +67,20 @@ ws.onmessage = function(e) {
             setShowInventory(inv);
         }
     }
+
+    if (socketMsg.msg == "serverTick") {
+        //c.game.tick = socketMsg.data;
+        //console.log("server tick:", c.serverTick);
+    }
+
     if (socketMsg.msg == "updateEntities") {
         c.allEnts = JSON.parse(JSON.stringify(socketMsg.data));
     }
     if (socketMsg.msg == "updatePlayer") {
         updatePlayerInv(socketMsg.data.inv);
     }
-    if (socketMsg.msg == "updateMapData") { 
-        game.map = socketMsg.data;
-        updateMap();
-    }
+    if (socketMsg.msg == "updateMapData") updateMapData(socketMsg.data);
 
     if (socketMsg.msg == "id") console.log("Received: '" + socketMsg.data + "'");
 };
+

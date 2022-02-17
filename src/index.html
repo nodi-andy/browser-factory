@@ -9,11 +9,13 @@
     }
 </style>
 <html><canvas id="myCanvas" style = "display:block;border:none; margin:0"></canvas></html>
-
+<script type="text/javascript" src='server/perlin.js'></script>
 <script type="text/javascript" src ="common.js"></script>
 <script type="text/javascript" src ="core/inventory.js"></script>
 <script type="text/javascript" src ="core/entity.js"></script>
+<script type="text/javascript" src ="server/localserver.js"></script>
 <script type="text/javascript" src ="core/socket.js"></script>
+
 
 <script type="text/javascript" src ="core/button.js"></script>
 <script type="text/javascript" src ="core/input.js"></script>
@@ -24,8 +26,10 @@
 <script type="text/javascript" src ="entity/belt2/belt2.js"></script>
 <script type="text/javascript" src ="entity/assembling_machine_1/assembling_machine_1.js"></script>
 <script type="text/javascript" src ="entity/burner_miner/burner_miner.js"></script>
+<script type="text/javascript" src ="entity/inserter_burner/inserter_burner.js"></script>
 <script type="text/javascript">
 
+    
     canvas = document.getElementById("myCanvas");
     let context = canvas.getContext("2d");
     canvas.width  = window.innerWidth;
@@ -34,10 +38,7 @@
 
     var selCity     = undefined;
 
-    let isDragging = false;
-    let dragStart = { x: 0, y: 0 }
-    let isBuilding = false;
-    let workInterval = undefined;
+
     
     c.player1 = new Player();
     c.player1.inv = new Inventory();
@@ -47,6 +48,7 @@
     new Belt2();
     new AssemblingMachine1();
     new BurnerMiner();
+    new InserterBurner();
 
     // INV MENU
     for (let i = 0; i < 8; i++) {
@@ -132,7 +134,11 @@
         )*/
         c.player1.loop();
         c.game.tick++;
-        setTimeout(gameLoop, 1000/100);
+
+
+
+        
+        setTimeout(gameLoop, 100);
     }
 
     window.addEventListener('load', function () {

@@ -131,14 +131,10 @@ function getNbOccur(arr, val) {
 function screenToWorld(p) { return {x: p.x/camera.zoom - camera.x, y: p.y/camera.zoom - camera.y}; }
 
 function mineToInv(inv) {
-    let addItem = {};
-    for(let minedItem of resName) {
-        if (minedItem.from && minedItem.from.id == inv.id) {
-            addItem = {res: minedItem, n: inv.n} ;
-            break;
-        }
-    };
-    ws.send(JSON.stringify({cmd: "addToInv", data: [addItem]}));
+    let newItem = {};
+    newItem.id = resName[inv.id].becomes.id;
+    newItem.n = 1;
+    ws.send(JSON.stringify({cmd: "mineToInv", data: [newItem]}));
  }
  
  function bookFromInv(inv, items, updateMsg = true) {
@@ -150,7 +146,6 @@ function mineToInv(inv) {
             itemsExist = inv.hasStackItems(item.cost);
         }
         if (itemsExist) { 
-            //if (inv.addItem(item)) inv.remItems(item.cost);
             if (updateMsg) {
                 let addItem = {res: item, n: 1} ;
                 ws.send(JSON.stringify({cmd: "craftToInv", data: [addItem]}));
