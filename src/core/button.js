@@ -52,7 +52,7 @@ class Button {
             if (this.inv) pointerButton = this;
         } else {
 //            pointerButton.inv.remStack(pointerButton.invKey);
-            ws.send(JSON.stringify({cmd: "moveStack", data: {toInvID: this.inv.id, toInvKey: this.invKey, toStackPos: this.stackPos, fromInvID: pointerButton.inv.id, fromInvKey: pointerButton.invKey, fromStackPos : pointerButton.stackPos}}));
+            wssend({cmd: "moveStack", data: {toInvID: this.inv.id, toInvKey: this.invKey, toStackPos: this.stackPos, fromInvID: pointerButton.inv.id, fromInvKey: pointerButton.invKey, fromStackPos : pointerButton.stackPos}});
             pointerButton = undefined;
         }
     };

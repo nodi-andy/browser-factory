@@ -1,5 +1,6 @@
 if (typeof window === 'undefined') {
     var c = require('../../common.js');
+    var invfuncs = require('../../core/inventory.js'); 
 } 
 
 
@@ -15,7 +16,9 @@ class Player {
         this.live = 100;
         this.nextPos = {x: 400, y: 400};
         this.type = c.resID.player;
-        //this.inv = new Inventory();
+        if (c.allInvs.length == 0) c.allInvs.push(new invfuncs.Inventory());
+        this.invID = c.allInvs.length-1;
+        this.inv = c.allInvs[this.invID];
         this.ss = {x:0, y:0};
     }
 
@@ -26,7 +29,7 @@ class Player {
         inv.setAllPacksDir(DIR.in);
         inv.setAsOutput(resDB.stone);
         inv.setAsOutput(resDB.iron_plate);
-        bookFromInv(inv, resDB.stone_furnace.output, false);*/
+        craftToInv(inv, resDB.stone_furnace.output, false);*/
     }
 
     checkCollision(pos) {

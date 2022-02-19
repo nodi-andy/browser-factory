@@ -27,6 +27,7 @@
 <script type="text/javascript" src ="entity/assembling_machine_1/assembling_machine_1.js"></script>
 <script type="text/javascript" src ="entity/burner_miner/burner_miner.js"></script>
 <script type="text/javascript" src ="entity/inserter_burner/inserter_burner.js"></script>
+<script type="text/javascript" src ="entity/stone_furnace/stone_furnace.js"></script>
 <script type="text/javascript">
 
     
@@ -37,18 +38,15 @@
 
 
     var selCity     = undefined;
-
-
     
     c.player1 = new Player();
-    c.player1.inv = new Inventory();
-    player1 = c.player1;
     
     new Belt();
     new Belt2();
     new AssemblingMachine1();
     new BurnerMiner();
     new InserterBurner();
+    new StoneFurnace();
 
     // INV MENU
     for (let i = 0; i < 8; i++) {
@@ -63,7 +61,7 @@
     let pos = 0;
     items.forEach(i => {
         let newButton = new Button ((pos % 8) * (buttonSize+5), Math.floor(pos/8) * (buttonSize+5), {id: i.id, n: 0} , craftMenu);
-        newButton.onClick = () => {bookFromInv(c.player1.inv, [i])};
+        newButton.onClick = () => {craftToInv(c.player1.inv, [i])};
         newButton.type = "craft";
         craftMenu.items.push(newButton)
         pos++;
@@ -99,7 +97,7 @@
         if(e.code == "KeyA") c.player1.dir.x = 0;
         if(e.code == "KeyR") buildDir = (buildDir+1)%4;
         if(e.code == "KeyE") { invMenu.vis = !invMenu.vis; craftMenu.vis = invMenu.vis}
-        ws.send(JSON.stringify({cmd: "keyup", data: e.code}));
+        //ws.send(JSON.stringify({cmd: "keyup", data: e.code}));
     }
 
     document.addEventListener("keydown", onKeyDown);
@@ -135,10 +133,48 @@
         c.player1.loop();
         c.game.tick++;
 
+        // machines,  belts and player excluded
+        for(let ient = 0; ient < c.allEnts.length; ient++) {
+            let entity = c.allEnts[ient];
+            if (!entity) continue;
+            if(entity.type == c.resDB.belt1.id) continue;
+            if(entity.type == c.resDB.player.id) continue;
+            if(c.resName[entity.type].mach) {
+            c.resName[entity.type].mach.update(c.game.map, entity);
+            }
+        }
+        // BELT
+        let belts = [];
+        for(let ient = 0; ient < c.allEnts.length; ient++) {
+            let entity = c.allEnts[ient];
+            if (entity.type == c.resDB.belt1.id) belts.push(entity);
+        }
 
+        for(let ibelt = 0; ibelt < belts.length;) {
+            let belt = belts[ibelt];
+            if (belt.done) ibelt++
+            else {
+            // go forward until the first belt
+            while(belt) {
+                let x = belt.pos.x;
+                let y = belt.pos.y;
+
+                let nbPos = c.dirToVec[belt.dir];
+                let nbTile = c.game.map[x + nbPos.x][y + nbPos.y];
+                let nbEntity = c.allEnts[nbTile[c.layers.buildings]];
+                if (nbEntity && nbEntity.type == c.resDB.belt1.id && nbEntity.done == false) belt = nbEntity;
+                else break;
+            }
+            c.resDB.belt1.mach.update(c.game.map, belt);
+            }
+        }
+
+        for(let ibelt = 0; ibelt < belts.length; ibelt++) {
+            belts[ibelt].done = false;
+        }
 
         
-        setTimeout(gameLoop, 100);
+        setTimeout(gameLoop, 50);
     }
 
     window.addEventListener('load', function () {

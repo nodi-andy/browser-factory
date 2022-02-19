@@ -18,7 +18,6 @@ class AssemblingMachine1 {
 
     setup(map, ent) {
         let inv = inventory.getInv(ent.pos.x, ent.pos.y);
-        inv.setPackSize(6);
         inv.itemsize = 50;
         inv.packs[0].t = "INPUT";
         inv.packs[1].t = "INPUT";
@@ -27,7 +26,7 @@ class AssemblingMachine1 {
 
 
     update(map, ent){
-        //bookFromInv(inv, resDB.stone_furnace.output, false);
+        //craftToInv(inv, resDB.stone_furnace.output, false);
     }
 
     draw(ctx, ent) {

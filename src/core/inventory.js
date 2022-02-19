@@ -1,18 +1,16 @@
 if (typeof window === 'undefined') {
   var c = require('../common.js');
   var s = require("../../socket.js");
+  require("../core/entity");
 } 
 
 class Inventory {
     constructor(inv, pos) {
         this.stack = {};
-        this.packs = [];
-        this.nextpacks = [];
         if (pos) this.pos = {x: pos.x, y: pos.y};
         this.stacksize = 1;
-        this.packsize = 64;
+        this.packsize = 1;
         this.itemsize = 1;
-        this.changed = false;
         if (inv) {
           inv.push(this);
           this.id = inv.length - 1;
@@ -24,34 +22,45 @@ class Inventory {
     }
 
     moveItemTo(item, to) {
-      this.remStackItem({res: item, n: item.n});
-      to.addStackItem(item);
+      if (to.addStackItem(item)) {
+            this.remStackItem({res: item, n: item.n});
+      }
     }
 
-    addStackItem(newItem) {
+    addStackItem(newItem, stackName) {
       if (newItem == undefined) return false;
+      if (stackName == undefined) stackName = "INV";
       let keys = Object.keys(this.stack);
-      for(let iStack = 0; iStack < keys.length && newItem; iStack++) {
-        let key = keys[iStack];
+      if (this.stack[stackName] == undefined) this.stack[stackName] = [];
 
-        for(let iPack = 0; iPack < this.stack[key].length && newItem; iPack++) {
-            let pack = this.stack[key][iPack];
-            if (pack == undefined && this.stack[key].length < this.packsize) pack = {};
-            if (pack.id == undefined) pack.id = newItem.id;
-            if (pack.id == newItem.id) {
-              if (pack.n + newItem.n <= this.itemsize) {
-                pack.n += newItem.n;
-                return true;
+      for(let iSearch = 0; iSearch < 2; iSearch++) {
+        //for(let iStack = 0; iStack < keys.length && newItem; iStack++)
+        {
+          let key = stackName;//keys[iStack];
+
+          for(let iPack = 0; iPack < this.stack[key].length || (iSearch == 1 && iPack == 0); iPack++) {
+              let pack = this.stack[key][iPack];
+              if (pack == undefined && iSearch == 0) continue;
+              if (pack)
+              { 
+                if (pack.id == undefined) pack.id = newItem.id;
+                if (pack.id == newItem.id) {
+                  if (pack.n + newItem.n <= this.itemsize) {
+                    pack.n += newItem.n;
+                    return true;
+                  }
+                }
               }
-            }
-        }
-      }
-
-      if (keys.length <= this.stacksize) {
-        if (this.stack["INV"] == undefined) this.stack["INV"] = [];
-        if (this.stack["INV"].length < this.packsize) {
-          this.stack["INV"].push({id: newItem.id, n: newItem.n, dir: false, fixed: newItem.fixed});
-          return true;
+              let lastSlot = (iPack == this.stack[key].length-1 && iPack < this.packsize)  // new slot at the end
+              let freeSlot = (pack == undefined && this.stack[key].length < this.packsize && iSearch == 1) // empty slot
+              if (freeSlot || lastSlot ){
+                  if (lastSlot) iPack++
+                  this.stack[key][iPack] = {};
+                  this.stack[key][iPack].id = newItem.id;
+                  this.stack[key][iPack].n = newItem.n;
+                  return true;
+              } 
+          }
         }
       }
       
@@ -130,7 +139,7 @@ class Inventory {
         let key = keys[iStack];
         for(let iPack = 0; iPack < this.stack[key].length && searchItem; iPack++) {
           let pack = this.stack[keys][iPack];
-          if (pack.id == searchItem.res.id) { // Find the pack
+          if (pack && pack.id == searchItem.res.id) { // Find the pack
              return (pack.n >= searchItem.n);
           }
         }
@@ -155,10 +164,6 @@ class Inventory {
       return n;
     }
 
-    setPackSize(n){
-      while(this.packs.length < n) this.packs.push({id:undefined, n:0});
-    }
-
     getFirst() {
       let keys = Object.keys(this.stack);
       if(keys.length && this.stack[keys[0]]) {
@@ -176,6 +181,32 @@ class Inventory {
     }
 }
 
+
+function mineToInv(inv) {
+  let newItem = {};
+  newItem.id = resName[inv.id].becomes.id;
+  newItem.n = 1;
+  wssend(JSON.stringify({cmd: "mineToInv", data: [newItem]}));
+}
+
+function craftToInv(inv, items) {
+  if (!items) return;
+  items.forEach(item => {
+      let itemsExist = true;
+      for(let c = 0; c < item.cost.length && itemsExist; c++) {
+          itemsExist = false;
+          itemsExist = inv.hasStackItems(item.cost);
+      }
+      if (itemsExist) { 
+          let newItem = {id: item.id, n: 1} ;
+          c.player1.inv.addStackItem(newItem);
+          view.updateInventoryMenu(c.player1.inv);
+          wssend({cmd: "updatePlayerInv", data: c.player1.inv});
+      }
+      return itemsExist;
+  })
+
+}
 
 function getInv(x, y){
   let tile = c.game.map[x][y];
@@ -210,20 +241,52 @@ function addEntity(newEntity, updateDir) {
   }
   if (c.resName[newEntity.type].mach && c.resName[newEntity.type].mach.setup) c.resName[newEntity.type].mach.setup(c.game.map, newEntity);
   
-  if (updateDir) {
+  /*if (updateDir) {
     sendAll(JSON.stringify({msg:"updateEntities", data: c.allEnts}));
+    sendAll(JSON.stringify({msg:"updateInventories", data: c.allInvs}));
     sendAll(JSON.stringify({msg: "updateMapData", data:c.game.map}));
   } else {
     wssend({cmd: "updateEntities", data: c.allEnts});
+    wssend({cmd: "updateInventories", data: c.allInvs});
     wssend({cmd: "updateMapData", data: c.game.map});
-  }
+  }*/
+}
+
+function addItem(newItem) {
+
+  let inv = undefined;
+  let invID = c.game.map[newItem.pos.x][newItem.pos.y][c.layers.inv];
+  if (invID == undefined) {
+    inv = new Inventory(c.allInvs, newItem.pos);
+    c.game.map[newItem.pos.x][newItem.pos.y][c.layers.inv] = inv.id;
+  } else inv = inv = c.allInvs[invID];
+  
+  inv.addStackItem( {id: newItem.inv.item.id, n: 1});
+  /*s.sendAll(JSON.stringify({msg:"updateInv", data:c.allInvs}));
+  s.sendAll(JSON.stringify({msg: "updateMapData", data:c.game.map}));*/
+}
+
+function moveStack(data) {
+  let from = c.allInvs[data.fromInvID].stack[data.fromInvKey][data.fromStackPos];
+  c.allInvs[data.toInvID].stack[data.toInvKey][data.toStackPos] = from;
+  c.allInvs[data.fromInvID].stack[data.fromInvKey][data.fromStackPos] = undefined;
+  //s.sendAll(JSON.stringify({msg:"updateInv", data:c.allInvs}));
+  if (data.fromInvID == 0 || data.toInvID == 0) updatePlayerInv(c.allInvs[0]);
 }
 
 if (exports == undefined) var exports = {};
 exports.Inventory = Inventory;
 exports.getInv = getInv;
 exports.getEnt = getEnt;
+exports.addEntity = addEntity;
+exports.addItem = addItem;
+exports.moveStack = moveStack;
+exports.craftToInv = craftToInv;
 
-var inventory = {};
-inventory.getInv = getInv;
-inventory.getEnt = getEnt;
+var invfuncs = {};
+invfuncs.Inventory = Inventory;
+invfuncs.getInv = getInv;
+invfuncs.getEnt = getEnt;
+invfuncs.addEntity = addEntity;
+var inventory = invfuncs;
+

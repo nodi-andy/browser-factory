@@ -34,12 +34,10 @@ class InserterBurner {
                 let invFrom = inventory.getInv(ent.pos.x - myDir.x, ent.pos.y - myDir.y, true);
                 let invTo = inventory.getInv(ent.pos.x + myDir.x, ent.pos.y + myDir.y, true);
 
-                let isHandFull = (invThis.stack.INV && invThis.stack.INV[0] && invThis.stack.INV[0].n > 0);
+                let isHandFull = (invThis.stack && invThis.stack.INV && invThis.stack.INV[0] && invThis.stack.INV[0].n > 0);
     
                 if (isHandFull) {
-                    if (invTo.stack.INV == undefined || (invTo.stack.INV && invTo.stack.INV[0] == undefined) ||  invTo.stack.INV[0].n == 0) {
-                        invThis.moveItemTo(invThis.stack.INV[0], invTo);
-                    }
+                    invThis.moveItemTo(invThis.stack.INV[0], invTo);
                 } else {
                     let item = invFrom.getFirst();
                     if (item) {
@@ -52,8 +50,7 @@ class InserterBurner {
 
     draw(ctx, ent) {
         ctx.drawImage(c.resDB.inserter_burner.platform, 0, 0);
-        context.translate(tileSize * 0.25, tileSize * 0.5);
-        ctx.drawImage(c.resDB.inserter_burner.hand, 0, 0);
+        ctx.drawImage(c.resDB.inserter_burner.hand, 0, 0, 64, 64, -24, 16, 64, 64);
         if (ent.pos) {
             let myDir = c.dirToVec[ent.dir];
             let invThis = inventory.getInv(ent.pos.x, ent.pos.y, true);

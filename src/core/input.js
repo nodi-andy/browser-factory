@@ -69,7 +69,7 @@ class InputModule {
             let d = dist(c.player1.pos, worldCordinate);
             if (res && d < 5*tileSize) workInterval = setInterval(function() { mineToInv({source: tileCoordinate, id:res.id, n: 1}); }, 1000);
 
-            if (pointerButton && pointerButton.item.id) {
+            if (pointerButton && pointerButton.item && pointerButton.item.id) {
                 pointerButton.type = resName[pointerButton.item.id].type;
                 if (pointerButton.type == "entity") {
                     wssend({cmd: "addEntity", data: {pos: {x: tileCoordinate.x, y: tileCoordinate.y}, dir: buildDir, type: pointerButton.item.id}});
@@ -111,8 +111,10 @@ class InputModule {
 
                 if (entity) {entityMenu.vis = invMenu.vis = true; craftMenu.vis = false; }
                 else {entityMenu.vis = invMenu.vis = false; craftMenu.vis = true;}
-                if (picked == undefined) picked = {pos: floorTile(pointerPos), type:"tile"}
+                //if (picked == undefined) picked = {pos: floorTile(pointerPos), type:"tile"}
             }
+
+            if (entity == undefined) entityMenu.vis = false;
 
             isDragging = false;
             dragStart = undefined;
@@ -146,9 +148,9 @@ class InputModule {
                 if (isBuilding) {
                     if (lastResPos.x != curResPos.x || lastResPos.y != curResPos.y) {
                         if (pointerButton.type == "entity") {
-                            ws.send(JSON.stringify({cmd: "addEntity", data: {pos: {x: tileCoordinate.x, y: tileCoordinate.y}, dir: buildDir, type: pointerButton.item.id}}));
+                            wssend({cmd: "addEntity", data: {pos: {x: tileCoordinate.x, y: tileCoordinate.y}, dir: buildDir, type: pointerButton.item.id}});
                         } else {
-                            ws.send(JSON.stringify({cmd: "addItem", data: {pos: tileCoordinate, dir: buildDir, inv: {item: pointerButton.item}}}));
+                            wssend({cmd: "addItem", data: {pos: tileCoordinate, dir: buildDir, inv: {item: pointerButton.item}}});
                         }
                     }
                 } else  {

@@ -78,12 +78,32 @@ function render(){
             }
         }
 
+        for(let ax = minTile.x; ax < Math.min(maxTile.x + 2, gridSize.x); ax++) {
+            for(let ay = minTile.y; ay < Math.min(maxTile.y + 5, gridSize.y); ay++) {
+                let tile = game.map[ax][ay];
+                // ENTITY
+                let entID = tile[layers.buildings];
+                let b;
+                if (entID != undefined) {
+                    b = c.allEnts[entID];
+                }
+                context.save();
+                context.translate((ax + 0.5) * tileSize, (ay + 0.5) *tileSize);
+                if (b && b.type && resName[b.type] && resName[b.type].mach && resName[b.type].mach.drawItems) {
+                    context.rotate(b.dir * Math.PI/2);
+                    context.translate(-tileSize / 2, -tileSize / 2);
+                    resName[b.type].mach.drawItems(context, b);
+                }
+                context.restore();
+            }
+        }
+
 
         
     }
     
     // ENTITY CANDIDATE
-    if (pointerButton && pointerButton.overlay == false) {
+    if (pointerButton && pointerButton.item && pointerButton.overlay == false) {
         let type = pointerButton.item.id;
         if (pointerButton.item.id) {
             context.save();
@@ -137,7 +157,7 @@ function render(){
             context.drawImage(costItem.res.img, receiptMenu.pos.x + 6, receiptMenu.pos.y + 64 + dy, 32, 32)
             let missingItems = "";
             if (receiptMenu.item.n == 0) {
-                let existing = c.player1.inv.getNumberOfItems(costItem.res.id);
+                let existing = 100; //c.player1.inv.getNumberOfItems(costItem.res.id);
                 if (existing < costItem.n) {
                     missingItems = existing + " / ";
                     context.fillStyle = "red";
@@ -150,7 +170,7 @@ function render(){
         }
     }
 
-    if(c.selEntity) {
+    if(entityMenu.vis) {
         let dy = 96;
         context.beginPath();
         context.fillStyle = "rgba(150, 150, 150, 0.95)";
@@ -174,7 +194,7 @@ function render(){
     }
     
     // MOVING RESOURCES
-    if (pointerButton && pointerButton.overlay == true) {
+    if (pointerButton && pointerButton.item && pointerButton.overlay == true) {
         let type = pointerButton.item.id;
         if (pointerButton.item.id) {
             context.save();

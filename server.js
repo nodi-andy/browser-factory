@@ -39,12 +39,13 @@ let cityDB = [];
 
 c.player1 = player1;
 player1.setup();
-player1.inv = new Inventory(c.allInvs);
 player1.inv.packsize = 64;
 player1.inv.itemsize = 20;
 
 player1.inv.stack["INV"] = [];
 player1.inv.stack["INV"].push({id: c.resDB.stone_ore.id, n: 100});
+player1.inv.stack["INV"].push({id: c.resDB.iron.id, n: 100});
+player1.inv.stack["INV"].push({id: c.resDB.copper.id, n: 100});
 player1.inv.stack["INV"].push({id: c.resDB.raw_wood.id, n: 100});
 player1.inv.stack["INV"].push({id: c.resDB.coal.id, n: 87});
 player1.inv.stack["INV"].push({id: c.resDB.coal.id, n: 27});
@@ -57,7 +58,7 @@ player1.inv.stack["INV"].push({id: c.resDB.belt2.id, n: 100});
 c.allEnts.push(player1);
 player1.id = c.allEnts.length-1;
 
-let cityID = 0, pID = 0;
+let cityID = 0;
 addCity(cityID++, 50, 50, "c.game")
 c.game = getCityById(0);
 
@@ -145,13 +146,6 @@ function addStack(add) {
   s.sendAll(JSON.stringify({msg:"updateInv", data:c.allInvs}));
 }
 
-function moveStack(data) {
-  let from = c.allInvs[data.fromInvID].stack[data.fromInvKey][data.fromStackPos];
-  c.allInvs[data.toInvID].stack[data.toInvKey][data.toStackPos] = from;
-  c.allInvs[data.fromInvID].stack[data.fromInvKey][data.fromStackPos] = undefined;
-  s.sendAll(JSON.stringify({msg:"updateInv", data:c.allInvs}));
-}
-
 function addToInv(newItem) {
   for(let i = 0; i < player1.inv.packs.length && newItem; i++) {
     let invObj = player1.inv.packs[i];
@@ -204,14 +198,21 @@ function protocoll(ws, req) {
     if (msg.cmd == "addCity") addCity(cityID++, msg.data.x, msg.data.y, msg.data.type);
     if (msg.cmd == "addEntity") invfuncs.addEntity(msg.data);
     if (msg.cmd == "updateEntities") c.allEnts = JSON.parse(JSON.stringify(msg.data));
+    if (msg.cmd == "updateInventories") {
+      c.allInvs = JSON.parse(JSON.stringify(msg.data));
+    }
+    if (msg.cmd == "updatePlayerInv") {
+      c.player1.inv = Object.assign(new Inventory(), JSON.parse(JSON.stringify(msg.data)));
+      c.allInvs[0] = c.player1.inv;
+    }
     if (msg.cmd == "updateMapData") c.game.map = JSON.parse(JSON.stringify(msg.data));
     if (msg.cmd == "addItem") addItem(msg.data);
     if (msg.cmd == "remFromInv") remFromInv(msg.data);
     if (msg.cmd == "remStack") remStack(msg.data);
     if (msg.cmd == "addStack") addStack(msg.data);
     if (msg.cmd == "moveStack") moveStack(msg.data);
-    if (msg.cmd == "mineToInv") { c.player1.inv.addStackItems(msg.data); updatePlayer();}
-    if (msg.cmd == "craftToInv") {craftToInv(msg.data); updatePlayer();}
+    if (msg.cmd == "mineToInv") { c.player1.inv.addStackItems(msg.data);;}
+    if (msg.cmd == "craftToInv") {craftToInv(msg.data);}
     if (msg.cmd == "camera") c.game.camera = msg.data.camera;
 
   });
@@ -220,28 +221,15 @@ function protocoll(ws, req) {
   });
   ws.send(JSON.stringify({msg: "id" , data:JSON.stringify(ws.uuid)}));
   ws.send(JSON.stringify({msg: "updateMapData", data:c.game.map}));
-  ws.send(JSON.stringify({msg: "updatePlayer", data: player1}));
-  ws.send(JSON.stringify({msg: "updateInv", data:c.allInvs}));
+  ws.send(JSON.stringify({msg: "updateInventories", data:c.allInvs}));
   ws.send(JSON.stringify({msg: "updateEntities", data: c.allEnts}));
+  ws.send(JSON.stringify({msg: "updatePlayerInv", data: player1.inv}));
 }
 
 app.ws('/', protocoll);
 
 
 
-function addItem(newItem) {
-
-  let inv = undefined;
-  let invID = c.game.map[newItem.pos.x][newItem.pos.y][c.layers.inv];
-  if (invID == undefined) {
-    inv = new Inventory(c.allInvs, newItem.pos);
-    c.game.map[newItem.pos.x][newItem.pos.y][c.layers.inv] = inv.id;
-  } else inv = inv = c.allInvs[invID];
-  
-  inv.addStackItem( {id: newItem.inv.item.id, n: 1});
-  s.sendAll(JSON.stringify({msg:"updateInv", data:c.allInvs}));
-  s.sendAll(JSON.stringify({msg: "updateMapData", data:c.game.map}));
-}
 
 function move(x, y) {
 
@@ -283,9 +271,7 @@ function discover(x,y) {
 update();
 function update(){ 
   c.game.tick++;
-  // Inertia: no entity, no movement
-  c.allInvs.forEach(inv => { inv.changed = false; }  );
-  
+   /*
   // machines,  belts and player excluded
   for(let ient = 0; ient < c.allEnts.length; ient++) {
     let entity = c.allEnts[ient];
@@ -297,6 +283,7 @@ function update(){
     }
   }
 
+ 
   // BELT
   let belts = [];
   for(let ient = 0; ient < c.allEnts.length; ient++) {
@@ -326,9 +313,9 @@ function update(){
   for(let ibelt = 0; ibelt < belts.length; ibelt++) {
     belts[ibelt].done = false;
   }
+*/
 
-
-  s.sendAll(JSON.stringify({msg:"updateInv", data:c.allInvs}));
+  //s.sendAll(JSON.stringify({msg:"updateInv", data:c.allInvs}));
   //s.sendAll(JSON.stringify({msg:"updateEntities", data:c.allEnts}));
   s.sendAll(JSON.stringify({msg:"serverTick", data:c.game.tick}));
   setTimeout(update, 100);

@@ -1,4 +1,3 @@
-
 const tileSize = 64;
 const gridSize = {x: 64, y: 64}
 const buttonSize = 68;
@@ -18,17 +17,17 @@ resDB["deepwater"]      = {name: "deep water"   , type: "terrain"};
 resDB["water"]          = {name: "water"        , type: "terrain"};
 resDB["grassland"]      = {name: "grassland"    , type: "terrain"};
 
-resDB["coal"]           = {name: "coal"          , packsize: 1, type: "item"};
+resDB["coal"]           = {name: "coal"          , packsize: 1, type: "item", E: 100};
 resDB["stone"]          = {name: "stone"         , packsize: 1, type: "item"};
 resDB["iron"]           = {name: "iron"          , packsize: 1, type: "item"};
 resDB["copper"]         = {name: "copper"        , packsize: 1, type: "item"};
-resDB["raw_wood"]       = {name: "raw_wood"      ,              type: "item", E: 100, from: resDB.tree};
+resDB["raw_wood"]       = {name: "raw_wood"      ,              type: "item", E: 20, from: resDB.tree};
 
-resDB["tree"]           = {name: "tree"          , type: "res", E: 500, becomes: resDB.raw_wood};
-resDB["copper_ore"]     = {name: "copper ore"    , type: "res", E: 500, becomes: resDB.copper};
-resDB["coal_ore"]       = {name: "coal ore"      , type: "res", E: 500, becomes: resDB.coal};
-resDB["stone_ore"]      = {name: "stone ore"     , type: "res", E: 500, becomes: resDB.stone};
-resDB["iron_ore"]       = {name: "iron ore"      , type: "res", E: 500, becomes: resDB.iron};
+resDB["tree"]           = {name: "tree"          , type: "res", W: 500, becomes: resDB.raw_wood};
+resDB["copper_ore"]     = {name: "copper ore"    , type: "res", W: 500, becomes: resDB.copper};
+resDB["coal_ore"]       = {name: "coal ore"      , type: "res", W: 500, becomes: resDB.coal};
+resDB["stone_ore"]      = {name: "stone ore"     , type: "res", W: 500, becomes: resDB.stone};
+resDB["iron_ore"]       = {name: "iron ore"      , type: "res", W: 500, becomes: resDB.iron};
 
 
 resDB["iron_plate"]     = {name: "iron plate"    , packsize: 1, type: "item", cost: [{res: resDB.iron, n: 1}, {res: resDB.coal, n:1}, {res: resDB.E, n:100}]};
@@ -78,7 +77,8 @@ Object.keys(resDB).forEach((k) => {
 })
 
 
-const dirToVec = [{x: 0, y:-1},{x: 1, y:0},{x: 0, y:1},{x: -1, y:0}];
+const dirToVec = [{x: 1, y:0},{x: 0, y:1},{x: -1, y:0},{x: 0, y:-1}];
+const dirToAng = [0, 90, 180, 270];
 const  layers = {terrain: 0, floor:1, res: 2, buildings:3, inv:4, inext: 5, vis:6 } 
 var allInvs = [];
 var allEnts = [];
@@ -130,31 +130,7 @@ function getNbOccur(arr, val) {
 
 function screenToWorld(p) { return {x: p.x/camera.zoom - camera.x, y: p.y/camera.zoom - camera.y}; }
 
-function mineToInv(inv) {
-    let newItem = {};
-    newItem.id = resName[inv.id].becomes.id;
-    newItem.n = 1;
-    ws.send(JSON.stringify({cmd: "mineToInv", data: [newItem]}));
- }
- 
- function bookFromInv(inv, items, updateMsg = true) {
-    if (!items) return;
-    items.forEach(item => {
-        let itemsExist = true;
-        for(let c = 0; c < item.cost.length && itemsExist; c++) {
-            itemsExist = false;
-            itemsExist = inv.hasStackItems(item.cost);
-        }
-        if (itemsExist) { 
-            if (updateMsg) {
-                let addItem = {res: item, n: 1} ;
-                ws.send(JSON.stringify({cmd: "craftToInv", data: [addItem]}));
-            }
-        }
-        return itemsExist;
-    })
 
-}
 
 
 function setShowInventory(inv) {
@@ -163,7 +139,11 @@ function setShowInventory(inv) {
     entityMenu.vis = true;
     let init = entityMenu.invID != inv.id;
     entityMenu.invID = inv.id;
-    if (init) entityMenu.buttons = {};
+    if (init) {
+        entityMenu.buttons = {};
+        entityMenu.items = [];
+    }
+
     let dx = 200;
     let dy = 64;
     for(let s of Object.keys(showStack)) {
@@ -202,7 +182,7 @@ exports.getNbOccur = getNbOccur;
 exports.worldToTile = worldToTile;
 exports.allInvs = allInvs;
 exports.allEnts = allEnts;
-exports.bookFromInv = bookFromInv;
+
 exports.resName = resName;
 exports.dirToVec = dirToVec;
 exports.item = item;
@@ -220,3 +200,4 @@ c.allInvs = allInvs;
 c.selEntity = selEntity;
 c.item = item;
 c.dirToVec = dirToVec;
+c.dirToAng = dirToAng;

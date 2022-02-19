@@ -24,7 +24,6 @@ class BurnerMiner {
     setup(map, ent) {
         let inv = inventory.getInv(ent.pos.x, ent.pos.y);
         inv.stack["FUEL"] = [c.item(undefined, 0)];
-//        inv.setPackSize(1);
         inv.stack["OUTPUT"] = [c.item(undefined, 0)];
 
         let myEnt = inventory.getEnt(ent.pos.x, ent.pos.y);
