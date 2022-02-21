@@ -24,7 +24,7 @@ var player = require('./src/entity/player/player.js');
 var perlin = require('perlin-noise');
 const { Entity } = require('./src/core/entity.js');
 
-var terrainmap = perlin.generatePerlinNoise(c.gridSize.x, c.gridSize.y).map(function(x) { return (x * 10); });
+var terrainmap = perlin.generatePerlinNoise(c.gridSize.y, c.gridSize.x).map(function(x) { return (x * 10); });
 
 app.listen(80);
 
@@ -42,18 +42,18 @@ player1.setup();
 player1.inv.packsize = 64;
 player1.inv.itemsize = 20;
 
-player1.inv.stack["INV"] = [];
+
 player1.inv.stack["INV"].push({id: c.resDB.stone_ore.id, n: 100});
 player1.inv.stack["INV"].push({id: c.resDB.iron.id, n: 100});
 player1.inv.stack["INV"].push({id: c.resDB.copper.id, n: 100});
 player1.inv.stack["INV"].push({id: c.resDB.raw_wood.id, n: 100});
 player1.inv.stack["INV"].push({id: c.resDB.coal.id, n: 87});
-player1.inv.stack["INV"].push({id: c.resDB.coal.id, n: 27});
+/*player1.inv.stack["INV"].push({id: c.resDB.coal.id, n: 27});
 player1.inv.stack["INV"].push({id: c.resDB.iron_plate.id, n: 170});
 player1.inv.stack["INV"].push({id: c.resDB.copper_plate.id, n: 170});
 player1.inv.stack["INV"].push({id: c.resDB.stone_furnace.id, n: 7});
 player1.inv.stack["INV"].push({id: c.resDB.belt1.id, n: 100});
-player1.inv.stack["INV"].push({id: c.resDB.belt2.id, n: 100});
+player1.inv.stack["INV"].push({id: c.resDB.belt2.id, n: 100});*/
 
 c.allEnts.push(player1);
 player1.id = c.allEnts.length-1;
@@ -84,7 +84,7 @@ function addCity(nID, x, y, t) {
     // discrete perlin
     for(let ax = 0; ax < nCity.map.length; ax++) {
       for(let ay = 0; ay < nCity.map[ax].length; ay++) {
-        let perlinVal = terrainmap[ax * c.gridSize.x + ay];
+        let perlinVal = terrainmap[ax * c.gridSize.y + ay];
         let resVal = 0;
         if (perlinVal < 1) resVal = [c.resDB.deepwater.id, 0];
         else if (perlinVal < 2) resVal = [c.resDB.water.id, 0];
@@ -196,21 +196,19 @@ function protocoll(ws, req) {
     }
     if (msg.cmd == 'keydown' && msg.data == "ArrowRight") ws.player.dir = 5;
     if (msg.cmd == "addCity") addCity(cityID++, msg.data.x, msg.data.y, msg.data.type);
-    if (msg.cmd == "addEntity") invfuncs.addEntity(msg.data);
     if (msg.cmd == "updateEntities") c.allEnts = JSON.parse(JSON.stringify(msg.data));
     if (msg.cmd == "updateInventories") {
       c.allInvs = JSON.parse(JSON.stringify(msg.data));
     }
     if (msg.cmd == "updatePlayerInv") {
-      c.player1.inv = Object.assign(new Inventory(), JSON.parse(JSON.stringify(msg.data)));
-      c.allInvs[0] = c.player1.inv;
+      c.player1.invID = msg.data;
     }
     if (msg.cmd == "updateMapData") c.game.map = JSON.parse(JSON.stringify(msg.data));
     if (msg.cmd == "addItem") addItem(msg.data);
     if (msg.cmd == "remFromInv") remFromInv(msg.data);
     if (msg.cmd == "remStack") remStack(msg.data);
     if (msg.cmd == "addStack") addStack(msg.data);
-    if (msg.cmd == "moveStack") moveStack(msg.data);
+    if (msg.cmd == "moveStack") invfuncs.moveStack(msg.data);
     if (msg.cmd == "mineToInv") { c.player1.inv.addStackItems(msg.data);;}
     if (msg.cmd == "craftToInv") {craftToInv(msg.data);}
     if (msg.cmd == "camera") c.game.camera = msg.data.camera;
@@ -223,7 +221,7 @@ function protocoll(ws, req) {
   ws.send(JSON.stringify({msg: "updateMapData", data:c.game.map}));
   ws.send(JSON.stringify({msg: "updateInventories", data:c.allInvs}));
   ws.send(JSON.stringify({msg: "updateEntities", data: c.allEnts}));
-  ws.send(JSON.stringify({msg: "updatePlayerInv", data: player1.inv}));
+  ws.send(JSON.stringify({msg: "updatePlayerInv", data: player1.invID}));
 }
 
 app.ws('/', protocoll);

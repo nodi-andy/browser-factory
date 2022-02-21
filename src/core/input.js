@@ -3,31 +3,9 @@ let isDragging = false;
 let dragStart = { x: 0, y: 0 }
 let isDragStarted = false;
 let isBuilding = false;
-let workInterval = undefined;
 
-function adjustZoom(zoomFactor)
-{
-    if (!isDragging)
-    {
-        //console.log(zoomFactor)
-        zoomFactor *= -1;
 
-        let zoomAmount = (1 + zoomFactor);
-        camera.zoom *= zoomAmount;
-       
-        //camera.zoom = Math.min( camera.zoom, MAX_ZOOM )
-        camera.zoom = Math.max( camera.zoom, Math.max(canvas.width / (gridSize.x * tileSize), canvas.height / (gridSize.y * tileSize)))
 
-        camera.x += (mousePos.x / camera.zoom) - (mousePos.x / (camera.zoom / zoomAmount));
-        camera.y += (mousePos.y / camera.zoom) - (mousePos.y / (camera.zoom / zoomAmount));
-        if (camera.x > 0) camera.x = 0;
-        if (camera.y > 0) camera.y = 0;
-        let boundary = screenToWorld({x: canvas.width, y: canvas.height});
-        if (boundary.x > gridSize.x * tileSize) camera.x = canvas.width / camera.zoom - (gridSize.x * tileSize);
-        if (boundary.y > gridSize.y * tileSize) camera.y = canvas.height / camera.zoom - (gridSize.y * tileSize);
-        //ws.send(JSON.stringify({cmd: "camera", data: camera}));
-    }
-}
 
 // Gets the relevant location from a mouse or single touch event
 function getEventLocation(e) {
@@ -47,7 +25,7 @@ class InputModule {
         canvas.addEventListener('pointerdown', this.onPointerDown);
         canvas.addEventListener('pointermove', this.onPointerMove);
         canvas.addEventListener('pointerup', this.onPointerUp);
-        canvas.addEventListener("wheel", (e) => adjustZoom(e.deltaY* SCROLL_SENSITIVITY))
+        canvas.addEventListener("wheel", (e) => view.onZoom(e.deltaY * view.scrollFactor))
     }
 
    
@@ -61,18 +39,18 @@ class InputModule {
         entityMenu.items.forEach (b => {if (b.collision(e)) { overlayClicked = true; }})
         
         if (overlayClicked == false) {
-            let worldCordinate = screenToWorld(getEventLocation(e));
+            let worldCordinate = view.screenToWorld(getEventLocation(e));
 
             dragStart = worldCordinate;
             let tileCoordinate = worldToTile(worldCordinate);
             let res = game.map[tileCoordinate.x][tileCoordinate.y][layers.res];
             let d = dist(c.player1.pos, worldCordinate);
-            if (res && d < 5*tileSize) workInterval = setInterval(function() { mineToInv({source: tileCoordinate, id:res.id, n: 1}); }, 1000);
+            if (res && d < 5*tileSize) c.player1.startMining(tileCoordinate);
 
             if (pointerButton && pointerButton.item && pointerButton.item.id) {
                 pointerButton.type = resName[pointerButton.item.id].type;
                 if (pointerButton.type == "entity") {
-                    wssend({cmd: "addEntity", data: {pos: {x: tileCoordinate.x, y: tileCoordinate.y}, dir: buildDir, type: pointerButton.item.id}});
+                    if (pointerButton.item) wssend({cmd: "addEntity", data: {pos: {x: tileCoordinate.x, y: tileCoordinate.y}, dir: buildDir, type: pointerButton.item.id}});
                 } else {
                     wssend({cmd: "addItem", data: {pos: tileCoordinate, dir: buildDir, inv: {item: pointerButton.item}}});
                 }
@@ -88,7 +66,8 @@ class InputModule {
 
 
     onPointerUp(e) {
-        clearInterval(workInterval);
+        c.player1.stopMining();
+        
 
         let overlayClicked = false;
         beltMenu.items.forEach  (b => {if (b.collision(e) && b.onClick) { b.onClick(); overlayClicked = true; }})
@@ -96,7 +75,7 @@ class InputModule {
         craftMenu.items.forEach (b => {if (b.collision(e) && b.onClick) { b.onClick(); overlayClicked = true; }})
         entityMenu.items.forEach (b => {if (b.collision(e) && b.onClick) { b.onClick(); overlayClicked = true; }})
 
-        let worldPos = screenToWorld({x: e.offsetX, y: e.offsetY});
+        let worldPos = view.screenToWorld({x: e.offsetX, y: e.offsetY});
         let tilePos = worldToTile(worldPos);
         let entity = inventory.getEnt(tilePos.x, tilePos.y);
         
@@ -140,7 +119,7 @@ class InputModule {
 
         if (isOverlay) {
         } else {
-            let tileCoordinate = worldToTile(screenToWorld(mousePos));
+            let tileCoordinate = view.screenToTile(mousePos);
             curResPos.x = tileCoordinate.x;
             curResPos.y = tileCoordinate.y;
 
@@ -155,13 +134,9 @@ class InputModule {
                     }
                 } else  {
                     isDragging = true
-                    camera.x = mousePos.x / camera.zoom - dragStart.x
-                    camera.y = mousePos.y / camera.zoom - dragStart.y
-                    if (camera.x > 0) camera.x = 0;
-                    if (camera.y > 0) camera.y = 0;
-                    let boundary = screenToWorld({x: this.width, y: this.height});
-                    if (boundary.x > gridSize.x * tileSize) camera.x = this.width / camera.zoom - (gridSize.x * tileSize);
-                    if (boundary.y > gridSize.y * tileSize) camera.y = this.height / camera.zoom - (gridSize.y * tileSize);
+                    if (DEV) {
+                        view.setCamPos(mousePos.x, mousePos.y);
+                    }
                 }
             }
             lastResPos.x = curResPos.x;

@@ -1,7 +1,7 @@
 if (typeof window === 'undefined') {
   var c = require('../common.js');
   var s = require("../../socket.js");
-  require("../core/entity");
+  var e = require('./entity.js');
 } 
 
 class Inventory {
@@ -186,7 +186,9 @@ function mineToInv(inv) {
   let newItem = {};
   newItem.id = resName[inv.id].becomes.id;
   newItem.n = 1;
-  wssend(JSON.stringify({cmd: "mineToInv", data: [newItem]}));
+  c.player1.inv.addStackItem(newItem);
+  view.updateInventoryMenu(c.player1.inv);
+  //wssend(JSON.stringify({cmd: "mineToInv", data: [newItem]}));
 }
 
 function craftToInv(inv, items) {
@@ -200,8 +202,10 @@ function craftToInv(inv, items) {
       if (itemsExist) { 
           let newItem = {id: item.id, n: 1} ;
           c.player1.inv.addStackItem(newItem);
+          for(let c = 0; c < item.cost.length; c++) {
+            inv.remStackItems(item.cost);
+          }
           view.updateInventoryMenu(c.player1.inv);
-          wssend({cmd: "updatePlayerInv", data: c.player1.inv});
       }
       return itemsExist;
   })
@@ -219,6 +223,15 @@ function getEnt(x, y){
   if (tile[c.layers.buildings] != undefined) return c.allEnts[tile[c.layers.buildings]];
 }
 
+function setInv(x, y, invID){
+  let tile = c.game.map[x][y];
+  tile[c.layers.inv] = invID;
+}
+
+function setEnt(x, y, entID){
+  let tile = c.game.map[x][y];
+  tile[c.layers.buildings] = entID;
+}
 function createInv(x, y){
   
   let invID = c.game.map[x][y][c.layers.inv];
@@ -236,10 +249,15 @@ function addEntity(newEntity, updateDir) {
 
   let entID = c.game.map[newEntity.pos.x][newEntity.pos.y][c.layers.buildings];
   if (entID == undefined) {
-    let ent = new Entity(c.allEnts, newEntity.pos.x, newEntity.pos.y, newEntity.dir, newEntity.w, newEntity.h, newEntity.type);
-    c.game.map[newEntity.pos.x][newEntity.pos.y][c.layers.buildings] = ent.id;
+    if (c.player1.inv.remStackItem({res: {id: newEntity.type}, n:1})) {
+      let ent = new e.Entity(c.allEnts, newEntity.pos.x, newEntity.pos.y, newEntity.dir, newEntity.w, newEntity.h, newEntity.type);
+      c.game.map[newEntity.pos.x][newEntity.pos.y][c.layers.buildings] = ent.id;
+      if (typeof window !== "undefined") view.updateInventoryMenu(c.player1.inv);
+    }
+    if (c.isBrowser) {
+      if (c.resName[newEntity.type].mach && c.resName[newEntity.type].mach.setup) c.resName[newEntity.type].mach.setup(c.game.map, newEntity);
+    }
   }
-  if (c.resName[newEntity.type].mach && c.resName[newEntity.type].mach.setup) c.resName[newEntity.type].mach.setup(c.game.map, newEntity);
   
   /*if (updateDir) {
     sendAll(JSON.stringify({msg:"updateEntities", data: c.allEnts}));
@@ -266,18 +284,21 @@ function addItem(newItem) {
   s.sendAll(JSON.stringify({msg: "updateMapData", data:c.game.map}));*/
 }
 
+
 function moveStack(data) {
   let from = c.allInvs[data.fromInvID].stack[data.fromInvKey][data.fromStackPos];
   c.allInvs[data.toInvID].stack[data.toInvKey][data.toStackPos] = from;
   c.allInvs[data.fromInvID].stack[data.fromInvKey][data.fromStackPos] = undefined;
   //s.sendAll(JSON.stringify({msg:"updateInv", data:c.allInvs}));
-  if (data.fromInvID == 0 || data.toInvID == 0) updatePlayerInv(c.allInvs[0]);
+  if (data.fromInvID == 0 || data.toInvID == 0) c.player1.setInventory(c.allInvs[0]);
 }
 
 if (exports == undefined) var exports = {};
 exports.Inventory = Inventory;
 exports.getInv = getInv;
 exports.getEnt = getEnt;
+exports.setInv = setInv;
+exports.setEnt = setEnt;
 exports.addEntity = addEntity;
 exports.addItem = addItem;
 exports.moveStack = moveStack;
@@ -287,6 +308,8 @@ var invfuncs = {};
 invfuncs.Inventory = Inventory;
 invfuncs.getInv = getInv;
 invfuncs.getEnt = getEnt;
+invfuncs.setInv = setInv;
+invfuncs.setEnt = setEnt;
 invfuncs.addEntity = addEntity;
 var inventory = invfuncs;
 

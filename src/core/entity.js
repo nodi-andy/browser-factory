@@ -35,3 +35,5 @@ class Entity {
 
 if (exports == undefined) var exports = {};
 exports.Entity = Entity;
+
+var e = {Entity: Entity}

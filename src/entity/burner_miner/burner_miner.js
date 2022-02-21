@@ -27,6 +27,8 @@ class BurnerMiner {
         inv.stack["OUTPUT"] = [c.item(undefined, 0)];
 
         let myEnt = inventory.getEnt(ent.pos.x, ent.pos.y);
+        inventory.setInv(ent.pos.x + 1, ent.pos. y, inv.id);
+        inventory.setEnt(ent.pos.x + 1, ent.pos. y, myEnt.id);
         myEnt.power = 0;
     }
 

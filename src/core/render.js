@@ -4,20 +4,25 @@ let fps;
 function render(){
     context.clearRect(0, 0, context.canvas.width, context.canvas.height);
     context.resetTransform();
-    context.scale(camera.zoom, camera.zoom);
-    context.translate(camera.x, camera.y); //console.log(camera);
+    context.scale(view.camera.zoom, view.camera.zoom);
+    context.translate(view.camera.x, view.camera.y); //console.log(camera);
     context.drawImage(canvas.offScreenCanvas,0,0);
 
     if (game.map) {
 
         // ENTITIES AND PLAYER
 
-        let minTile = worldToTile(screenToWorld({x: 0, y: 0}));
-        let maxTile = worldToTile(screenToWorld({x: context.canvas.width, y: context.canvas.height}));
-        for(let ax = minTile.x; ax < Math.min(maxTile.x + 2, gridSize.x); ax++) {
-            for(let ay = minTile.y; ay < Math.min(maxTile.y + 5, gridSize.y); ay++) {
+        let minTile = view.screenToTile({x: 0, y: 0});
+        let maxTile = view.screenToTile({x: context.canvas.width, y: context.canvas.height});
+        for(let ay = minTile.y; ay < Math.min(maxTile.y + 5, gridSize.y); ay++) {
+            for(let ax = minTile.x; ax < Math.min(maxTile.x + 2, gridSize.x); ax++) {
                 let tile = game.map[ax][ay];
-
+                // ENTITY
+                let entID = tile[layers.buildings];
+                let b;
+                if (entID != undefined) {
+                    b = c.allEnts[entID];
+                }
                 // PLAYER
                 if (ax-2 == Math.floor(c.player1.pos.x / tileSize) && ay-2 == Math.floor(c.player1.pos.y / tileSize)) {
                     c.player1.draw(context);
@@ -36,12 +41,6 @@ function render(){
                     context.drawImage(resName[type].img, Math.min(Math.floor(n / 100), 7) * 64, 2, 60, 60, ax * tileSize, ay * tileSize, 64, 64)
                 }
 
-                // ENTITY
-                let entID = tile[layers.buildings];
-                let b;
-                if (entID != undefined) {
-                    b = c.allEnts[entID];
-                }
                 context.save();
                 context.translate((ax + 0.5) * tileSize, (ay + 0.5) *tileSize);
 
@@ -50,6 +49,8 @@ function render(){
                     context.translate(-tileSize / 2, -tileSize / 2);
                     if (resName[b.type].mach) resName[b.type].mach.draw(context, b);
                     else context.drawImage(resName[b.type].img, 0, 0);
+                    if (resName[b.type].size) {ax+=resName[b.type].size[0]-1};
+
                 } else {  // ITEMS ON GROUND
                   
                     let itemID = tile[layers.inv];

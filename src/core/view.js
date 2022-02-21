@@ -1,3 +1,6 @@
+
+
+
 class ViewModule {
     constructor(windowElement) {
         this.win = windowElement;
@@ -5,6 +8,35 @@ class ViewModule {
             this.resize();
         });
         this.resize();
+        this.camera = {x: 0, y: 0, zoom: 1};
+        this.size = {x: canvas.width, y: canvas.height};
+        this.scrollFactor = 0.0005;
+        this.zoomLimit = {min: 0.5, max:2};
+    }
+
+    dragcamera(dragStart) {
+        let camPos = {x: 0, y: 0};
+        camPos.x = pos.x / this.camera.zoom - dragStart.x
+        camPos.y = pos.y / this.camera.zoom - dragStart.y
+        this.setCamPos(camPos);
+    }
+
+    setCamOn(pos) {
+        this.setCamPos({x: -pos.x + (this.size.x / 2 / this.camera.zoom), y: -pos.y + (this.size.y / 2 / this.camera.zoom)});
+    }
+
+    secureBoundaries() {
+        if (this.camera.x > 0) this.camera.x = 0;
+        if (this.camera.y > 0) this.camera.y = 0;
+        let boundary = view.screenToWorld({x: this.width, y: this.height});
+        if (boundary.x > gridSize.x * tileSize) this.camera.x = this.width / this.camera.zoom - (gridSize.x * tileSize);
+        if (boundary.y > gridSize.y * tileSize) this.camera.y = this.height / this.camera.zoom - (gridSize.y * tileSize);
+    }
+    setCamPos(pos) {
+        this.camera.x = pos.x;
+        this.camera.y = pos.y;
+        //console.log(this.camera);
+        this.secureBoundaries();
     }
 
     resize() {
@@ -16,6 +48,34 @@ class ViewModule {
         entityMenu.pos = {x:canvas.width / 2 + buttonSize / 2, y:canvas.height / 2 - buttonSize * 4};
     }
 
+    screenToWorld(p) { 
+        return {x: p.x/this.camera.zoom - this.camera.x, y: p.y/this.camera.zoom - this.camera.y};
+    }
+
+    screenToTile(p) {
+        return worldToTile(this.screenToWorld(p));
+    }
+
+    onZoom(zoomFactor)
+    {
+        if (!isDragging)
+        {
+            let zoomAmount = (1 - zoomFactor);
+            let newZoom = this.camera.zoom * zoomAmount;
+            console.log(newZoom)           
+            if (DEV) {
+                this.camera.zoom = Math.max( this.camera.zoom, Math.max(canvas.width / (gridSize.x * tileSize), canvas.height / (gridSize.y * tileSize)))
+                this.camera.x += (mousePos.x / this.camera.zoom) - (mousePos.x / (this.camera.zoom / zoomAmount));
+                this.camera.y += (mousePos.y / this.camera.zoom) - (mousePos.y / (this.camera.zoom / zoomAmount));
+                this.secureBoundaries();
+            } else {
+                this.camera.zoom = Math.min(this.zoomLimit.max, Math.max( newZoom, this.zoomLimit.min));
+                this.setCamOn(c.player1.pos);
+            }
+
+            //ws.send(JSON.stringify({cmd: "camera", data: camera}));
+        }
+    }
     updateInventoryMenu(inv) {
         let pack = inv.stack["INV"];
 

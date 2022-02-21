@@ -21,8 +21,9 @@ class StoneFurnace {
         inv.packsize = 1;
         inv.itemsize = 50;
         inv.stack["FUEL"] = [c.item(undefined, 0)];
-        inv.stack["INPUT"] = [c.item(undefined, 0), c.item(undefined, 0)];
+        inv.stack["INPUT"] = [c.item(undefined, 0)];
         inv.stack["OUTPUT"] = [c.item(undefined, 0)];
+        inv.state = 0;
     }
 
 
@@ -39,13 +40,29 @@ class StoneFurnace {
             }
         }
         let inv = inventory.getInv(ent.pos.x, ent.pos.y);
-        if (inv.stack["FUEL"] == undefined) return;
-        if(inv.stack["FUEL"][0].n && inv.stack["INPUT"][0] && inv.stack["INPUT"][0].n && inv.stack["FUEL"][0].n) {
-           let out =  inv.stack["OUTPUT"][0];
-           inv.stack["INPUT"][0].n--;
-           inv.stack["FUEL"][0].n--;
-           out.id = c.resName[inv.stack["INPUT"][0].id].becomes.id;
-           out.n++;
+        if (inv.stack["FUEL"] == undefined ||
+            inv.stack["INPUT"] == undefined || 
+            inv.stack["INPUT"][0] == undefined || 
+            inv.stack["INPUT"][0].id == undefined ||
+            c.resName[inv.stack["INPUT"][0].id].becomes == undefined) {
+                inv.state = 0;
+                return;
+            }
+
+        if(inv.stack["FUEL"][0].n && inv.stack["INPUT"][0].n) {
+            if (inv.state == 0) {invThis.lastTime = performance.now(); inv.state = 1};
+            if (inv.state == 1) {
+                let deltaT = performance.now() - invThis.lastTime;
+                let becomesThat = c.resName[inv.stack["INPUT"][0].id].becomes;
+                if (becomesThat && deltaT > 1000) {
+                    let out =  inv.stack["OUTPUT"][0];
+                    inv.stack["INPUT"][0].n--;
+                    inv.stack["FUEL"][0].n--;
+                    out.id = becomesThat.id;
+                    out.n++;
+                    invThis.lastTime = performance.now();
+                }
+            }
         }
     }
 

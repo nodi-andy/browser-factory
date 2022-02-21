@@ -11,7 +11,11 @@ class Player {
     }
 
     setup(map, ent){
-        this.pos = {x: 400, y: 400};
+        this.tilePos = {x: c.gridSize.x/2, y: c.gridSize.y/2};
+        while(this.checkCollision(this.tilePos)) {
+            this.tilePos.x++;
+        }
+        this.pos = {x: this.tilePos.x * c.tileSize, y: this.tilePos.y * c.tileSize};
         this.dir = {x: 0, y:0};
         this.live = 100;
         this.nextPos = {x: 400, y: 400};
@@ -20,6 +24,10 @@ class Player {
         this.invID = c.allInvs.length-1;
         this.inv = c.allInvs[this.invID];
         this.ss = {x:0, y:0};
+        this.inv.stack["INV"] = [];
+        this.workInterval = undefined;
+        this.workProgress = 0;
+        this.miningProgress;
     }
 
     update(map, ent){
@@ -33,8 +41,9 @@ class Player {
     }
 
     checkCollision(pos) {
-        let terrain = game.map[pos.x][pos.y][layers.terrain][0];
-        let building = game.map[pos.x][pos.y][layers.buildings];
+        if (c.game.map == undefined) return;
+        let terrain = c.game.map[pos.x][pos.y][layers.terrain][0];
+        let building = c.game.map[pos.x][pos.y][layers.buildings];
         let canWalkOn = true;
         if (building) {
             canWalkOn = false;
@@ -74,7 +83,43 @@ class Player {
         this.ss.x %= 30;
         if (this.dir.x == 0 && this.dir.y == 0) this.ss.x = 5;
 
+        if (DEV == false && this.pos) {
+            let myMid = {}
+            myMid.x = this.pos.x;
+            myMid.y = this.pos.y - 66;
+            view.setCamOn(myMid);
+        }
+
         //console.log(this.pos, thisTile);
+    }
+
+    startMining(tileCoordinate) {
+        this.workInterval = setInterval(function() { 
+            let res = game.map[tileCoordinate.x][tileCoordinate.y][layers.res];
+            mineToInv({source: tileCoordinate, id:res.id, n: 1});
+        }, 1000);
+        var player = this;
+        this.miningProgress = setInterval(function() { player.workProgress += 10; player.workProgress %= 100}, 100);
+    }
+
+    stopMining() {
+        clearInterval(this.workInterval);
+        clearInterval(this.miningProgress);
+        this.workProgress = 0;
+    }
+
+    setInventory(newInv, newID){
+        c.allInvs[this.invID].stack = JSON.parse(JSON.stringify(newInv.stack));;
+        c.allInvs[this.invID].packsize = newInv.packsize;
+        c.allInvs[this.invID].itemsize = newInv.itemsize;
+        
+        let currentID = c.allInvs[this.invID].id;
+        if (newInv.id != undefined) { this.invID = newInv.id; c.allInvs[this.invID].id = newID; }
+        else if (newID != undefined) { this.invID = newID; c.allInvs[this.invID].id = newID; }
+
+        if(c.allInvs[this.invID].id == undefined) c.allInvs[this.invID].id = currentID;
+        this.inv = c.allInvs[this.invID];
+        if (typeof window !== "undefined") view.updateInventoryMenu(this.inv);
     }
 
     draw(ctx) {
@@ -86,6 +131,8 @@ class Player {
         ctx.fillRect(-25,-120, 50, 10);
         ctx.fillStyle = "green";
         ctx.fillRect(-25,-120, (this.live / 100) * 50, 10);
+        ctx.fillStyle = "yellow";
+        ctx.fillRect(-25,-130, (this.workProgress / 100) * 50, 10);
         ctx.restore();
     }
 }
