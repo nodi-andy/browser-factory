@@ -22,6 +22,8 @@
 <script type="text/javascript" src ="core/render.js"></script>
 <script type="text/javascript" src ="core/view.js"></script>
 <script type="text/javascript" src ="entity/player/player.js"></script>
+
+<script type="text/javascript" src ="entity/chest/chest.js"></script>
 <script type="text/javascript" src ="entity/belt1/belt1.js"></script>
 <script type="text/javascript" src ="entity/belt2/belt2.js"></script>
 <script type="text/javascript" src ="entity/assembling_machine_1/assembling_machine_1.js"></script>
@@ -41,6 +43,7 @@
     
     c.player1 = new Player();
     
+    new Chest();
     new Belt();
     new Belt2();
     new AssemblingMachine1();
@@ -51,7 +54,7 @@
     // INV MENU
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
-            let newButton = new Button (j * (buttonSize+2), i * (buttonSize+2), undefined, invMenu);
+            let newButton = new Button (j * (buttonSize), i * (buttonSize), undefined, invMenu);
             invMenu.items.push(newButton);
         }
     }
@@ -60,7 +63,7 @@
     let items = resDB.player.output;
     let pos = 0;
     items.forEach(i => {
-        let newButton = new Button ((pos % 8) * (buttonSize+5), Math.floor(pos/8) * (buttonSize+5), {id: i.id, n: 0} , craftMenu);
+        let newButton = new Button ((pos % 8) * (buttonSize), Math.floor(pos/8) * (buttonSize), {id: i.id, n: 0} , craftMenu);
         newButton.onClick = () => {craftToInv(c.player1.inv, [i])};
         newButton.type = "craft";
         craftMenu.items.push(newButton)

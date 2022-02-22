@@ -182,13 +182,13 @@ class Inventory {
 }
 
 
-function mineToInv(inv) {
+function mineToInv(minedItem) {
   let newItem = {};
-  newItem.id = resName[inv.id].becomes.id;
+  newItem.id = resName[minedItem.id].becomes.id;
   newItem.n = 1;
+  game.map[minedItem.source.x][minedItem.source.y][layers.res].n--;
   c.player1.inv.addStackItem(newItem);
   view.updateInventoryMenu(c.player1.inv);
-  //wssend(JSON.stringify({cmd: "mineToInv", data: [newItem]}));
 }
 
 function craftToInv(inv, items) {

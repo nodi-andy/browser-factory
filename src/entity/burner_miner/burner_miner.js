@@ -28,7 +28,12 @@ class BurnerMiner {
 
         let myEnt = inventory.getEnt(ent.pos.x, ent.pos.y);
         inventory.setInv(ent.pos.x + 1, ent.pos. y, inv.id);
+        inventory.setInv(ent.pos.x + 1, ent.pos. y + 1, inv.id);
+        inventory.setInv(ent.pos.x, ent.pos. y + 1, inv.id);
+
         inventory.setEnt(ent.pos.x + 1, ent.pos. y, myEnt.id);
+        inventory.setEnt(ent.pos.x + 1, ent.pos. y + 1, myEnt.id);
+        inventory.setEnt(ent.pos.x, ent.pos. y + 1, myEnt.id);
         myEnt.power = 0;
     }
 
@@ -36,11 +41,13 @@ class BurnerMiner {
     update(map, ent){
         if (c.game.tick%100 == 0) {
             let tile = map[ent.pos.x][ent.pos.y];
+            if (tile[c.layers.res]?.n == 0) tile = map[ent.pos.x + 1][ent.pos.y];
+
             let inv = inventory.getInv(ent.pos.x, ent.pos.y);
             let myEnt = inventory.getEnt(ent.pos.x, ent.pos.y);
             myEnt.power = 0;
 
-            if (tile[c.layers.res] && tile[c.layers.res].n && inv.stack["OUTPUT"][0].n == 0 && inv.stack["FUEL"][0].n > 0) {
+            if (tile[c.layers.res]?.n && inv.stack["OUTPUT"][0].n == 0 && inv.stack["FUEL"][0].n > 0) {
                 if (inv.stack["OUTPUT"][0].id == undefined) inv.stack["OUTPUT"][0].id = c.resName[tile[c.layers.res].id].becomes.id;
                 myEnt.power = 100;
                 tile[c.layers.res].n--;

@@ -8,8 +8,14 @@ class Chest {
     }
 
     update(map, ent){
-        let inv = inventory.getInv(ent.pos.x, ent.pos.y);
-        inv.stack["INV"] = [];
+    }
+
+    setup(map, ent) {
+        let inv;
+        if (ent?.pos) {
+          inv = inventory.getInv(ent.pos.x, ent.pos.y);
+        }
+        inv.stack["INV"] = Array(6).fill(c.item(undefined, 0));
     }
 }
 

@@ -12,21 +12,26 @@ function render(){
 
         // ENTITIES AND PLAYER
 
+        c.allEnts.forEach(e => {e.drawn = false;});
+
         let minTile = view.screenToTile({x: 0, y: 0});
         let maxTile = view.screenToTile({x: context.canvas.width, y: context.canvas.height});
         for(let ay = minTile.y; ay < Math.min(maxTile.y + 5, gridSize.y); ay++) {
             for(let ax = minTile.x; ax < Math.min(maxTile.x + 2, gridSize.x); ax++) {
                 let tile = game.map[ax][ay];
+
                 // ENTITY
                 let entID = tile[layers.buildings];
                 let b;
                 if (entID != undefined) {
                     b = c.allEnts[entID];
                 }
+
                 // PLAYER
                 if (ax-2 == Math.floor(c.player1.pos.x / tileSize) && ay-2 == Math.floor(c.player1.pos.y / tileSize)) {
                     c.player1.draw(context);
                 }
+
                 // context.fillStyle = "#03A062";
                 // context.font = "16px Arial";
                 // context.fillText(tile[layers.terrain], ax * tileSize, ay * tileSize);
@@ -41,15 +46,17 @@ function render(){
                     context.drawImage(resName[type].img, Math.min(Math.floor(n / 100), 7) * 64, 2, 60, 60, ax * tileSize, ay * tileSize, 64, 64)
                 }
 
+                // ENTITY GROUNDS
                 context.save();
                 context.translate((ax + 0.5) * tileSize, (ay + 0.5) *tileSize);
 
-                if (b && b.type && resName[b.type].img) {
+                if (b?.type && resName[b.type].img && b.drawn == false) {
                     context.rotate(b.dir * Math.PI/2);
                     context.translate(-tileSize / 2, -tileSize / 2);
-                    if (resName[b.type].mach) resName[b.type].mach.draw(context, b);
+                    
+                    if (resName[b.type]?.mach?.draw) resName[b.type].mach.draw(context, b);
                     else context.drawImage(resName[b.type].img, 0, 0);
-                    if (resName[b.type].size) {ax+=resName[b.type].size[0]-1};
+                    b.drawn = true;
 
                 } else {  // ITEMS ON GROUND
                   
@@ -90,7 +97,7 @@ function render(){
                 }
                 context.save();
                 context.translate((ax + 0.5) * tileSize, (ay + 0.5) *tileSize);
-                if (b && b.type && resName[b.type] && resName[b.type].mach && resName[b.type].mach.drawItems) {
+                if (b?.type && resName[b.type] && resName[b.type]?.mach?.drawItems) {
                     context.rotate(b.dir * Math.PI/2);
                     context.translate(-tileSize / 2, -tileSize / 2);
                     resName[b.type].mach.drawItems(context, b);
@@ -111,7 +118,7 @@ function render(){
             context.translate((curResPos.x + 0.5) * tileSize, (curResPos.y + 0.5) *tileSize);
             context.rotate(buildDir * Math.PI/2);
             context.translate(-tileSize / 2, -tileSize / 2);
-            if (resName[type].mach) resName[type].mach.draw(context, pointerButton.item);
+            if (resName[type].mach?.draw) resName[type].mach.draw(context, pointerButton.item);
             else context.drawImage(resName[type].img, 0, 0);
             context.restore();
         }
@@ -131,9 +138,7 @@ function render(){
     if (invMenu.vis) {
         invMenu.items.forEach(b => b.draw(context));
     }
-    if (craftMenu.vis) {
-        craftMenu.items.forEach(b => b.draw(context));
-    }
+
 
     if (receiptMenu.item) {
         context.beginPath();
@@ -170,18 +175,19 @@ function render(){
         context.fillStyle = "black";
         context.fillText(resName[c.allEnts[c.selEntity.entID].type].name, entityMenu.pos.x + 16, entityMenu.pos.y + 32);
         let selInv = c.allInvs[c.selEntity.invID]//inventory.getInv(selPos.x, selPos.y);
-        if (selInv && entityMenu.vis) {
+        if (selInv) {
             for(f in selInv.stack) {
                 context.font = "24px Arial";
                 context.fillStyle = "black";
                 context.fillText(JSON.stringify(f).replaceAll('"', ''), craftMenu.pos.x + 16, craftMenu.pos.y + dy);
                 if (entityMenu.buttons[f]) {
                     entityMenu.buttons[f].forEach(b => {b.draw(context)});
-                    //c.buttons[f][1].draw(context);
                 }
                 dy += 64;
             }
         }
+    } else if (craftMenu.vis) {
+        craftMenu.items.forEach(b => b.draw(context));
     }
 
     // CONTENT MENU
@@ -216,14 +222,14 @@ function render(){
     }
     
     // MOVING RESOURCES
-    if (pointerButton && pointerButton.item && pointerButton.overlay == true) {
+    if (pointerButton?.item && pointerButton?.overlay == true) {
         let type = pointerButton.item.id;
         if (pointerButton.item.id) {
             context.save();
             context.translate(mousePos.x, mousePos.y);
             context.rotate(buildDir * Math.PI/2);
             context.translate(-tileSize / 2, -tileSize / 2);
-            if (resName[type].mach) resName[type].mach.draw(context, pointerButton);
+            if (resName[type]?.mach?.draw) resName[type].mach.draw(context, pointerButton);
             else context.drawImage(resName[type].img, 0, 0);
             context.restore();
         }

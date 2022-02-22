@@ -23,11 +23,12 @@ class InserterBurner {
         let invThis = inventory.getInv(ent.pos.x, ent.pos.y, true);
         invThis.packsize = 4;
         invThis.itemsize = 1;
+        invThis.state = 0;
     }
 
     update(map, ent){
         ent.done = true;
-        if (c.game.tick%6 == 0) {
+        if (c.game.tick%32 == 0) {
             if (ent.pos) {
                 let myDir = c.dirToVec[ent.dir];
                 let invThis = inventory.getInv(ent.pos.x, ent.pos.y, true);
@@ -42,6 +43,7 @@ class InserterBurner {
                     let item = invFrom.getFirst();
                     if (item) {
                         invFrom.moveItemTo(item, invThis);
+                        invThis.state = 1;
                     }
                 }
             }
@@ -49,20 +51,23 @@ class InserterBurner {
     }
 
     draw(ctx, ent) {
+        let invThis = inventory.getInv(ent.pos.x, ent.pos.y, true);
+        let itemPos = 0;
         ctx.drawImage(c.resDB.inserter_burner.platform, 0, 0);
-        ctx.drawImage(c.resDB.inserter_burner.hand, 0, 0, 64, 64, -24, 16, 64, 64);
+        if (invThis?.state == 1 && invThis.stack?.INV[0]) itemPos = Math.round(c.game.tick+32)%64
+        ctx.save();
+            ctx.translate(tileSize * 0.5, tileSize * 0.5);
+            ctx.rotate(itemPos * Math.PI / 32);
+            ctx.drawImage(c.resDB.inserter_burner.hand, 0, 0, 64, 64, -48, -16, 64, 64);
         if (ent.pos) {
             let myDir = c.dirToVec[ent.dir];
-            let invThis = inventory.getInv(ent.pos.x, ent.pos.y, true);
             if (invThis == undefined) return; // if the server is slow, still no inventory for the entity
-            if (invThis.stack.INV && invThis.stack.INV[0]) {
-                context.save();
-                context.scale(0.5, 0.5);
-                context.translate(tileSize * 0.0 * myDir.x, tileSize * 0.0 * myDir.y);
-                context.drawImage(resName[invThis.stack.INV[0].id].img, 0, 0);
-                context.scale(2, 2);
-                context.restore(); 
+            if (invThis.stack?.INV && invThis.stack.INV[0]) {
+                ctx.scale(0.5, 0.5);
+                ctx.drawImage(resName[invThis.stack.INV[0].id].img, -96, -24);
+                ctx.scale(2, 2);
             }
+            ctx.restore(); 
         }
     }
 }

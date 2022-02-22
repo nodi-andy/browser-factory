@@ -14,9 +14,6 @@ resDB["deepwater"]      = {name: "deep water"   , type: "terrain"};
 resDB["water"]          = {name: "water"        , type: "terrain"};
 resDB["grassland"]      = {name: "grassland"    , type: "terrain"};
 
-resDB["tree"]           = {name: "tree"          , type: "res", E: 500, becomes: resDB.raw_wood};
-resDB["copper_ore"]     = {name: "copper ore"    , type: "res", W: 500, becomes: resDB.copper};
-resDB["coal_ore"]       = {name: "coal ore"      , type: "res", W: 500, becomes: resDB.coal};
 
 resDB["iron_plate"]     = {name: "iron plate"    , packsize: 1, type: "item"};
 resDB["copper_plate"]   = {name: "copper plate"  , packsize: 1, type: "item"};
@@ -29,6 +26,9 @@ resDB["raw_wood"]       = {name: "raw_wood"      ,              type: "item"};
 
 resDB["iron_ore"]       = {name: "iron ore"      , type: "res", W: 500, becomes: resDB.iron};
 resDB["stone_ore"]      = {name: "stone ore"     , type: "res", W: 500, becomes: resDB.stone};
+resDB["tree"]           = {name: "tree"          , type: "res", E: 500, becomes: resDB.raw_wood};
+resDB["copper_ore"]     = {name: "copper ore"    , type: "res", W: 500, becomes: resDB.copper};
+resDB["coal_ore"]       = {name: "coal ore"      , type: "res", W: 500, becomes: resDB.coal};
 
 resDB["copper_cable"]   = {name: "copper cable"  , packsize: 1, type: "item", cost: [{res: resDB.copper_plate, n: 1}]};
 resDB["wood"]           = {name: "wood"          , type: "item", E: 100, cost: [{res: resDB.raw_wood, n: 1}]};
@@ -155,7 +155,7 @@ function showInventory(inv) {
     let dx = 200;
     let dy = 64;
     for(let s of Object.keys(showStack)) {
-        dx = 200;
+        dx = 128;
         if (init) entityMenu.buttons[s] = [];
         for(let stackPos in showStack[s]) {
             let item = showStack[s][stackPos];

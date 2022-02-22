@@ -59,6 +59,7 @@ class Belt {
                 delete invThis.stack["INV"];
             }
           
+            //SHIFT INTO NEXT BELT
             if (beltTo && beltTo.type != c.resDB.belt1.id) beltTo = undefined;
             if (beltTo) {
                 let dAng = c.dirToAng[beltTo.dir] - c.dirToAng[beltThis.dir];
@@ -74,7 +75,7 @@ class Belt {
                     this.shift(invThis, "RA", invTo, "LB", decidingMoving);
                 }
             }
-
+            // SHIFT ON THE BELT
             this.shift(invThis, "LB", invThis, "LA", decidingMoving);
             this.shift(invThis, "RB", invThis, "RA", decidingMoving);
 

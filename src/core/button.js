@@ -17,7 +17,7 @@ class Button {
     collision(p) {
         if (this.parent == undefined) return false;
         if (this.parent.vis == false || this.screen.x < this.parent.pos.x || this.screen.x > (this.parent.pos.x + this.parent.w)) return false;
-        return this.parent.vis && (p.x > this.screen.x && p.y > this.screen.y && p.x < this.screen.x + this.w && p.y < this.screen.y + this.h)
+        return this.parent.vis && (p.x >= this.screen.x && p.y >= this.screen.y && p.x <= this.screen.x + this.w && p.y <= this.screen.y + this.h)
     }
 
     draw(ctx) {
@@ -34,6 +34,7 @@ class Button {
         else ctx.fillStyle = "rgba(60, 60, 60, 0.9)";
         ctx.rect(this.screen.x, this.screen.y, this.w, this.h);
         ctx.fill();
+        ctx.stroke();
         if (this.item == undefined) {
             this.item = this.inv.stack[this.invKey][this.stackPos];
         }
@@ -53,15 +54,16 @@ class Button {
     }
 
     onClick() {
-        if (pointerButton == undefined) {
-            if (this.inv) pointerButton = this;
-        } else {
+        if (pointerButton?.item?.id){
             if (this.item) {
                 this.item.id = pointerButton.item.id;
                 this.item.n = pointerButton.item.n;
             }
             wssend({cmd: "moveStack", data: {toInvID: this.inv.id, toInvKey: this.invKey, toStackPos: this.stackPos, fromInvID: pointerButton.inv.id, fromInvKey: pointerButton.invKey, fromStackPos : pointerButton.stackPos}});
             pointerButton = undefined;
+
+        } else {
+            if (this.inv) pointerButton = this;
         }
     };
 
