@@ -1,11 +1,13 @@
-const ws        = new WebSocket('ws://192.168.1.22');
+const ws        = new WebSocket('ws://localhost');
 
 function wssend(msg) {
     if (c.isBrowser) {
         let updateInv = false;
         if (msg.cmd == "addEntity") {
             addEntity(msg.data, false);
+            updateInv = true; 
             ws.send(JSON.stringify({cmd: "updateEntities", data: c.allEnts}));
+            ws.send(JSON.stringify({cmd: "updateMapData", data: c.game.map}));
         }
         if (msg.cmd == "addItem") {
             addItem(msg.data, false);
@@ -16,7 +18,7 @@ function wssend(msg) {
             updateInv = true; 
         }
 
-        if (updateInv) ws.send(JSON.stringify({msg: "updateInventories", data:c.allInvs}));
+        if (updateInv) ws.send(JSON.stringify({cmd: "updateInventories", data:c.allInvs}));
         //ws.send(JSON.stringify(msg));
     }
 }
@@ -47,7 +49,7 @@ ws.onmessage = function(e) {
         c.player1.setInventory(c.allInvs[0], 0);
         if (c.selEntity) {
             let inv = socketMsg.data[c.selEntity.invID];
-            setShowInventory(inv);
+            showInventory(inv);
         }
     }
 

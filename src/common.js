@@ -36,7 +36,7 @@ resDB["wooden_stick"]   = {name: "wooden stick"  , type: "item", E: 100, cost: [
 resDB["sharp_stone"]    = {name: "sharp stone"   , type: "item", E: 100, cost: [{res: resDB.stone, n: 2}]};
 resDB["iron_stick"]     = {name: "iron stick"    , type: "item", E: 100, cost: [{res: resDB.iron_plate, n: 1}]};
 
-resDB["stone_furnace"]  = {name: "stone furnace" , packsize: 2, type: "entity", size: [1, 1], cost: [{res: resDB.stone_ore, n: 5}], output: [{res:resDB.iron_plate, n:1}, {res:resDB.copper_plate, n:1}, {res:resDB.stone, n:1}]};
+resDB["stone_furnace"]  = {name: "stone furnace" , packsize: 2, type: "entity", size: [1, 1], cost: [{res: resDB.stone, n: 5}], output: [{res:resDB.iron_plate, n:1}, {res:resDB.copper_plate, n:1}, {res:resDB.stone, n:1}]};
 resDB["weak_armor"]     = {name: "weak armor"         , packsize: 1, type: "item", size: [1, 1], cost: [{res: resDB.wood, n: 2}, {res: resDB.iron_plate, n: 2}]};
 resDB["strong_armor"]   = {name: "strong armor"         , packsize: 1, type: "item", size: [1, 1], cost: [{res: resDB.wood, n: 2}]};
 resDB["iron_chest"]     = {name: "iron chest"         , packsize: 1, type: "item", size: [1, 1], cost: [{res: resDB.wood, n: 2}]};
@@ -101,14 +101,10 @@ var game        = {};
 var player1;
 var pointerButton;
 var selEntity;
-var curResPos = {x: 0, y: 0};
-var lastResPos = {x: 0, y: 0};
+var curResPos;
+var lastResPos;
 var canvas = undefined;
-var beltMenu = {items:[], pos: {x: 0, y: 0, w: 0, h:0}, vis: true};
-var invMenu = {items:[], pos: {x: 0, y: 0, w: 0, h:0}, vis: false};
-var craftMenu = {items:[], pos: {x: 0, y: 0, w: 0, h:0}, vis: false};
-var entityMenu = {items:[], pos: {x: 0, y: 0}, w: 600, h:300, vis: false};
-var receiptMenu = {item: undefined, items:[], pos: {x: 0, y: 0, w: 300, h:50}, vis: false};
+
 
 function item(type, n) {return {id: type, n: n}}
 
@@ -144,11 +140,8 @@ function getNbOccur(arr, val) {
 }
 
 
-
-
-
-
-function setShowInventory(inv) {
+function showInventory(inv) {
+    if (inv == undefined) return;
     let showStack = inv.stack;
   
     entityMenu.vis = true;

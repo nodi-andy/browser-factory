@@ -43,7 +43,7 @@ player1.inv.packsize = 64;
 player1.inv.itemsize = 20;
 
 
-player1.inv.stack["INV"].push({id: c.resDB.stone_ore.id, n: 100});
+player1.inv.stack["INV"].push({id: c.resDB.stone.id, n: 100});
 player1.inv.stack["INV"].push({id: c.resDB.iron.id, n: 100});
 player1.inv.stack["INV"].push({id: c.resDB.copper.id, n: 100});
 player1.inv.stack["INV"].push({id: c.resDB.raw_wood.id, n: 100});
@@ -204,13 +204,6 @@ function protocoll(ws, req) {
       c.player1.invID = msg.data;
     }
     if (msg.cmd == "updateMapData") c.game.map = JSON.parse(JSON.stringify(msg.data));
-    if (msg.cmd == "addItem") addItem(msg.data);
-    if (msg.cmd == "remFromInv") remFromInv(msg.data);
-    if (msg.cmd == "remStack") remStack(msg.data);
-    if (msg.cmd == "addStack") addStack(msg.data);
-    if (msg.cmd == "moveStack") invfuncs.moveStack(msg.data);
-    if (msg.cmd == "mineToInv") { c.player1.inv.addStackItems(msg.data);;}
-    if (msg.cmd == "craftToInv") {craftToInv(msg.data);}
     if (msg.cmd == "camera") c.game.camera = msg.data.camera;
 
   });

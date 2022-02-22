@@ -9,9 +9,7 @@ class Chest {
 
     update(map, ent){
         let inv = inventory.getInv(ent.pos.x, ent.pos.y);
-        inv.packsize = 10;
-        inv.itemsize = 50;
-        inv.setAllPacksDir(c.DIR.out);
+        inv.stack["INV"] = [];
     }
 }
 

@@ -6,6 +6,8 @@ class Button {
         this.w = buttonSize;
         this.item = item;
         this.inv = inv;
+        this.invKey = "";
+        this.stackPos = 0;
         this.parent = parent;
         this.hover = false;
         if (this.parent) this.screen = {x: this.parent.pos.x + this.x, y: this.parent.pos.y + this.y}
@@ -32,11 +34,14 @@ class Button {
         else ctx.fillStyle = "rgba(60, 60, 60, 0.9)";
         ctx.rect(this.screen.x, this.screen.y, this.w, this.h);
         ctx.fill();
+        if (this.item == undefined) {
+            this.item = this.inv.stack[this.invKey][this.stackPos];
+        }
         if (this.item != undefined) {
             if (this.img) {
-                context.drawImage(this.img, this.screen.x, this.screen.y)
+                context.drawImage(this.img, this.screen.x, this.screen.y);
             } else if (this.item.id && resName[this.item.id].img) {
-                context.drawImage(resName[this.item.id].img, this.screen.x + 2, this.screen.y + 2)
+                context.drawImage(resName[this.item.id].img, this.screen.x + 2, this.screen.y + 2);
             }
 
             if (this.item.n!= undefined) {
@@ -51,7 +56,10 @@ class Button {
         if (pointerButton == undefined) {
             if (this.inv) pointerButton = this;
         } else {
-//            pointerButton.inv.remStack(pointerButton.invKey);
+            if (this.item) {
+                this.item.id = pointerButton.item.id;
+                this.item.n = pointerButton.item.n;
+            }
             wssend({cmd: "moveStack", data: {toInvID: this.inv.id, toInvKey: this.invKey, toStackPos: this.stackPos, fromInvID: pointerButton.inv.id, fromInvKey: pointerButton.invKey, fromStackPos : pointerButton.stackPos}});
             pointerButton = undefined;
         }

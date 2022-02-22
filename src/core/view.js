@@ -1,5 +1,9 @@
 
-
+var beltMenu = {items:[], pos: {x: 0, y: 0, w: 0, h:0}, vis: true};
+var invMenu = {items:[], pos: {x: 0, y: 0, w: 0, h:0}, vis: false};
+var craftMenu = {items:[], pos: {x: 0, y: 0, w: 0, h:0}, vis: false};
+var entityMenu = {items:[], pos: {x: 0, y: 0}, w: 600, h:300, vis: false};
+var receiptMenu = {item: undefined, items:[], pos: {x: 0, y: 0, w: 300, h:50}, vis: false};
 
 class ViewModule {
     constructor(windowElement) {
@@ -62,7 +66,7 @@ class ViewModule {
         {
             let zoomAmount = (1 - zoomFactor);
             let newZoom = this.camera.zoom * zoomAmount;
-            console.log(newZoom)           
+            //console.log(newZoom)           
             if (DEV) {
                 this.camera.zoom = Math.max( this.camera.zoom, Math.max(canvas.width / (gridSize.x * tileSize), canvas.height / (gridSize.y * tileSize)))
                 this.camera.x += (mousePos.x / this.camera.zoom) - (mousePos.x / (this.camera.zoom / zoomAmount));
@@ -70,7 +74,10 @@ class ViewModule {
                 this.secureBoundaries();
             } else {
                 this.camera.zoom = Math.min(this.zoomLimit.max, Math.max( newZoom, this.zoomLimit.min));
-                this.setCamOn(c.player1.pos);
+                let myMid = {}
+                myMid.x = c.player1.pos.x;
+                myMid.y = c.player1.pos.y - 66;
+                this.setCamOn(myMid);
             }
 
             //ws.send(JSON.stringify({cmd: "camera", data: camera}));

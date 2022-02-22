@@ -47,10 +47,10 @@ class InputModule {
             let d = dist(c.player1.pos, worldCordinate);
             if (res && d < 5*tileSize) c.player1.startMining(tileCoordinate);
 
-            if (pointerButton && pointerButton.item && pointerButton.item.id) {
+            if (pointerButton?.item?.id) {
                 pointerButton.type = resName[pointerButton.item.id].type;
                 if (pointerButton.type == "entity") {
-                    if (pointerButton.item) wssend({cmd: "addEntity", data: {pos: {x: tileCoordinate.x, y: tileCoordinate.y}, dir: buildDir, type: pointerButton.item.id}});
+                    wssend({cmd: "addEntity", data: {pos: {x: tileCoordinate.x, y: tileCoordinate.y}, dir: buildDir, type: pointerButton.item.id}});
                 } else {
                     wssend({cmd: "addItem", data: {pos: tileCoordinate, dir: buildDir, inv: {item: pointerButton.item}}});
                 }
@@ -81,16 +81,15 @@ class InputModule {
         
         if (overlayClicked == false) {
 
-            let picked = undefined;
-            if ((pointerButton == undefined || pointerButton.item == undefined) && entity) {
+            // SHOW ENTITY
+            if (pointerButton?.item == undefined && entity) {
                 let invID = inventory.getInv(tilePos.x, tilePos.y).id;
                 c.selEntity = {entID: entity.id, inv: c.allInvs[invID], invID: invID};
 
-                setShowInventory(c.selEntity.inv);
+                showInventory(c.selEntity.inv);
 
                 if (entity) {entityMenu.vis = invMenu.vis = true; craftMenu.vis = false; }
                 else {entityMenu.vis = invMenu.vis = false; craftMenu.vis = true;}
-                //if (picked == undefined) picked = {pos: floorTile(pointerPos), type:"tile"}
             }
 
             if (entity == undefined) entityMenu.vis = false;
@@ -117,15 +116,13 @@ class InputModule {
         receiptMenu.pos.x = mousePos.x;
         receiptMenu.pos.y = mousePos.y;
 
-        if (isOverlay) {
-        } else {
+        if (isOverlay == false) {
             let tileCoordinate = view.screenToTile(mousePos);
-            curResPos.x = tileCoordinate.x;
-            curResPos.y = tileCoordinate.y;
+            curResPos = {x: tileCoordinate.x, y: tileCoordinate.y};
 
             if (e.buttons == 1) {
                 if (isBuilding) {
-                    if (lastResPos.x != curResPos.x || lastResPos.y != curResPos.y) {
+                    if ((lastResPos.x != curResPos.x || lastResPos.y != curResPos.y) && pointerButton?.item?.id) {
                         if (pointerButton.type == "entity") {
                             wssend({cmd: "addEntity", data: {pos: {x: tileCoordinate.x, y: tileCoordinate.y}, dir: buildDir, type: pointerButton.item.id}});
                         } else {
@@ -139,8 +136,7 @@ class InputModule {
                     }
                 }
             }
-            lastResPos.x = curResPos.x;
-            lastResPos.y = curResPos.y;
+            lastResPos = {x: curResPos.x, y: curResPos.y};
         }
     }
 

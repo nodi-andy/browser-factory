@@ -117,17 +117,7 @@ function render(){
         }
     }
 
-    // DEBUG
-    if (curResPos && game.map) {
-        let inv = game.map[curResPos.x][curResPos.y][layers.inv];
-        let res = game.map[curResPos.x][curResPos.y][layers.res];
-        context.font = "12px Arial";
-        context.fillStyle = "white";
-        context.fillText(curResPos.x + ", " + curResPos.y, curResPos.x * tileSize, curResPos.y * tileSize);
-        if (inv != undefined && c.allInvs[inv]) context.fillText(JSON.stringify(c.allInvs[inv].stack, null, 1), curResPos.x * tileSize, curResPos.y * tileSize + 24);
-        if (res != undefined) context.fillText(JSON.stringify(res, null, 1), curResPos.x * tileSize, curResPos.y * tileSize + 48);
-        context.stroke();
-    }
+
 
 
 
@@ -192,6 +182,37 @@ function render(){
                 dy += 64;
             }
         }
+    }
+
+    // CONTENT MENU
+
+    if (curResPos && game.map) {
+        let inv = inventory.getInv(curResPos.x, curResPos.y);
+        let res = game.map[curResPos.x][curResPos.y][layers.res];
+        let ent = inventory.getEnt(curResPos.x, curResPos.y);
+
+        if (DEV) {
+            context.font = "12px Arial";
+            context.fillStyle = "white";
+            context.fillText(curResPos.x + ", " + curResPos.y, curResPos.x * tileSize, curResPos.y * tileSize);
+            if (inv != undefined && c.allInvs[inv]) context.fillText(JSON.stringify(c.allInvs[inv].stack, null, 1), curResPos.x * tileSize, curResPos.y * tileSize + 24);
+            if (res != undefined) context.fillText(JSON.stringify(res, null, 1), curResPos.x * tileSize, curResPos.y * tileSize + 48);
+            context.stroke();
+        }
+        context.save();
+        context.beginPath();
+        context.fillStyle = "rgba(150, 150, 190, 0.75)";
+        let menuPos = {x: canvas.width - 200, y: canvas.height / 2 - 100}
+        context.translate(menuPos.x, menuPos.y);
+        context.fillRect(0, 0, 200 , 100);
+        context.font = "24px Arial";
+        context.fillStyle = "black";
+        if (ent) {
+        context.fillText(resName[ent.type].name, 0, 30);
+        } else if (res?.id) {
+            context.fillText(resName[res.id].name + " " + res.n, 0, 30);
+        }
+        context.restore();
     }
     
     // MOVING RESOURCES

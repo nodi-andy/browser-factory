@@ -20,9 +20,9 @@ class StoneFurnace {
         entity.invID = inv.id;
         inv.packsize = 1;
         inv.itemsize = 50;
-        inv.stack["FUEL"] = [c.item(undefined, 0)];
-        inv.stack["INPUT"] = [c.item(undefined, 0)];
-        inv.stack["OUTPUT"] = [c.item(undefined, 0)];
+        inv.stack["FUEL"] = [c.item(undefined, undefined)];
+        inv.stack["INPUT"] = [c.item(undefined, undefined)];
+        inv.stack["OUTPUT"] = [c.item(undefined, undefined)];
         inv.state = 0;
     }
 
@@ -55,6 +55,9 @@ class StoneFurnace {
                 let deltaT = performance.now() - invThis.lastTime;
                 let becomesThat = c.resName[inv.stack["INPUT"][0].id].becomes;
                 if (becomesThat && deltaT > 1000) {
+                    if (inv.stack.OUTPUT == undefined || inv.stack.OUTPUT.length == 0) inv.stack.OUTPUT = [c.item(undefined, 0)];
+                    if (inv.stack.OUTPUT[0] == undefined) inv.stack.OUTPUT[0] = c.item(undefined, 0);
+                    if (inv.stack.OUTPUT[0].n == undefined) inv.stack.OUTPUT[0].n = 0;
                     let out =  inv.stack["OUTPUT"][0];
                     inv.stack["INPUT"][0].n--;
                     inv.stack["FUEL"][0].n--;

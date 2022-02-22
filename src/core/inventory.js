@@ -291,6 +291,7 @@ function moveStack(data) {
   c.allInvs[data.fromInvID].stack[data.fromInvKey][data.fromStackPos] = undefined;
   //s.sendAll(JSON.stringify({msg:"updateInv", data:c.allInvs}));
   if (data.fromInvID == 0 || data.toInvID == 0) c.player1.setInventory(c.allInvs[0]);
+  if (data.fromInvID == c.selEntity?.inv.id || data.toInvID == c.selEntity?.inv.id) showInventory(c.selEntity.inv);
 }
 
 if (exports == undefined) var exports = {};
