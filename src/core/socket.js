@@ -1,4 +1,4 @@
-const ws        = new WebSocket('ws://localhost');
+const ws        = new WebSocket('ws://localhost/browser-factorio');
 
 function wssend(msg) {
     if (c.isBrowser) {

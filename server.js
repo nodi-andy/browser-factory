@@ -217,7 +217,7 @@ function protocoll(ws, req) {
   ws.send(JSON.stringify({msg: "updatePlayerInv", data: player1.invID}));
 }
 
-app.ws('/', protocoll);
+app.ws('/browser-factorio', protocoll);
 
 
 
