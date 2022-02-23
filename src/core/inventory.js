@@ -157,9 +157,15 @@ class Inventory {
 
     getNumberOfItems(type) {
       let n = 0;
-      for(let i = 0; i < this.packs.length; i++) {
-        let invObj = this.packs[i];
-        if (invObj.id == type)  n += invObj.n;
+      let keys = Object.keys(this.stack);
+      for(let iStack = 0; iStack < keys.length; iStack++) {
+        let key = keys[iStack];
+        for(let iPack = 0; iPack < this.stack[key].length; iPack++) {
+          let pack = this.stack[key][iPack];
+          if (pack && pack.id == type) {
+            n += pack.n;
+          }
+        }
       }
       return n;
     }

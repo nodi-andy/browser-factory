@@ -27,7 +27,8 @@ class Button {
         ctx.beginPath();
 
         if (this.hover) {
-            if (this.type && this.type == "craft") receiptMenu.item = this.item; else receiptMenu.item = undefined;
+            if (this.type == "craft") receiptMenu.item = this.item; 
+            else receiptMenu.item = undefined;
         }
 
         if (this.hover) ctx.fillStyle = "rgba(100, 100, 0, 1)";
