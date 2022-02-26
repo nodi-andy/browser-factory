@@ -42,6 +42,8 @@
     var selCity     = undefined;
     
     c.player1 = new Player();
+    c.pointer = {};
+    c.pointer.pack = undefined
     
     new Chest();
     new Belt();
@@ -90,7 +92,7 @@
         if(e.code == "KeyS") c.player1.dir.y =1;
         if(e.code == "KeyD") c.player1.dir.x = 1;
         if(e.code == "KeyA") c.player1.dir.x = -1;
-        if(e.code == "Escape") pointerButton = undefined;
+        if(e.code == "Escape") c.pointer.item = undefined;
     }
 
     function onKeyUp(e){
@@ -100,7 +102,6 @@
         if(e.code == "KeyA") c.player1.dir.x = 0;
         if(e.code == "KeyR") buildDir = (buildDir+1)%4;
         if(e.code == "KeyE") { invMenu.vis = !invMenu.vis; craftMenu.vis = invMenu.vis}
-        //ws.send(JSON.stringify({cmd: "keyup", data: e.code}));
     }
 
     document.addEventListener("keydown", onKeyDown);
@@ -129,24 +130,20 @@
     c.game.tick = 0;
     gameLoop();
     function gameLoop(){
-        /*Object.keys(resDB).forEach(key => {
-            if(resDB[key].mach && resDB[key].mach.loop) resDB[key].mach.loop();
-        }
-        )*/
-        c.player1.loop();
-        c.game.tick++;
 
-        // machines,  belts and player excluded
+        c.game.tick++;
+        c.player1.loop();
+
+        // only machines,  belts and player excluded
         for(let ient = 0; ient < c.allEnts.length; ient++) {
             let entity = c.allEnts[ient];
             if (!entity) continue;
             if(entity.type == c.resDB.belt1.id) continue;
-            if(entity.type == c.resDB.player.id) continue;
             if(c.resName[entity.type].mach) {
             c.resName[entity.type].mach.update(c.game.map, entity);
             }
         }
-        // BELT
+        // Get all BELTs
         let belts = [];
         for(let ient = 0; ient < c.allEnts.length; ient++) {
             let entity = c.allEnts[ient];
@@ -157,18 +154,18 @@
             let belt = belts[ibelt];
             if (belt.done) ibelt++
             else {
-            // go forward until the first belt
-            while(belt) {
-                let x = belt.pos.x;
-                let y = belt.pos.y;
+                // go forward until the first belt
+                while(belt) {
+                    let x = belt.pos.x;
+                    let y = belt.pos.y;
 
-                let nbPos = c.dirToVec[belt.dir];
-                let nbTile = c.game.map[x + nbPos.x][y + nbPos.y];
-                let nbEntity = c.allEnts[nbTile[c.layers.buildings]];
-                if (nbEntity && nbEntity.type == c.resDB.belt1.id && nbEntity.done == false) belt = nbEntity;
-                else break;
-            }
-            c.resDB.belt1.mach.update(c.game.map, belt);
+                    let nbPos = c.dirToVec[belt.dir];
+                    let nbTile = c.game.map[x + nbPos.x][y + nbPos.y];
+                    let nbEntity = c.allEnts[nbTile[c.layers.buildings]];
+                    if (nbEntity && nbEntity.type == c.resDB.belt1.id && nbEntity.done == false) belt = nbEntity;
+                    else break;
+                }
+                c.resDB.belt1.mach.update(c.game.map, belt, true);
             }
         }
 

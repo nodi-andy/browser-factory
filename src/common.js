@@ -2,7 +2,7 @@ const tileSize = 64;
 const gridSize = {x: 160, y: 90}
 const buttonSize = 68;
 
-let DEV = false;
+let DEV = true;
 
 let buildDir = 0;
 
@@ -98,8 +98,7 @@ const  layers = {terrain: 0, floor:1, res: 2, buildings:3, inv:4, inext: 5, vis:
 var allInvs = [];
 var allEnts = [];
 var game        = {};
-var player1;
-var pointerButton;
+var pointer; // Inventory on pointer
 var selEntity;
 var curResPos;
 var lastResPos;
@@ -204,7 +203,6 @@ c.resDB = resDB;
 c.resID = resID;
 c.resName = resName;
 c.game = game;
-c.player1 = player1;
 c.layers = layers;
 c.allEnts = allEnts;
 c.allInvs = allInvs;

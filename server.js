@@ -1,16 +1,47 @@
-const { randomUUID } = require('crypto');
+// START HTTP(S) and WS(S)
 const express = require('express');
-const { StringDecoder } = require('string_decoder');
 const app = express();
-app.use(express.static('src'));
 
-require('express-ws')(app);
+const httpMode = process.argv[2];
+const wsMode = process.argv[3];
+var port = parseInt(process.argv[4]);
+
+if (httpMode == "https") {
+  // HTTPS and WSS
+  var https = require("https");
+  var fs = require('fs');
+  var options = {
+    key: fs.readFileSync('../../mynodicom-privkey.pem'),
+    cert: fs.readFileSync('../../mynodicom-fullchain.pem')
+  };
+  port = 443;
+} else if (httpMode == "no-http") {
+  //port for ws shall be entered
+} else {
+  // default http
+  app.use(express.static('src'));
+  port = 80;
+}
+
+if(wsMode == "wss") {
+  var server = https.createServer(options, app);
+  require('express-ws')(app, server);
+} else { // default ws
+  require('express-ws')(app);
+}
+
+app.listen(port);
+
+
+// LOAD CORE LIBS
+const { StringDecoder } = require('string_decoder');
+const { randomUUID } = require('crypto');
 var c = require('./src/common.js');
 var invfuncs = require('./src/core/inventory.js');
 const Inventory = invfuncs.Inventory;
 var s = require("./socket");
 
-//new (require('./public/entity/extractor/extractor.js').Extractor)();
+
 new (require('./src/entity/burner_miner/burner_miner.js').BurnerMiner)();
 new (require('./src/entity/inserter_burner/inserter_burner.js').InserterBurner)();
 var inserter = require('./src/entity/inserter/inserter.js');
@@ -24,9 +55,11 @@ var player = require('./src/entity/player/player.js');
 var perlin = require('perlin-noise');
 const { Entity } = require('./src/core/entity.js');
 
+
+// GENERATE TERRAIN
 var terrainmap = perlin.generatePerlinNoise(c.gridSize.y, c.gridSize.x).map(function(x) { return (x * 10); });
 
-app.listen(80);
+
 
 new belt.Belt();
 new belt2.Belt2();
@@ -38,7 +71,6 @@ let player1 = new player.Player();
 let cityDB = [];
 
 c.player1 = player1;
-player1.setup();
 player1.inv.packsize = 64;
 player1.inv.itemsize = 20;
 
@@ -47,7 +79,9 @@ player1.inv.stack["INV"].push({id: c.resDB.stone.id, n: 100});
 player1.inv.stack["INV"].push({id: c.resDB.iron.id, n: 100});
 player1.inv.stack["INV"].push({id: c.resDB.copper.id, n: 100});
 player1.inv.stack["INV"].push({id: c.resDB.raw_wood.id, n: 100});
-player1.inv.stack["INV"].push({id: c.resDB.coal.id, n: 87});
+player1.inv.stack["INV"].push({id: c.resDB.coal.id, n: 50});
+player1.inv.stack["INV"].push({id: c.resDB.coal.id, n: 50});
+player1.inv.stack["INV"].push({id: c.resDB.coal.id, n: 50});
 /*player1.inv.stack["INV"].push({id: c.resDB.coal.id, n: 27});
 player1.inv.stack["INV"].push({id: c.resDB.iron_plate.id, n: 170});
 player1.inv.stack["INV"].push({id: c.resDB.copper_plate.id, n: 170});

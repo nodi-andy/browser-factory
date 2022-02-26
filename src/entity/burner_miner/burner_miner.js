@@ -22,9 +22,8 @@ class BurnerMiner {
     }
 
     setup(map, ent) {
-        let inv = inventory.getInv(ent.pos.x, ent.pos.y);
+        let inv = inventory.getInv(ent.pos.x, ent.pos.y, true);
         inv.stack["FUEL"] = [c.item(undefined, 0)];
-        inv.stack["OUTPUT"] = [c.item(undefined, 0)];
 
         let myEnt = inventory.getEnt(ent.pos.x, ent.pos.y);
         inventory.setInv(ent.pos.x + 1, ent.pos. y, inv.id);
@@ -40,23 +39,31 @@ class BurnerMiner {
 
     update(map, ent){
         if (c.game.tick%100 == 0) {
+            let inv = inventory.getInv(ent.pos.x, ent.pos.y);
+            if (inv.stack["FUEL"] == undefined) inv.stack["FUEL"] = [c.item(undefined, 0)];
+            let output;
             let tile = map[ent.pos.x][ent.pos.y];
             if (tile[c.layers.res]?.n == 0) tile = map[ent.pos.x + 1][ent.pos.y];
 
-            let inv = inventory.getInv(ent.pos.x, ent.pos.y);
             let myEnt = inventory.getEnt(ent.pos.x, ent.pos.y);
             myEnt.power = 0;
 
-            if (tile[c.layers.res]?.n && inv.stack["OUTPUT"][0].n == 0 && inv.stack["FUEL"][0].n > 0) {
-                if (inv.stack["OUTPUT"][0].id == undefined) inv.stack["OUTPUT"][0].id = c.resName[tile[c.layers.res].id].becomes.id;
+            let targetInv;
+            if (myEnt.dir == 0) targetInv = inventory.getInv(ent.pos.x + 2, ent.pos.y, true);
+            if (myEnt.dir == 1) targetInv = inventory.getInv(ent.pos.x + 1, ent.pos.y + 2, true);
+            if (myEnt.dir == 2) targetInv = inventory.getInv(ent.pos.x - 1, ent.pos.y + 1, true);
+            if (myEnt.dir == 3) targetInv = inventory.getInv(ent.pos.x, ent.pos.y - 1, true);
+            let targetFull = targetInv.getFirstPack();
+
+            if (tile[c.layers.res]?.n && inv.stack["FUEL"][0] && inv.stack["FUEL"][0].n > 0 && targetFull == undefined) {
+                output = c.resName[tile[c.layers.res].id].becomes.id;
                 myEnt.power = 100;
                 tile[c.layers.res].n--;
-                inv.stack["OUTPUT"][0].n++
             }
 
             // Shift output on next tile
-            let targetInv = inventory.getInv(ent.pos.x, ent.pos.y-1);
-            if (inv.stack["OUTPUT"][0].n && targetInv.addStackItem({id: inv.stack["OUTPUT"][0].id, n:1})) inv.stack["OUTPUT"][0].n=0;
+
+            if (output && targetFull == undefined) targetInv.addStackItem({id: output, n:1});
 
         }
     }
@@ -65,7 +72,7 @@ class BurnerMiner {
         let db = c.resDB.burner_miner;
         context.save();
         ctx.drawImage(db.anim1, 0, 0, db.size[0]*tileSize, db.size[1]*tileSize, 0, 0, db.size[0]*tileSize, db.size[1]*tileSize);
-        ctx.fillRect(tileSize/2,0,tileSize/4,tileSize/4);
+        ctx.fillRect(tileSize * 1.75, tileSize * 0.5, tileSize/4,tileSize/4);
         ctx.translate(tileSize, tileSize);
 
         if (ent && ent.pos && ent.pos.x) {
@@ -75,18 +82,6 @@ class BurnerMiner {
         ctx.translate(-tileSize, -tileSize);
         ctx.drawImage(db.anim2, 0, 0, db.size[0]*tileSize, db.size[1]*tileSize, 0, 0, db.size[0]*tileSize, db.size[1]*tileSize);
         context.restore();
-
-        if (ent && ent.pos && ent.pos.x) {
-            let inv = inventory.getInv(ent.pos.x, ent.pos.y);
-            if (inv && inv.stack["OUTPUT"][0] && inv.stack["OUTPUT"][0].id !=undefined && inv.stack["OUTPUT"][0].n) {
-                context.save();
-                ctx.translate(tileSize/2, -tileSize/2);
-                context.scale(0.5, 0.5);
-                context.drawImage(resName[inv.stack["OUTPUT"][0].id].img, 0, 0)
-                context.scale(2, 2);
-                context.restore();
-            }
-        }
     }
 }
 

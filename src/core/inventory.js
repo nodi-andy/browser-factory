@@ -113,6 +113,23 @@ class Inventory {
         return false;
     }
 
+    remPack(stackName, packPos) {
+      let stack = this.stack[stackName];
+      if (stack) {
+        let pack = stack[packPos];
+        if (pack) {
+          stack.splice(packPos, 1);
+        }
+      }
+    }
+
+    addPack(stackName, packPos, pack) {
+      let stack = this.stack[stackName];
+      if (stack) {
+        stack.splice(packPos, 0, pack);
+      }
+    }
+
     remStackItems(newItems) {
       let ret = true;
       for(let i = 0; i < newItems.length; i++) {
@@ -170,11 +187,16 @@ class Inventory {
       return n;
     }
 
-    getFirst() {
-      let keys = Object.keys(this.stack);
-      if(keys.length && this.stack[keys[0]]) {
-        return this.stack[keys[0]];
+    getFirstPack(pref) {
+      let key;
+      if (pref) key = pref;
+      else  {
+        let keys = Object.keys(this.stack);
+        if(keys.length) key = keys[0];
       }
+      let pack = this.stack[key];
+      if (Array.isArray(pack)) pack = pack[0];
+      return pack;
     }
     
     draw(ctx) {
@@ -218,9 +240,9 @@ function craftToInv(inv, items) {
 
 }
 
-function getInv(x, y){
+function getInv(x, y, create = false){
   let tile = c.game.map[x][y];
-  if (tile[c.layers.inv] == undefined)  createInv(x, y);
+  if (tile[c.layers.inv] == undefined && create)  createInvOnMap(x, y);
   return c.allInvs[tile[c.layers.inv]];
 }
 
@@ -238,16 +260,20 @@ function setEnt(x, y, entID){
   let tile = c.game.map[x][y];
   tile[c.layers.buildings] = entID;
 }
-function createInv(x, y){
-  
+
+function createInvOnMap(x, y){
   let invID = c.game.map[x][y][c.layers.inv];
   if (invID == undefined) {
       inv = new Inventory(c.allInvs, {x: x, y:y});
       c.game.map[x][y][c.layers.inv] = inv.id;
       invID = inv.id;
   }
-  //ws.send(JSON.stringify({msg: "updateMapData", data:c.game.map}));
   return invID;
+}
+
+function createInv() {
+  c.allInvs.push(new invfuncs.Inventory());
+  return c.allInvs.length-1;
 }
 
 function addEntity(newEntity, updateDir) {
@@ -255,10 +281,12 @@ function addEntity(newEntity, updateDir) {
 
   let entID = c.game.map[newEntity.pos.x][newEntity.pos.y][c.layers.buildings];
   if (entID == undefined) {
-    if (c.player1.inv.remStackItem({res: {id: newEntity.type}, n:1})) {
+    if (c.pointer.item.n > 0) {
       let ent = new e.Entity(c.allEnts, newEntity.pos.x, newEntity.pos.y, newEntity.dir, newEntity.w, newEntity.h, newEntity.type);
       c.game.map[newEntity.pos.x][newEntity.pos.y][c.layers.buildings] = ent.id;
       if (typeof window !== "undefined") view.updateInventoryMenu(c.player1.inv);
+      c.pointer.item.n--;
+      if (c.pointer.item.n == 0) c.pointer.item = undefined;
     }
     if (c.isBrowser) {
       if (c.resName[newEntity.type].mach && c.resName[newEntity.type].mach.setup) c.resName[newEntity.type].mach.setup(c.game.map, newEntity);
@@ -292,6 +320,7 @@ function addItem(newItem) {
 
 
 function moveStack(data) {
+  if (data.fromInvID == data.toInvID && data.fromInvKey == data.toInvKey && data.fromStackPos == data.toStackPos) return;
   let from = c.allInvs[data.fromInvID].stack[data.fromInvKey][data.fromStackPos];
   c.allInvs[data.toInvID].stack[data.toInvKey][data.toStackPos] = from;
   c.allInvs[data.fromInvID].stack[data.fromInvKey][data.fromStackPos] = undefined;
@@ -310,6 +339,7 @@ exports.addEntity = addEntity;
 exports.addItem = addItem;
 exports.moveStack = moveStack;
 exports.craftToInv = craftToInv;
+exports.createInv = createInv;
 
 var invfuncs = {};
 invfuncs.Inventory = Inventory;
@@ -318,5 +348,6 @@ invfuncs.getEnt = getEnt;
 invfuncs.setInv = setInv;
 invfuncs.setEnt = setEnt;
 invfuncs.addEntity = addEntity;
+invfuncs.createInv = createInv;
 var inventory = invfuncs;
 

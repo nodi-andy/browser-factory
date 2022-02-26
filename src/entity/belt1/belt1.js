@@ -9,7 +9,7 @@ class Belt {
         let db = c.resDB.belt1;
         db.mach = this;
         db.playerCanWalkOn = true;
-
+        db.size = [1, 1];
        if (typeof Image !== 'undefined') {
         const image = new Image(512, 32);
         image.src =  c.resDB.belt1.type + "/belt1/belt1_anim.png";
@@ -38,7 +38,7 @@ class Belt {
     }
 
 
-    update(map, ent){
+    update(map, ent, first = false){
         ent.done = true;
         let invThis = inventory.getInv(ent.pos.x, ent.pos.y, true);
         if (invThis == undefined) return;
@@ -48,6 +48,19 @@ class Belt {
             let beltThis = inventory.getEnt(ent.pos.x, ent.pos.y);
             let nbPos = c.dirToVec[ent.dir];
             let beltFrom = inventory.getEnt(ent.pos.x - nbPos.x, ent.pos.y - nbPos.y);
+            if (beltFrom == undefined) {
+                let nbLeft = c.dirToVec[(ent.dir+1)%4];
+                let beltFromLeft = inventory.getEnt(ent.pos.x - nbLeft.x, ent.pos.y - nbLeft.y);
+
+                let nbRight = c.dirToVec[(ent.dir+3)%4];
+                let beltFromRight = inventory.getEnt(ent.pos.x - nbRight.x, ent.pos.y - nbRight.y);
+
+                if (beltFromLeft && beltFromRight) beltFrom = undefined;
+                else {
+                    if (beltFromLeft) beltFrom = beltFromLeft;
+                    if (beltFromRight) beltFrom = beltFromRight;
+                }
+            }
             let beltTo = inventory.getEnt(ent.pos.x + nbPos.x, ent.pos.y + nbPos.y);
             let invTo = inventory.getInv(ent.pos.x + nbPos.x, ent.pos.y + nbPos.y);
 
@@ -63,6 +76,7 @@ class Belt {
             if (beltTo && beltTo.type != c.resDB.belt1.id) beltTo = undefined;
             if (beltTo) {
                 let dAng = c.dirToAng[beltTo.dir] - c.dirToAng[beltThis.dir];
+                if (first == false) dAng = 0;
                 if (dAng == 0) {
                     this.shift(invThis, "LA", invTo, "LB", decidingMoving);
                     this.shift(invThis, "RA", invTo, "RB", decidingMoving);

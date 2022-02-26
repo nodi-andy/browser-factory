@@ -67,12 +67,13 @@ class ViewModule {
             let zoomAmount = (1 - zoomFactor);
             let newZoom = this.camera.zoom * zoomAmount;
             //console.log(newZoom)           
-            if (DEV) {
+            /*if (DEV) {
                 this.camera.zoom = Math.max( this.camera.zoom, Math.max(canvas.width / (gridSize.x * tileSize), canvas.height / (gridSize.y * tileSize)))
                 this.camera.x += (mousePos.x / this.camera.zoom) - (mousePos.x / (this.camera.zoom / zoomAmount));
                 this.camera.y += (mousePos.y / this.camera.zoom) - (mousePos.y / (this.camera.zoom / zoomAmount));
                 this.secureBoundaries();
-            } else {
+            } else */
+            {
                 this.camera.zoom = Math.min(this.zoomLimit.max, Math.max( newZoom, this.zoomLimit.min));
                 let myMid = {}
                 myMid.x = c.player1.pos.x;

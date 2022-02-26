@@ -47,12 +47,12 @@ class InputModule {
             let d = dist(c.player1.pos, worldCordinate);
             if (res && d < 5*tileSize) c.player1.startMining(tileCoordinate);
 
-            if (pointerButton?.item?.id) {
-                pointerButton.type = resName[pointerButton.item.id].type;
-                if (pointerButton.type == "entity") {
-                    wssend({cmd: "addEntity", data: {pos: {x: tileCoordinate.x, y: tileCoordinate.y}, dir: buildDir, type: pointerButton.item.id}});
+            if (c.pointer?.item?.id) {
+                c.pointer.type = resName[c.pointer.item.id].type;
+                if (c.pointer.type == "entity") {
+                    wssend({cmd: "addEntity", data: {pos: {x: tileCoordinate.x, y: tileCoordinate.y}, dir: buildDir, type: c.pointer.item.id}});
                 } else {
-                    wssend({cmd: "addItem", data: {pos: tileCoordinate, dir: buildDir, inv: {item: pointerButton.item}}});
+                    wssend({cmd: "addItem", data: {pos: tileCoordinate, dir: buildDir, inv: {item: c.pointer.item}}});
                 }
                 isDragStarted = false;
                 isBuilding = true;
@@ -67,13 +67,12 @@ class InputModule {
 
     onPointerUp(e) {
         c.player1.stopMining();
-        
 
         let overlayClicked = false;
-        beltMenu.items.forEach  (b => {if (b.collision(e) && b.onClick) { b.onClick(); overlayClicked = true; }})
-        invMenu.items.forEach   (b => {if (b.collision(e) && b.onClick) { b.onClick(); overlayClicked = true; }})
-        craftMenu.items.forEach (b => {if (b.collision(e) && b.onClick) { b.onClick(); overlayClicked = true; }})
-        entityMenu.items.forEach (b => {if (b.collision(e) && b.onClick) { b.onClick(); overlayClicked = true; }})
+        beltMenu.items.forEach  (b => {if (b.collision(e) && b.onClick) { b.onClick(e.which); overlayClicked = true; }})
+        invMenu.items.forEach   (b => {if (b.collision(e) && b.onClick) { b.onClick(e.which); overlayClicked = true; }})
+        craftMenu.items.forEach (b => {if (b.collision(e) && b.onClick) { b.onClick(e.which); overlayClicked = true; }})
+        entityMenu.items.forEach (b => {if (b.collision(e) && b.onClick) { b.onClick(e.which); overlayClicked = true; }})
 
         let worldPos = view.screenToWorld({x: e.offsetX, y: e.offsetY});
         let tilePos = worldToTile(worldPos);
@@ -82,7 +81,7 @@ class InputModule {
         if (overlayClicked == false) {
 
             // SHOW ENTITY
-            if (pointerButton?.item == undefined && entity) {
+            if (c.pointer?.item == undefined && entity) {
                 let invID = inventory.getInv(tilePos.x, tilePos.y).id;
                 c.selEntity = {entID: entity.id, inv: c.allInvs[invID], invID: invID};
 
@@ -112,7 +111,7 @@ class InputModule {
         invMenu.items.forEach  (b => {b.hover = b.collision(e); if (b.hover) { isOverlay = true; }})
         craftMenu.items.forEach  (b => {b.hover = b.collision(e); if (b.hover) { isOverlay = true; }})
         entityMenu.items.forEach  (b => {b.hover = b.collision(e); if (b.hover) { isOverlay = true; }})
-        if (pointerButton) pointerButton.overlay = isOverlay;
+        if (c.pointer) c.pointer.overlay = isOverlay;
         receiptMenu.pos.x = mousePos.x;
         receiptMenu.pos.y = mousePos.y;
 
@@ -122,18 +121,15 @@ class InputModule {
 
             if (e.buttons == 1) {
                 if (isBuilding) {
-                    if ((lastResPos.x != curResPos.x || lastResPos.y != curResPos.y) && pointerButton?.item?.id) {
-                        if (pointerButton.type == "entity") {
-                            wssend({cmd: "addEntity", data: {pos: {x: tileCoordinate.x, y: tileCoordinate.y}, dir: buildDir, type: pointerButton.item.id}});
+                    if ((lastResPos.x != curResPos.x || lastResPos.y != curResPos.y) && c.pointer?.item?.id) {
+                        if (c.pointer.type == "entity") {
+                            wssend({cmd: "addEntity", data: {pos: {x: tileCoordinate.x, y: tileCoordinate.y}, dir: buildDir, type: c.pointer.item.id}});
                         } else {
-                            wssend({cmd: "addItem", data: {pos: tileCoordinate, dir: buildDir, inv: {item: pointerButton.item}}});
+                            wssend({cmd: "addItem", data: {pos: tileCoordinate, dir: buildDir, inv: {item: c.pointer.item}}});
                         }
                     }
                 } else  {
-                    isDragging = true
-                    if (DEV) {
-                        view.setCamPos(mousePos.x, mousePos.y);
-                    }
+                    isDragging = true;
                 }
             }
             lastResPos = {x: curResPos.x, y: curResPos.y};

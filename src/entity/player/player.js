@@ -12,17 +12,17 @@ class Player {
 
     setup(map, ent){
         this.tilePos = {x: c.gridSize.x/2, y: c.gridSize.y/2};
-        while(this.checkCollision(this.tilePos)) {
-            this.tilePos.x++;
-        }
+
         this.pos = {x: this.tilePos.x * c.tileSize, y: this.tilePos.y * c.tileSize};
         this.dir = {x: 0, y:0};
         this.live = 100;
         this.nextPos = {x: 400, y: 400};
         this.type = c.resID.player;
-        if (c.allInvs.length == 0) c.allInvs.push(new invfuncs.Inventory());
-        this.invID = c.allInvs.length-1;
+
+        //if (c.allInvs.length == 0)
+        this.invID = invfuncs.createInv();
         this.inv = c.allInvs[this.invID];
+        
         this.ss = {x:0, y:0};
         this.inv.stack["INV"] = [];
         this.workInterval = undefined;
@@ -31,13 +31,11 @@ class Player {
     }
 
     update(map, ent){
-        let inv = getInv(ent.pos.x, ent.pos.y);
-        /*inv.packsize = 3;
-        inv.itemsize = 50;
-        inv.setAllPacksDir(DIR.in);
-        inv.setAsOutput(resDB.stone);
-        inv.setAsOutput(resDB.iron_plate);
-        craftToInv(inv, resDB.stone_furnace.output, false);*/
+        this.tilePos = worldToTile({x: this.pos.x, y: this.pos.y});
+        while(this.checkCollision(this.tilePos)) {
+            this.tilePos.x++;
+            this.pos = {x: this.tilePos.x * c.tileSize, y: this.tilePos.y * c.tileSize};
+        }
     }
 
     checkCollision(pos) {
@@ -83,7 +81,7 @@ class Player {
         this.ss.x %= 30;
         if (this.dir.x == 0 && this.dir.y == 0) this.ss.x = 5;
 
-        if (DEV == false && this.pos) {
+        if (this.pos) {
             let myMid = {}
             myMid.x = this.pos.x;
             myMid.y = this.pos.y - 66;

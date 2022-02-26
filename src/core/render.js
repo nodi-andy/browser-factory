@@ -2,6 +2,7 @@ const times = [];
 let fps;
 
 function render(){
+    let ctx = context;
     context.clearRect(0, 0, context.canvas.width, context.canvas.height);
     context.resetTransform();
     context.scale(view.camera.zoom, view.camera.zoom);
@@ -48,11 +49,15 @@ function render(){
 
                 // ENTITY GROUNDS
                 context.save();
-                context.translate((ax + 0.5) * tileSize, (ay + 0.5) *tileSize);
+                context.translate(ax * tileSize, ay *tileSize);
 
                 if (b?.type && resName[b.type].img && b.drawn == false) {
-                    context.rotate(b.dir * Math.PI/2);
-                    context.translate(-tileSize / 2, -tileSize / 2);
+                    let type = resName[b.type];
+                    if (type && type.size) {
+                        context.translate(type.size[0] / 2 * tileSize, type.size[1] / 2 * tileSize);
+                        context.rotate(b.dir * Math.PI/2);
+                        context.translate(-type.size[0] / 2 * tileSize, -type.size[1] / 2 * tileSize);
+                    }
                     
                     if (resName[b.type]?.mach?.draw) resName[b.type].mach.draw(context, b);
                     else context.drawImage(resName[b.type].img, 0, 0);
@@ -66,7 +71,6 @@ function render(){
                         if (packs) {
                             context.scale(0.5, 0.5);
 
-                            context.translate(-1 * tileSize, -0.0 * tileSize);
                             for (let iitem = 0; iitem < packs.length; iitem++) {
                                 let item = packs[iitem];
                                 if (item.id != undefined) {
@@ -111,35 +115,37 @@ function render(){
     }
     
     // ENTITY CANDIDATE
-    if (pointerButton && pointerButton.item && pointerButton.overlay == false) {
-        let type = pointerButton.item.id;
-        if (pointerButton.item.id) {
+    if (c.pointer?.item && c.pointer.overlay == false) {
+        let type = resName[c.pointer.item.id];
+        if (type && type.size) {
             context.save();
-            context.translate((curResPos.x + 0.5) * tileSize, (curResPos.y + 0.5) *tileSize);
+
+            context.translate(curResPos.x * tileSize, curResPos.y * tileSize);
+
+            context.translate(type.size[0] / 2 * tileSize, type.size[1] / 2 * tileSize);
             context.rotate(buildDir * Math.PI/2);
-            context.translate(-tileSize / 2, -tileSize / 2);
-            if (resName[type].mach?.draw) resName[type].mach.draw(context, pointerButton.item);
-            else context.drawImage(resName[type].img, 0, 0);
+            context.translate(-type.size[0] / 2 * tileSize, -type.size[1] / 2 * tileSize);
+
+            if (type.mach?.draw) type.mach.draw(context, c.pointer.item);
+            else context.drawImage(type.img, 0, 0);
             context.restore();
         }
     }
 
 
-
-
-
     // OVERLAY
-
     context.resetTransform();
     receiptMenu.item = undefined;
 
     beltMenu.items.forEach(b => b.draw(context));
 
+    // INVENTORY MENU
     if (invMenu.vis) {
         invMenu.items.forEach(b => b.draw(context));
     }
 
 
+    // ENTITY MENU
     if(entityMenu.vis) {
         let dy = 96;
         context.beginPath();
@@ -164,7 +170,7 @@ function render(){
         craftMenu.items.forEach(b => b.draw(context));
     }
 
-    
+    // RECEIPT MENU
     if (receiptMenu.item) {
         context.beginPath();
         context.fillStyle = "rgba(150, 150, 0, 0.95)";
@@ -191,7 +197,6 @@ function render(){
         }
     }
 
-    // CONTENT MENU
 
     if (curResPos && game.map) {
         let inv = inventory.getInv(curResPos.x, curResPos.y);
@@ -199,13 +204,17 @@ function render(){
         let ent = inventory.getEnt(curResPos.x, curResPos.y);
 
         if (DEV) {
-            context.font = "12px Arial";
+            //console.log(JSON.stringify(game.map[curResPos.x][curResPos.y]), inv);
+            context.font = "24px Arial";
             context.fillStyle = "white";
-            context.fillText(curResPos.x + ", " + curResPos.y, curResPos.x * tileSize, curResPos.y * tileSize);
-            if (inv != undefined && c.allInvs[inv]) context.fillText(JSON.stringify(c.allInvs[inv].stack, null, 1), curResPos.x * tileSize, curResPos.y * tileSize + 24);
-            if (res != undefined) context.fillText(JSON.stringify(res, null, 1), curResPos.x * tileSize, curResPos.y * tileSize + 48);
+            context.fillText(curResPos.x + ", " + curResPos.y, mousePos.x, mousePos.y);
+            if (res != undefined) context.fillText(JSON.stringify(res, null, 1), mousePos.x, mousePos.y + 24);
+            if (inv != undefined) context.fillText(JSON.stringify(inv.stack, null, 1), mousePos.x , mousePos.y + 48);
+            if (ent != undefined) context.fillText(JSON.stringify(ent, null, 1), mousePos.x , mousePos.y + 72);
             context.stroke();
         }
+
+        // CONTENT MENU
         context.save();
         context.beginPath();
         context.fillStyle = "rgba(150, 150, 190, 0.75)";
@@ -222,16 +231,23 @@ function render(){
         context.restore();
     }
     
-    // MOVING RESOURCES
-    if (pointerButton?.item && pointerButton?.overlay == true) {
-        let type = pointerButton.item.id;
-        if (pointerButton.item.id) {
+    // POINTER ITEM
+    if (c.pointer?.item && c.pointer.overlay) {
+        let type = c.pointer.item?.id;
+        if (type) {
             context.save();
             context.translate(mousePos.x, mousePos.y);
             context.rotate(buildDir * Math.PI/2);
             context.translate(-tileSize / 2, -tileSize / 2);
-            if (resName[type]?.mach?.draw) resName[type].mach.draw(context, pointerButton);
-            else context.drawImage(resName[type].img, 0, 0);
+            if (resName[type]?.mach?.draw) resName[type].mach.draw(context, c.pointer.item);
+            else {
+                context.drawImage(resName[type].img, 0, 0);
+                if (c.pointer.item.n!= undefined) {
+                    ctx.font = "24px Arial";
+                    ctx.fillStyle = "white";
+                    ctx.fillText(c.pointer.item.n, 0, 0 + buttonSize);
+                }
+            } 
             context.restore();
         }
     }

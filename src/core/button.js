@@ -39,11 +39,15 @@ class Button {
         if (this.item == undefined) {
             this.item = this.inv.stack[this.invKey][this.stackPos];
         }
+        this.drawItem(ctx);
+    }
+
+    drawItem(ctx) {
         if (this.item != undefined) {
             if (this.img) {
-                context.drawImage(this.img, this.screen.x, this.screen.y);
+                ctx.drawImage(this.img, this.screen.x, this.screen.y);
             } else if (this.item.id && resName[this.item.id].img) {
-                context.drawImage(resName[this.item.id].img, this.screen.x + 2, this.screen.y + 2);
+                ctx.drawImage(resName[this.item.id].img, this.screen.x + 2, this.screen.y + 2);
             }
 
             if (this.item.n!= undefined) {
@@ -54,17 +58,39 @@ class Button {
         }
     }
 
-    onClick() {
-        if (pointerButton?.item?.id){
-            if (this.item) {
-                this.item.id = pointerButton.item.id;
-                this.item.n = pointerButton.item.n;
+    onClick(button) {
+        if (button == 1) {
+            if (c.pointer?.item) {
+                let tempItem;
+                if (this.item?.id == c.pointer.item?.id) {
+                    this.item.n += c.pointer.item.n;
+                } else {
+                    if (this.item) {
+                        tempItem = this.item;
+                        this.inv.remPack(this.invKey, this.stackPos);
+                    }
+                    this.inv.addPack(this.invKey, this.stackPos, c.pointer.item);
+                }
+                if (tempItem?.n) c.pointer.item = tempItem;
+                else c.pointer.item = undefined;
+            } else {
+                c.pointer.item = {id:this.item.id, n: this.item.n};
+                this.inv.remPack(this.invKey, this.stackPos);
             }
-            wssend({cmd: "moveStack", data: {toInvID: this.inv.id, toInvKey: this.invKey, toStackPos: this.stackPos, fromInvID: pointerButton.inv.id, fromInvKey: pointerButton.invKey, fromStackPos : pointerButton.stackPos}});
-            pointerButton = undefined;
+            view.updateInventoryMenu(this.inv);
+            if (c.selEntity?.inv) showInventory(c.selEntity.inv);
+        } else if (button == 3) {
+            if (c.pointer.item) {
+                let transfer = Math.round(c.pointer.item.n / 2)
+                c.pointer.item.n -= transfer;
+                c.pointer.button.item.n += transfer;
+            } else {
+                c.pointer.button = this;
+                c.pointer.item = {id:this.item.id, n: this.item.n};
+                c.pointer.item.n = Math.round(c.pointer.item.n / 2);
+                this.item.n = this.item.n - c.pointer.item.n;
+            }
 
-        } else {
-            if (this.inv) pointerButton = this;
         }
     };
 
