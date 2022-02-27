@@ -20,15 +20,21 @@ class StoneFurnace {
         entity.invID = inv.id;
         inv.packsize = 1;
         inv.itemsize = 50;
-        inv.stack["FUEL"] = [c.item(undefined, undefined)];
-        inv.stack["INPUT"] = [c.item(undefined, undefined)];
-        inv.stack["OUTPUT"] = [c.item(undefined, undefined)];
+        inv.stack.FUEL = [];
+        inv.stack.FUEL.size = 1;
+        inv.stack.INPUT = [];
+        inv.stack.INPUT.size = 1;
+        inv.stack.OUTPUT = [];
+        inv.stack.OUTPUT.size = 1;
         inv.state = 0;
     }
 
 
     update(map, ent){
         let invThis = inventory.getInv(ent.pos.x, ent.pos.y, true);
+        invThis.stack.FUEL.size = 1;
+        invThis.stack.INPUT.size = 1;
+        invThis.stack.OUTPUT.size = 1;
         if (invThis.stack["INV"]) {
             if (invThis.stack.INPUT == undefined) invThis.stack.INPUT = invThis.stack["INV"][0];
             else {
@@ -49,7 +55,8 @@ class StoneFurnace {
                 return;
             }
 
-        if(inv.stack["FUEL"][0].n && inv.stack["INPUT"][0].n) {
+
+        if(inv.stack.FUEL.length && inv.stack.FUEL[0].n && inv.stack.INPUT.length && inv.stack.INPUT[0].n) {
             if (inv.state == 0) {invThis.lastTime = performance.now(); inv.state = 1};
             if (inv.state == 1) {
                 let deltaT = performance.now() - invThis.lastTime;

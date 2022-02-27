@@ -30,9 +30,11 @@ class Belt {
             if (deciding) {
                 from.stack[itfrom].moving = true;
             } else {
-                to.stack[itto] = from.stack[itfrom];
-                to.stack[itto].moving = false;
-                delete from.stack[itfrom];
+                if (from.stack[itfrom].moving) {
+                    to.stack[itto] = from.stack[itfrom];
+                    to.stack[itto].moving = false;
+                    delete from.stack[itfrom];
+                }
             }
         }
     }

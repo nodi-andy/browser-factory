@@ -139,14 +139,15 @@ function getNbOccur(arr, val) {
 }
 
 
-function showInventory(inv) {
+function showInventory(inv, forceUpdate = false) {
     if (inv == undefined) return;
     let showStack = inv.stack;
   
     entityMenu.vis = true;
     let init = entityMenu.invID != inv.id;
+    var refresh = init || forceUpdate;
     entityMenu.invID = inv.id;
-    if (init) {
+    if (refresh) {
         entityMenu.buttons = {};
         entityMenu.items = [];
     }
@@ -155,19 +156,19 @@ function showInventory(inv) {
     let dy = 64;
     for(let s of Object.keys(showStack)) {
         dx = 128;
-        if (init) entityMenu.buttons[s] = [];
-        for(let stackPos in showStack[s]) {
+        if (refresh) entityMenu.buttons[s] = [];
+        for(let stackPos = 0; stackPos < showStack[s].size; stackPos++) {
             let item = showStack[s][stackPos];
             let button;
-            if (init) button = new Button(dx , dy, item, entityMenu, c.selEntity.inv);
+            if (refresh) button = new Button(dx , dy, item, entityMenu, c.selEntity.inv);
             else button = entityMenu.buttons[s][stackPos];
             dx += buttonSize;
             button.invKey = s;
             button.stackPos = stackPos;
             button.item = item;
 
-            if (init) entityMenu.items.push(button);
-            if (init) entityMenu.buttons[s].push(button);
+            if (refresh) entityMenu.items.push(button);
+            if (refresh) entityMenu.buttons[s].push(button);
 
         }
         dy += buttonSize;

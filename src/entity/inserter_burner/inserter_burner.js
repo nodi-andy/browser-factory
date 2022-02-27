@@ -37,17 +37,19 @@ class InserterBurner {
                 let invTo = inventory.getInv(ent.pos.x + myDir.x, ent.pos.y + myDir.y, true);
 
 
-                if (invThis.stack["INV"] == undefined) invThis.stack["INV"]  =  [c.item(undefined, 0)];
-                let isHandFull = (invThis.stack && invThis.stack.INV && invThis.stack.INV[0] && invThis.stack.INV[0].n > 0);
+                if (invThis.stack.INV == undefined) invThis.stack.INV = [];
+                invThis.stack.INV.size = 6;
+                let isHandFull = (invThis?.stack?.INV && invThis.stack.INV[0] && invThis.stack.INV[0].n > 0);
     
                 if (isHandFull) {
                     invThis.moveItemTo(invThis.stack.INV[0], invTo);
+                    invThis.state = 1;
                 } else {
-                    let item = invFrom.getFirstPack();
-                    if (item?.n) {
-                        invFrom.moveItemTo(item, invThis);
+                    let item = invFrom.getFirstPack("OUTPUT");
+                    if (item?.n && (c.game.tick%64) == 0) {
+                        invFrom.moveItemTo({id:item.id, n:1}, invThis);
                         invThis.state = 1;
-                    }
+                    } else invThis.state = 0;
                 }
             }
         }
@@ -55,17 +57,19 @@ class InserterBurner {
 
     draw(ctx, ent) {
         let db = c.resDB.burner_miner;
-        let itemPos = 0;
+        let armPos = 0;
         ctx.drawImage(c.resDB.inserter_burner.platform, 0, 0, db.size[0]*tileSize, db.size[1]*tileSize, 0, 0, db.size[0]*tileSize, db.size[1]*tileSize);
         ctx.save();
-        ctx.translate(tileSize * 0.5, tileSize * 0.5);
-        ctx.rotate(itemPos * Math.PI / 32);
-        ctx.drawImage(c.resDB.inserter_burner.hand, 0, 0, 64, 64, -48, -16, 64, 64);
+
 
         if (ent?.pos) {
             let invThis = inventory.getInv(ent.pos.x, ent.pos.y, true);
 
-            if (invThis?.state == 1 && invThis.stack?.INV[0]) itemPos = Math.round(c.game.tick+32)%64
+            if (invThis?.state == 1) armPos = Math.round(c.game.tick)%64
+
+            ctx.translate(tileSize * 0.5, tileSize * 0.5);
+            ctx.rotate(armPos * Math.PI / 32);
+            ctx.drawImage(c.resDB.inserter_burner.hand, 0, 0, 64, 64, -48, -16, 64, 64);
 
             let myDir = c.dirToVec[ent.dir];
             if (invThis?.stack?.INV && invThis?.stack?.INV[0]?.n) {

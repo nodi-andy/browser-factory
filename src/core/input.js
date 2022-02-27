@@ -45,7 +45,7 @@ class InputModule {
             let tileCoordinate = worldToTile(worldCordinate);
             let res = game.map[tileCoordinate.x][tileCoordinate.y][layers.res];
             let d = dist(c.player1.pos, worldCordinate);
-            if (res && d < 5*tileSize) c.player1.startMining(tileCoordinate);
+            if (res?.id && d < 5*tileSize) c.player1.startMining(tileCoordinate);
 
             if (c.pointer?.item?.id) {
                 c.pointer.type = resName[c.pointer.item.id].type;
@@ -85,7 +85,7 @@ class InputModule {
                 let invID = inventory.getInv(tilePos.x, tilePos.y).id;
                 c.selEntity = {entID: entity.id, inv: c.allInvs[invID], invID: invID};
 
-                showInventory(c.selEntity.inv);
+                showInventory(c.selEntity.inv, true);
 
                 if (entity) {entityMenu.vis = invMenu.vis = true; craftMenu.vis = false; }
                 else {entityMenu.vis = invMenu.vis = false; craftMenu.vis = true;}

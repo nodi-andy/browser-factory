@@ -38,9 +38,11 @@ class BurnerMiner {
 
 
     update(map, ent){
+        let inv = inventory.getInv(ent.pos.x, ent.pos.y);
+        if (inv.stack.FUEL == undefined) inv.stack.FUEL = [];
+        inv.stack.FUEL.size = 1;
         if (c.game.tick%100 == 0) {
-            let inv = inventory.getInv(ent.pos.x, ent.pos.y);
-            if (inv.stack["FUEL"] == undefined) inv.stack["FUEL"] = [c.item(undefined, 0)];
+            if (inv.stack["FUEL"] == undefined || inv.stack["FUEL"].length == 0) inv.stack["FUEL"] = [c.item(undefined, 0)];
             let output;
             let tile = map[ent.pos.x][ent.pos.y];
             if (tile[c.layers.res]?.n == 0) tile = map[ent.pos.x + 1][ent.pos.y];

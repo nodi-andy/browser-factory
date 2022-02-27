@@ -65,7 +65,7 @@ class Button {
                 if (this.item?.id == c.pointer.item?.id) {
                     this.item.n += c.pointer.item.n;
                 } else {
-                    if (this.item) {
+                    if (this.item?.id) {
                         tempItem = this.item;
                         this.inv.remPack(this.invKey, this.stackPos);
                     }
@@ -74,11 +74,11 @@ class Button {
                 if (tempItem?.n) c.pointer.item = tempItem;
                 else c.pointer.item = undefined;
             } else {
-                c.pointer.item = {id:this.item.id, n: this.item.n};
+                c.pointer.item = {id:this.item?.id, n: this.item?.n};
                 this.inv.remPack(this.invKey, this.stackPos);
             }
-            view.updateInventoryMenu(this.inv);
-            if (c.selEntity?.inv) showInventory(c.selEntity.inv);
+            view.updateInventoryMenu(c.player1.inv);
+            if (c.selEntity?.inv) showInventory(c.selEntity.inv, true);
         } else if (button == 3) {
             if (c.pointer.item) {
                 let transfer = Math.round(c.pointer.item.n / 2)
@@ -86,7 +86,7 @@ class Button {
                 c.pointer.button.item.n += transfer;
             } else {
                 c.pointer.button = this;
-                c.pointer.item = {id:this.item.id, n: this.item.n};
+                c.pointer.item = {id:this.item?.id, n: this.item?.n};
                 c.pointer.item.n = Math.round(c.pointer.item.n / 2);
                 this.item.n = this.item.n - c.pointer.item.n;
             }

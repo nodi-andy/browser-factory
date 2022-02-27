@@ -31,37 +31,29 @@ class Inventory {
       if (newItem == undefined) return false;
       if (stackName == undefined) stackName = "INV";
       let keys = Object.keys(this.stack);
-      if (this.stack[stackName] == undefined) this.stack[stackName] = [];
+      if (this.stack[stackName] == undefined) {
+        this.stack[stackName] = [];
+        this.stack[stackName].size = 1;
+      }
 
-      for(let iSearch = 0; iSearch < 2; iSearch++) {
-        //for(let iStack = 0; iStack < keys.length && newItem; iStack++)
-        {
-          let key = stackName;//keys[iStack];
+      let key = stackName;//keys[iStack];
 
-          for(let iPack = 0; iPack < this.stack[key].length || (iSearch == 1 && iPack == 0); iPack++) {
-              let pack = this.stack[key][iPack];
-              if (pack == undefined && iSearch == 0) continue;
-              if (pack)
-              { 
-                if (pack.id == undefined) pack.id = newItem.id;
-                if (pack.id == newItem.id) {
-                  if (pack.n + newItem.n <= this.itemsize) {
-                    pack.n += newItem.n;
-                    return true;
-                  }
-                }
-              }
-              let lastSlot = (iPack == this.stack[key].length-1 && iPack < this.packsize)  // new slot at the end
-              let freeSlot = (pack == undefined && this.stack[key].length < this.packsize && iSearch == 1) // empty slot
-              if (freeSlot || lastSlot ){
-                  if (lastSlot) iPack++
-                  this.stack[key][iPack] = {};
-                  this.stack[key][iPack].id = newItem.id;
-                  this.stack[key][iPack].n = newItem.n;
-                  return true;
-              } 
+      for(let iPack = 0; iPack < this.stack[key].size; iPack++) {
+          let pack = this.stack[key][iPack];
+          if (pack == undefined) {
+            pack = {n: 0}
+            this.stack[key].push(pack);
           }
-        }
+          if (pack)
+          { 
+            if (pack.id == undefined) pack.id = newItem.id;
+            if (pack.id == newItem.id) {
+              if (pack.n + newItem.n <= this.itemsize) {
+                pack.n += newItem.n;
+                return true;
+              }
+            }
+          }
       }
       
       return false;
@@ -94,7 +86,7 @@ class Inventory {
               } else return false;
             }
           } else {
-            for(let iPack = 0; iPack < this.stack[key].length && removingItem; iPack++) {
+            for(let iPack = 0; iPack < this.stack[key].size && removingItem; iPack++) {
               let pack = this.stack[keys][iPack];
               if (pack && pack.id == removingItem.res.id) { // Find the pack
                 let n = pack.n - removingItem.n;
@@ -177,7 +169,7 @@ class Inventory {
       let keys = Object.keys(this.stack);
       for(let iStack = 0; iStack < keys.length; iStack++) {
         let key = keys[iStack];
-        for(let iPack = 0; iPack < this.stack[key].length; iPack++) {
+        for(let iPack = 0; iPack < this.stack[key].size; iPack++) {
           let pack = this.stack[key][iPack];
           if (pack && pack.id == type) {
             n += pack.n;
@@ -187,9 +179,14 @@ class Inventory {
       return n;
     }
 
+    getFirstItem(){
+      let firstPack = this.getFirstPack();
+      if (firstPack?.length) return firstPack[0];
+    }
+    
     getFirstPack(pref) {
       let key;
-      if (pref) key = pref;
+      if (pref && this.stack[pref]) key = pref;
       else  {
         let keys = Object.keys(this.stack);
         if(keys.length) key = keys[0];

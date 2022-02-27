@@ -24,13 +24,14 @@ class Player {
         this.inv = c.allInvs[this.invID];
         
         this.ss = {x:0, y:0};
-        this.inv.stack["INV"] = [];
+        this.inv.stack.INV = [];
         this.workInterval = undefined;
         this.workProgress = 0;
         this.miningProgress;
     }
 
     update(map, ent){
+        this.inv.stack.INV.size = 64;
         this.tilePos = worldToTile({x: this.pos.x, y: this.pos.y});
         while(this.checkCollision(this.tilePos)) {
             this.tilePos.x++;

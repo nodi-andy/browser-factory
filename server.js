@@ -85,9 +85,9 @@ player1.inv.stack["INV"].push({id: c.resDB.coal.id, n: 50});
 /*player1.inv.stack["INV"].push({id: c.resDB.coal.id, n: 27});
 player1.inv.stack["INV"].push({id: c.resDB.iron_plate.id, n: 170});
 player1.inv.stack["INV"].push({id: c.resDB.copper_plate.id, n: 170});
-player1.inv.stack["INV"].push({id: c.resDB.stone_furnace.id, n: 7});
-player1.inv.stack["INV"].push({id: c.resDB.belt1.id, n: 100});
-player1.inv.stack["INV"].push({id: c.resDB.belt2.id, n: 100});*/
+player1.inv.stack["INV"].push({id: c.resDB.stone_furnace.id, n: 7});*/
+player1.inv.stack["INV"].push({id: c.resDB.belt1.id, n: 1000});
+//player1.inv.stack["INV"].push({id: c.resDB.belt2.id, n: 100});
 
 c.allEnts.push(player1);
 player1.id = c.allEnts.length-1;

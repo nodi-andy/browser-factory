@@ -107,6 +107,7 @@ class ViewModule {
         for(let craftItem of craftMenu.items ) {
             let inv = new Inventory();
             inv.stack = JSON.parse(JSON.stringify(c.player1.inv.stack));
+            inv.stack.INV.size = 64;
             inv.packsize = c.player1.inv.packsize;
             inv.itemsize = c.player1.inv.itemsize;
             let cost = resName[craftItem.item.id].cost;
