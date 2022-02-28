@@ -26,15 +26,18 @@ class StoneFurnace {
         inv.stack.INPUT.size = 1;
         inv.stack.OUTPUT = [];
         inv.stack.OUTPUT.size = 1;
+        inv.stacksize = 4;
         inv.state = 0;
+        inv.lastTime = performance.now();
     }
 
 
     update(map, ent){
         let invThis = inventory.getInv(ent.pos.x, ent.pos.y, true);
-        invThis.stack.FUEL.size = 1;
-        invThis.stack.INPUT.size = 1;
-        invThis.stack.OUTPUT.size = 1;
+        invThis.need = [];
+        if (invThis.stack["FUEL"] == undefined || invThis.stack["FUEL"][0] == undefined || invThis.stack["FUEL"][0].n == 0) invThis.need.push({id: c.resDB.coal.id, n:1});
+        if (invThis.stack["INPUT"] == undefined || invThis.stack["INPUT"][0] == undefined || invThis.stack["INPUT"][0].n == 0) invThis.need.push({id: c.resDB.copper_ore.id, n:1});
+        
         if (invThis.stack["INV"]) {
             if (invThis.stack.INPUT == undefined) invThis.stack.INPUT = invThis.stack["INV"][0];
             else {

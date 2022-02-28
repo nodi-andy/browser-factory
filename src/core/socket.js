@@ -46,7 +46,7 @@ ws.onmessage = function(e) {
         for(let inv of rawInvs) {
             c.allInvs.push(Object.assign(new Inventory(), inv));
         }
-        c.player1.setInventory(c.allInvs[0], 0);
+        c.player1.setInventoryID(0);
         if (c.selEntity) {
             let inv = socketMsg.data[c.selEntity.invID];
             showInventory(inv);
@@ -69,6 +69,7 @@ ws.onmessage = function(e) {
         c.player1.invID = socketMsg.data;
     }
     if (socketMsg.msg == "updateMapData") updateMapData(socketMsg.data);
+    if (socketMsg.msg == "startGame") gameLoop();
 
     if (socketMsg.msg == "id") console.log("Received: '" + socketMsg.data + "'");
 };

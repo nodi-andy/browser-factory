@@ -22,23 +22,27 @@ class Inventory {
     }
 
     moveItemTo(item, to) {
-      if (to.addStackItem(item)) {
-            this.remStackItem({res: item, n: item.n});
+      if (this.remStackItem({res: item, n: item.n})) {
+        to.addStackItem(item);
+        return true;
       }
+      return false;
     }
 
     addStackItem(newItem, stackName) {
       if (newItem == undefined) return false;
       if (stackName == undefined) stackName = "INV";
       let keys = Object.keys(this.stack);
+      if (this.stacksize == undefined) this.stacksize = 1;
+
       if (this.stack[stackName] == undefined) {
-        this.stack[stackName] = [];
-        this.stack[stackName].size = 1;
+        if (keys.length < this.stacksize)  this.stack[stackName] = [];
+        else return false;
       }
 
       let key = stackName;//keys[iStack];
 
-      for(let iPack = 0; iPack < this.stack[key].size; iPack++) {
+      for(let iPack = 0; iPack < this.stacksize; iPack++) {
           let pack = this.stack[key][iPack];
           if (pack == undefined) {
             pack = {n: 0}
@@ -87,14 +91,14 @@ class Inventory {
             }
           } else {
             for(let iPack = 0; iPack < this.stack[key].size && removingItem; iPack++) {
-              let pack = this.stack[keys][iPack];
+              let pack = this.stack[key][iPack];
               if (pack && pack.id == removingItem.res.id) { // Find the pack
                 let n = pack.n - removingItem.n;
                 if (n > 0) {
                   pack.n = n;
                   return true;
                 } else if (n == 0) {
-                  this.stack[keys].splice(iPack, 1); // Remove empty pack
+                  this.stack[key].splice(iPack, 1); // Remove empty pack
                   iPack--;
                   return true;
                 } else return false;

@@ -20,8 +20,6 @@ class Belt {
     setup(map, ent) {
         let invThis = inventory.getInv(ent.pos.x, ent.pos.y, true);
         invThis.stacksize = 4;
-        invThis.packsize = 1;
-        invThis.itemsize = 1;
     }
 
     

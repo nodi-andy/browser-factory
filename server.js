@@ -249,6 +249,7 @@ function protocoll(ws, req) {
   ws.send(JSON.stringify({msg: "updateInventories", data:c.allInvs}));
   ws.send(JSON.stringify({msg: "updateEntities", data: c.allEnts}));
   ws.send(JSON.stringify({msg: "updatePlayerInv", data: player1.invID}));
+  ws.send(JSON.stringify({msg: "startGame"}));
 }
 
 app.ws('/browser-factorio', protocoll);

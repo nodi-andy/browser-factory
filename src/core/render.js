@@ -29,7 +29,7 @@ function render(){
                 }
 
                 // PLAYER
-                if (ax-2 == Math.floor(c.player1.pos.x / tileSize) && ay-2 == Math.floor(c.player1.pos.y / tileSize)) {
+                if (c.player1.pos && ax-2 == Math.floor(c.player1.pos.x / tileSize) && ay-2 == Math.floor(c.player1.pos.y / tileSize)) {
                     c.player1.draw(context);
                 }
 

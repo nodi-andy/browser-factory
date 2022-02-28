@@ -124,12 +124,22 @@
 
     canvas.offScreenCanvas = document.createElement('canvas');
 
-
-
     requestAnimationFrame( render );
+
+
+
     c.game.tick = 0;
-    gameLoop();
+    
+    // LOOP
     function gameLoop(){
+
+        if (c.game.tick == 0) {
+            // SETUP
+            for(let ient = 0; ient < c.allEnts.length; ient++) {
+                let entity = c.allEnts[ient];
+                c.resName[entity?.type]?.mach?.setup(c.game.map, entity);
+            }
+        }
 
         c.game.tick++;
         c.player1.loop();
@@ -173,7 +183,6 @@
             belts[ibelt].done = false;
         }
 
-        
         setTimeout(gameLoop, 20);
     }
 

@@ -7,7 +7,6 @@ if (typeof window === 'undefined') {
 class Player {
     constructor() {
        c.resDB.player.mach = this;
-       this.setup();
     }
 
     setup(map, ent){
@@ -20,18 +19,18 @@ class Player {
         this.type = c.resID.player;
 
         //if (c.allInvs.length == 0)
-        this.invID = invfuncs.createInv();
+        this.invID = 0; //invfuncs.createInv();
         this.inv = c.allInvs[this.invID];
         
         this.ss = {x:0, y:0};
-        this.inv.stack.INV = [];
+        if (this.inv.stack.INV == undefined) this.inv.stack.INV = [];
+        this.inv.stacksize = 64;
         this.workInterval = undefined;
         this.workProgress = 0;
         this.miningProgress;
     }
 
     update(map, ent){
-        this.inv.stack.INV.size = 64;
         this.tilePos = worldToTile({x: this.pos.x, y: this.pos.y});
         while(this.checkCollision(this.tilePos)) {
             this.tilePos.x++;
@@ -117,6 +116,12 @@ class Player {
         else if (newID != undefined) { this.invID = newID; c.allInvs[this.invID].id = newID; }
 
         if(c.allInvs[this.invID].id == undefined) c.allInvs[this.invID].id = currentID;
+        this.inv = c.allInvs[this.invID];
+        if (typeof window !== "undefined") view.updateInventoryMenu(this.inv);
+    }
+
+    setInventoryID(newID) {
+        this.invID = newID;
         this.inv = c.allInvs[this.invID];
         if (typeof window !== "undefined") view.updateInventoryMenu(this.inv);
     }

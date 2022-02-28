@@ -21,10 +21,8 @@ class InserterBurner {
 
     setup(map, ent) {
         let invThis = inventory.getInv(ent.pos.x, ent.pos.y, true);
-        invThis.stack["INV"] = [c.item(undefined, 0)];
-        invThis.packsize = 4;
-        invThis.itemsize = 1;
-        invThis.state = 0;
+        invThis.stack["INV"] = [];
+        invThis.stacksize = 3;
     }
 
     update(map, ent){
@@ -41,16 +39,17 @@ class InserterBurner {
                 invThis.stack.INV.size = 6;
                 let isHandFull = (invThis?.stack?.INV && invThis.stack.INV[0] && invThis.stack.INV[0].n > 0);
     
-                if (isHandFull) {
-                    invThis.moveItemTo(invThis.stack.INV[0], invTo);
-                    invThis.state = 1;
-                } else {
-                    let item = invFrom.getFirstPack("OUTPUT");
-                    if (item?.n && (c.game.tick%64) == 0) {
-                        invFrom.moveItemTo({id:item.id, n:1}, invThis);
+                if (isHandFull == false || isHandFull == undefined) { // PICK
+                    let item;
+                    if (invTo.need?.length) item = invTo.need[0];
+                    //if (item == undefined) item = invFrom.getFirstPack("OUTPUT");
+                    if (item?.n && (c.game.tick%64) == 0 && invFrom.moveItemTo({id:item.id, n:1}, invThis)) {
                         invThis.state = 1;
                     } else invThis.state = 0;
-                }
+                } else { // PLACE
+                    invThis.moveItemTo(invThis.stack.INV[0], invTo);
+                    invThis.state = 1;
+                } 
             }
         }
     }

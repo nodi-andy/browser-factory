@@ -80,17 +80,16 @@ class Button {
             view.updateInventoryMenu(c.player1.inv);
             if (c.selEntity?.inv) showInventory(c.selEntity.inv, true);
         } else if (button == 3) {
+            c.pointer.button = this;
             if (c.pointer.item) {
                 let transfer = Math.round(c.pointer.item.n / 2)
                 c.pointer.item.n -= transfer;
                 c.pointer.button.item.n += transfer;
             } else {
-                c.pointer.button = this;
                 c.pointer.item = {id:this.item?.id, n: this.item?.n};
                 c.pointer.item.n = Math.round(c.pointer.item.n / 2);
                 this.item.n = this.item.n - c.pointer.item.n;
             }
-
         }
     };
 
