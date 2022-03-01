@@ -1,5 +1,5 @@
-const ws        = new WebSocket('wss:/www.mynodi.com:4000');
-//const ws        = new WebSocket('ws://mynodi.com/browser-factorio:4000');
+//const ws        = new WebSocket('wss:/www.mynodi.com:4000');
+const ws        = new WebSocket('ws://localhost:4000');
 
 function wssend(msg) {
     if (c.isBrowser) {
