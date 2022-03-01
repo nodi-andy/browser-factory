@@ -1,40 +1,17 @@
-// server start wss only: node server.js no-http wss
+const WebSocket  = require('ws');
+const https 	 = require("https");
+const fs         = require('fs');
+const port = 4000;
+const server = https.createServer({
+      key: fs.readFileSync('../../mynodicom-privkey.pem'),
+      cert: fs.readFileSync('../../mynodicom-fullchain.pem')
+    }
+);
+//  expressWS(app/*, server*/);
+const wss = new WebSocket.Server({ server });
 
-// START HTTP(S) and WS(S)
-const express = require('express');
-const app = express();
-var https = require("https");
-
-const httpMode = process.argv[2];
-const wsMode = process.argv[3];
-var port = parseInt(process.argv[4]);
-
-if (httpMode == "https") {
-  // HTTPS and WSS
-  var fs = require('fs');
-  var options = {
-    key: fs.readFileSync('../../mynodicom-privkey.pem'),
-    cert: fs.readFileSync('../../mynodicom-fullchain.pem')
-  };
-  port = 443;
-} else if (httpMode == "no-http") {
-  //port for ws shall be entered
-} else {
-  // default http
-  app.use(express.static('src'));
-  port = 80;
-}
-
-if(wsMode == "wss") {
-  port = 4000;
-  var server = https.createServer(options, app);
-  require('express-ws')(app, server);
-} else if(wsMode == "ws") { // default ws
-  port = 4000;
-  require('express-ws')(app);
-}
-
-app.listen(port);
+console.log("Listening to: " + port);
+server.listen(port);
 
 
 // LOAD CORE LIBS
@@ -255,8 +232,8 @@ function protocoll(ws, req) {
   ws.send(JSON.stringify({msg: "updatePlayerInv", data: player1.invID}));
   ws.send(JSON.stringify({msg: "startGame"}));
 }
-
-app.ws('/browser-factorio', protocoll);
+wss.on("connection", protocoll);
+//app.ws('/browser-factorio', protocoll);
 
 
 
