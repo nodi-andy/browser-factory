@@ -9,7 +9,8 @@ class Inventory {
         this.stack = {};
         if (pos) this.pos = {x: pos.x, y: pos.y};
         this.stacksize = 1;
-        this.packsize = 1;
+        this.packsize = {};
+        this.packsize.INV = 4;
         this.itemsize = 1;
         if (inv) {
           inv.push(this);
@@ -23,17 +24,17 @@ class Inventory {
 
     moveItemTo(item, to) {
       if (this.remStackItem({res: item, n: item.n})) {
-        if(to.addStackItem(item)) {
+        if(to.addItem(item)) {
           return true;
         } else {
-          this.addStackItem({res: item, n: item.n})
+          this.addItem({res: item, n: item.n})
           return false;
         }
       }
       return false;
     }
 
-    addStackItem(newItem, stackName) {
+    addItem(newItem, stackName) {
       if (newItem == undefined) return false;
       if (stackName == undefined) stackName = "INV";
       let keys = Object.keys(this.stack);
@@ -44,9 +45,9 @@ class Inventory {
         else return false;
       }
 
-      let key = stackName;//keys[iStack];
+      let key = stackName;
 
-      for(let iPack = 0; iPack < this.stacksize; iPack++) {
+      for(let iPack = 0; iPack < this.packsize[key]; iPack++) {
           let pack = this.stack[key][iPack];
           if (pack == undefined) {
             pack = {n: 0}
@@ -68,10 +69,10 @@ class Inventory {
       return false;
     }
 
-    addStackItems(newItems) {
+    addItems(newItems) {
       let ret = true;
       for(let i = 0; i < newItems.length; i++) {
-        ret = ret && this.addStackItem(newItems[i]);
+        ret = ret && this.addItem(newItems[i]);
       }
       return ret;
     }
@@ -95,7 +96,7 @@ class Inventory {
               } else return false;
             }
           } else {
-            for(let iPack = 0; iPack < this.stack[key].size && removingItem; iPack++) {
+            for(let iPack = 0; iPack < this.packsize[key] && removingItem; iPack++) {
               let pack = this.stack[key][iPack];
               if (pack && pack.id == removingItem.res.id) { // Find the pack
                 let n = pack.n - removingItem.n;
@@ -143,14 +144,6 @@ class Inventory {
       delete this.stack[stackKey];
     }
   
-    remItems(newItems) {
-      let ret = true;
-      for(let i = 0; i < newItems.length; i++) {
-        ret = ret && this.remItem(newItems[i]);
-      }
-      return ret;
-    }
-
     hasItem(searchItem) {
       let keys = Object.keys(this.stack);
       for(let iStack = 0; iStack < keys.length && searchItem; iStack++) {
@@ -227,7 +220,7 @@ function mineToInv(minedItem) {
   newItem.id = resName[minedItem.id].becomes.id;
   newItem.n = 1;
   game.map[minedItem.source.x][minedItem.source.y][layers.res].n--;
-  c.player1.inv.addStackItem(newItem);
+  c.player1.inv.addItem(newItem);
   view.updateInventoryMenu(c.player1.inv);
 }
 
@@ -241,7 +234,7 @@ function craftToInv(inv, items) {
       }
       if (itemsExist) { 
           let newItem = {id: item.id, n: 1} ;
-          c.player1.inv.addStackItem(newItem);
+          c.player1.inv.addItem(newItem);
           for(let c = 0; c < item.cost.length; c++) {
             inv.remStackItems(item.cost);
           }
@@ -325,7 +318,7 @@ function addItem(newItem) {
     c.game.map[newItem.pos.x][newItem.pos.y][c.layers.inv] = inv.id;
   } else inv = inv = c.allInvs[invID];
   
-  inv.addStackItem( {id: newItem.inv.item.id, n: 1});
+  inv.addItem( {id: newItem.inv.item.id, n: 1});
   /*s.sendAll(JSON.stringify({msg:"updateInv", data:c.allInvs}));
   s.sendAll(JSON.stringify({msg: "updateMapData", data:c.game.map}));*/
 }

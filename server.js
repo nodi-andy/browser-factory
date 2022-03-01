@@ -73,7 +73,7 @@ let cityDB = [];
 c.player1 = player1;
 c.player1.setup();
 player1.inv.packsize = 64;
-player1.inv.itemsize = 20;
+player1.inv.itemsize = 1000;
 
 
 player1.inv.stack["INV"].push({id: c.resDB.stone.id, n: 100});
@@ -199,7 +199,7 @@ function craftToInv(newItem) {
     let cost = costs[iCost];
     c.player1.inv.remStackItem(cost);      
   }
-  c.player1.inv.addStackItem({id:newItem[0].res.id, n: 1});
+  c.player1.inv.addItem({id:newItem[0].res.id, n: 1});
 }
 
 

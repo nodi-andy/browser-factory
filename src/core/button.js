@@ -50,7 +50,7 @@ class Button {
                 ctx.drawImage(resName[this.item.id].img, this.screen.x + 2, this.screen.y + 2);
             }
 
-            if (resName[this.item.id].lock) {
+            if (this.item?.id && resName[this.item.id].lock) {
                 ctx.beginPath();
                 ctx.fillStyle = "rgb(200, 100, 100, 0.3)";
                 ctx.rect(this.screen.x, this.screen.y, buttonSize, buttonSize);

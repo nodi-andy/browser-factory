@@ -78,7 +78,7 @@ function render(){
                                     if (iitem != 1) {
                                       context.translate(1.0 * tileSize, 0.0 * tileSize);
                                     } else {
-                                      context.translate(-1.0 * tileSize, -1 * tileSize);
+                                      context.translate(-1.0 * tileSize, 1 * tileSize);
                                     }
                                 }
                             }
@@ -117,14 +117,16 @@ function render(){
     // ENTITY CANDIDATE
     if (c.pointer?.item && c.pointer.overlay == false) {
         let type = resName[c.pointer.item.id];
-        if (type && type.size) {
+        if (type) {
+            let size = type.size;
+            if (size == undefined) size = [1, 1];
             context.save();
 
             context.translate(curResPos.x * tileSize, curResPos.y * tileSize);
 
-            context.translate(type.size[0] / 2 * tileSize, type.size[1] / 2 * tileSize);
+            context.translate(size[0] / 2 * tileSize, size[1] / 2 * tileSize);
             context.rotate(buildDir * Math.PI/2);
-            context.translate(-type.size[0] / 2 * tileSize, -type.size[1] / 2 * tileSize);
+            context.translate(-size[0] / 2 * tileSize, -size[1] / 2 * tileSize);
 
             if (type.mach?.draw) type.mach.draw(context, c.pointer.item);
             else context.drawImage(type.img, 0, 0);

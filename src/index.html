@@ -95,6 +95,9 @@
         if(e.code == "KeyD") c.player1.dir.x = 1;
         if(e.code == "KeyA") c.player1.dir.x = -1;
         if(e.code == "Escape") {
+            if (c.pointer.item) {
+                c.player1.inv.addItem(c.pointer.item);
+            }
             c.pointer.item = undefined;
             invMenu.vis = false;
             entityMenu.vis = false;
@@ -183,8 +186,14 @@
                     let nbPos = c.dirToVec[belt.dir];
                     let nbTile = c.game.map[x + nbPos.x][y + nbPos.y];
                     let nbEntity = c.allEnts[nbTile[c.layers.buildings]];
-                    if (nbEntity && nbEntity.type == c.resDB.belt1.id && nbEntity.done == false) belt = nbEntity;
-                    else break;
+                    if (nbEntity?.type == c.resDB.belt1.id && // is it a belt?
+                        nbEntity.done == false &&  // already processed?
+                        nbEntity.searching == false &&  // circular network?
+                        Math.abs(belt.dir - nbEntity.dir)!=2) // not heading to current belt
+                    {
+                        belt.searching = true;
+                        belt = nbEntity;
+                    } else break;
                 }
                 c.resDB.belt1.mach.update(c.game.map, belt, true);
             }
@@ -192,6 +201,7 @@
 
         for(let ibelt = 0; ibelt < belts.length; ibelt++) {
             belts[ibelt].done = false;
+            belts[ibelt].searching = false;
         }
 
         setTimeout(gameLoop, 20);

@@ -71,7 +71,9 @@ class Player {
         
         this.ss = {x:0, y:0};
         if (this.inv.stack.INV == undefined) this.inv.stack.INV = [];
-        this.inv.stack.INV.size = 64;
+        this.inv.stacksize = 1;
+        this.inv.packsize = {};
+        this.inv.packsize.INV = 64;
         this.workInterval = undefined;
         this.workProgress = 0;
         this.miningProgress;

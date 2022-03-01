@@ -23,6 +23,8 @@ class InserterBurner {
         let invThis = inventory.getInv(ent.pos.x, ent.pos.y, true);
         invThis.stack["INV"] = [];
         invThis.stacksize = 3;
+        invThis.packsize = {};
+        invThis.packsize.INV = 1;
     }
 
     update(map, ent){

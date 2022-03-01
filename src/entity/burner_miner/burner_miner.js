@@ -67,7 +67,7 @@ class BurnerMiner {
 
             // Shift output on next tile
 
-            if (output && targetFull == undefined) targetInv.addStackItem({id: output, n:1});
+            if (output && targetFull == undefined) targetInv.addItem({id: output, n:1});
 
         }
     }

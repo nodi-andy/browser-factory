@@ -33,12 +33,14 @@ class StoneFurnace {
         inv.packsize = 1;
         inv.itemsize = 50;
         inv.stack.FUEL = [];
-        inv.stack.FUEL.size = 1;
         inv.stack.INPUT = [];
-        inv.stack.INPUT.size = 1;
         inv.stack.OUTPUT = [];
-        inv.stack.OUTPUT.size = 1;
         inv.stacksize = 4;
+        inv.packsize = {};
+        inv.packsize.FUEL = 1;
+        inv.packsize.INPUT = 1;
+        inv.packsize.OUTPUT = 1;
+        inv.packsize.INV = 8;
         inv.state = 0;
         inv.lastTime = performance.now();
     }
@@ -56,7 +58,7 @@ class StoneFurnace {
                 let inItem = invThis.stack["INV"][0];
                 let targetSlot = "INPUT";
                 if (resName[inItem.id].E)  targetSlot = "FUEL";
-                invThis.addStackItem(inItem, targetSlot);
+                invThis.addItem(inItem, targetSlot);
                 delete invThis.stack["INV"];
             }
         }
