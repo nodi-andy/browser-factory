@@ -1,6 +1,9 @@
+// server start wss only: node server.js no-http wss
+
 // START HTTP(S) and WS(S)
 const express = require('express');
 const app = express();
+var https = require("https");
 
 const httpMode = process.argv[2];
 const wsMode = process.argv[3];
@@ -8,7 +11,6 @@ var port = parseInt(process.argv[4]);
 
 if (httpMode == "https") {
   // HTTPS and WSS
-  var https = require("https");
   var fs = require('fs');
   var options = {
     key: fs.readFileSync('../../mynodicom-privkey.pem'),
@@ -24,9 +26,11 @@ if (httpMode == "https") {
 }
 
 if(wsMode == "wss") {
+  port = 4000;
   var server = https.createServer(options, app);
   require('express-ws')(app, server);
-} else { // default ws
+} else if(wsMode == "ws") { // default ws
+  port = 4000;
   require('express-ws')(app);
 }
 
