@@ -11,10 +11,10 @@ class InserterBurner {
         db.size = [1, 1];
        if (typeof Image !== 'undefined') {
         let image = new Image(64, 64);
-        image.src =  c.resDB.inserter_burner.type + "./inserter_burner/inserter_platform.png";
+        image.src =  c.resDB.inserter_burner.type + "/inserter_burner/inserter_platform.png";
         c.resDB.inserter_burner.platform = image;
         image = new Image(64, 64);
-        image.src =  c.resDB.inserter_burner.type + "./inserter_burner/inserter_burner_hand.png";
+        image.src =  c.resDB.inserter_burner.type + "/inserter_burner/inserter_burner_hand.png";
         c.resDB.inserter_burner.hand = image;
        }
     }
