@@ -15,7 +15,7 @@ class Belt {
     ];
     if (typeof Image !== "undefined") {
       const image = new Image(512, 32);
-      image.src = "/src/" + c.resDB.belt1.type + "/belt1/belt1_anim.png";
+      image.src = "./src/" + c.resDB.belt1.type + "/belt1/belt1_anim.png";
       c.resDB.belt1.anim = image;
     }
   }

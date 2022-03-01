@@ -10,7 +10,7 @@ class StoneFurnace {
         db.type = "entity";
         if (typeof Image !== 'undefined') {
             const image = new Image(512, 32);
-            image.src =  "/src/" + db.type + "/stone_furnace/stone_furnace_64.png";
+            image.src =  "./src/" + db.type + "/stone_furnace/stone_furnace_64.png";
             db.anim1 = image;
         }
         db.size = [2, 2];

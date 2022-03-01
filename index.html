@@ -125,7 +125,7 @@
     // LOAD IMAGES
     Object.keys(resDB).forEach(key => {
             const image = new Image(tileSize, tileSize);
-            image.src =  "/src/" + resDB[key].type + "/" + key + "/" + key + ".png";
+            image.src =  "./src/" + resDB[key].type + "/" + key + "/" + key + ".png";
             resDB[key].img = image;
         }
     )

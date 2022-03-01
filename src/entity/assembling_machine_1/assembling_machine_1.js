@@ -10,7 +10,7 @@ class AssemblingMachine1 {
       db.mach = this;
       if (typeof Image !== 'undefined') {
         const image = new Image(512, 32);
-        image.src = "/src/" + db.type + "/assembling_machine_1/platform.png";
+        image.src = "./src/" + db.type + "/assembling_machine_1/platform.png";
         db.anim = image;
       }
       db.size = [3, 3];
