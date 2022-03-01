@@ -7,6 +7,8 @@ class BurnerMiner {
     constructor() {
        let db = c.resDB.burner_miner;
        db.mach = this;
+       db.type = "entity";
+       db.cost = [{res: c.resDB.stone_furnace, n: 1}, {res: c.resDB.iron_plate, n: 3}, {res: c.resDB.gear, n: 2}]
        if (typeof Image !== 'undefined') {
          const image = new Image(512, 32);
          image.src =  db.type + "/burner_miner/platform.png";

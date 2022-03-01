@@ -10,6 +10,7 @@ class Belt {
         db.mach = this;
         db.playerCanWalkOn = true;
         db.size = [1, 1];
+        db.cost = [{res: c.resDB.iron_plate, n: 1}, {res: c.resDB.gear, n: 1}]
        if (typeof Image !== 'undefined') {
         const image = new Image(512, 32);
         image.src =  c.resDB.belt1.type + "/belt1/belt1_anim.png";

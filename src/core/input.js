@@ -112,7 +112,7 @@ class InputModule {
         craftMenu.items.forEach  (b => {b.hover = b.collision(e); if (b.hover) { isOverlay = true; }})
         entityMenu.items.forEach  (b => {b.hover = b.collision(e); if (b.hover) { isOverlay = true; }})
         if (c.pointer) c.pointer.overlay = isOverlay;
-        receiptMenu.pos.x = mousePos.x;
+        receiptMenu.pos.x = mousePos.x + 16;
         receiptMenu.pos.y = mousePos.y;
 
         if (isOverlay == false) {

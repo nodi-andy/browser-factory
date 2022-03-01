@@ -41,14 +41,21 @@ class InserterBurner {
     
                 if (isHandFull == false || isHandFull == undefined) { // PICK
                     let item;
-                    if (invTo.need?.length) item = invTo.need[0];
-                    //if (item == undefined) item = invFrom.getFirstPack("OUTPUT");
+                    for (let ineed = 0; invTo.need && ineed < invTo.need.length; ineed++) {
+                        if (invFrom.hasItem(invTo.need[ineed])) {
+                            item = invTo.need[ineed];
+                            break;
+                        }
+                    }
+                    if (item == undefined) item = invFrom.getFirstPack("OUTPUT");
                     if (item?.n && (c.game.tick%64) == 0 && invFrom.moveItemTo({id:item.id, n:1}, invThis)) {
                         invThis.state = 1;
                     } else invThis.state = 0;
                 } else { // PLACE
-                    invThis.moveItemTo(invThis.stack.INV[0], invTo);
-                    invThis.state = 1;
+                    if (invThis.moveItemTo(invThis.stack.INV[0], invTo))
+                        invThis.state = 1;
+                    else
+                        invThis.state = 0;
                 } 
             }
         }
@@ -63,7 +70,8 @@ class InserterBurner {
 
         if (ent?.pos) {
             let invThis = inventory.getInv(ent.pos.x, ent.pos.y, true);
-
+            let isHandFull = (invThis?.stack?.INV && invThis.stack.INV[0] && invThis.stack.INV[0].n > 0);
+            if (isHandFull) armPos = 32
             if (invThis?.state == 1) armPos = Math.round(c.game.tick)%64
 
             ctx.translate(tileSize * 0.5, tileSize * 0.5);

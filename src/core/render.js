@@ -177,23 +177,27 @@ function render(){
         context.fillRect(receiptMenu.pos.x, receiptMenu.pos.y, receiptMenu.pos.w, receiptMenu.pos.h);
         context.font = "24px Arial";
         context.fillStyle = "black";
-        context.fillText(resName[receiptMenu.item.id].name, receiptMenu.pos.x + 6, receiptMenu.pos.y + 24);
+        let title = resName[receiptMenu.item.id].name;
+        if (resName[receiptMenu.item.id].lock) title += " (developing...)";
+        context.fillText(title, receiptMenu.pos.x + 6, receiptMenu.pos.y + 24);
         let dy = 0;
-        for(let costItem of resName[receiptMenu.item.id].cost) {
-            context.fillRect(receiptMenu.pos.x + 6, receiptMenu.pos.y + 64 + dy, 32, 32)
-            context.drawImage(costItem.res.img, receiptMenu.pos.x + 6, receiptMenu.pos.y + 64 + dy, 32, 32)
-            let missingItems = "";
-            if (receiptMenu.item.n == 0) {
-                let existing = c.player1.inv.getNumberOfItems(costItem.res.id);
-                if (existing < costItem.n) {
-                    missingItems = existing + " / ";
-                    context.fillStyle = "red";
-                } else  context.fillStyle = "black";
+        if (resName[receiptMenu.item.id].cost) {
+            for(let costItem of resName[receiptMenu.item.id].cost) {
+                context.fillRect(receiptMenu.pos.x + 6, receiptMenu.pos.y + 64 + dy, 32, 32)
+                context.drawImage(costItem.res.img, receiptMenu.pos.x + 6, receiptMenu.pos.y + 64 + dy, 32, 32)
+                let missingItems = "";
+                if (receiptMenu.item.n == 0) {
+                    let existing = c.player1.inv.getNumberOfItems(costItem.res.id);
+                    if (existing < costItem.n) {
+                        missingItems = existing + " / ";
+                        context.fillStyle = "red";
+                    } else  context.fillStyle = "black";
+                }
+                else         context.fillStyle = "black";
+                context.fillText(missingItems + costItem.n + "x " + costItem.res.name, receiptMenu.pos.x + 46, receiptMenu.pos.y + 84 + dy);
+                dy += 64;
+                receiptMenu.pos.h = dy + 100;
             }
-            else         context.fillStyle = "black";
-            context.fillText(missingItems + costItem.n + "x " + costItem.res.name, receiptMenu.pos.x + 46, receiptMenu.pos.y + 84 + dy);
-            dy += 64;
-            receiptMenu.pos.h = dy + 100;
         }
     }
 

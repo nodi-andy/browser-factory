@@ -44,10 +44,17 @@ class Button {
 
     drawItem(ctx) {
         if (this.item != undefined) {
-            if (this.img) {
+            if (this.img) { // special image
                 ctx.drawImage(this.img, this.screen.x, this.screen.y);
-            } else if (this.item.id && resName[this.item.id].img) {
+            } else if (this.item.id && resName[this.item.id].img) { // standard image
                 ctx.drawImage(resName[this.item.id].img, this.screen.x + 2, this.screen.y + 2);
+            }
+
+            if (resName[this.item.id].lock) {
+                ctx.beginPath();
+                ctx.fillStyle = "rgb(200, 100, 100, 0.3)";
+                ctx.rect(this.screen.x, this.screen.y, buttonSize, buttonSize);
+                ctx.fill();
             }
 
             if (this.item.n!= undefined) {
@@ -59,6 +66,7 @@ class Button {
     }
 
     onClick(button) {
+        if (this.item?.id && resName[this.item?.id].lock == 1) return;
         if (button == 1) {
             if (c.pointer?.item) {
                 let tempItem;

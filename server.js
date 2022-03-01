@@ -71,6 +71,7 @@ let player1 = new player.Player();
 let cityDB = [];
 
 c.player1 = player1;
+c.player1.setup();
 player1.inv.packsize = 64;
 player1.inv.itemsize = 20;
 
@@ -82,9 +83,8 @@ player1.inv.stack["INV"].push({id: c.resDB.raw_wood.id, n: 100});
 player1.inv.stack["INV"].push({id: c.resDB.coal.id, n: 50});
 player1.inv.stack["INV"].push({id: c.resDB.coal.id, n: 50});
 player1.inv.stack["INV"].push({id: c.resDB.coal.id, n: 50});
-/*player1.inv.stack["INV"].push({id: c.resDB.coal.id, n: 27});
 player1.inv.stack["INV"].push({id: c.resDB.iron_plate.id, n: 170});
-player1.inv.stack["INV"].push({id: c.resDB.copper_plate.id, n: 170});
+/*player1.inv.stack["INV"].push({id: c.resDB.copper_plate.id, n: 170});
 player1.inv.stack["INV"].push({id: c.resDB.stone_furnace.id, n: 7});*/
 player1.inv.stack["INV"].push({id: c.resDB.belt1.id, n: 1000});
 //player1.inv.stack["INV"].push({id: c.resDB.belt2.id, n: 100});

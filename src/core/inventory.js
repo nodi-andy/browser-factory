@@ -23,8 +23,12 @@ class Inventory {
 
     moveItemTo(item, to) {
       if (this.remStackItem({res: item, n: item.n})) {
-        to.addStackItem(item);
-        return true;
+        if(to.addStackItem(item)) {
+          return true;
+        } else {
+          this.addStackItem({res: item, n: item.n})
+          return false;
+        }
       }
       return false;
     }
@@ -50,6 +54,7 @@ class Inventory {
           }
           if (pack)
           { 
+            if (newItem.id == undefined) newItem.id = newItem.res.id;
             if (pack.id == undefined) pack.id = newItem.id;
             if (pack.id == newItem.id) {
               if (pack.n + newItem.n <= this.itemsize) {
@@ -146,24 +151,30 @@ class Inventory {
       return ret;
     }
 
-    hasStackItem(searchItem) {
+    hasItem(searchItem) {
       let keys = Object.keys(this.stack);
       for(let iStack = 0; iStack < keys.length && searchItem; iStack++) {
         let key = keys[iStack];
-        for(let iPack = 0; iPack < this.stack[key].length && searchItem; iPack++) {
-          let pack = this.stack[keys][iPack];
-          if (pack && pack.id == searchItem.res.id) { // Find the pack
-             return (pack.n >= searchItem.n);
+        if (Array.isArray(this.stack[key])) {
+          for(let iPack = 0; iPack < this.stack[key].length && searchItem; iPack++) {
+            let pack = this.stack[keys][iPack];
+            if (pack && pack.id == searchItem.res.id) { // Find the pack
+              return (pack.n >= searchItem.n);
+            }
+          }
+        } else {
+          if (this.stack[key] && this.stack[key].id == searchItem.id) { // Find the pack
+            return (this.stack[key].n >= searchItem.n);
           }
         }
       }
       return false;
     }
 
-    hasStackItems(searchItem) {
+    hasItems(searchItem) {
       let ret = true;
       for(let i = 0; i < searchItem.length; i++) {
-        ret = ret && this.hasStackItem(searchItem[i]);
+        ret = ret && this.hasItem(searchItem[i]);
       }
       return ret;
     }
@@ -226,7 +237,7 @@ function craftToInv(inv, items) {
       let itemsExist = true;
       for(let c = 0; c < item.cost.length && itemsExist; c++) {
           itemsExist = false;
-          itemsExist = inv.hasStackItems(item.cost);
+          itemsExist = inv.hasItems(item.cost);
       }
       if (itemsExist) { 
           let newItem = {id: item.id, n: 1} ;

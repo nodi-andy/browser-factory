@@ -112,7 +112,9 @@ class ViewModule {
             inv.itemsize = c.player1.inv.itemsize;
             let cost = resName[craftItem.item.id].cost;
             craftItem.item.n = 0;
-            while (inv.remStackItems(cost)) craftItem.item.n++; // how much can be build
+            if (cost) {
+                while (inv.remStackItems(cost)) craftItem.item.n++; // how much can be build
+            }
         }
     }
 }

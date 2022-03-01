@@ -7,6 +7,52 @@ if (typeof window === 'undefined') {
 class Player {
     constructor() {
        c.resDB.player.mach = this;
+       c.resDB.player.output = [
+           c.resDB.wood,
+           c.resDB.wooden_stick,
+           c.resDB.sharp_stone,
+           c.resDB.iron_stick,
+           c.resDB.gear,
+           c.resDB.hydraulic_piston,
+           c.resDB.copper_cable,
+           c.resDB.circuit,
+           c.resDB.stone_axe,
+           c.resDB.iron_axe,
+           c.resDB.gun,
+           c.resDB.rocket_launcher,
+           c.resDB.bullet,
+           c.resDB.rocket,
+           c.resDB.weak_armor,
+           c.resDB.strong_armor,
+           c.resDB.chest,
+           c.resDB.iron_chest,
+           c.resDB.stone_furnace,
+           c.resDB.burner_miner,
+           c.resDB.electrical_miner,
+           c.resDB.belt1,
+           c.resDB.belt2,
+           c.resDB.belt3,
+           c.resDB.inserter_burner,
+           c.resDB.inserter_short,
+           c.resDB.inserter,
+           c.resDB.inserter_long,
+           c.resDB.inserter_smart,
+           c.resDB.assembling_machine_1,
+           c.resDB.assembling_machine_2,
+           c.resDB.assembling_machine_3,
+           c.resDB.assembling_machine_4,
+           c.resDB.pump,
+           c.resDB.pipe,
+           c.resDB.boiler,
+           c.resDB.generator,
+           c.resDB.e_pole,
+           c.resDB.locomotive,
+           c.resDB.rail,
+           c.resDB.rail_curved,
+           c.resDB.asfalt,
+           c.resDB.turret,
+           c.resDB.laser_turret,
+           c.resDB.car]
     }
 
     setup(map, ent){
@@ -21,10 +67,11 @@ class Player {
         //if (c.allInvs.length == 0)
         this.invID = 0; //invfuncs.createInv();
         this.inv = c.allInvs[this.invID];
+        if (this.inv == undefined) this.inv = c.allInvs[invfuncs.createInv()];
         
         this.ss = {x:0, y:0};
         if (this.inv.stack.INV == undefined) this.inv.stack.INV = [];
-        this.inv.stacksize = 64;
+        this.inv.stack.INV.size = 64;
         this.workInterval = undefined;
         this.workProgress = 0;
         this.miningProgress;
