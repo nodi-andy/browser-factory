@@ -235,9 +235,7 @@ function craftToInv(inv, items) {
       if (itemsExist) { 
           let newItem = {id: item.id, n: 1} ;
           c.player1.inv.addItem(newItem);
-          for(let c = 0; c < item.cost.length; c++) {
-            inv.remStackItems(item.cost);
-          }
+          inv.remStackItems(item.cost);
           view.updateInventoryMenu(c.player1.inv);
       }
       return itemsExist;
@@ -283,11 +281,11 @@ function createInv() {
 
 function addEntity(newEntity, updateDir) {
   if(!newEntity) return;
-
+  let ent;
   let entID = c.game.map[newEntity.pos.x][newEntity.pos.y][c.layers.buildings];
   if (entID == undefined) {
     if (c.pointer.item.n > 0) {
-      let ent = new e.Entity(c.allEnts, newEntity.pos.x, newEntity.pos.y, newEntity.dir, newEntity.w, newEntity.h, newEntity.type);
+      ent = new e.Entity(c.allEnts, newEntity.pos.x, newEntity.pos.y, newEntity.dir, newEntity.w, newEntity.h, newEntity.type);
       c.game.map[newEntity.pos.x][newEntity.pos.y][c.layers.buildings] = ent.id;
       if (typeof window !== "undefined") view.updateInventoryMenu(c.player1.inv);
       c.pointer.item.n--;
@@ -297,7 +295,7 @@ function addEntity(newEntity, updateDir) {
       if (c.resName[newEntity.type].mach && c.resName[newEntity.type].mach.setup) c.resName[newEntity.type].mach.setup(c.game.map, newEntity);
     }
   }
-  
+  return ent.id;
   /*if (updateDir) {
     sendAll(JSON.stringify({msg:"updateEntities", data: c.allEnts}));
     sendAll(JSON.stringify({msg:"updateInventories", data: c.allInvs}));
