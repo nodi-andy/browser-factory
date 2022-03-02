@@ -100,7 +100,8 @@ var pointer; // Inventory on pointer
 var selEntity;
 var curResPos;
 var lastResPos;
-var canvas = undefined;
+var canvas;
+var player1;
 
 
 function item(type, n) {return {id: type, n: n}}
@@ -155,7 +156,7 @@ function showInventory(inv, forceUpdate = false) {
     for(let s of Object.keys(showStack)) {
         dx = 128;
         if (refresh) entityMenu.buttons[s] = [];
-        for(let stackPos = 0; stackPos < showStack[s].size; stackPos++) {
+        for(let stackPos = 0; stackPos < inv.packsize[s]; stackPos++) {
             let item = showStack[s][stackPos];
             let button;
             if (refresh) button = new Button(dx , dy, item, entityMenu, c.selEntity.inv);
@@ -187,6 +188,7 @@ exports.getNbOccur = getNbOccur;
 exports.worldToTile = worldToTile;
 exports.allInvs = allInvs;
 exports.allEnts = allEnts;
+exports.player1 = player1;
 
 exports.resName = resName;
 exports.dirToVec = dirToVec;
@@ -209,3 +211,4 @@ c.selEntity = selEntity;
 c.item = item;
 c.dirToVec = dirToVec;
 c.dirToAng = dirToAng;
+c.player1 = player1;
