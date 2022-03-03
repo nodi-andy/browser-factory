@@ -28,9 +28,12 @@ function render(){
                     b = c.allEnts[entID];
                 }
 
-                // PLAYER
-                if (c.player1.pos && ax-2 == Math.floor(c.player1.pos.x / tileSize) && ay-2 == Math.floor(c.player1.pos.y / tileSize)) {
-                    c.player1.draw(context);
+                // PLAYERS
+                for(let ient = 0; c.allMovableEntities && ient <  c.allMovableEntities.length; ient++) {
+                    let entity = c.allEnts[c.allMovableEntities[ient]];
+                    if (entity.pos && ax-2 == Math.floor(entity.pos.x / tileSize) && ay-2 == Math.floor(entity.pos.y / tileSize)) {
+                        c.player1.draw(context, entity);
+                    }
                 }
 
                 // context.fillStyle = "#03A062";

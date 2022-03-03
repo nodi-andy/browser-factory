@@ -6,8 +6,9 @@ let DEV = false;
 
 let buildDir = 0;
 
-
 const resDB = Object();
+
+resDB["player"]                  = {name: "player"      , type: "entity"};
 
 resDB["hills"]                  = {name: "hills"        , type: "terrain"};
 resDB["deepwater"]              = {name: "deep water"   , type: "terrain"};
@@ -101,6 +102,7 @@ var selEntity;
 var curResPos;
 var lastResPos;
 var canvas;
+var playerID;
 var player1;
 
 
@@ -176,6 +178,7 @@ function showInventory(inv, forceUpdate = false) {
 
 
 if (exports == undefined) var exports = {};
+exports.tileSize = tileSize;
 exports.resDB = resDB;
 exports.game = game;
 exports.resID = resID;
@@ -189,7 +192,7 @@ exports.worldToTile = worldToTile;
 exports.allInvs = allInvs;
 exports.allEnts = allEnts;
 exports.player1 = player1;
-
+exports.playerID = playerID;
 exports.resName = resName;
 exports.dirToVec = dirToVec;
 exports.item = item;
@@ -211,4 +214,4 @@ c.selEntity = selEntity;
 c.item = item;
 c.dirToVec = dirToVec;
 c.dirToAng = dirToAng;
-c.player1 = player1;
+c.playerID = playerID;

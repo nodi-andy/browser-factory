@@ -5,9 +5,9 @@ if (typeof window === 'undefined') {
 
 const users = new Map();
 
-function sendAll(message) {
+function sendAll(message, except) {
     users.forEach((val, key) => {
-        val.send(message);
+        if (except != key) val.ws.send(message);
     })
 }
   

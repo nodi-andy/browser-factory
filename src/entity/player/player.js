@@ -6,8 +6,9 @@ if (typeof window === 'undefined') {
 
 class Player {
     constructor() {
-       c.resDB.player.mach = this;
-       c.resDB.player.output = [
+        let db = c.resDB.player;
+        db.mach = this;
+        db.output = [
            c.resDB.wood,
            c.resDB.wooden_stick,
            c.resDB.sharp_stone,
@@ -56,35 +57,75 @@ class Player {
     }
 
     setup(map, ent){
-        this.tilePos = {x: c.gridSize.x/2, y: c.gridSize.y/2};
+        if (ent.tilePos == undefined) ent.tilePos = {x: c.gridSize.x/2, y: c.gridSize.y/2};
+        ent.pos = {x: ent.tilePos.x * c.tileSize, y: ent.tilePos.y * c.tileSize};
+        ent.dir = {x: 0, y:0};
+        ent.live = 100;
+        ent.nextPos = {x: 0, y: 0};
+        ent.type = c.resID.player;
 
-        this.pos = {x: this.tilePos.x * c.tileSize, y: this.tilePos.y * c.tileSize};
-        this.dir = {x: 0, y:0};
-        this.live = 100;
-        this.nextPos = {x: 400, y: 400};
-        this.type = c.resID.player;
-
-        //if (c.allInvs.length == 0)
-        this.invID = 0; //invfuncs.createInv();
-        this.inv = c.allInvs[this.invID];
-        if (this.inv == undefined) this.inv = c.allInvs[invfuncs.createInv()];
+        if (ent.invID == undefined) ent.invID = invfuncs.createInv();
+        ent.inv = c.allInvs[ent.invID];
         
-        this.ss = {x:0, y:0};
-        if (this.inv.stack.INV == undefined) this.inv.stack.INV = [];
-        this.inv.stacksize = 1;
-        this.inv.packsize = {};
-        this.inv.packsize.INV = 64;
-        this.workInterval = undefined;
-        this.workProgress = 0;
-        this.miningProgress;
+        ent.ss = {x:0, y:0};
+        if (ent.inv.stack.INV == undefined) ent.inv.stack.INV = [];
+        ent.inv.stacksize = 1;
+        ent.inv.packsize = {};
+        ent.inv.packsize.INV = 64;
+        ent.workInterval = undefined;
+        ent.workProgress = 0;
+        ent.miningProgress;
     }
 
     update(map, ent){
-        this.tilePos = worldToTile({x: this.pos.x, y: this.pos.y});
-        while(this.checkCollision(this.tilePos)) {
-            this.tilePos.x++;
-            this.pos = {x: this.tilePos.x * c.tileSize, y: this.tilePos.y * c.tileSize};
+        ent.tilePos = worldToTile({x: ent.pos.x, y: ent.pos.y});
+        while(this.checkCollision(ent.tilePos)) {
+            ent.tilePos.x++;
+            ent.pos = {x: ent.tilePos.x * c.tileSize, y: ent.tilePos.y * c.tileSize};
         }
+
+        if (game.map == undefined) return;
+        ent.unitdir = toUnitV(ent.dir);
+        let entTile = worldToTile({x: ent.pos.x, y: ent.pos.y});
+
+        ent.nextPos.x = ent.pos.x + 5 * ent.unitdir.x;
+        let nextXTile = worldToTile({x: ent.nextPos.x, y: ent.pos.y});
+        if (nextXTile.x > 0 && nextXTile.x < gridSize.x - 1 && this.checkCollision({x: nextXTile.x, y: entTile.y}) == false) ent.pos.x = ent.nextPos.x;
+
+        ent.nextPos.y = ent.pos.y + 5 * ent.unitdir.y;
+        let nextYTile = worldToTile({x: ent.pos.x, y: ent.nextPos.y});
+        if (nextYTile.y > 0 && nextYTile.y < gridSize.y - 1 && this.checkCollision({x: entTile.x, y: nextYTile.y}) == false) ent.pos.y = ent.nextPos.y;
+
+
+
+        if (ent.dir.x < 0) ent.ss.x--; else ent.ss.x++;
+        
+        if (ent.dir.y == -1 && ent.dir.x == -1) ent.ss.y = 5;
+        if (ent.dir.y == -1 && ent.dir.x == 0)  ent.ss.y = 0;
+        if (ent.dir.y == -1 && ent.dir.x == 1)  ent.ss.y = 1;
+        if (ent.dir.y == 0 && ent.dir.x == -1)  ent.ss.y = 6;
+        if (ent.dir.y == 0 && ent.dir.x == 1)   ent.ss.y = 2;
+        if (ent.dir.y == 1 && ent.dir.x == -1)  ent.ss.y = 7;
+        if (ent.dir.y == 1 && ent.dir.x == 0)   ent.ss.y = 4; 
+        if (ent.dir.y == 1 && ent.dir.x == 1)   ent.ss.y = 3;
+        
+        ent.ss.x += 30;
+        ent.ss.x %= 30;
+        if (ent.dir.x == 0 && ent.dir.y == 0) ent.ss.x = 5;
+
+        if (ent.pos && ent.id == c.playerID) {
+            let myMid = {}
+            myMid.x = ent.pos.x;
+            myMid.y = ent.pos.y - 66;
+            view.setCamOn(myMid);
+            if (ent.dir.x != 0 || ent.dir.y != 0)  ws.send(JSON.stringify({cmd: "updateEntity", data: {id: c.playerID, ent: c.allEnts[c.playerID]}}));
+        }
+
+        //console.log(ent.pos, entTile);
+    }
+
+    setDir(dir) {
+        if (dir.y) c.allEnts[c.playerID].dir.y = dir.y;
     }
 
     checkCollision(pos) {
@@ -100,52 +141,12 @@ class Player {
         return (terrain == resID.deepwater || terrain == resID.water || terrain == resID.hills || canWalkOn == false)
     }
 
-    loop() {
-        if (game.map == undefined) return;
-        this.unitdir = toUnitV(this.dir);
-        let thisTile = worldToTile({x: this.pos.x, y: this.pos.y});
-
-        this.nextPos.x = this.pos.x + 5 * this.unitdir.x;
-        let nextXTile = worldToTile({x: this.nextPos.x, y: this.pos.y});
-        if (nextXTile.x > 0 && nextXTile.x < gridSize.x - 1 && this.checkCollision({x: nextXTile.x, y: thisTile.y}) == false) this.pos.x = this.nextPos.x;
-
-        this.nextPos.y = this.pos.y + 5 * this.unitdir.y;
-        let nextYTile = worldToTile({x: this.pos.x, y: this.nextPos.y});
-        if (nextYTile.y > 0 && nextYTile.y < gridSize.y - 1 && this.checkCollision({x: thisTile.x, y: nextYTile.y}) == false) this.pos.y = this.nextPos.y;
-
-
-
-        if (this.dir.x < 0) this.ss.x--; else this.ss.x++;
-        
-        if (this.dir.y == -1 && this.dir.x == -1) this.ss.y = 5;
-        if (this.dir.y == -1 && this.dir.x == 0)  this.ss.y = 0;
-        if (this.dir.y == -1 && this.dir.x == 1)  this.ss.y = 1;
-        if (this.dir.y == 0 && this.dir.x == -1)  this.ss.y = 6;
-        if (this.dir.y == 0 && this.dir.x == 1)   this.ss.y = 2;
-        if (this.dir.y == 1 && this.dir.x == -1)  this.ss.y = 7;
-        if (this.dir.y == 1 && this.dir.x == 0)   this.ss.y = 4; 
-        if (this.dir.y == 1 && this.dir.x == 1)   this.ss.y = 3;
-        
-        this.ss.x += 30;
-        this.ss.x %= 30;
-        if (this.dir.x == 0 && this.dir.y == 0) this.ss.x = 5;
-
-        if (this.pos) {
-            let myMid = {}
-            myMid.x = this.pos.x;
-            myMid.y = this.pos.y - 66;
-            view.setCamOn(myMid);
-        }
-
-        //console.log(this.pos, thisTile);
-    }
-
     startMining(tileCoordinate) {
         this.workInterval = setInterval(function() { 
             let res = game.map[tileCoordinate.x][tileCoordinate.y][layers.res];
             mineToInv({source: tileCoordinate, id:res.id, n: 1});
         }, 1000);
-        var player = this;
+        var player = ent;
         this.miningProgress = setInterval(function() { player.workProgress += 10; player.workProgress %= 100}, 100);
     }
 
@@ -175,17 +176,17 @@ class Player {
         if (typeof window !== "undefined") view.updateInventoryMenu(this.inv);
     }
 
-    draw(ctx) {
+    draw(ctx, ent) {
         ctx.save();
-        ctx.translate(this.pos.x, this.pos.y);
-        ctx.drawImage(c.resDB.player.img, this.ss.x * 96, this.ss.y * 132, 96, 132, - 48, -100, 96, 132)
+        ctx.translate(ent.pos.x, ent.pos.y);
+        ctx.drawImage(c.resDB.player.img, ent.ss.x * 96, ent.ss.y * 132, 96, 132, - 48, -100, 96, 132)
         ctx.beginPath();
         ctx.fillStyle = "red";
         ctx.fillRect(-25,-120, 50, 10);
         ctx.fillStyle = "green";
-        ctx.fillRect(-25,-120, (this.live / 100) * 50, 10);
+        ctx.fillRect(-25,-120, (ent.live / 100) * 50, 10);
         ctx.fillStyle = "yellow";
-        ctx.fillRect(-25,-130, (this.workProgress / 100) * 50, 10);
+        ctx.fillRect(-25,-130, (ent.workProgress / 100) * 50, 10);
         ctx.restore();
     }
 }

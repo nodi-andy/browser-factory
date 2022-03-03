@@ -50,31 +50,12 @@ new belt.Belt();
 new inserter.Inserter();
 new stone_furnace.StoneFurnace();
 new chest.Chest();
-let player1 = new player.Player();
+c.player1 = new player.Player();
+c.allMovableEnts = [];
 //let personDB = [];
 let cityDB = [];
 
-c.player1 = player1;
-c.player1.setup();
-player1.inv.packsize = 64;
-player1.inv.itemsize = 1000;
 
-
-player1.inv.stack["INV"].push({id: c.resDB.stone.id, n: 100});
-player1.inv.stack["INV"].push({id: c.resDB.iron.id, n: 100});
-player1.inv.stack["INV"].push({id: c.resDB.copper.id, n: 100});
-player1.inv.stack["INV"].push({id: c.resDB.raw_wood.id, n: 100});
-player1.inv.stack["INV"].push({id: c.resDB.coal.id, n: 50});
-player1.inv.stack["INV"].push({id: c.resDB.coal.id, n: 50});
-player1.inv.stack["INV"].push({id: c.resDB.coal.id, n: 50});
-player1.inv.stack["INV"].push({id: c.resDB.iron_plate.id, n: 170});
-/*player1.inv.stack["INV"].push({id: c.resDB.copper_plate.id, n: 170});
-player1.inv.stack["INV"].push({id: c.resDB.stone_furnace.id, n: 7});*/
-player1.inv.stack["INV"].push({id: c.resDB.belt1.id, n: 1000});
-//player1.inv.stack["INV"].push({id: c.resDB.belt2.id, n: 100});
-
-c.allEnts.push(player1);
-player1.id = c.allEnts.length-1;
 
 let cityID = 0;
 addCity(cityID++, 50, 50, "c.game")
@@ -150,7 +131,7 @@ function addCity(nID, x, y, t) {
 
 
 function remFromInv(remItems) {
-  player1.inv.remItems(remItems);
+  c.player1.inv.remItems(remItems);
   updatePlayer();
 }
 
@@ -165,15 +146,15 @@ function addStack(add) {
 }
 
 function addToInv(newItem) {
-  for(let i = 0; i < player1.inv.packs.length && newItem; i++) {
-    let invObj = player1.inv.packs[i];
+  for(let i = 0; i < c.player1.inv.packs.length && newItem; i++) {
+    let invObj = c.player1.inv.packs[i];
     if (newItem.res && invObj.id == newItem.res.id) {
       if (newItem.n == undefined) newItem.n = 1;
       invObj.n += newItem.n;
       newItem = null;
     }
   }
-  if (newItem) player1.inv.packs.push({id: newItem.res.id, n: newItem.n});
+  if (newItem) c.player1.inv.packs.push({id: newItem.res.id, n: newItem.n});
   updatePlayer();
 }
 
@@ -197,46 +178,74 @@ function getCityById(searchID) {
 }
 
 function protocoll(ws, req) {
-  ws.uuid = randomUUID();
-  s.users.set(ws.uuid, ws);
-  if (s.users.size == 1) ws.player = player1;
- // if (users.size == 2) ws.player = player2;
+
+  let playerID;
+  for (var [key, value] of s.users) {
+    if (value.online == false) {
+      playerID = key;
+    }
+  }
+  if (playerID == undefined) {
+    let playerEnt = {};
+    c.player1.setup(undefined, playerEnt);
+    playerEnt.inv.packsize = 64;
+    playerEnt.inv.itemsize = 1000;
+    playerEnt.inv.stack["INV"].push({id: c.resDB.stone.id, n: 100});
+    playerEnt.inv.stack["INV"].push({id: c.resDB.iron.id, n: 100});
+    playerEnt.inv.stack["INV"].push({id: c.resDB.copper.id, n: 100});
+    playerEnt.inv.stack["INV"].push({id: c.resDB.raw_wood.id, n: 100});
+    playerEnt.inv.stack["INV"].push({id: c.resDB.coal.id, n: 50});
+    playerEnt.inv.stack["INV"].push({id: c.resDB.coal.id, n: 50});
+    playerEnt.inv.stack["INV"].push({id: c.resDB.coal.id, n: 50});
+    playerEnt.inv.stack["INV"].push({id: c.resDB.iron_plate.id, n: 170});
+    playerEnt.inv.stack["INV"].push({id: c.resDB.belt1.id, n: 1000});
+    playerEnt.movable = true;
+    c.allEnts.push(playerEnt);
+    playerEnt.id = c.allEnts.length - 1;
+
+    c.allMovableEnts.push(playerEnt.id);
+    playerID = c.allEnts.length - 1;
+  }
+
+  ws.playerID = playerID;
+
+  s.users.set(playerID, {ws: ws, online: true});
+
   ws.on('message', function(message) {
     let msg = JSON.parse(message);
-    if(msg.cmd == 'keydown' && msg.data == "KeyA") { move(player1.pos.x - 4, player1.pos.y + 0); }
-    if(msg.cmd == 'keydown' && msg.data == "KeyD") { move(player1.pos.x + 4, player1.pos.y + 0); }
-    if(msg.cmd == 'keydown' && msg.data == "KeyW") { move(player1.pos.x + 0, player1.pos.y - 4); }
-    if(msg.cmd == 'keydown' && msg.data == "KeyS") { move(player1.pos.x + 0, player1.pos.y + 4); }
-    if(msg.cmd == 'keydown' && msg.data == "Space") { addCity(cityID++, player1.pos.x, player1.pos.y) }
-    if(msg.cmd == 'keydown' && msg.data == "ArrowLeft") { 
-      //console.log("up:", c.game); 
-      c.game = getCityById(c.game.p);/* console.log(c.game);*/
-    }
-    if (msg.cmd == 'keydown' && msg.data == "ArrowRight") ws.player.dir = 5;
     if (msg.cmd == "addCity") addCity(cityID++, msg.data.x, msg.data.y, msg.data.type);
     if (msg.cmd == "updateEntities") c.allEnts = JSON.parse(JSON.stringify(msg.data));
     if (msg.cmd == "updateInventories") {
       c.allInvs = JSON.parse(JSON.stringify(msg.data));
     }
-    if (msg.cmd == "updatePlayerInv") {
-      c.player1.invID = msg.data;
+    if (msg.cmd == "updateMapData") {
+      c.game.map = JSON.parse(JSON.stringify(msg.data));
+      s.sendAll(JSON.stringify({msg:  "updateMapData", data: c.game.map}), ws.playerID);
     }
-    if (msg.cmd == "updateMapData") c.game.map = JSON.parse(JSON.stringify(msg.data));
-    if (msg.cmd == "camera") c.game.camera = msg.data.camera;
+    if (msg.cmd == "updateEntity") {
+      c.allEnts[msg.data.id] = JSON.parse(JSON.stringify(msg.data.ent));
+      s.sendAll(JSON.stringify({msg:  "updateEntity", data: {id: msg.data.id, ent: c.allEnts[msg.data.id]}}), ws.playerID);
+      console.log(msg.data);
+    } 
 
   });
   ws.on('close', function() {
-    if (ws.uuid) s.users.delete(ws.uuid);
+    if (ws.playerID != undefined) {
+      s.users.set(ws.playerID, {ws: ws, online: false});
+    }
   });
   ws.send(JSON.stringify({msg: "id" , data:JSON.stringify(ws.uuid)}));
   ws.send(JSON.stringify({msg: "updateMapData", data:c.game.map}));
   ws.send(JSON.stringify({msg: "updateInventories", data:c.allInvs}));
   ws.send(JSON.stringify({msg: "updateEntities", data: c.allEnts}));
-  ws.send(JSON.stringify({msg: "updatePlayerInv", data: player1.invID}));
+  s.sendAll(JSON.stringify({
+     msg: "updateEntity",
+     data: {id: playerID, ent: c.allEnts[playerID] }
+  }));
+  ws.send(JSON.stringify({msg: "setPlayerID", data: playerID}));
   ws.send(JSON.stringify({msg: "startGame"}));
 }
 wss.on("connection", protocoll);
-//app.ws('/browser-factorio', protocoll);
 
 
 
@@ -246,14 +255,14 @@ function move(x, y) {
   let gp = c.worldToTile({x:x, y:y});
 //  console.log(rmap[gp.x][gp.y]);
   if (c.game.map[gp.x][gp.y][0] != 1) {
-    player1.pos.x = x;
-    player1.pos.y = y;
+    c.player1.pos.x = x;
+    c.player1.pos.y = y;
 
     let dx,dy,d = false;
 
     for(let a = 0; a <= 2*Math.PI; a+=Math.PI/4) {
-      dx = Math.floor((player1.pos.x + Math.cos(a)*11) / 10);
-      dy = Math.floor((player1.pos.y + Math.sin(a)*11) / 10);
+      dx = Math.floor((c.player1.pos.x + Math.cos(a)*11) / 10);
+      dy = Math.floor((c.player1.pos.y + Math.sin(a)*11) / 10);
       d = d || discover(dx,dy);
     }
 
@@ -266,7 +275,7 @@ function move(x, y) {
 }
 
 function updatePlayer() {
-  s.sendAll(JSON.stringify({msg:"updatePlayer", data: player1}));
+  //s.sendAll(JSON.stringify({msg:"updatePlayer", data: c.player1}));
 }
 
 function discover(x,y) {

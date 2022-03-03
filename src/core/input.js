@@ -44,7 +44,7 @@ class InputModule {
             dragStart = worldCordinate;
             let tileCoordinate = worldToTile(worldCordinate);
             let res = game.map[tileCoordinate.x][tileCoordinate.y][layers.res];
-            let d = dist(c.player1.pos, worldCordinate);
+            let d = dist(c.allEnts[c.playerID].pos, worldCordinate);
             if (res?.id && d < 5*tileSize) c.player1.startMining(tileCoordinate);
 
             if (c.pointer?.item?.id) {

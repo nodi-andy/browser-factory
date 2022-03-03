@@ -5,9 +5,9 @@ function wssend(msg) {
     if (c.isBrowser) {
         let updateInv = false;
         if (msg.cmd == "addEntity") {
-            addEntity(msg.data, false);
+            let entID = addEntity(msg.data, false);
             updateInv = true; 
-            ws.send(JSON.stringify({cmd: "updateEntities", data: c.allEnts}));
+            ws.send(JSON.stringify({cmd: "updateEntity", data: {id: entID, ent: c.allEnts[entID]}}));
             ws.send(JSON.stringify({cmd: "updateMapData", data: c.game.map}));
         }
         if (msg.cmd == "addItem") {
@@ -61,17 +61,37 @@ ws.onmessage = function(e) {
 
     if (socketMsg.msg == "updateEntities") {
         c.allEnts = JSON.parse(JSON.stringify(socketMsg.data));
+        // Get all movable items
+        c.allMovableEntities = [];
+        for(let ient = 0; ient < c.allEnts.length; ient++) {
+            let entity = c.allEnts[ient];
+            if (entity.movable) c.allMovableEntities.push(ient);
+        }
     }
-    if (socketMsg.msg == "updatePlayer") {
-        c.player1.setInventory(socketMsg.data.inv);
-        //c.player1 = JSON.parse(JSON.stringify(socketMsg.data));
+
+    if (socketMsg.msg == "updateEntity") {
+        c.allEnts[socketMsg.data.id] = socketMsg.data.ent;
+        // Get all movable items
+        c.allMovableEntities = [];
+        for(let ient = 0; ient < c.allEnts.length; ient++) {
+            let entity = c.allEnts[ient];
+            if (entity.movable) c.allMovableEntities.push(ient);
+        }
+        //c.player1.setInventory(socketMsg.data.inv, socketMsg.data.invID);
     }
-    if (socketMsg.msg == "updatePlayerInv") {
-        c.player1.invID = socketMsg.data;
+    if (socketMsg.msg == "remEntity") {
+        delete c.allEnts[socketMsg.data];
+        // Get all movable items
+        c.allMovableEntities = [];
+        for(let ient = 0; ient < c.allEnts.length; ient++) {
+            let entity = c.allEnts[ient];
+            if (entity.movable) c.allMovableEntities.push(ient);
+        }
+        //c.player1.setInventory(socketMsg.data.inv, socketMsg.data.invID);
     }
     if (socketMsg.msg == "updateMapData") updateMapData(socketMsg.data);
     if (socketMsg.msg == "startGame") gameLoop();
-
+    if (socketMsg.msg == "setPlayerID") c.playerID = socketMsg.data;
     if (socketMsg.msg == "id") console.log("Received: '" + socketMsg.data + "'");
 };
 

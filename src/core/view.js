@@ -76,8 +76,8 @@ class ViewModule {
             {
                 this.camera.zoom = Math.min(this.zoomLimit.max, Math.max( newZoom, this.zoomLimit.min));
                 let myMid = {}
-                myMid.x = c.player1.pos.x;
-                myMid.y = c.player1.pos.y - 66;
+                myMid.x = c.allEnts[c.playerID].pos.x;
+                myMid.y = c.allEnts[c.playerID].pos.y - 66;
                 this.setCamOn(myMid);
             }
 
