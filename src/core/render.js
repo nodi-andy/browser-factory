@@ -13,7 +13,7 @@ function render(){
 
         // ENTITIES AND PLAYER
 
-        c.allEnts.forEach(e => {e.drawn = false;});
+        c.allEnts.forEach(e => {if (e) e.drawn = false;});
 
         let minTile = view.screenToTile({x: 0, y: 0});
         let maxTile = view.screenToTile({x: context.canvas.width, y: context.canvas.height});
@@ -21,20 +21,14 @@ function render(){
             for(let ax = minTile.x; ax < Math.min(maxTile.x + 2, gridSize.x); ax++) {
                 let tile = game.map[ax][ay];
 
-                // ENTITY
+                // ENTITIES
                 let entID = tile[layers.buildings];
                 let b;
                 if (entID != undefined) {
                     b = c.allEnts[entID];
                 }
 
-                // PLAYERS
-                for(let ient = 0; c.allMovableEntities && ient <  c.allMovableEntities.length; ient++) {
-                    let entity = c.allEnts[c.allMovableEntities[ient]];
-                    if (entity.pos && ax-2 == Math.floor(entity.pos.x / tileSize) && ay-2 == Math.floor(entity.pos.y / tileSize)) {
-                        c.player1.draw(context, entity);
-                    }
-                }
+
 
                 // context.fillStyle = "#03A062";
                 // context.font = "16px Arial";
@@ -93,23 +87,32 @@ function render(){
             }
         }
 
+        // ITEMS
         for(let ax = minTile.x; ax < Math.min(maxTile.x + 2, gridSize.x); ax++) {
             for(let ay = minTile.y; ay < Math.min(maxTile.y + 5, gridSize.y); ay++) {
                 let tile = game.map[ax][ay];
-                // ENTITY
-                let entID = tile[layers.buildings];
                 let b;
-                if (entID != undefined) {
-                    b = c.allEnts[entID];
+                if (tile[layers.buildings] != undefined) {
+                    b = c.allEnts[tile[layers.buildings]];
                 }
-                context.save();
-                context.translate((ax + 0.5) * tileSize, (ay + 0.5) *tileSize);
                 if (b?.type && resName[b.type] && resName[b.type]?.mach?.drawItems) {
-                    context.rotate(b.dir * Math.PI/2);
+                    // Build a tree for the belts
+                    //if (b.type == c.resDB.belt1.id) continue;
+                    context.save();
+                    context.translate((ax + 0.5) * tileSize, (ay + 0.5) *tileSize);
+                        context.rotate(b.dir * Math.PI/2);
                     context.translate(-tileSize / 2, -tileSize / 2);
                     resName[b.type].mach.drawItems(context, b);
+                    context.restore();
                 }
-                context.restore();
+                
+                // PLAYERS
+                for(let ient = 0; c.allMovableEntities && ient <  c.allMovableEntities.length; ient++) {
+                    let entity = c.allEnts[c.allMovableEntities[ient]];
+                    if (entity.pos && ax-2 == Math.floor(entity.pos.x / tileSize) && ay-2 == Math.floor(entity.pos.y / tileSize)) {
+                        c.player1.draw(context, entity);
+                    }
+                }
             }
         }
 
@@ -119,20 +122,20 @@ function render(){
     
     // ENTITY CANDIDATE
     if (c.pointer?.item && c.pointer.overlay == false) {
-        let type = resName[c.pointer.item.id];
-        if (type) {
-            let size = type.size;
+        let item = resName[c.pointer.item.id];
+        if (item) {
+            let size = item.size;
             if (size == undefined) size = [1, 1];
             context.save();
 
             context.translate(curResPos.x * tileSize, curResPos.y * tileSize);
 
             context.translate(size[0] / 2 * tileSize, size[1] / 2 * tileSize);
-            context.rotate(buildDir * Math.PI/2);
+            if (item.type == "entity" && item.rotatable != false) context.rotate(buildDir * Math.PI/2);
             context.translate(-size[0] / 2 * tileSize, -size[1] / 2 * tileSize);
 
-            if (type.mach?.draw) type.mach.draw(context, c.pointer.item);
-            else context.drawImage(type.img, 0, 0);
+            if (item.mach?.draw) item.mach.draw(context, c.pointer.item);
+            else context.drawImage(item.img, 0, 0);
             context.restore();
         }
     }
@@ -142,54 +145,68 @@ function render(){
     context.resetTransform();
     receiptMenu.item = undefined;
 
-    beltMenu.items.forEach(b => b.draw(context));
-
     // INVENTORY MENU
     if (invMenu.vis) {
         invMenu.items.forEach(b => b.draw(context));
     }
 
 
-    // ENTITY MENU
-    if(entityMenu.vis) {
+    // CRAFTING/ENTITY/SELECT ITEM MENU
+    if(selectItemMenu.vis) {  // SELECT ITEM MENU
         let dy = 96;
         context.beginPath();
         context.fillStyle = "rgba(150, 150, 150, 0.95)";
-        context.fillRect(entityMenu.pos.x , entityMenu.pos.y, entityMenu.w , entityMenu.h);
+        context.fillRect(selectItemMenu.rect.x , selectItemMenu.rect.y, selectItemMenu.rect.w , selectItemMenu.rect.h);
+        selectItemMenu.items.forEach(b => b.draw(context));
+    } else if(entityMenu.vis) {
+        let dy = 96;
+        context.beginPath();
+        context.fillStyle = "rgba(150, 150, 150, 0.95)";
+        context.fillRect(entityMenu.rect.x , entityMenu.rect.y, entityMenu.rect.w , entityMenu.rect.h);
         context.font = "24px Arial";
         context.fillStyle = "black";
-        context.fillText(resName[c.allEnts[c.selEntity.entID].type].name, entityMenu.pos.x + 16, entityMenu.pos.y + 32);
-        let selInv = c.allInvs[c.selEntity.invID]//inventory.getInv(selPos.x, selPos.y);
+        context.fillText(resName[c.allEnts[c.selEntity.entID].type].name, entityMenu.rect.x + 16, entityMenu.rect.y + 32);
+        let selInv = c.allInvs[c.selEntity.invID];
         if (selInv) {
+            if (selInv.prod) {
+                context.font = "24px Arial";
+                context.fillStyle = "black";
+                context.fillText("PROD", entityMenu.rect.x + 16, entityMenu.rect.y + dy);
+                entityMenu.buttons.PROD[0].draw(context);
+                dy += buttonSize;
+            }
+
             for(f in selInv.stack) {
                 context.font = "24px Arial";
                 context.fillStyle = "black";
-                context.fillText(JSON.stringify(f).replaceAll('"', ''), craftMenu.pos.x + 16, craftMenu.pos.y + dy);
+                context.fillText(JSON.stringify(f).replaceAll('"', ''), entityMenu.rect.x + 16, entityMenu.rect.y + dy);
                 if (entityMenu.buttons[f]) {
                     entityMenu.buttons[f].forEach(b => {b.draw(context)});
                 }
-                dy += 64;
+                dy += buttonSize;
             }
+            entityMenu.rect.h = dy + 16;
+
         }
     } else if (craftMenu.vis) {
         craftMenu.items.forEach(b => b.draw(context));
-    }
+    } 
 
     // RECEIPT MENU
     if (receiptMenu.item) {
         context.beginPath();
         context.fillStyle = "rgba(150, 150, 0, 0.95)";
-        context.fillRect(receiptMenu.pos.x, receiptMenu.pos.y, receiptMenu.pos.w, receiptMenu.pos.h);
+        context.fillRect(receiptMenu.rect.x, receiptMenu.rect.y, receiptMenu.rect.w, receiptMenu.rect.h);
         context.font = "24px Arial";
         context.fillStyle = "black";
         let title = resName[receiptMenu.item.id].name;
         if (resName[receiptMenu.item.id].lock) title += " (developing...)";
-        context.fillText(title, receiptMenu.pos.x + 6, receiptMenu.pos.y + 24);
+        context.fillText(title, receiptMenu.rect.x + 6, receiptMenu.rect.y + 24);
         let dy = 0;
         if (resName[receiptMenu.item.id].cost) {
             for(let costItem of resName[receiptMenu.item.id].cost) {
-                context.fillRect(receiptMenu.pos.x + 6, receiptMenu.pos.y + 64 + dy, 32, 32)
-                context.drawImage(costItem.res.img, receiptMenu.pos.x + 6, receiptMenu.pos.y + 64 + dy, 32, 32)
+                context.fillRect(receiptMenu.rect.x + 6, receiptMenu.rect.y + 64 + dy, 32, 32)
+                context.drawImage(costItem.res.img, receiptMenu.rect.x + 6, receiptMenu.rect.y + 64 + dy, 32, 32)
                 let missingItems = "";
                 if (receiptMenu.item.n == 0) {
                     let existing = c.player1.inv.getNumberOfItems(costItem.res.id);
@@ -199,14 +216,14 @@ function render(){
                     } else  context.fillStyle = "black";
                 }
                 else         context.fillStyle = "black";
-                context.fillText(missingItems + costItem.n + "x " + costItem.res.name, receiptMenu.pos.x + 46, receiptMenu.pos.y + 84 + dy);
+                context.fillText(missingItems + costItem.n + "x " + costItem.res.name, receiptMenu.rect.x + 46, receiptMenu.rect.y + 84 + dy);
                 dy += 64;
-                receiptMenu.pos.h = dy + 100;
+                receiptMenu.rect.h = dy + 100;
             }
         }
     }
 
-
+    // CONTENT MENU
     if (curResPos && game.map) {
         let inv = inventory.getInv(curResPos.x, curResPos.y);
         let res = game.map[curResPos.x][curResPos.y][layers.res];
@@ -223,11 +240,11 @@ function render(){
             context.stroke();
         }
 
-        // CONTENT MENU
+
         context.save();
         context.beginPath();
         context.fillStyle = "rgba(150, 150, 190, 0.75)";
-        let menuPos = {x: canvas.width - 200, y: canvas.height / 2 - 100}
+        let menuPos = {x: canvas.width - 200, y: 0}
         context.translate(menuPos.x, menuPos.y);
         context.fillRect(0, 0, 200 , 100);
         context.font = "24px Arial";
@@ -242,15 +259,15 @@ function render(){
     
     // POINTER ITEM
     if (c.pointer?.item && c.pointer.overlay) {
-        let type = c.pointer.item?.id;
-        if (type) {
+        let item = c.pointer.item?.id;
+        if (item) {
             context.save();
             context.translate(mousePos.x, mousePos.y);
-            context.rotate(buildDir * Math.PI/2);
+            if (item.type == "entity" && item.rotatable != false) context.rotate(buildDir * Math.PI/2);
             context.translate(-tileSize / 2, -tileSize / 2);
-            if (resName[type]?.mach?.draw) resName[type].mach.draw(context, c.pointer.item);
+            if (resName[item]?.mach?.draw) resName[item].mach.draw(context, c.pointer.item);
             else {
-                context.drawImage(resName[type].img, 0, 0);
+                context.drawImage(resName[item].img, 0, 0);
                 if (c.pointer.item.n!= undefined) {
                     ctx.font = "24px Arial";
                     ctx.fillStyle = "white";
@@ -260,6 +277,7 @@ function render(){
             context.restore();
         }
     }
+    
     // FPS
     const now = performance.now();
     while (times.length > 0 && times[0] <= now - 1000) {
