@@ -2,7 +2,7 @@ const tileSize = 64;
 const gridSize = {x: 160, y: 90}
 const buttonSize = 68;
 
-let DEV = false;
+let DEV = true;
 
 let buildDir = 0;
 
@@ -62,7 +62,7 @@ resDB["inserter_short"]         = {name: "short inserter"          ,  type: "ent
 resDB["inserter"]               = {name: "inserter"          ,  type: "entity", cost: [{res: resDB.coal, n: 2}], lock: 1};
 resDB["inserter_long"]          = {name: "long inserter"          ,  type: "entity", cost: [{res: resDB.coal, n: 2}], lock: 1};
 resDB["inserter_smart"]         = {name: "smart inserter"          ,  type: "entity", cost: [{res: resDB.coal, n: 2}], lock: 1};
-resDB["assembling_machine_1"]   = {name: "assembling machine 1"          , type: "entity", lock: 1};
+resDB["assembling_machine_1"]   = {name: "assembling machine 1"          , type: "entity", cost: [{res: resDB.coal, n: 2}]};
 resDB["assembling_machine_2"]   = {name: "assembling machine 2"          , type: "entity", lock: 1};
 resDB["assembling_machine_3"]   = {name: "assembling machine 3"          , type: "entity", lock: 1};
 resDB["assembling_machine_4"]   = {name: "assembling machine 4"          , type: "entity", lock: 1};
@@ -137,43 +137,6 @@ function getNbOccur(arr, val) {
     }
 
     return occurs;
-}
-
-
-function showInventory(inv, forceUpdate = false) {
-    if (inv == undefined) return;
-    let showStack = inv.stack;
-  
-    entityMenu.vis = true;
-    let init = entityMenu.invID != inv.id;
-    var refresh = init || forceUpdate;
-    entityMenu.invID = inv.id;
-    if (refresh) {
-        entityMenu.buttons = {};
-        entityMenu.items = [];
-    }
-
-    let dx = 200;
-    let dy = 64;
-    for(let s of Object.keys(showStack)) {
-        dx = 128;
-        if (refresh) entityMenu.buttons[s] = [];
-        for(let stackPos = 0; stackPos < inv.packsize[s]; stackPos++) {
-            let item = showStack[s][stackPos];
-            let button;
-            if (refresh) button = new Button(dx , dy, item, entityMenu, c.selEntity.inv);
-            else button = entityMenu.buttons[s][stackPos];
-            dx += buttonSize;
-            button.invKey = s;
-            button.stackPos = stackPos;
-            button.item = item;
-
-            if (refresh) entityMenu.items.push(button);
-            if (refresh) entityMenu.buttons[s].push(button);
-
-        }
-        dy += buttonSize;
-    }
 }
 
 

@@ -34,6 +34,16 @@ class Inventory {
       return false;
     }
 
+    getFilledStackSize() {
+      let ret = 0;
+      let keys = Object.keys(this.stack);
+      for(let iStack = 0; iStack < keys.length; iStack++) {
+        let key = keys[iStack];
+        if (this.stack[key].id || this.stack[key][0]?.id) ret++;
+      }
+      return ret;
+    }
+
     addItem(newItem, stackName) {
       if (newItem == undefined) return false;
       if (stackName == undefined) stackName = "INV";
@@ -41,7 +51,7 @@ class Inventory {
       if (this.stacksize == undefined) this.stacksize = 1;
 
       if (this.stack[stackName] == undefined) {
-        if (keys.length < this.stacksize)  this.stack[stackName] = [];
+        if (this.getFilledStackSize() < this.stacksize)  this.stack[stackName] = [];
         else return false;
       }
 
@@ -197,7 +207,14 @@ class Inventory {
       if (pref && this.stack[pref]) key = pref;
       else  {
         let keys = Object.keys(this.stack);
-        if(keys.length) key = keys[0];
+        if(keys.length) {
+          for(let iStack = 0; iStack < keys.length; iStack++) {
+            key = keys[iStack];
+            if (this.stack[key].id || this.stack[key][0]?.id) {
+              break;
+            }
+          }
+        } 
       }
       let pack = this.stack[key];
       if (Array.isArray(pack)) pack = pack[0];
@@ -295,7 +312,7 @@ function addEntity(newEntity, updateDir) {
       if (c.resName[newEntity.type].mach && c.resName[newEntity.type].mach.setup) c.resName[newEntity.type].mach.setup(c.game.map, newEntity);
     }
   }
-  return ent.id;
+  if (ent) return ent.id;
   /*if (updateDir) {
     sendAll(JSON.stringify({msg:"updateEntities", data: c.allEnts}));
     sendAll(JSON.stringify({msg:"updateInventories", data: c.allInvs}));
@@ -329,7 +346,7 @@ function moveStack(data) {
   c.allInvs[data.fromInvID].stack[data.fromInvKey][data.fromStackPos] = undefined;
   //s.sendAll(JSON.stringify({msg:"updateInv", data:c.allInvs}));
   if (data.fromInvID == 0 || data.toInvID == 0) c.player1.setInventory(c.allInvs[0]);
-  if (data.fromInvID == c.selEntity?.inv.id || data.toInvID == c.selEntity?.inv.id) showInventory(c.selEntity.inv);
+  if (data.fromInvID == c.selEntity?.inv.id || data.toInvID == c.selEntity?.inv.id) view.updateInventoryMenu(c.selEntity.inv);
 }
 
 if (exports == undefined) var exports = {};

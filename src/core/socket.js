@@ -50,7 +50,7 @@ ws.onmessage = function(e) {
         c.player1.setInventoryID(0);
         if (c.selEntity) {
             let inv = socketMsg.data[c.selEntity.invID];
-            showInventory(inv);
+            view.updateInventoryMenu(inv);
         }
     }
 

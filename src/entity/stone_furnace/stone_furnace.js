@@ -15,6 +15,7 @@ class StoneFurnace {
         }
         db.size = [2, 2];
         db.cost = [{res: c.resDB.stone, n: 5}];
+        db.rotatable = false;
     }
 
     setup(map, ent) {

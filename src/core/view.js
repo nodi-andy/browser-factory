@@ -1,9 +1,8 @@
-
-var beltMenu = {items:[], pos: {x: 0, y: 0, w: 0, h:0}, vis: true};
-var invMenu = {items:[], pos: {x: 0, y: 0, w: 0, h:0}, vis: false};
-var craftMenu = {items:[], pos: {x: 0, y: 0, w: 0, h:0}, vis: false};
-var entityMenu = {items:[], pos: {x: 0, y: 0}, w: 600, h:300, vis: false};
-var receiptMenu = {item: undefined, items:[], pos: {x: 0, y: 0, w: 300, h:50}, vis: false};
+var invMenu = new Dialog();
+var craftMenu = new Dialog();
+var entityMenu = new Dialog();
+var receiptMenu = new Dialog();
+var selectItemMenu = new Dialog();
 
 class ViewModule {
     constructor(windowElement) {
@@ -46,10 +45,26 @@ class ViewModule {
     resize() {
         canvas.width  = window.innerWidth;
         canvas.height = window.innerHeight;
-        beltMenu.pos = {x:canvas.width / 2 - 300, y:canvas.height - tileSize};
-        invMenu.pos = {x:canvas.width / 2 - buttonSize * 8, y:canvas.height / 2 - buttonSize * 4};
-        craftMenu.pos = {x:canvas.width / 2 + buttonSize / 2, y:canvas.height / 2 - buttonSize * 4};
-        entityMenu.pos = {x:canvas.width / 2 + buttonSize / 2, y:canvas.height / 2 - buttonSize * 4};
+        invMenu.rect.x = canvas.width / 2 - buttonSize * 8;
+        invMenu.rect.y = canvas.height / 2 - buttonSize * 4;
+
+        craftMenu.rect.x = canvas.width / 2 + buttonSize / 2;
+        craftMenu.rect.y = canvas.height / 2 - buttonSize * 4;
+        craftMenu.rect.w = 8 * buttonSize;
+        craftMenu.rect.h = 8 * buttonSize;
+
+        entityMenu.rect.x = craftMenu.rect.x;
+        entityMenu.rect.y = craftMenu.rect.y;
+        entityMenu.rect.w = craftMenu.rect.w;
+        entityMenu.rect.h = craftMenu.rect.h;
+        
+        receiptMenu.rect.w = craftMenu.rect.w / 2;
+        receiptMenu.rect.h = craftMenu.rect.h;
+
+        selectItemMenu.rect.x = craftMenu.rect.x;
+        selectItemMenu.rect.y = craftMenu.rect.y;
+        selectItemMenu.rect.w = craftMenu.rect.w;
+        selectItemMenu.rect.h = craftMenu.rect.h;
     }
 
     screenToWorld(p) { 
@@ -84,6 +99,41 @@ class ViewModule {
             //ws.send(JSON.stringify({cmd: "camera", data: camera}));
         }
     }
+
+    // CRAFT MENU
+    updateCraftingMenu() {
+        let items = resDB.player.output;
+        let pos = 0;
+        items.forEach(i => {
+            let newButton = new Button ((pos % 8) * (buttonSize), Math.floor(pos/8) * (buttonSize), {id: i.id, n: 0} , craftMenu);
+            newButton.onClick = () => {
+                if (resName[i.id].lock == undefined) craftToInv(c.player1.inv, [i]);
+            };
+            newButton.type = "craft";
+            craftMenu.items.push(newButton)
+            pos++;
+            if (newButton.x + newButton.w > craftMenu.rect.w) craftMenu.rect.w = newButton.x + newButton.w;
+            if (newButton.y + newButton.h > craftMenu.rect.h) craftMenu.rect.h = newButton.y + newButton.h;
+        });
+    }
+
+    // SELECT ITEM MENU
+    updateSelectItemMenu(ent) {
+        let items = c.resName[c.allEnts[ent.entID].type].output;
+        let pos = 0;
+        items.forEach(i => {
+            let newButton = new Button ((pos % 8) * (buttonSize), Math.floor(pos/8) * (buttonSize), {id: i} , selectItemMenu);
+            newButton.onClick = () => {
+                c.selEntity.prod = this.item.id;
+                c.selEntity.vis = false;
+            };
+            selectItemMenu.items.push(newButton)
+            pos++;
+            if (newButton.x + newButton.w > selectItemMenu.rect.w) selectItemMenu.rect.w = newButton.x + newButton.w;
+            if (newButton.y + newButton.h > selectItemMenu.rect.h) selectItemMenu.rect.h = newButton.y + newButton.h;
+        });
+    }
+
     updateInventoryMenu(inv) {
         let pack = inv.stack["INV"];
 
@@ -115,6 +165,61 @@ class ViewModule {
             if (cost) {
                 while (inv.remStackItems(cost)) craftItem.item.n++; // how much can be build
             }
+        }
+    }
+
+    updateEntityMenu(inv, forceUpdate = false) {
+        if (inv == undefined) return;
+        let showStack = inv.stack;
+      
+        entityMenu.vis = true;
+        let init = entityMenu.invID != inv.id;
+        var refresh = init || forceUpdate;
+        entityMenu.invID = inv.id;
+        if (refresh) {
+            entityMenu.buttons = {};
+            entityMenu.items = [];
+        }
+    
+        let dx = 128;
+        let dy = 64;
+        if (inv.prod) {
+            let button;
+            if (refresh) {
+                entityMenu.buttons.PROD = [];
+                button = new Button(dx , dy, undefined, entityMenu, c.selEntity.inv);
+                button.onClick = () => {
+                    view.updateSelectItemMenu(c.selEntity);
+                    selectItemMenu.vis = true;
+                }
+                dy += buttonSize;
+            } else button = entityMenu.buttons.PROD;
+            button.invKey = "PROD";
+            button.stackPos = 0;
+            button.item = item;
+    
+            if (refresh) entityMenu.items.push(button);
+            if (refresh) entityMenu.buttons.PROD.push(button);
+        }
+    
+        for(let s of Object.keys(showStack)) {
+            dx = 128;
+            if (refresh) entityMenu.buttons[s] = [];
+            for(let stackPos = 0; stackPos < inv.packsize[s]; stackPos++) {
+                let item = showStack[s][stackPos];
+                let button;
+                if (refresh) button = new Button(dx , dy, item, entityMenu, c.selEntity.inv);
+                else button = entityMenu.buttons[s][stackPos];
+                dx += buttonSize;
+                button.invKey = s;
+                button.stackPos = stackPos;
+                button.item = item;
+    
+                if (refresh) entityMenu.items.push(button);
+                if (refresh) entityMenu.buttons[s].push(button);
+    
+            }
+            dy += buttonSize;
         }
     }
 }

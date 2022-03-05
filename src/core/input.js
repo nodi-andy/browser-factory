@@ -33,69 +33,77 @@ class InputModule {
     onPointerDown(e)
     {
         let overlayClicked = false;
-        beltMenu.items.forEach  (b => {if (b.collision(e)) { overlayClicked = true; }})
         invMenu.items.forEach   (b => {if (b.collision(e)) { overlayClicked = true; }})
         craftMenu.items.forEach (b => {if (b.collision(e)) { overlayClicked = true; }})
         entityMenu.items.forEach (b => {if (b.collision(e)) { overlayClicked = true; }})
         
         if (overlayClicked == false) {
             let worldCordinate = view.screenToWorld(getEventLocation(e));
-
-            dragStart = worldCordinate;
             let tileCoordinate = worldToTile(worldCordinate);
-            let res = game.map[tileCoordinate.x][tileCoordinate.y][layers.res];
-            let d = dist(c.allEnts[c.playerID].pos, worldCordinate);
-            if (res?.id && d < 5*tileSize) c.player1.startMining(tileCoordinate);
+            if (e.buttons == 1) {
 
-            if (c.pointer?.item?.id) {
-                c.pointer.type = resName[c.pointer.item.id].type;
-                if (c.pointer.type == "entity") {
-                    wssend({cmd: "addEntity", data: {pos: {x: tileCoordinate.x, y: tileCoordinate.y}, dir: buildDir, type: c.pointer.item.id}});
+                dragStart = worldCordinate;
+                let res = game.map[tileCoordinate.x][tileCoordinate.y][layers.res];
+                let d = dist(c.allEnts[c.playerID].pos, worldCordinate);
+                if (res?.id && d < 5*tileSize) c.player1.startMining(tileCoordinate, c.allEnts[c.playerID]);
+
+                if (c.pointer?.item?.id) {
+                    c.pointer.type = resName[c.pointer.item.id].type;
+                    if (c.pointer.type == "entity") {
+                        wssend({cmd: "addEntity", data: {pos: {x: tileCoordinate.x, y: tileCoordinate.y}, dir: buildDir, type: c.pointer.item.id}});
+                    } else {
+                        wssend({cmd: "addItem", data: {pos: tileCoordinate, dir: buildDir, inv: {item: c.pointer.item}}});
+                    }
+                    isDragStarted = false;
+                    isBuilding = true;
                 } else {
-                    wssend({cmd: "addItem", data: {pos: tileCoordinate, dir: buildDir, inv: {item: c.pointer.item}}});
+                    isDragStarted = true;
+                    isBuilding = false;
                 }
-                isDragStarted = false;
-                isBuilding = true;
-            } else {
-                isDragStarted = true;
-                isBuilding = false;
-            }
-            
+            } else if (e.buttons == 2) {
+                let ent = game.map[tileCoordinate.x][tileCoordinate.y][layers.buildings];
+                let inv = game.map[tileCoordinate.x][tileCoordinate.y][layers.inv];
+                if (inv) c.allInvs[inv] = undefined
+                if (ent) c.allEnts[ent] = undefined;
+                game.map[tileCoordinate.x][tileCoordinate.y][layers.buildings] = null;
+                game.map[tileCoordinate.x][tileCoordinate.y][layers.inv] = null;
+            }            
         }
     }
 
 
     onPointerUp(e) {
-        c.player1.stopMining();
+        c.player1.stopMining(c.allEnts[c.playerID]);
 
         let overlayClicked = false;
-        beltMenu.items.forEach  (b => {if (b.collision(e) && b.onClick) { b.onClick(e.which); overlayClicked = true; }})
         invMenu.items.forEach   (b => {if (b.collision(e) && b.onClick) { b.onClick(e.which); overlayClicked = true; }})
         craftMenu.items.forEach (b => {if (b.collision(e) && b.onClick) { b.onClick(e.which); overlayClicked = true; }})
         entityMenu.items.forEach (b => {if (b.collision(e) && b.onClick) { b.onClick(e.which); overlayClicked = true; }})
+        selectItemMenu.items.forEach (b => {if (b.collision(e) && b.onClick) { b.onClick(e.which); overlayClicked = true; }})
 
         let worldPos = view.screenToWorld({x: e.offsetX, y: e.offsetY});
         let tilePos = worldToTile(worldPos);
         let entity = inventory.getEnt(tilePos.x, tilePos.y);
         
         if (overlayClicked == false) {
+            if (e.buttons == 0) {
+                // SHOW ENTITY
+                if (c.pointer?.item?.id == undefined && entity) {
+                    let invID = inventory.getInv(tilePos.x, tilePos.y).id;
+                    c.selEntity = {entID: entity.id, inv: c.allInvs[invID], invID: invID};
 
-            // SHOW ENTITY
-            if (c.pointer?.item == undefined && entity) {
-                let invID = inventory.getInv(tilePos.x, tilePos.y).id;
-                c.selEntity = {entID: entity.id, inv: c.allInvs[invID], invID: invID};
+                    view.updateEntityMenu(c.selEntity.inv, true);
 
-                showInventory(c.selEntity.inv, true);
+                    if (entity) {entityMenu.vis = invMenu.vis = true; craftMenu.vis = false; }
+                    else {entityMenu.vis = invMenu.vis = false; craftMenu.vis = true;}
+                }
 
-                if (entity) {entityMenu.vis = invMenu.vis = true; craftMenu.vis = false; }
-                else {entityMenu.vis = invMenu.vis = false; craftMenu.vis = true;}
+                if (entity == undefined) entityMenu.vis = false;
+
+                isDragging = false;
+                dragStart = undefined;
+                isBuilding = false;
             }
-
-            if (entity == undefined) entityMenu.vis = false;
-
-            isDragging = false;
-            dragStart = undefined;
-            isBuilding = false;
         }
     }
 
@@ -107,13 +115,12 @@ class InputModule {
         mousePos.y =  pointer.y;
 
         let isOverlay = false;
-        beltMenu.items.forEach (b => {b.hover = b.collision(e); if (b.hover) { isOverlay = true; }})
         invMenu.items.forEach  (b => {b.hover = b.collision(e); if (b.hover) { isOverlay = true; }})
         craftMenu.items.forEach  (b => {b.hover = b.collision(e); if (b.hover) { isOverlay = true; }})
         entityMenu.items.forEach  (b => {b.hover = b.collision(e); if (b.hover) { isOverlay = true; }})
         if (c.pointer) c.pointer.overlay = isOverlay;
-        receiptMenu.pos.x = mousePos.x + 16;
-        receiptMenu.pos.y = mousePos.y;
+        receiptMenu.rect.x = mousePos.x + 16;
+        receiptMenu.rect.y = mousePos.y;
 
         if (isOverlay == false) {
             let tileCoordinate = view.screenToTile(mousePos);

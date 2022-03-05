@@ -63,6 +63,7 @@ class Player {
         ent.live = 100;
         ent.nextPos = {x: 0, y: 0};
         ent.type = c.resID.player;
+        ent.movable = true;
 
         if (ent.invID == undefined) ent.invID = invfuncs.createInv();
         ent.inv = c.allInvs[ent.invID];
@@ -72,9 +73,21 @@ class Player {
         ent.inv.stacksize = 1;
         ent.inv.packsize = {};
         ent.inv.packsize.INV = 64;
+        ent.inv.itemsize = 1000;
         ent.workInterval = undefined;
         ent.workProgress = 0;
         ent.miningProgress;
+
+        /*playerEnt.inv.stack["INV"].push({id: c.resDB.stone.id, n: 100});
+        playerEnt.inv.stack["INV"].push({id: c.resDB.iron.id, n: 100});
+        playerEnt.inv.stack["INV"].push({id: c.resDB.copper.id, n: 100});
+        playerEnt.inv.stack["INV"].push({id: c.resDB.raw_wood.id, n: 100});
+        playerEnt.inv.stack["INV"].push({id: c.resDB.coal.id, n: 50});
+        playerEnt.inv.stack["INV"].push({id: c.resDB.coal.id, n: 50});
+        playerEnt.inv.stack["INV"].push({id: c.resDB.coal.id, n: 50});
+        playerEnt.inv.stack["INV"].push({id: c.resDB.iron_plate.id, n: 170});
+        playerEnt.inv.stack["INV"].push({id: c.resDB.belt1.id, n: 1000});*/
+        
     }
 
     update(map, ent){
@@ -118,7 +131,14 @@ class Player {
             myMid.x = ent.pos.x;
             myMid.y = ent.pos.y - 66;
             view.setCamOn(myMid);
-            if (ent.dir.x != 0 || ent.dir.y != 0)  ws.send(JSON.stringify({cmd: "updateEntity", data: {id: c.playerID, ent: c.allEnts[c.playerID]}}));
+            if (ent.dir.x != 0 || ent.dir.y != 0) {
+                ent.needUpdate = true;
+            } else {
+                ws.send(JSON.stringify({cmd: "updateEntity", data: {id: c.playerID, ent: c.allEnts[c.playerID]}}));
+                ent.needUpdate = false;
+            }
+            if (ent.needUpdate) ws.send(JSON.stringify({cmd: "updateEntity", data: {id: c.playerID, ent: c.allEnts[c.playerID]}}));
+
         }
 
         //console.log(ent.pos, entTile);
@@ -141,19 +161,18 @@ class Player {
         return (terrain == resID.deepwater || terrain == resID.water || terrain == resID.hills || canWalkOn == false)
     }
 
-    startMining(tileCoordinate) {
+    startMining(tileCoordinate, ent) {
         this.workInterval = setInterval(function() { 
             let res = game.map[tileCoordinate.x][tileCoordinate.y][layers.res];
             mineToInv({source: tileCoordinate, id:res.id, n: 1});
         }, 1000);
-        var player = ent;
-        this.miningProgress = setInterval(function() { player.workProgress += 10; player.workProgress %= 100}, 100);
+        this.miningProgress = setInterval(function() { ent.workProgress += 10; ent.workProgress %= 100}, 100);
     }
 
-    stopMining() {
+    stopMining(ent) {
         clearInterval(this.workInterval);
         clearInterval(this.miningProgress);
-        this.workProgress = 0;
+        ent.workProgress = 0;
     }
 
     setInventory(newInv, newID){

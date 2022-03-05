@@ -11,6 +11,7 @@
 <html><canvas id="myCanvas" style = "display:block;border:none; margin:0"></canvas></html>
 <script type="text/javascript" src='src/server/perlin.js'></script>
 <script type="text/javascript" src ="src/common.js"></script>
+<script type="text/javascript" src ="src/core/dialog.js"></script>
 <script type="text/javascript" src ="src/core/inventory.js"></script>
 <script type="text/javascript" src ="src/core/entity.js"></script>
 <script type="text/javascript" src ="src/server/localserver.js"></script>
@@ -28,16 +29,18 @@
 <script type="text/javascript" src ="src/entity/burner_miner/burner_miner.js"></script>
 <script type="text/javascript" src ="src/entity/inserter_burner/inserter_burner.js"></script>
 <script type="text/javascript" src ="src/entity/stone_furnace/stone_furnace.js"></script>
+<script type="text/javascript" src ="src/entity/assembling_machine_1/assembling_machine_1.js"></script>
 <script type="text/javascript">
 
-    
     canvas = document.getElementById("myCanvas");
     let context = canvas.getContext("2d");
     canvas.width  = window.innerWidth;
     canvas.height = window.innerHeight;
 
+    let inp = new InputModule (context.canvas);
+    let view = new ViewModule (window);
 
-    var selCity     = undefined;
+
     
     c.player1 = new Player();
     c.pointer = {};
@@ -48,6 +51,7 @@
     new BurnerMiner();
     new InserterBurner();
     new StoneFurnace();
+    new AssemblingMachine1();
 
     // INV MENU
     for (let i = 0; i < 8; i++) {
@@ -57,24 +61,7 @@
         }
     }
 
-    // CRAFT MENU
-    let items = resDB.player.output;
-    let pos = 0;
-    items.forEach(i => {
-        let newButton = new Button ((pos % 8) * (buttonSize), Math.floor(pos/8) * (buttonSize), {id: i.id, n: 0} , craftMenu);
-        newButton.onClick = () => {
-            if (resName[i.id].lock == undefined) craftToInv(c.player1.inv, [i]);
-        };
-        newButton.type = "craft";
-        craftMenu.items.push(newButton)
-        pos++;
-        if (newButton.x + newButton.w > craftMenu.w) craftMenu.w = newButton.x + newButton.w;
-        if (newButton.y + newButton.h > craftMenu.h) craftMenu.h = newButton.y + newButton.h;
-    })
-
-    // BELT MENU
-    beltMenu.vis = true;
-
+    view.updateCraftingMenu();
 
     function getCityById(searchID) {
         for (let i = 0; i < city.w.length; i++) {
@@ -118,8 +105,7 @@
     document.addEventListener("keyup", onKeyUp);
 
     context.canvas.oncontextmenu = function (e) {e.preventDefault();};
-    let inp = new InputModule (context.canvas);
-    let view = new ViewModule (window);
+
 
 
     // LOAD IMAGES
@@ -157,7 +143,7 @@
         for(let ient = 0; ient < c.allEnts.length; ient++) {
             let entity = c.allEnts[ient];
             if (!entity) continue;
-            if(entity.type == c.resDB.belt1.id) continue;
+            if(entity?.type == c.resDB.belt1.id) continue;
             if(c.resName[entity.type].mach) {
             c.resName[entity.type].mach.update(c.game.map, entity);
             }
@@ -166,7 +152,7 @@
         let belts = [];
         for(let ient = 0; ient < c.allEnts.length; ient++) {
             let entity = c.allEnts[ient];
-            if (entity.type == c.resDB.belt1.id) belts.push(entity);
+            if (entity?.type == c.resDB.belt1.id) belts.push(entity);
         }
 
         for(let ibelt = 0; ibelt < belts.length;) {
@@ -183,7 +169,7 @@
                     let nbEntity = c.allEnts[nbTile[c.layers.buildings]];
                     if (nbEntity?.type == c.resDB.belt1.id && // is it a belt?
                         nbEntity.done == false &&  // already processed?
-                        nbEntity.searching == false &&  // circular network?
+                        (nbEntity.searching == false || nbEntity.searching == undefined) &&  // circular network?
                         Math.abs(belt.dir - nbEntity.dir)!=2) // not heading to current belt
                     {
                         belt.searching = true;

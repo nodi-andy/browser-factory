@@ -188,18 +188,7 @@ function protocoll(ws, req) {
   if (playerID == undefined) {
     let playerEnt = {};
     c.player1.setup(undefined, playerEnt);
-    playerEnt.inv.packsize = 64;
-    playerEnt.inv.itemsize = 1000;
-    playerEnt.inv.stack["INV"].push({id: c.resDB.stone.id, n: 100});
-    playerEnt.inv.stack["INV"].push({id: c.resDB.iron.id, n: 100});
-    playerEnt.inv.stack["INV"].push({id: c.resDB.copper.id, n: 100});
-    playerEnt.inv.stack["INV"].push({id: c.resDB.raw_wood.id, n: 100});
-    playerEnt.inv.stack["INV"].push({id: c.resDB.coal.id, n: 50});
-    playerEnt.inv.stack["INV"].push({id: c.resDB.coal.id, n: 50});
-    playerEnt.inv.stack["INV"].push({id: c.resDB.coal.id, n: 50});
-    playerEnt.inv.stack["INV"].push({id: c.resDB.iron_plate.id, n: 170});
-    playerEnt.inv.stack["INV"].push({id: c.resDB.belt1.id, n: 1000});
-    playerEnt.movable = true;
+
     c.allEnts.push(playerEnt);
     playerEnt.id = c.allEnts.length - 1;
 
@@ -223,9 +212,11 @@ function protocoll(ws, req) {
       s.sendAll(JSON.stringify({msg:  "updateMapData", data: c.game.map}), ws.playerID);
     }
     if (msg.cmd == "updateEntity") {
-      c.allEnts[msg.data.id] = JSON.parse(JSON.stringify(msg.data.ent));
-      s.sendAll(JSON.stringify({msg:  "updateEntity", data: {id: msg.data.id, ent: c.allEnts[msg.data.id]}}), ws.playerID);
-      console.log(msg.data);
+      if (msg.data.ent) {
+        c.allEnts[msg.data.id] = JSON.parse(JSON.stringify(msg.data.ent));
+        s.sendAll(JSON.stringify({msg:  "updateEntity", data: {id: msg.data.id, ent: c.allEnts[msg.data.id]}}), ws.playerID);
+        console.log(msg.data);
+      }
     } 
 
   });

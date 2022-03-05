@@ -22,26 +22,44 @@ class Belt {
 
   setup(map, ent) {
     let invThis = inventory.getInv(ent.pos.x, ent.pos.y, true);
-    invThis.stacksize = 5;
+    invThis.stacksize = 8;
     invThis.packsize = {};
     invThis.packsize.INV = 1;
+
+    if (invThis.stack.LA == undefined) invThis.stack.LA = {};
+    if (invThis.stack.LB == undefined) invThis.stack.LB = {};
+    if (invThis.stack.LC == undefined) invThis.stack.LC = {};
+    if (invThis.stack.LD == undefined) invThis.stack.LD = {};
+    if (invThis.stack.RA == undefined) invThis.stack.RA = {};
+    if (invThis.stack.RB == undefined) invThis.stack.RB = {};
+    if (invThis.stack.RC == undefined) invThis.stack.RC = {};
+    if (invThis.stack.RD == undefined) invThis.stack.RD = {};
   }
 
   shift(from, itfrom, to, itto, deciding) {
-    if (
-      (to.stack[itto] == undefined ||
-        (to.stack[itto] && to.stack[itto].moving)) &&
-      from.stack[itfrom]
-    ) {
+    //if (from.stack[itfrom] == undefined) return;
+    if (from.stack[itfrom]?.id == undefined) {
+      if (from.stack[itfrom]) {
+        from.stack[itfrom].moving = false;
+        from.stack[itfrom].reserved = false;
+      }
+      return;
+    }
+    if ( to.stack[itto]?.reserved == false || to.stack[itto]?.reserved == undefined || deciding == false)
+    {
       if (deciding) {
         from.stack[itfrom].moving = true;
+        to.stack[itto].reserved = true;
       } else {
         if (from.stack[itfrom].moving) {
           to.stack[itto] = from.stack[itfrom];
           to.stack[itto].moving = false;
-          delete from.stack[itfrom];
+          from.stack[itfrom] = {};
         }
       }
+    } else {
+      from.stack[itfrom].moving = false;
+      from.stack[itfrom].reserved = true;
     }
   }
 
@@ -52,7 +70,41 @@ class Belt {
     if (invThis == undefined) return;
     let movingParts = c.game.tick % 8 == 0;
     let decidingMoving = (c.game.tick - 1) % 8 == 0;
+
+
     if (movingParts || decidingMoving) {
+
+      if (invThis.stack.LA == undefined) invThis.stack.LA = {};
+      if (invThis.stack.LB == undefined) invThis.stack.LB = {};
+      if (invThis.stack.LC == undefined) invThis.stack.LC = {};
+      if (invThis.stack.LD == undefined) invThis.stack.LD = {};
+      if (invThis.stack.RA == undefined) invThis.stack.RA = {};
+      if (invThis.stack.RB == undefined) invThis.stack.RB = {};
+      if (invThis.stack.RC == undefined) invThis.stack.RC = {};
+      if (invThis.stack.RD == undefined) invThis.stack.RD = {};
+  
+      if (decidingMoving) {
+        invThis.stack.LA.reserved = false;
+        invThis.stack.LB.reserved = false;
+        invThis.stack.LC.reserved = false;
+        invThis.stack.LD.reserved = false;
+        invThis.stack.RA.reserved = false;
+        invThis.stack.RB.reserved = false;
+        invThis.stack.RC.reserved = false;
+        invThis.stack.RD.reserved = false;
+
+        invThis.stack.LA.moving = false;
+        invThis.stack.LB.moving = false;
+        invThis.stack.LC.moving = false;
+        invThis.stack.LD.moving = false;
+        invThis.stack.RA.moving = false;
+        invThis.stack.RB.moving = false;
+        invThis.stack.RC.moving = false;
+        invThis.stack.RD.moving = false;
+      }
+
+      //if (invThis.getFilledStackSize() == 0) return;
+
       let beltThis = inventory.getEnt(ent.pos.x, ent.pos.y);
       let nbPos = c.dirToVec[ent.dir];
       let beltFrom = inventory.getEnt(ent.pos.x - nbPos.x, ent.pos.y - nbPos.y);
@@ -89,21 +141,21 @@ class Belt {
       let invTo = inventory.getInv(ent.pos.x + nbPos.x, ent.pos.y + nbPos.y);
 
       if (invThis.stack.INV) {
-        if (invThis.stack.LA == undefined)
+        if (invThis.stack.LA?.id == undefined)
           invThis.stack.LA = invThis.stack.INV[0];
-        else if (invThis.stack.RA == undefined)
+        else if (invThis.stack.RA?.id == undefined)
           invThis.stack.RA = invThis.stack.INV[0];
-        else if (invThis.stack.LB == undefined)
+        else if (invThis.stack.LB?.id == undefined)
           invThis.stack.LB = invThis.stack.INV[0];
-        else if (invThis.stack.RB == undefined)
+        else if (invThis.stack.RB?.id == undefined)
           invThis.stack.RB = invThis.stack.INV[0];
-        else if (invThis.stack.LC == undefined)
+        else if (invThis.stack.LC?.id == undefined)
           invThis.stack.LC = invThis.stack.INV[0];
-        else if (invThis.stack.RC == undefined)
+        else if (invThis.stack.RC?.id == undefined)
           invThis.stack.RC = invThis.stack.INV[0];
-        else if (invThis.stack.LD == undefined)
+        else if (invThis.stack.LD?.id == undefined)
           invThis.stack.LD = invThis.stack.INV[0];
-        else if (invThis.stack.RD == undefined)
+        else if (invThis.stack.RD?.id == undefined)
           invThis.stack.RD = invThis.stack.INV[0];
         delete invThis.stack.INV;
       }
@@ -123,14 +175,17 @@ class Belt {
           this.shift(invThis, "LA", invTo, "LA", decidingMoving);
           this.shift(invThis, "RA", invTo, "LB", decidingMoving);
         }
+      } else { // No next belt
+        if (invThis.stack.LA?.id) invThis.stack.LA.reserved = true; else invThis.stack.LA.reserved = false
+        if (invThis.stack.RA?.id) invThis.stack.RA.reserved = true; else invThis.stack.RA.reserved = false
       }
       // SHIFT ON THE BELT
-      this.shift(invThis, "LD", invThis, "LC", decidingMoving);
-      this.shift(invThis, "LC", invThis, "LB", decidingMoving);
       this.shift(invThis, "LB", invThis, "LA", decidingMoving);
-      this.shift(invThis, "RD", invThis, "RC", decidingMoving);
-      this.shift(invThis, "RC", invThis, "RB", decidingMoving);
+      this.shift(invThis, "LC", invThis, "LB", decidingMoving);
+      this.shift(invThis, "LD", invThis, "LC", decidingMoving);
       this.shift(invThis, "RB", invThis, "RA", decidingMoving);
+      this.shift(invThis, "RC", invThis, "RB", decidingMoving);
+      this.shift(invThis, "RD", invThis, "RC", decidingMoving);
 
       if (beltFrom && beltFrom.type != c.resDB.belt1.id) beltFrom = undefined;
       if (beltFrom && beltFrom.done == false) this.update(map, beltFrom);
@@ -152,7 +207,7 @@ class Belt {
       let pos = 0;
       let xpos = 0.6;
       let dx = -0.25;
-      if (invThis.stack.LA) {
+      if (invThis.stack.LA?.id) {
         if (invThis.stack.LA.moving) pos = beltPos;
         else pos = 0;
         ctx.drawImage(
@@ -168,7 +223,7 @@ class Belt {
         );
       }
 
-      if (invThis.stack.RA) {
+      if (invThis.stack.RA?.id) {
         if (invThis.stack.RA.moving) pos = beltPos;
         else pos = 0;
         ctx.drawImage(
@@ -184,7 +239,7 @@ class Belt {
         );
       }
       xpos += dx;
-      if (invThis.stack.LB) {
+      if (invThis.stack.LB?.id) {
         if (invThis.stack.LB.moving) pos = beltPos;
         else pos = 0;
         ctx.drawImage(
@@ -200,7 +255,7 @@ class Belt {
         );
       }
 
-      if (invThis.stack.RB) {
+      if (invThis.stack.RB?.id) {
         if (invThis.stack.RB.moving) pos = beltPos;
         else pos = 0;
         ctx.drawImage(
@@ -217,7 +272,7 @@ class Belt {
       }
 
       xpos += dx;
-      if (invThis.stack.LC) {
+      if (invThis.stack.LC?.id) {
         if (invThis.stack.LC.moving) pos = beltPos;
         else pos = 0;
         ctx.drawImage(
@@ -233,7 +288,7 @@ class Belt {
         );
       }
 
-      if (invThis.stack.RC) {
+      if (invThis.stack.RC?.id) {
         if (invThis.stack.RC.moving) pos = beltPos;
         else pos = 0;
         ctx.drawImage(
@@ -250,7 +305,7 @@ class Belt {
       }
 
       xpos += dx;
-      if (invThis.stack.LD) {
+      if (invThis.stack.LD?.id) {
         if (invThis.stack.LD.moving) pos = beltPos;
         else pos = 0;
         ctx.drawImage(
@@ -266,7 +321,7 @@ class Belt {
         );
       }
 
-      if (invThis.stack.RD) {
+      if (invThis.stack.RD?.id) {
         if (invThis.stack.RD.moving) pos = beltPos;
         else pos = 0;
         ctx.drawImage(

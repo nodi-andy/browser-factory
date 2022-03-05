@@ -10,19 +10,19 @@ class Button {
         this.stackPos = 0;
         this.parent = parent;
         this.hover = false;
-        if (this.parent) this.screen = {x: this.parent.pos.x + this.x, y: this.parent.pos.y + this.y}
+        if (this.parent) this.screen = {x: this.parent.rect.x + this.x, y: this.parent.rect.y + this.y}
         else this.screen = {x: 0, y: 0}
     }
 
     collision(p) {
         if (this.parent == undefined) return false;
-        if (this.parent.vis == false || this.screen.x < this.parent.pos.x || this.screen.x > (this.parent.pos.x + this.parent.w)) return false;
+        if (this.parent.vis == false || this.screen.x < this.parent.rect.x || this.screen.x > (this.parent.rect.x + this.parent.w)) return false;
         return this.parent.vis && (p.x >= this.screen.x && p.y >= this.screen.y && p.x <= this.screen.x + this.w && p.y <= this.screen.y + this.h)
     }
 
     draw(ctx) {
         if (this.parent.vis == false) return;
-        if (this.parent) this.screen = {x: this.parent.pos.x + this.x, y: this.parent.pos.y + this.y}
+        if (this.parent) this.screen = {x: this.parent.rect.x + this.x, y: this.parent.rect.y + this.y}
         else this.screen = {x: 0, y: 0}
         ctx.beginPath();
 
@@ -77,28 +77,37 @@ class Button {
                         tempItem = this.item;
                         this.inv.remPack(this.invKey, this.stackPos);
                     }
-                    this.inv.addPack(this.invKey, this.stackPos, c.pointer.item);
+                    if (c.pointer.item) {
+                        this.inv.addPack(this.invKey, this.stackPos, c.pointer.item);
+                    }
                 }
                 if (tempItem?.n) c.pointer.item = tempItem;
                 else c.pointer.item = undefined;
             } else {
+                c.pointer.inv = this.inv;
+                c.pointer.invKey = this.invKey;
                 c.pointer.item = {id:this.item?.id, n: this.item?.n};
                 this.inv.remPack(this.invKey, this.stackPos);
             }
-            view.updateInventoryMenu(c.player1.inv);
-            if (c.selEntity?.inv) showInventory(c.selEntity.inv, true);
         } else if (button == 3) {
             c.pointer.button = this;
             if (c.pointer.item) {
                 let transfer = Math.round(c.pointer.item.n / 2)
                 c.pointer.item.n -= transfer;
-                c.pointer.button.item.n += transfer;
+                if (c.pointer.button?.item?.n) {
+                    c.pointer.button.item.n += transfer;
+                } else {
+                    let item = {id: c.pointer.item.id, n: transfer};
+                    c.pointer.inv.addItem(item)
+                }
             } else {
                 c.pointer.item = {id:this.item?.id, n: this.item?.n};
                 c.pointer.item.n = Math.round(c.pointer.item.n / 2);
                 this.item.n = this.item.n - c.pointer.item.n;
             }
         }
+        view.updateInventoryMenu(c.player1.inv);
+        if (c.selEntity?.inv) view.updateEntityMenu(c.selEntity.inv, true);
     };
 
   }
