@@ -107,7 +107,7 @@ class ViewModule {
         items.forEach(i => {
             let newButton = new Button ((pos % 8) * (buttonSize), Math.floor(pos/8) * (buttonSize), {id: i.id, n: 0} , craftMenu);
             newButton.onClick = () => {
-                if (resName[i.id].lock == undefined) craftToInv(c.player1.inv, [i]);
+                if (resName[i.id].lock == undefined) craftToInv(c.player.inv, [i]);
             };
             newButton.type = "craft";
             craftMenu.items.push(newButton)
@@ -142,24 +142,24 @@ class ViewModule {
         for (let i = 0; i < pack.length; i++) {
             let item = pack[i];
             invMenu.items[i].item = item;
-            invMenu.items[i].inv = c.player1.inv;
+            invMenu.items[i].inv = c.player.inv;
             invMenu.items[i].invKey = "INV";
             invMenu.items[i].stackPos = i;
         }
 
         for (let i = pack.length; i < invMenu.items.length; i++) {
             invMenu.items[i].item = undefined
-            invMenu.items[i].inv = c.player1.inv;
+            invMenu.items[i].inv = c.player.inv;
             invMenu.items[i].invKey = "INV";
             invMenu.items[i].stackPos = i;
         }
 
         for(let craftItem of craftMenu.items ) {
             let inv = new Inventory();
-            inv.stack = JSON.parse(JSON.stringify(c.player1.inv.stack));
+            inv.stack = JSON.parse(JSON.stringify(c.player.inv.stack));
             inv.stack.INV.size = 64;
-            inv.packsize = c.player1.inv.packsize;
-            inv.itemsize = c.player1.inv.itemsize;
+            inv.packsize = c.player.inv.packsize;
+            inv.itemsize = c.player.inv.itemsize;
             let cost = resName[craftItem.item.id].cost;
             craftItem.item.n = 0;
             if (cost) {

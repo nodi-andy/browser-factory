@@ -9,7 +9,7 @@ function render(){
     context.translate(view.camera.x, view.camera.y); //console.log(camera);
     context.drawImage(canvas.offScreenCanvas,0,0);
 
-    if (game.map) {
+    if (c.game.map) {
 
         // ENTITIES AND PLAYER
 
@@ -19,7 +19,7 @@ function render(){
         let maxTile = view.screenToTile({x: context.canvas.width, y: context.canvas.height});
         for(let ay = minTile.y; ay < Math.min(maxTile.y + 5, gridSize.y); ay++) {
             for(let ax = minTile.x; ax < Math.min(maxTile.x + 2, gridSize.x); ax++) {
-                let tile = game.map[ax][ay];
+                let tile = c.game.map[ax][ay];
 
                 // ENTITIES
                 let entID = tile[layers.buildings];
@@ -90,7 +90,7 @@ function render(){
         // ITEMS
         for(let ax = minTile.x; ax < Math.min(maxTile.x + 2, gridSize.x); ax++) {
             for(let ay = minTile.y; ay < Math.min(maxTile.y + 5, gridSize.y); ay++) {
-                let tile = game.map[ax][ay];
+                let tile = c.game.map[ax][ay];
                 let b;
                 if (tile[layers.buildings] != undefined) {
                     b = c.allEnts[tile[layers.buildings]];
@@ -109,8 +109,8 @@ function render(){
                 // PLAYERS
                 for(let ient = 0; c.allMovableEntities && ient <  c.allMovableEntities.length; ient++) {
                     let entity = c.allEnts[c.allMovableEntities[ient]];
-                    if (entity.pos && ax-2 == Math.floor(entity.pos.x / tileSize) && ay-2 == Math.floor(entity.pos.y / tileSize)) {
-                        c.player1.draw(context, entity);
+                    if (entity.pos && ax-2 == entity.tilePos.x && ay-2 == entity.tilePos.y) {
+                        c.playerClass.draw(context, entity);
                     }
                 }
             }
@@ -209,7 +209,7 @@ function render(){
                 context.drawImage(costItem.res.img, receiptMenu.rect.x + 6, receiptMenu.rect.y + 64 + dy, 32, 32)
                 let missingItems = "";
                 if (receiptMenu.item.n == 0) {
-                    let existing = c.player1.inv.getNumberOfItems(costItem.res.id);
+                    let existing = c.player.inv.getNumberOfItems(costItem.res.id);
                     if (existing < costItem.n) {
                         missingItems = existing + " / ";
                         context.fillStyle = "red";
@@ -224,9 +224,9 @@ function render(){
     }
 
     // CONTENT MENU
-    if (curResPos && game.map) {
+    if (curResPos && c.game.map) {
         let inv = inventory.getInv(curResPos.x, curResPos.y);
-        let res = game.map[curResPos.x][curResPos.y][layers.res];
+        let res = c.game.map[curResPos.x][curResPos.y][layers.res];
         let ent = inventory.getEnt(curResPos.x, curResPos.y);
 
         if (DEV) {
@@ -297,7 +297,7 @@ function imgLoaded(imgElement) {
 }
 
 function updateMap() {
-    if (game.map == undefined) return;
+    if (c.game.map == undefined) return;
     canvas.offScreenCanvas.width = gridSize.x * tileSize;
     canvas.offScreenCanvas.height = gridSize.y * tileSize;
     var offScreencontext = canvas.offScreenCanvas.getContext("2d");
@@ -305,7 +305,7 @@ function updateMap() {
 
     for(let ax = 0; ax < gridSize.x; ax++) {
         for(let ay = 0; ay < gridSize.y; ay++) {
-            let tile = game.map[ax][ay];
+            let tile = c.game.map[ax][ay];
 
             // MAP
             let type = tile[layers.terrain][0];

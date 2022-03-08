@@ -36,7 +36,7 @@ class Button {
         ctx.rect(this.screen.x, this.screen.y, this.w, this.h);
         ctx.fill();
         ctx.stroke();
-        if (this.item == undefined) {
+        if (this.item == undefined && this.inv?.stack) {
             this.item = this.inv.stack[this.invKey][this.stackPos];
         }
         this.drawItem(ctx);
@@ -106,7 +106,7 @@ class Button {
                 this.item.n = this.item.n - c.pointer.item.n;
             }
         }
-        view.updateInventoryMenu(c.player1.inv);
+        view.updateInventoryMenu(c.player.inv);
         if (c.selEntity?.inv) view.updateEntityMenu(c.selEntity.inv, true);
     };
 

@@ -8,7 +8,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}\\wss.js"
+            "program": "${workspaceFolder}\\server.js"
         },
         {
             "type": "node-terminal",

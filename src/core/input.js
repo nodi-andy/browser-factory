@@ -43,9 +43,8 @@ class InputModule {
             if (e.buttons == 1) {
 
                 dragStart = worldCordinate;
-                let res = game.map[tileCoordinate.x][tileCoordinate.y][layers.res];
+                let res = c.game.map[tileCoordinate.x][tileCoordinate.y][layers.res];
                 let d = dist(c.allEnts[c.playerID].pos, worldCordinate);
-                if (res?.id && d < 5*tileSize) c.player1.startMining(tileCoordinate, c.allEnts[c.playerID]);
 
                 if (c.pointer?.item?.id) {
                     c.pointer.type = resName[c.pointer.item.id].type;
@@ -59,21 +58,23 @@ class InputModule {
                 } else {
                     isDragStarted = true;
                     isBuilding = false;
+                    if (res?.id && d < 5*tileSize) c.playerClass.startMining(tileCoordinate, c.allEnts[c.playerID]);
                 }
             } else if (e.buttons == 2) {
-                let ent = game.map[tileCoordinate.x][tileCoordinate.y][layers.buildings];
-                let inv = game.map[tileCoordinate.x][tileCoordinate.y][layers.inv];
+                let ent = c.game.map[tileCoordinate.x][tileCoordinate.y][layers.buildings];
+                let inv = c.game.map[tileCoordinate.x][tileCoordinate.y][layers.inv];
                 if (inv) c.allInvs[inv] = undefined
                 if (ent) c.allEnts[ent] = undefined;
-                game.map[tileCoordinate.x][tileCoordinate.y][layers.buildings] = null;
-                game.map[tileCoordinate.x][tileCoordinate.y][layers.inv] = null;
+                c.game.map[tileCoordinate.x][tileCoordinate.y][layers.buildings] = null;
+                c.game.map[tileCoordinate.x][tileCoordinate.y][layers.inv] = null;
+                c.allInvs[c.playerID].addItem(c.allEnts[ent]);
             }            
         }
     }
 
 
     onPointerUp(e) {
-        c.player1.stopMining(c.allEnts[c.playerID]);
+        c.playerClass.stopMining(c.allEnts[c.playerID]);
 
         let overlayClicked = false;
         invMenu.items.forEach   (b => {if (b.collision(e) && b.onClick) { b.onClick(e.which); overlayClicked = true; }})

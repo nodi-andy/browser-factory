@@ -7,8 +7,13 @@ function wssend(msg) {
         if (msg.cmd == "addEntity") {
             let entID = addEntity(msg.data, false);
             updateInv = true; 
-            ws.send(JSON.stringify({cmd: "updateEntity", data: {id: entID, ent: c.allEnts[entID]}}));
-            ws.send(JSON.stringify({cmd: "updateMapData", data: c.game.map}));
+            if (ws.readyState == WebSocket.OPEN) {
+                ws.send(JSON.stringify({cmd: "updateEntity", data: {id: entID, ent: c.allEnts[entID]}}));
+                ws.send(JSON.stringify({cmd: "updateMapData", data: c.game.map}));
+            } else if (savedData) {
+                savedData = JSON.stringify(c);
+                document.cookie["browserFactorio"] = savedData;
+            }
         }
         if (msg.cmd == "addItem") {
             addItem(msg.data, false);
@@ -17,6 +22,10 @@ function wssend(msg) {
         else if (msg.cmd == "moveStack") {
             moveStack(msg.data);
             updateInv = true; 
+        } else {
+            if (ws.readyState == WebSocket.OPEN) {
+                ws.send(JSON.stringify(msg));
+            }
         }
 
         if (updateInv) ws.send(JSON.stringify({cmd: "updateInventories", data:c.allInvs}));
@@ -25,7 +34,7 @@ function wssend(msg) {
 }
 
 function updateMapData(data) {
-    game.map = data;
+    c.game.map = data;
     updateMap();
 }
 
@@ -47,7 +56,7 @@ ws.onmessage = function(e) {
         for(let inv of rawInvs) {
             c.allInvs.push(Object.assign(new Inventory(), inv));
         }
-        c.player1.setInventoryID(0);
+        c.playerClass.setInventoryID(0);
         if (c.selEntity) {
             let inv = socketMsg.data[c.selEntity.invID];
             view.updateInventoryMenu(inv);
@@ -77,7 +86,7 @@ ws.onmessage = function(e) {
             let entity = c.allEnts[ient];
             if (entity.movable) c.allMovableEntities.push(ient);
         }
-        //c.player1.setInventory(socketMsg.data.inv, socketMsg.data.invID);
+        //c.player.setInventory(socketMsg.data.inv, socketMsg.data.invID);
     }
     if (socketMsg.msg == "remEntity") {
         delete c.allEnts[socketMsg.data];
@@ -87,7 +96,7 @@ ws.onmessage = function(e) {
             let entity = c.allEnts[ient];
             if (entity.movable) c.allMovableEntities.push(ient);
         }
-        //c.player1.setInventory(socketMsg.data.inv, socketMsg.data.invID);
+        //c.player.setInventory(socketMsg.data.inv, socketMsg.data.invID);
     }
     if (socketMsg.msg == "updateMapData") updateMapData(socketMsg.data);
     if (socketMsg.msg == "startGame") gameLoop();

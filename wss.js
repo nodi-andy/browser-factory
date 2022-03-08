@@ -50,7 +50,7 @@ new belt.Belt();
 new inserter.Inserter();
 new stone_furnace.StoneFurnace();
 new chest.Chest();
-c.player1 = new player.Player();
+c.player = new player.Player();
 c.allMovableEnts = [];
 //let personDB = [];
 let cityDB = [];
@@ -131,7 +131,7 @@ function addCity(nID, x, y, t) {
 
 
 function remFromInv(remItems) {
-  c.player1.inv.remItems(remItems);
+  c.player.inv.remItems(remItems);
   updatePlayer();
 }
 
@@ -146,15 +146,15 @@ function addStack(add) {
 }
 
 function addToInv(newItem) {
-  for(let i = 0; i < c.player1.inv.packs.length && newItem; i++) {
-    let invObj = c.player1.inv.packs[i];
+  for(let i = 0; i < c.player.inv.packs.length && newItem; i++) {
+    let invObj = c.player.inv.packs[i];
     if (newItem.res && invObj.id == newItem.res.id) {
       if (newItem.n == undefined) newItem.n = 1;
       invObj.n += newItem.n;
       newItem = null;
     }
   }
-  if (newItem) c.player1.inv.packs.push({id: newItem.res.id, n: newItem.n});
+  if (newItem) c.player.inv.packs.push({id: newItem.res.id, n: newItem.n});
   updatePlayer();
 }
 
@@ -162,9 +162,9 @@ function craftToInv(newItem) {
   let costs = c.resName[newItem[0].res.id].cost;
   for(let iCost = 0; iCost < costs.length; iCost++) {
     let cost = costs[iCost];
-    c.player1.inv.remStackItem(cost);      
+    c.player.inv.remStackItem(cost);      
   }
-  c.player1.inv.addItem({id:newItem[0].res.id, n: 1});
+  c.player.inv.addItem({id:newItem[0].res.id, n: 1});
 }
 
 
@@ -187,7 +187,7 @@ function protocoll(ws, req) {
   }
   if (playerID == undefined) {
     let playerEnt = {};
-    c.player1.setup(undefined, playerEnt);
+    c.player.setup(undefined, playerEnt);
 
     c.allEnts.push(playerEnt);
     playerEnt.id = c.allEnts.length - 1;
@@ -246,14 +246,14 @@ function move(x, y) {
   let gp = c.worldToTile({x:x, y:y});
 //  console.log(rmap[gp.x][gp.y]);
   if (c.game.map[gp.x][gp.y][0] != 1) {
-    c.player1.pos.x = x;
-    c.player1.pos.y = y;
+    c.player.pos.x = x;
+    c.player.pos.y = y;
 
     let dx,dy,d = false;
 
     for(let a = 0; a <= 2*Math.PI; a+=Math.PI/4) {
-      dx = Math.floor((c.player1.pos.x + Math.cos(a)*11) / 10);
-      dy = Math.floor((c.player1.pos.y + Math.sin(a)*11) / 10);
+      dx = Math.floor((c.player.pos.x + Math.cos(a)*11) / 10);
+      dy = Math.floor((c.player.pos.y + Math.sin(a)*11) / 10);
       d = d || discover(dx,dy);
     }
 
@@ -266,7 +266,7 @@ function move(x, y) {
 }
 
 function updatePlayer() {
-  //s.sendAll(JSON.stringify({msg:"updatePlayer", data: c.player1}));
+  //s.sendAll(JSON.stringify({msg:"updatePlayer", data: c.player}));
 }
 
 function discover(x,y) {

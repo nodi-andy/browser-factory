@@ -59,9 +59,9 @@ class BurnerMiner {
             if (myEnt.dir == 1) targetInv = inventory.getInv(ent.pos.x + 1, ent.pos.y + 2, true);
             if (myEnt.dir == 2) targetInv = inventory.getInv(ent.pos.x - 1, ent.pos.y + 1, true);
             if (myEnt.dir == 3) targetInv = inventory.getInv(ent.pos.x, ent.pos.y - 1, true);
-            let targetFull = targetInv.getFirstPack();
+            let hasPlace = targetInv.hasPlaceFor({id: c.resDB.coal.id, n: 1});
 
-            if (tile[c.layers.res]?.n && inv.stack["FUEL"][0] && inv.stack["FUEL"][0].n > 0 && targetFull == undefined) {
+            if (tile[c.layers.res]?.n && inv.stack["FUEL"][0] && inv.stack["FUEL"][0].n > 0 && hasPlace) {
                 output = c.resName[tile[c.layers.res].id].becomes.id;
                 myEnt.power = 100;
                 tile[c.layers.res].n--;
@@ -69,7 +69,7 @@ class BurnerMiner {
 
             // Shift output on next tile
 
-            if (output && targetFull == undefined) targetInv.addItem({id: output, n:1});
+            if (output && hasPlace) targetInv.addItem({id: output, n:1});
 
         }
     }

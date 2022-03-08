@@ -78,16 +78,16 @@ class Player {
         ent.workProgress = 0;
         ent.miningProgress;
 
-        /*playerEnt.inv.stack["INV"].push({id: c.resDB.stone.id, n: 100});
-        playerEnt.inv.stack["INV"].push({id: c.resDB.iron.id, n: 100});
-        playerEnt.inv.stack["INV"].push({id: c.resDB.copper.id, n: 100});
-        playerEnt.inv.stack["INV"].push({id: c.resDB.raw_wood.id, n: 100});
-        playerEnt.inv.stack["INV"].push({id: c.resDB.coal.id, n: 50});
-        playerEnt.inv.stack["INV"].push({id: c.resDB.coal.id, n: 50});
-        playerEnt.inv.stack["INV"].push({id: c.resDB.coal.id, n: 50});
-        playerEnt.inv.stack["INV"].push({id: c.resDB.iron_plate.id, n: 170});
-        playerEnt.inv.stack["INV"].push({id: c.resDB.belt1.id, n: 1000});*/
-        
+        ent.inv.stack.INV.push({id: c.resDB.stone.id, n: 100});
+        ent.inv.stack.INV.push({id: c.resDB.iron.id, n: 100});
+        ent.inv.stack.INV.push({id: c.resDB.copper.id, n: 100});
+        ent.inv.stack.INV.push({id: c.resDB.raw_wood.id, n: 100});
+        ent.inv.stack.INV.push({id: c.resDB.coal.id, n: 50});
+        ent.inv.stack.INV.push({id: c.resDB.coal.id, n: 50});
+        ent.inv.stack.INV.push({id: c.resDB.coal.id, n: 50});
+        ent.inv.stack.INV.push({id: c.resDB.iron_plate.id, n: 170});
+        ent.inv.stack.INV.push({id: c.resDB.belt1.id, n: 1000});
+        view.updateInventoryMenu(c.player.inv);
     }
 
     update(map, ent){
@@ -97,7 +97,7 @@ class Player {
             ent.pos = {x: ent.tilePos.x * c.tileSize, y: ent.tilePos.y * c.tileSize};
         }
 
-        if (game.map == undefined) return;
+        if (c.game.map == undefined) return;
         ent.unitdir = toUnitV(ent.dir);
         let entTile = worldToTile({x: ent.pos.x, y: ent.pos.y});
 
@@ -134,10 +134,10 @@ class Player {
             if (ent.dir.x != 0 || ent.dir.y != 0) {
                 ent.needUpdate = true;
             } else {
-                ws.send(JSON.stringify({cmd: "updateEntity", data: {id: c.playerID, ent: c.allEnts[c.playerID]}}));
+                wssend(JSON.stringify({cmd: "updateEntity", data: {id: c.playerID, ent: c.allEnts[c.playerID]}}));
                 ent.needUpdate = false;
             }
-            if (ent.needUpdate) ws.send(JSON.stringify({cmd: "updateEntity", data: {id: c.playerID, ent: c.allEnts[c.playerID]}}));
+            if (ent.needUpdate) wssend(JSON.stringify({cmd: "updateEntity", data: {id: c.playerID, ent: c.allEnts[c.playerID]}}));
 
         }
 
@@ -163,7 +163,7 @@ class Player {
 
     startMining(tileCoordinate, ent) {
         this.workInterval = setInterval(function() { 
-            let res = game.map[tileCoordinate.x][tileCoordinate.y][layers.res];
+            let res = c.game.map[tileCoordinate.x][tileCoordinate.y][layers.res];
             mineToInv({source: tileCoordinate, id:res.id, n: 1});
         }, 1000);
         this.miningProgress = setInterval(function() { ent.workProgress += 10; ent.workProgress %= 100}, 100);

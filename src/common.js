@@ -96,6 +96,7 @@ const dirToAng = [0, 90, 180, 270];
 const  layers = {terrain: 0, floor:1, res: 2, buildings:3, inv:4, inext: 5, vis:6 } 
 var allInvs = [];
 var allEnts = [];
+var allMovableEntities = [];
 var game        = {};
 var pointer; // Inventory on pointer
 var selEntity;
@@ -178,3 +179,4 @@ c.item = item;
 c.dirToVec = dirToVec;
 c.dirToAng = dirToAng;
 c.playerID = playerID;
+c.allMovableEntities = allMovableEntities;

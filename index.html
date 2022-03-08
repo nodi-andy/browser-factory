@@ -9,8 +9,10 @@
     }
 </style>
 <html><canvas id="myCanvas" style = "display:block;border:none; margin:0"></canvas></html>
-<script type="text/javascript" src='src/server/perlin.js'></script>
 <script type="text/javascript" src ="src/common.js"></script>
+
+<script type="text/javascript" src ="src/core/perlin.js"></script>
+<script type="text/javascript" src ="src/core/world.js"></script>
 <script type="text/javascript" src ="src/core/dialog.js"></script>
 <script type="text/javascript" src ="src/core/inventory.js"></script>
 <script type="text/javascript" src ="src/core/entity.js"></script>
@@ -32,19 +34,45 @@
 <script type="text/javascript" src ="src/entity/assembling_machine_1/assembling_machine_1.js"></script>
 <script type="text/javascript">
 
+function setCookie(name,value,days) {
+    var expires = "";
+    if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days*24*60*60*1000));
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+}
+
     canvas = document.getElementById("myCanvas");
     let context = canvas.getContext("2d");
     canvas.width  = window.innerWidth;
     canvas.height = window.innerHeight;
+    canvas.offScreenCanvas = document.createElement('canvas');
 
     let inp = new InputModule (context.canvas);
     let view = new ViewModule (window);
 
+    let savedData = document.cookie["browserFactorio"];
+    if(savedData) {
 
-    
-    c.player1 = new Player();
-    c.pointer = {};
-    c.pointer.pack = undefined
+    } else {
+        let newWorld = createWorld(gridSize.x, gridSize.y);
+        c.game = newWorld;
+        
+        c.playerClass = new Player();
+        c.pointer = {};
+
+        c.player = {};
+        c.player.id = 0;
+        c.player.type = 0;
+        c.allEnts.push(c.player);
+        c.playerID = 0;
+        c.allMovableEntities.push(c.playerID);
+        savedData = JSON.stringify(c.game);
+        setCookie("game", "savedData", 100);
+    }
+
     
     new Chest();
     new Belt();
@@ -61,6 +89,7 @@
         }
     }
 
+
     view.updateCraftingMenu();
 
     function getCityById(searchID) {
@@ -73,13 +102,13 @@
     
     function onKeyDown(e){
         //ws.send(JSON.stringify({cmd: "keydown", data: e.code}));
-        if(e.code == "KeyW") c.player1.setDir({y : -1});
-        if(e.code == "KeyS") c.allEnts[c.playerID].dir.y =1;
-        if(e.code == "KeyD") c.allEnts[c.playerID].dir.x = 1;
-        if(e.code == "KeyA") c.allEnts[c.playerID].dir.x = -1;
+        if(e.code == "KeyW") c.playerClass.setDir({y : -1});
+        if(e.code == "KeyS") c.player.dir.y =1;
+        if(e.code == "KeyD") c.player.dir.x = 1;
+        if(e.code == "KeyA") c.player.dir.x = -1;
         if(e.code == "Escape") {
             if (c.pointer.item) {
-                c.player1.inv.addItem(c.pointer.item);
+                c.player.inv.addItem(c.pointer.item);
             }
             c.pointer.item = undefined;
             invMenu.vis = false;
@@ -89,10 +118,10 @@
     }
 
     function onKeyUp(e){
-        if(e.code == "KeyW") c.allEnts[c.playerID].dir.y = 0;
-        if(e.code == "KeyS") c.allEnts[c.playerID].dir.y = 0;
-        if(e.code == "KeyD") c.allEnts[c.playerID].dir.x = 0;
-        if(e.code == "KeyA") c.allEnts[c.playerID].dir.x = 0;
+        if(e.code == "KeyW") c.player.dir.y = 0;
+        if(e.code == "KeyS") c.player.dir.y = 0;
+        if(e.code == "KeyD") c.player.dir.x = 0;
+        if(e.code == "KeyA") c.player.dir.x = 0;
         if(e.code == "KeyR") buildDir = (buildDir+1)%4;
         if(e.code == "KeyE") { 
             invMenu.vis = !invMenu.vis; 
@@ -116,13 +145,9 @@
         }
     )
 
-
-
-    canvas.offScreenCanvas = document.createElement('canvas');
+    updateMapData(c.game.map)
 
     requestAnimationFrame( render );
-
-
 
     c.game.tick = 0;
     
@@ -139,7 +164,7 @@
 
         c.game.tick++;
 
-        // only machines,  belts and player excluded
+        // belts excluded
         for(let ient = 0; ient < c.allEnts.length; ient++) {
             let entity = c.allEnts[ient];
             if (!entity) continue;
@@ -194,5 +219,6 @@
 
     window.addEventListener('load', function () {
         updateMap();
+        gameLoop();
     })
 </script>

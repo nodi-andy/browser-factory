@@ -44,6 +44,7 @@ class Inventory {
       return ret;
     }
 
+    // use this.hasPlaceFor()
     addItem(newItem, stackName) {
       if (newItem == undefined) return false;
       if (stackName == undefined) stackName = "INV";
@@ -71,6 +72,41 @@ class Inventory {
               if (pack.n + newItem.n <= this.itemsize) {
                 pack.n += newItem.n;
                 return true;
+              }
+            }
+          }
+      }
+      
+      return false;
+    }
+
+
+
+    hasPlaceFor(newItem, stackName) {
+      if (newItem == undefined) return false;
+      if (stackName == undefined) stackName = "INV";
+      let keys = Object.keys(this.stack);
+      if (this.stacksize == undefined) this.stacksize = 1;
+
+      if (this.stack[stackName] == undefined) {
+        if (this.getFilledStackSize() < this.stacksize)  this.stack[stackName] = [];
+        else return false;
+      }
+
+      let key = stackName;
+
+      for(let iPack = 0; iPack < this.packsize[key]; iPack++) {
+          let pack = this.stack[key][iPack];
+          if (pack == undefined) {
+            return true;
+          }
+          if (pack)
+          { 
+            if (newItem.id == undefined) newItem.id = newItem.res.id;
+            if (pack.id == undefined) pack.id = newItem.id;
+            if (pack.id == newItem.id) {
+              if (pack.n + newItem.n <= this.itemsize) {
+                 return true;
               }
             }
           }
@@ -187,7 +223,7 @@ class Inventory {
       let keys = Object.keys(this.stack);
       for(let iStack = 0; iStack < keys.length; iStack++) {
         let key = keys[iStack];
-        for(let iPack = 0; iPack < this.stack[key].size; iPack++) {
+        for(let iPack = 0; iPack < this.packsize[key]; iPack++) {
           let pack = this.stack[key][iPack];
           if (pack && pack.id == type) {
             n += pack.n;
@@ -231,14 +267,13 @@ class Inventory {
     }
 }
 
-
 function mineToInv(minedItem) {
   let newItem = {};
   newItem.id = resName[minedItem.id].becomes.id;
   newItem.n = 1;
-  game.map[minedItem.source.x][minedItem.source.y][layers.res].n--;
-  c.player1.inv.addItem(newItem);
-  view.updateInventoryMenu(c.player1.inv);
+  c.game.map[minedItem.source.x][minedItem.source.y][layers.res].n--;
+  c.allEnts[c.playerID].inv.addItem(newItem);
+  view.updateInventoryMenu(c.player.inv);
 }
 
 function craftToInv(inv, items) {
@@ -251,9 +286,9 @@ function craftToInv(inv, items) {
       }
       if (itemsExist) { 
           let newItem = {id: item.id, n: 1} ;
-          c.player1.inv.addItem(newItem);
+          c.player.inv.addItem(newItem);
           inv.remStackItems(item.cost);
-          view.updateInventoryMenu(c.player1.inv);
+          view.updateInventoryMenu(c.player.inv);
       }
       return itemsExist;
   })
@@ -304,7 +339,7 @@ function addEntity(newEntity, updateDir) {
     if (c.pointer.item.n > 0) {
       ent = new e.Entity(c.allEnts, newEntity.pos.x, newEntity.pos.y, newEntity.dir, newEntity.w, newEntity.h, newEntity.type);
       c.game.map[newEntity.pos.x][newEntity.pos.y][c.layers.buildings] = ent.id;
-      if (typeof window !== "undefined") view.updateInventoryMenu(c.player1.inv);
+      if (typeof window !== "undefined") view.updateInventoryMenu(c.player.inv);
       c.pointer.item.n--;
       if (c.pointer.item.n == 0) c.pointer.item = undefined;
     }
@@ -345,7 +380,7 @@ function moveStack(data) {
   c.allInvs[data.toInvID].stack[data.toInvKey][data.toStackPos] = from;
   c.allInvs[data.fromInvID].stack[data.fromInvKey][data.fromStackPos] = undefined;
   //s.sendAll(JSON.stringify({msg:"updateInv", data:c.allInvs}));
-  if (data.fromInvID == 0 || data.toInvID == 0) c.player1.setInventory(c.allInvs[0]);
+  if (data.fromInvID == 0 || data.toInvID == 0) c.player.setInventory(c.allInvs[0]);
   if (data.fromInvID == c.selEntity?.inv.id || data.toInvID == c.selEntity?.inv.id) view.updateInventoryMenu(c.selEntity.inv);
 }
 
