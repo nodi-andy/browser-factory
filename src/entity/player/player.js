@@ -56,38 +56,36 @@ class Player {
            c.resDB.car]
     }
 
-    setup(map, ent){
-        if (ent.tilePos == undefined) ent.tilePos = {x: c.gridSize.x/2, y: c.gridSize.y/2};
-        ent.pos = {x: ent.tilePos.x * c.tileSize, y: ent.tilePos.y * c.tileSize};
-        ent.dir = {x: 0, y:0};
-        ent.live = 100;
-        ent.nextPos = {x: 0, y: 0};
-        ent.type = c.resID.player;
-        ent.movable = true;
+    setup(map, inv){
+        if (inv?.tilePos == undefined) inv.tilePos = {x: c.gridSize.x/2, y: c.gridSize.y/2};
+        inv.pos = {x: inv.tilePos.x * c.tileSize, y: inv.tilePos.y * c.tileSize};
+        inv.dir = {x: 0, y:0};
+        inv.live = 100;
+        inv.nextPos = {x: 0, y: 0};
+        inv.type = c.resID.player;
+        inv.movable = true;
 
-        if (ent.invID == undefined) ent.invID = invfuncs.createInv();
-        ent.inv = c.allInvs[ent.invID];
         
-        ent.ss = {x:0, y:0};
-        if (ent.inv.stack.INV == undefined) ent.inv.stack.INV = [];
-        ent.inv.stacksize = 1;
-        ent.inv.packsize = {};
-        ent.inv.packsize.INV = 64;
-        ent.inv.itemsize = 1000;
-        ent.workInterval = undefined;
-        ent.workProgress = 0;
-        ent.miningProgress;
+        inv.ss = {x:0, y:0};
+        if (inv.stack?.INV == undefined) inv.stack.INV = [];
+        inv.stacksize = 1;
+        inv.packsize = {};
+        inv.packsize.INV = 64;
+        inv.itemsize = 1000;
+        this.workInterval = undefined;
+        this.workProgress = 0;
+        this.miningProgress;
 
-        ent.inv.stack.INV.push({id: c.resDB.stone.id, n: 100});
-        ent.inv.stack.INV.push({id: c.resDB.iron.id, n: 100});
-        ent.inv.stack.INV.push({id: c.resDB.copper.id, n: 100});
-        ent.inv.stack.INV.push({id: c.resDB.raw_wood.id, n: 100});
-        ent.inv.stack.INV.push({id: c.resDB.coal.id, n: 50});
-        ent.inv.stack.INV.push({id: c.resDB.coal.id, n: 50});
-        ent.inv.stack.INV.push({id: c.resDB.coal.id, n: 50});
-        ent.inv.stack.INV.push({id: c.resDB.iron_plate.id, n: 170});
-        ent.inv.stack.INV.push({id: c.resDB.belt1.id, n: 1000});
-        view.updateInventoryMenu(c.player.inv);
+        inv.stack.INV.push({id: c.resDB.stone.id, n: 100});
+        inv.stack.INV.push({id: c.resDB.iron.id, n: 100});
+        inv.stack.INV.push({id: c.resDB.copper.id, n: 100});
+        inv.stack.INV.push({id: c.resDB.raw_wood.id, n: 100});
+        inv.stack.INV.push({id: c.resDB.coal.id, n: 50});
+        inv.stack.INV.push({id: c.resDB.coal.id, n: 50});
+        inv.stack.INV.push({id: c.resDB.coal.id, n: 50});
+        inv.stack.INV.push({id: c.resDB.iron_plate.id, n: 170});
+        inv.stack.INV.push({id: c.resDB.belt1.id, n: 1000});
+        view.updateInventoryMenu(inv);
     }
 
     update(map, ent){
@@ -134,10 +132,10 @@ class Player {
             if (ent.dir.x != 0 || ent.dir.y != 0) {
                 ent.needUpdate = true;
             } else {
-                wssend(JSON.stringify({cmd: "updateEntity", data: {id: c.playerID, ent: c.allEnts[c.playerID]}}));
+                wssend(JSON.stringify({cmd: "updateEntity", data: {id: c.playerID, ent: c.allInvs[c.playerID]}}));
                 ent.needUpdate = false;
             }
-            if (ent.needUpdate) wssend(JSON.stringify({cmd: "updateEntity", data: {id: c.playerID, ent: c.allEnts[c.playerID]}}));
+            if (ent.needUpdate) wssend(JSON.stringify({cmd: "updateEntity", data: {id: c.playerID, ent: c.allInvs[c.playerID]}}));
 
         }
 
@@ -145,17 +143,17 @@ class Player {
     }
 
     setDir(dir) {
-        if (dir.y) c.allEnts[c.playerID].dir.y = dir.y;
+        if (dir.y) c.allInvs[c.playerID].dir.y = dir.y;
     }
 
     checkCollision(pos) {
         if (c.game.map == undefined) return;
         let terrain = c.game.map[pos.x][pos.y][layers.terrain][0];
-        let building = c.game.map[pos.x][pos.y][layers.buildings];
+        let building = c.game.map[pos.x][pos.y][layers.inv];
         let canWalkOn = true;
         if (building) {
             canWalkOn = false;
-            if(resName[c.allEnts[building].type].playerCanWalkOn) canWalkOn  = building.playerCanWalkOn;
+            if(resName[c.allInvs[building].type]?.playerCanWalkOn) canWalkOn  = building.playerCanWalkOn;
         }
          
         return (terrain == resID.deepwater || terrain == resID.water || terrain == resID.hills || canWalkOn == false)

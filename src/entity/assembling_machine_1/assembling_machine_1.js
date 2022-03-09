@@ -40,9 +40,7 @@ class AssemblingMachine1 {
     }
 
     setup(map, ent) {
-        let myEnt = inventory.getEnt(ent.pos.x, ent.pos.y);
         let inv = new inventory.Inventory(c.allInvs, ent.pos);//inventory.getInv(ent.pos.x, ent.pos.y);
-        myEnt.invID = inv.id;
         inv.prod = c.resDB.gear.id;
 
         inventory.setInv(ent.pos.x + 0, ent.pos. y + 1, inv.id);
@@ -53,15 +51,6 @@ class AssemblingMachine1 {
         inventory.setInv(ent.pos.x + 2, ent.pos. y + 0, inv.id);
         inventory.setInv(ent.pos.x + 2, ent.pos. y + 1, inv.id);
         inventory.setInv(ent.pos.x + 2, ent.pos. y + 2, inv.id);
-
-        inventory.setEnt(ent.pos.x + 0, ent.pos. y + 1, myEnt.id);
-        inventory.setEnt(ent.pos.x + 0, ent.pos. y + 2, myEnt.id);
-        inventory.setEnt(ent.pos.x + 1, ent.pos. y + 0, myEnt.id);
-        inventory.setEnt(ent.pos.x + 1, ent.pos. y + 1, myEnt.id);
-        inventory.setEnt(ent.pos.x + 1, ent.pos. y + 2, myEnt.id);
-        inventory.setEnt(ent.pos.x + 2, ent.pos. y + 0, myEnt.id);
-        inventory.setEnt(ent.pos.x + 2, ent.pos. y + 1, myEnt.id);
-        inventory.setEnt(ent.pos.x + 2, ent.pos. y + 2, myEnt.id);
 
         inv.packsize = 1;
         inv.itemsize = 50;

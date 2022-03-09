@@ -13,7 +13,7 @@ function render(){
 
         // ENTITIES AND PLAYER
 
-        c.allEnts.forEach(e => {if (e) e.drawn = false;});
+        c.allInvs.forEach(e => {if (e) e.drawn = false;});
 
         let minTile = view.screenToTile({x: 0, y: 0});
         let maxTile = view.screenToTile({x: context.canvas.width, y: context.canvas.height});
@@ -22,10 +22,10 @@ function render(){
                 let tile = c.game.map[ax][ay];
 
                 // ENTITIES
-                let entID = tile[layers.buildings];
+                let entID = tile[layers.inv];
                 let b;
                 if (entID != undefined) {
-                    b = c.allEnts[entID];
+                    b = c.allInvs[entID];
                 }
 
 
@@ -48,7 +48,7 @@ function render(){
                 context.save();
                 context.translate(ax * tileSize, ay *tileSize);
 
-                if (b?.type && resName[b.type].img && b.drawn == false) {
+                if (b?.type && resName[b.type]?.img && b.drawn == false) {
                     let type = resName[b.type];
                     if (type && type.size) {
                         context.translate(type.size[0] / 2 * tileSize, type.size[1] / 2 * tileSize);
@@ -92,8 +92,8 @@ function render(){
             for(let ay = minTile.y; ay < Math.min(maxTile.y + 5, gridSize.y); ay++) {
                 let tile = c.game.map[ax][ay];
                 let b;
-                if (tile[layers.buildings] != undefined) {
-                    b = c.allEnts[tile[layers.buildings]];
+                if (tile[layers.inv] != undefined) {
+                    b = c.allInvs[tile[layers.inv]];
                 }
                 if (b?.type && resName[b.type] && resName[b.type]?.mach?.drawItems) {
                     // Build a tree for the belts
@@ -108,7 +108,7 @@ function render(){
                 
                 // PLAYERS
                 for(let ient = 0; c.allMovableEntities && ient <  c.allMovableEntities.length; ient++) {
-                    let entity = c.allEnts[c.allMovableEntities[ient]];
+                    let entity = c.allInvs[c.allMovableEntities[ient]];
                     if (entity.pos && ax-2 == entity.tilePos.x && ay-2 == entity.tilePos.y) {
                         c.playerClass.draw(context, entity);
                     }
@@ -165,7 +165,7 @@ function render(){
         context.fillRect(entityMenu.rect.x , entityMenu.rect.y, entityMenu.rect.w , entityMenu.rect.h);
         context.font = "24px Arial";
         context.fillStyle = "black";
-        context.fillText(resName[c.allEnts[c.selEntity.entID].type].name, entityMenu.rect.x + 16, entityMenu.rect.y + 32);
+        context.fillText(resName[c.allInvs[c.selEntity.entID].type].name, entityMenu.rect.x + 16, entityMenu.rect.y + 32);
         let selInv = c.allInvs[c.selEntity.invID];
         if (selInv) {
             if (selInv.prod) {
@@ -206,17 +206,17 @@ function render(){
         if (resName[receiptMenu.item.id].cost) {
             for(let costItem of resName[receiptMenu.item.id].cost) {
                 context.fillRect(receiptMenu.rect.x + 6, receiptMenu.rect.y + 64 + dy, 32, 32)
-                context.drawImage(costItem.res.img, receiptMenu.rect.x + 6, receiptMenu.rect.y + 64 + dy, 32, 32)
+                context.drawImage(resName[costItem.id].img, receiptMenu.rect.x + 6, receiptMenu.rect.y + 64 + dy, 32, 32)
                 let missingItems = "";
                 if (receiptMenu.item.n == 0) {
-                    let existing = c.player.inv.getNumberOfItems(costItem.res.id);
+                    let existing = c.player.getNumberOfItems(costItem.id);
                     if (existing < costItem.n) {
                         missingItems = existing + " / ";
                         context.fillStyle = "red";
                     } else  context.fillStyle = "black";
                 }
                 else         context.fillStyle = "black";
-                context.fillText(missingItems + costItem.n + "x " + costItem.res.name, receiptMenu.rect.x + 46, receiptMenu.rect.y + 84 + dy);
+                context.fillText(missingItems + costItem.n + "x " + costItem.name, receiptMenu.rect.x + 46, receiptMenu.rect.y + 84 + dy);
                 dy += 64;
                 receiptMenu.rect.h = dy + 100;
             }
@@ -227,7 +227,6 @@ function render(){
     if (curResPos && c.game.map) {
         let inv = inventory.getInv(curResPos.x, curResPos.y);
         let res = c.game.map[curResPos.x][curResPos.y][layers.res];
-        let ent = inventory.getEnt(curResPos.x, curResPos.y);
 
         if (DEV) {
             //console.log(JSON.stringify(game.map[curResPos.x][curResPos.y]), inv);
@@ -236,7 +235,6 @@ function render(){
             context.fillText(curResPos.x + ", " + curResPos.y, mousePos.x, mousePos.y);
             if (res != undefined) context.fillText(JSON.stringify(res, null, 1), mousePos.x, mousePos.y + 24);
             if (inv != undefined) context.fillText(JSON.stringify(inv.stack, null, 1), mousePos.x , mousePos.y + 48);
-            if (ent != undefined) context.fillText(JSON.stringify(ent, null, 1), mousePos.x , mousePos.y + 72);
             context.stroke();
         }
 
@@ -249,9 +247,7 @@ function render(){
         context.fillRect(0, 0, 200 , 100);
         context.font = "24px Arial";
         context.fillStyle = "black";
-        if (ent) {
-        context.fillText(resName[ent.type].name, 0, 30);
-        } else if (res?.id) {
+        if (res?.id) {
             context.fillText(resName[res.id].name + " " + res.n, 0, 30);
         }
         context.restore();

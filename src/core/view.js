@@ -91,8 +91,8 @@ class ViewModule {
             {
                 this.camera.zoom = Math.min(this.zoomLimit.max, Math.max( newZoom, this.zoomLimit.min));
                 let myMid = {}
-                myMid.x = c.allEnts[c.playerID].pos.x;
-                myMid.y = c.allEnts[c.playerID].pos.y - 66;
+                myMid.x = c.allInvs[c.playerID].pos.x;
+                myMid.y = c.allInvs[c.playerID].pos.y - 66;
                 this.setCamOn(myMid);
             }
 
@@ -107,7 +107,7 @@ class ViewModule {
         items.forEach(i => {
             let newButton = new Button ((pos % 8) * (buttonSize), Math.floor(pos/8) * (buttonSize), {id: i.id, n: 0} , craftMenu);
             newButton.onClick = () => {
-                if (resName[i.id].lock == undefined) craftToInv(c.player.inv, [i]);
+                if (resName[i.id].lock == undefined) craftToInv(c.player, [i]);
             };
             newButton.type = "craft";
             craftMenu.items.push(newButton)
@@ -119,7 +119,7 @@ class ViewModule {
 
     // SELECT ITEM MENU
     updateSelectItemMenu(ent) {
-        let items = c.resName[c.allEnts[ent.entID].type].output;
+        let items = c.resName[c.allInvs[ent.entID].type].output;
         let pos = 0;
         items.forEach(i => {
             let newButton = new Button ((pos % 8) * (buttonSize), Math.floor(pos/8) * (buttonSize), {id: i} , selectItemMenu);
@@ -142,28 +142,28 @@ class ViewModule {
         for (let i = 0; i < pack.length; i++) {
             let item = pack[i];
             invMenu.items[i].item = item;
-            invMenu.items[i].inv = c.player.inv;
+            invMenu.items[i].inv = c.player;
             invMenu.items[i].invKey = "INV";
             invMenu.items[i].stackPos = i;
         }
 
         for (let i = pack.length; i < invMenu.items.length; i++) {
             invMenu.items[i].item = undefined
-            invMenu.items[i].inv = c.player.inv;
+            invMenu.items[i].inv = c.player;
             invMenu.items[i].invKey = "INV";
             invMenu.items[i].stackPos = i;
         }
 
         for(let craftItem of craftMenu.items ) {
             let inv = new Inventory();
-            inv.stack = JSON.parse(JSON.stringify(c.player.inv.stack));
+            inv.stack = JSON.parse(JSON.stringify(c.player.stack));
             inv.stack.INV.size = 64;
-            inv.packsize = c.player.inv.packsize;
-            inv.itemsize = c.player.inv.itemsize;
+            inv.packsize = c.player.packsize;
+            inv.itemsize = c.player.itemsize;
             let cost = resName[craftItem.item.id].cost;
             craftItem.item.n = 0;
             if (cost) {
-                while (inv.remStackItems(cost)) craftItem.item.n++; // how much can be build
+                while (inv.remItems(cost)) craftItem.item.n++; // how much can be build
             }
         }
     }

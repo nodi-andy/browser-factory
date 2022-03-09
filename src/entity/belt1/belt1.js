@@ -10,8 +10,8 @@ class Belt {
     db.playerCanWalkOn = true;
     db.size = [1, 1];
     db.cost = [
-      { res: c.resDB.iron_plate, n: 1 },
-      { res: c.resDB.gear, n: 1 },
+      { id: c.resDB.iron_plate.id, n: 1 },
+      { id: c.resDB.gear.id, n: 1 },
     ];
     if (typeof Image !== "undefined") {
       const image = new Image(512, 32);
@@ -65,7 +65,7 @@ class Belt {
 
   update(map, ent, first = false) {
     ent.done = true;
-    let invThis = inventory.getInv(ent.pos.x, ent.pos.y, true);
+    let invThis = ent;
 
     if (invThis == undefined) return;
     let movingParts = c.game.tick % 8 == 0;
@@ -105,15 +105,15 @@ class Belt {
 
       //if (invThis.getFilledStackSize() == 0) return;
 
-      let beltThis = inventory.getEnt(ent.pos.x, ent.pos.y);
+      let beltThis = inventory.getInv(ent.pos.x, ent.pos.y);
       let nbPos = c.dirToVec[ent.dir];
-      let beltFrom = inventory.getEnt(ent.pos.x - nbPos.x, ent.pos.y - nbPos.y);
+      let beltFrom = inventory.getInv(ent.pos.x - nbPos.x, ent.pos.y - nbPos.y);
       if (beltFrom && Math.abs(beltThis.dir - beltFrom.dir) == 2)
         beltFrom = undefined;
       if (beltFrom == undefined) {
         // LEFT
         let nbLeft = c.dirToVec[(ent.dir + 1) % 4];
-        let beltFromLeft = inventory.getEnt(
+        let beltFromLeft = inventory.getInv(
           ent.pos.x - nbLeft.x,
           ent.pos.y - nbLeft.y
         );
@@ -123,7 +123,7 @@ class Belt {
 
         // RIGHT
         let nbRight = c.dirToVec[(ent.dir + 3) % 4];
-        let beltFromRight = inventory.getEnt(
+        let beltFromRight = inventory.getInv(
           ent.pos.x - nbRight.x,
           ent.pos.y - nbRight.y
         );
@@ -137,28 +137,27 @@ class Belt {
           if (beltFromRight) beltFrom = beltFromRight;
         }
       }
-      let beltTo = inventory.getEnt(ent.pos.x + nbPos.x, ent.pos.y + nbPos.y);
+      let beltTo = inventory.getInv(ent.pos.x + nbPos.x, ent.pos.y + nbPos.y);
       let invTo = inventory.getInv(ent.pos.x + nbPos.x, ent.pos.y + nbPos.y);
 
-      if (invThis.stack.INV) {
-        if (invThis.stack.LA?.id == undefined)
-          invThis.stack.LA = invThis.stack.INV[0];
-        else if (invThis.stack.RA?.id == undefined)
-          invThis.stack.RA = invThis.stack.INV[0];
-        else if (invThis.stack.LB?.id == undefined)
-          invThis.stack.LB = invThis.stack.INV[0];
-        else if (invThis.stack.RB?.id == undefined)
-          invThis.stack.RB = invThis.stack.INV[0];
-        else if (invThis.stack.LC?.id == undefined)
-          invThis.stack.LC = invThis.stack.INV[0];
-        else if (invThis.stack.RC?.id == undefined)
-          invThis.stack.RC = invThis.stack.INV[0];
-        else if (invThis.stack.LD?.id == undefined)
-          invThis.stack.LD = invThis.stack.INV[0];
-        else if (invThis.stack.RD?.id == undefined)
-          invThis.stack.RD = invThis.stack.INV[0];
-        delete invThis.stack.INV;
+      if (invThis.stack.INV?.length && invThis.stack.LA?.id == undefined) {
+        invThis.stack.LA.id = invThis.stack.INV[0].id;
+        invThis.remItem({id: invThis.stack.LA.id, n: 1}, "INV");
       }
+      if (invThis.stack.INV?.length && invThis.stack.RA?.id == undefined) {
+        invThis.stack.RA.id = invThis.stack.INV[0].id;
+        invThis.remItem({id: invThis.stack.RA.id, n: 1}, "INV");
+      }
+      if (invThis.stack.INV?.length && invThis.stack.LB?.id == undefined) {
+        invThis.stack.LB.id = invThis.stack.INV[0].id;
+        invThis.remItem({id: invThis.stack.LB.id, n: 1}, "INV");
+      }
+      if (invThis.stack.INV?.length && invThis.stack.RB?.id == undefined) {
+        invThis.stack.RB.id = invThis.stack.INV[0].id;
+        invThis.remItem({id: invThis.stack.RB.id, n: 1}, "INV");
+      }
+        
+      delete invThis.stack.INV;
 
       //SHIFT INTO NEXT BELT
       if (beltTo && beltTo.type != c.resDB.belt1.id) beltTo = undefined;
@@ -176,8 +175,12 @@ class Belt {
           this.shift(invThis, "RA", invTo, "LB", decidingMoving);
         }
       } else { // No next belt
-        if (invThis.stack.LA?.id) invThis.stack.LA.reserved = true; else invThis.stack.LA.reserved = false
-        if (invThis.stack.RA?.id) invThis.stack.RA.reserved = true; else invThis.stack.RA.reserved = false
+        if (invThis.stack.LA) {
+          if (invThis.stack.LA?.id) invThis.stack.LA.reserved = true; else invThis.stack.LA.reserved = false
+        }
+        if (invThis.stack.RA) {
+          if (invThis.stack.RA?.id) invThis.stack.RA.reserved = true; else invThis.stack.RA.reserved = false
+        }
       }
       // SHIFT ON THE BELT
       this.shift(invThis, "LB", invThis, "LA", decidingMoving);

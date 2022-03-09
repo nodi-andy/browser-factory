@@ -8,7 +8,9 @@ let buildDir = 0;
 
 const resDB = Object();
 
-resDB["player"]                  = {name: "player"      , type: "entity"};
+resDB["empty"]                  = {name: "empty"      , type: "empty"};
+
+resDB["player"]                 = {name: "player"      , type: "entity"};
 
 resDB["hills"]                  = {name: "hills"        , type: "terrain"};
 resDB["deepwater"]              = {name: "deep water"   , type: "terrain"};
@@ -31,38 +33,38 @@ resDB["tree"]                   = {name: "tree"          , type: "res", E: 500, 
 resDB["copper_ore"]             = {name: "copper ore"    , type: "res", W: 500, becomes: resDB.copper};
 resDB["coal_ore"]               = {name: "coal ore"      , type: "res", W: 500, becomes: resDB.coal};
 
-resDB["copper_cable"]           = {name: "copper cable"  ,  type: "item", cost: [{res: resDB.copper_plate, n: 1}], lock: 1};
-resDB["wood"]                   = {name: "wood"          , type: "item", E: 100, cost: [{res: resDB.raw_wood, n: 1}]};
-resDB["wooden_stick"]           = {name: "wooden stick"  , type: "item", E: 100, cost: [{res: resDB.wood, n: 1}], lock: 1};
-resDB["sharp_stone"]            = {name: "sharp stone"   , type: "item", E: 100, cost: [{res: resDB.stone, n: 2}], lock: 1};
-resDB["iron_stick"]             = {name: "iron stick"    , type: "item", E: 100, cost: [{res: resDB.iron_plate, n: 1}]};
+resDB["copper_cable"]           = {name: "copper cable"  ,  type: "item", lock: 1};
+resDB["wood"]                   = {name: "wood"          , type: "item", E: 100};
+resDB["wooden_stick"]           = {name: "wooden stick"  , type: "item", E: 100, lock: 1};
+resDB["sharp_stone"]            = {name: "sharp stone"   , type: "item", E: 100, lock: 1};
+resDB["iron_stick"]             = {name: "iron stick"    , type: "item", E: 100};
 
 resDB["stone_furnace"]          = {name: "stone furnace" };
 resDB["weak_armor"]             = {name: "weak armor"           , type: "item", lock: 1};
 resDB["strong_armor"]           = {name: "strong armor"         , type: "item", lock: 1};
 resDB["iron_chest"]             = {name: "iron chest"           , type: "item", lock: 1};
-resDB["chest"]                  = {name: "chest"                , type: "entity", cost: [{res: resDB.wood, n: 4}]};
-resDB["gear"]                   = {name: "gear"                 , type: "item", cost: [{res: resDB.iron_plate, n: 2}]};
-resDB["hydraulic_piston"]       = {name: "hydraulic_piston"     , type: "item", cost: [{res: resDB.iron_plate, n: 1}, {res: resDB.iron_stick, n: 1}]};
-resDB["circuit"]                = {name: "circuit"              , type: "item", size: [1, 1], cost: [{res: resDB.iron_plate, n: 1}, {res: resDB.copper_cable, n: 3}], lock: 1};
-resDB["stone_axe"]              = {name: "stone_axe"            , type: "item", cost: [{res: resDB.wooden_stick, n: 2}, {res: resDB.sharp_stone, n: 2}], lock: 1};
-resDB["iron_axe"]               = {name: "iron_axe"             , type: "item", cost: [{res: resDB.iron_stick, n: 2}, {res: resDB.iron_plate, n: 2}], lock: 1};
+resDB["chest"]                  = {name: "chest"                , type: "entity"};
+resDB["gear"]                   = {name: "gear"                 , type: "item"};
+resDB["hydraulic_piston"]       = {name: "hydraulic_piston"     , type: "item"};
+resDB["circuit"]                = {name: "circuit"              , type: "item", lock: 1};
+resDB["stone_axe"]              = {name: "stone_axe"            , type: "item", lock: 1};
+resDB["iron_axe"]               = {name: "iron_axe"             , type: "item", lock: 1};
 resDB["gun"]                    = {name: "gun"                  , type: "item", lock: 1};
 resDB["rocket_launcher"]        = {name: "rocket_launcher"      , type: "item", lock: 1};
 resDB["bullet"]                 = {name: "bullet"               , type: "item", lock: 1};
 resDB["rocket"]                 = {name: "rocket"               , type: "item", lock: 1};
 resDB["inserter"]               = {name: "inserter"             , type: "entity", lock: 1};
 resDB["burner_miner"]           = {name: "coal mining platform"};
-resDB["electrical_miner"]       = {name: "electrical mining platform"   ,   type: "entity", cost: [{res: resDB.coal, n: 2}], lock: 1};
+resDB["electrical_miner"]       = {name: "electrical mining platform"   ,   type: "entity", lock: 1};
 resDB["belt1"]                  = {name: "transport belt"               ,  type: "entity"};
 resDB["belt2"]                  = {name: "transport belt"               ,  type: "entity", lock: 1};
 resDB["belt3"]                  = {name: "transport belt"               ,  type: "entity", lock: 1};
-resDB["inserter_burner"]        = {name: "burner inserter"              , type: "entity", cost: [{res: resDB.iron_plate, n: 1}, {res: resDB.gear, n: 1}, {res: resDB.hydraulic_piston, n: 1}]};
-resDB["inserter_short"]         = {name: "short inserter"          ,  type: "entity", cost: [{res: resDB.coal, n: 2}], lock: 1};
-resDB["inserter"]               = {name: "inserter"          ,  type: "entity", cost: [{res: resDB.coal, n: 2}], lock: 1};
-resDB["inserter_long"]          = {name: "long inserter"          ,  type: "entity", cost: [{res: resDB.coal, n: 2}], lock: 1};
-resDB["inserter_smart"]         = {name: "smart inserter"          ,  type: "entity", cost: [{res: resDB.coal, n: 2}], lock: 1};
-resDB["assembling_machine_1"]   = {name: "assembling machine 1"          , type: "entity", cost: [{res: resDB.coal, n: 2}]};
+resDB["inserter_burner"]        = {name: "burner inserter"              , type: "entity"};
+resDB["inserter_short"]         = {name: "short inserter"          ,  type: "entity", lock: 1};
+resDB["inserter"]               = {name: "inserter"          ,  type: "entity", lock: 1};
+resDB["inserter_long"]          = {name: "long inserter"          ,  type: "entity", lock: 1};
+resDB["inserter_smart"]         = {name: "smart inserter"          ,  type: "entity", lock: 1};
+resDB["assembling_machine_1"]   = {name: "assembling machine 1"          , type: "entity"};
 resDB["assembling_machine_2"]   = {name: "assembling machine 2"          , type: "entity", lock: 1};
 resDB["assembling_machine_3"]   = {name: "assembling machine 3"          , type: "entity", lock: 1};
 resDB["assembling_machine_4"]   = {name: "assembling machine 4"          , type: "entity", lock: 1};
@@ -90,10 +92,28 @@ Object.keys(resDB).forEach((k) => {
     resName.push(resDB[k]);
 })
 
+resDB.copper_cable.cost = [{id: resDB.copper_plate.id, n: 1}];
+resDB.wood.cost = [{id: resDB.raw_wood.id, n: 1}];
+resDB.wooden_stick.cost = [{id: resDB.wood.id, n: 1}];
+resDB.sharp_stone.cost = [{id: resDB.stone.id, n: 2}];
+resDB.iron_stick.cost = [{id: resDB.iron_plate.id, n: 1}];
+
+resDB.chest.cost               = [{id: resDB.wood.id, n: 4}];
+resDB.gear.cost                = [{id: resDB.iron_plate.id, n: 2}];
+resDB.hydraulic_piston.cost    = [{id: resDB.iron_plate.id, n: 1}, {id: resDB.iron_stick.id, n: 1}];
+resDB.circuit.cost             = [{id: resDB.iron_plate.id, n: 1}, {id: resDB.copper_cable.id, n: 3}];
+resDB.stone_axe.cost           = [{id: resDB.wooden_stick.id, n: 2}, {id: resDB.sharp_stone.id, n: 2}];
+resDB.iron_axe.cost            = [{id: resDB.iron_stick.id, n: 2}, {id: resDB.iron_plate.id, n: 2}];
+resDB.inserter_burner.cost     = [{id: resDB.iron_plate.id, n: 1}, {id: resDB.gear.id, n: 1}, {id: resDB.hydraulic_piston.id, n: 1}];
+resDB.inserter_short.cost      = [{id: resDB.coal.id, n: 2}];
+resDB.inserter.cost            = [{id: resDB.coal.id, n: 2}];
+resDB.inserter_long.cost       = [{id: resDB.coal.id, n: 2}];
+resDB.inserter_smart.cost      = [{id: resDB.coal.id, n: 2}];
+resDB.assembling_machine_1.cost  = [{id: resDB.coal.id, n: 2}];
 
 const dirToVec = [{x: 1, y:0},{x: 0, y:1},{x: -1, y:0},{x: 0, y:-1}];
 const dirToAng = [0, 90, 180, 270];
-const  layers = {terrain: 0, floor:1, res: 2, buildings:3, inv:4, inext: 5, vis:6 } 
+const  layers = {terrain: 0, res: 1, inv:2, vis:3 } 
 var allInvs = [];
 var allEnts = [];
 var allMovableEntities = [];

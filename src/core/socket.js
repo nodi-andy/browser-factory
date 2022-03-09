@@ -5,14 +5,14 @@ function wssend(msg) {
     if (c.isBrowser) {
         let updateInv = false;
         if (msg.cmd == "addEntity") {
-            let entID = addEntity(msg.data, false);
+            let entID = addInventory(msg.data, false);
             updateInv = true; 
             if (ws.readyState == WebSocket.OPEN) {
-                ws.send(JSON.stringify({cmd: "updateEntity", data: {id: entID, ent: c.allEnts[entID]}}));
+                ws.send(JSON.stringify({cmd: "updateEntity", data: {id: entID, ent: c.allInvs[entID]}}));
                 ws.send(JSON.stringify({cmd: "updateMapData", data: c.game.map}));
             } else if (savedData) {
-                savedData = JSON.stringify(c);
-                document.cookie["browserFactorio"] = savedData;
+                //savedData = JSON.stringify(c);
+                //document.cookie["browserFactorio"] = savedData;
             }
         }
         if (msg.cmd == "addItem") {
@@ -28,7 +28,11 @@ function wssend(msg) {
             }
         }
 
-        if (updateInv) ws.send(JSON.stringify({cmd: "updateInventories", data:c.allInvs}));
+        if (updateInv) {
+            if (ws.readyState == WebSocket.OPEN) {
+                ws.send(JSON.stringify({cmd: "updateInventories", data:c.allInvs}));
+            }
+        } 
         //ws.send(JSON.stringify(msg));
     }
 }
@@ -69,31 +73,31 @@ ws.onmessage = function(e) {
     }
 
     if (socketMsg.msg == "updateEntities") {
-        c.allEnts = JSON.parse(JSON.stringify(socketMsg.data));
+        c.allInvs = JSON.parse(JSON.stringify(socketMsg.data));
         // Get all movable items
         c.allMovableEntities = [];
-        for(let ient = 0; ient < c.allEnts.length; ient++) {
-            let entity = c.allEnts[ient];
+        for(let ient = 0; ient < c.allInvs.length; ient++) {
+            let entity = c.allInvs[ient];
             if (entity.movable) c.allMovableEntities.push(ient);
         }
     }
 
     if (socketMsg.msg == "updateEntity") {
-        c.allEnts[socketMsg.data.id] = socketMsg.data.ent;
+        c.allInvs[socketMsg.data.id] = socketMsg.data.ent;
         // Get all movable items
         c.allMovableEntities = [];
-        for(let ient = 0; ient < c.allEnts.length; ient++) {
-            let entity = c.allEnts[ient];
+        for(let ient = 0; ient < c.allInvs.length; ient++) {
+            let entity = c.allInvs[ient];
             if (entity.movable) c.allMovableEntities.push(ient);
         }
         //c.player.setInventory(socketMsg.data.inv, socketMsg.data.invID);
     }
     if (socketMsg.msg == "remEntity") {
-        delete c.allEnts[socketMsg.data];
+        delete c.allInvs[socketMsg.data];
         // Get all movable items
         c.allMovableEntities = [];
-        for(let ient = 0; ient < c.allEnts.length; ient++) {
-            let entity = c.allEnts[ient];
+        for(let ient = 0; ient < c.allInvs.length; ient++) {
+            let entity = c.allInvs[ient];
             if (entity.movable) c.allMovableEntities.push(ient);
         }
         //c.player.setInventory(socketMsg.data.inv, socketMsg.data.invID);

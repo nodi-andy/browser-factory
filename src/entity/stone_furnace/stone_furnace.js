@@ -14,22 +14,14 @@ class StoneFurnace {
             db.anim1 = image;
         }
         db.size = [2, 2];
-        db.cost = [{res: c.resDB.stone, n: 5}];
+        db.cost = [{id: c.resDB.stone.id, n: 5}];
         db.rotatable = false;
     }
 
-    setup(map, ent) {
-        let myEnt = inventory.getEnt(ent.pos.x, ent.pos.y);
-        let inv = new inventory.Inventory(c.allInvs, ent.pos);//inventory.getInv(ent.pos.x, ent.pos.y);
-        myEnt.invID = inv.id;
-
-        inventory.setInv(ent.pos.x + 1, ent.pos. y, inv.id);
-        inventory.setInv(ent.pos.x + 1, ent.pos. y + 1, inv.id);
-        inventory.setInv(ent.pos.x, ent.pos. y + 1, inv.id);
-
-        inventory.setEnt(ent.pos.x + 1, ent.pos. y, myEnt.id);
-        inventory.setEnt(ent.pos.x + 1, ent.pos. y + 1, myEnt.id);
-        inventory.setEnt(ent.pos.x, ent.pos. y + 1, myEnt.id);
+    setup(map, inv) {
+        inventory.setInv(inv.pos.x + 1, inv.pos. y + 0, inv.id);
+        inventory.setInv(inv.pos.x + 1, inv.pos. y + 1, inv.id);
+        inventory.setInv(inv.pos.x + 0, inv.pos. y + 1, inv.id);
 
         inv.packsize = 1;
         inv.itemsize = 50;

@@ -44,7 +44,7 @@ class InputModule {
 
                 dragStart = worldCordinate;
                 let res = c.game.map[tileCoordinate.x][tileCoordinate.y][layers.res];
-                let d = dist(c.allEnts[c.playerID].pos, worldCordinate);
+                let d = dist(c.allInvs[c.playerID].pos, worldCordinate);
 
                 if (c.pointer?.item?.id) {
                     c.pointer.type = resName[c.pointer.item.id].type;
@@ -58,23 +58,20 @@ class InputModule {
                 } else {
                     isDragStarted = true;
                     isBuilding = false;
-                    if (res?.id && d < 5*tileSize) c.playerClass.startMining(tileCoordinate, c.allEnts[c.playerID]);
+                    if (res?.id && d < 5*tileSize) c.playerClass.startMining(tileCoordinate, c.allInvs[c.playerID]);
                 }
             } else if (e.buttons == 2) {
-                let ent = c.game.map[tileCoordinate.x][tileCoordinate.y][layers.buildings];
                 let inv = c.game.map[tileCoordinate.x][tileCoordinate.y][layers.inv];
                 if (inv) c.allInvs[inv] = undefined
-                if (ent) c.allEnts[ent] = undefined;
-                c.game.map[tileCoordinate.x][tileCoordinate.y][layers.buildings] = null;
                 c.game.map[tileCoordinate.x][tileCoordinate.y][layers.inv] = null;
-                c.allInvs[c.playerID].addItem(c.allEnts[ent]);
+                c.allInvs[c.playerID].addItem(c.allInvs[ent]);
             }            
         }
     }
 
 
     onPointerUp(e) {
-        c.playerClass.stopMining(c.allEnts[c.playerID]);
+        c.playerClass.stopMining(c.allInvs[c.playerID]);
 
         let overlayClicked = false;
         invMenu.items.forEach   (b => {if (b.collision(e) && b.onClick) { b.onClick(e.which); overlayClicked = true; }})
@@ -84,22 +81,22 @@ class InputModule {
 
         let worldPos = view.screenToWorld({x: e.offsetX, y: e.offsetY});
         let tilePos = worldToTile(worldPos);
-        let entity = inventory.getEnt(tilePos.x, tilePos.y);
+        let inv = inventory.getInv(tilePos.x, tilePos.y);
         
         if (overlayClicked == false) {
             if (e.buttons == 0) {
                 // SHOW ENTITY
-                if (c.pointer?.item?.id == undefined && entity) {
+                if (c.pointer?.item?.id == undefined && inv) {
                     let invID = inventory.getInv(tilePos.x, tilePos.y).id;
-                    c.selEntity = {entID: entity.id, inv: c.allInvs[invID], invID: invID};
+                    c.selEntity = {entID: inv.id, inv: c.allInvs[invID], invID: invID};
 
                     view.updateEntityMenu(c.selEntity.inv, true);
 
-                    if (entity) {entityMenu.vis = invMenu.vis = true; craftMenu.vis = false; }
+                    if (inv) {entityMenu.vis = invMenu.vis = true; craftMenu.vis = false; }
                     else {entityMenu.vis = invMenu.vis = false; craftMenu.vis = true;}
                 }
 
-                if (entity == undefined) entityMenu.vis = false;
+                if (inv == undefined) entityMenu.vis = false;
 
                 isDragging = false;
                 dragStart = undefined;

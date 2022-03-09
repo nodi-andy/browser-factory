@@ -131,7 +131,7 @@ function addCity(nID, x, y, t) {
 
 
 function remFromInv(remItems) {
-  c.player.inv.remItems(remItems);
+  c.player.remItems(remItems);
   updatePlayer();
 }
 
@@ -146,25 +146,25 @@ function addStack(add) {
 }
 
 function addToInv(newItem) {
-  for(let i = 0; i < c.player.inv.packs.length && newItem; i++) {
-    let invObj = c.player.inv.packs[i];
-    if (newItem.res && invObj.id == newItem.res.id) {
+  for(let i = 0; i < c.player.packs.length && newItem; i++) {
+    let invObj = c.player.packs[i];
+    if (newItem.res && invObj.id == newItem.id) {
       if (newItem.n == undefined) newItem.n = 1;
       invObj.n += newItem.n;
       newItem = null;
     }
   }
-  if (newItem) c.player.inv.packs.push({id: newItem.res.id, n: newItem.n});
+  if (newItem) c.player.packs.push({id: newItem.id, n: newItem.n});
   updatePlayer();
 }
 
 function craftToInv(newItem) {
-  let costs = c.resName[newItem[0].res.id].cost;
+  let costs = c.resName[newItem[0].id].cost;
   for(let iCost = 0; iCost < costs.length; iCost++) {
     let cost = costs[iCost];
-    c.player.inv.remStackItem(cost);      
+    c.player.remItem(cost);      
   }
-  c.player.inv.addItem({id:newItem[0].res.id, n: 1});
+  c.player.addItem({id:newItem[0].id, n: 1});
 }
 
 
@@ -189,11 +189,11 @@ function protocoll(ws, req) {
     let playerEnt = {};
     c.player.setup(undefined, playerEnt);
 
-    c.allEnts.push(playerEnt);
-    playerEnt.id = c.allEnts.length - 1;
+    c.allInvs.push(playerEnt);
+    playerEnt.id = c.allInvs.length - 1;
 
     c.allMovableEnts.push(playerEnt.id);
-    playerID = c.allEnts.length - 1;
+    playerID = c.allInvs.length - 1;
   }
 
   ws.playerID = playerID;
@@ -203,7 +203,6 @@ function protocoll(ws, req) {
   ws.on('message', function(message) {
     let msg = JSON.parse(message);
     if (msg.cmd == "addCity") addCity(cityID++, msg.data.x, msg.data.y, msg.data.type);
-    if (msg.cmd == "updateEntities") c.allEnts = JSON.parse(JSON.stringify(msg.data));
     if (msg.cmd == "updateInventories") {
       c.allInvs = JSON.parse(JSON.stringify(msg.data));
     }
@@ -213,8 +212,8 @@ function protocoll(ws, req) {
     }
     if (msg.cmd == "updateEntity") {
       if (msg.data.ent) {
-        c.allEnts[msg.data.id] = JSON.parse(JSON.stringify(msg.data.ent));
-        s.sendAll(JSON.stringify({msg:  "updateEntity", data: {id: msg.data.id, ent: c.allEnts[msg.data.id]}}), ws.playerID);
+        c.allInvs[msg.data.id] = JSON.parse(JSON.stringify(msg.data.ent));
+        s.sendAll(JSON.stringify({msg:  "updateEntity", data: {id: msg.data.id, ent: c.allInvs[msg.data.id]}}), ws.playerID);
         console.log(msg.data);
       }
     } 
@@ -228,10 +227,9 @@ function protocoll(ws, req) {
   ws.send(JSON.stringify({msg: "id" , data:JSON.stringify(ws.uuid)}));
   ws.send(JSON.stringify({msg: "updateMapData", data:c.game.map}));
   ws.send(JSON.stringify({msg: "updateInventories", data:c.allInvs}));
-  ws.send(JSON.stringify({msg: "updateEntities", data: c.allEnts}));
   s.sendAll(JSON.stringify({
      msg: "updateEntity",
-     data: {id: playerID, ent: c.allEnts[playerID] }
+     data: {id: playerID, ent: c.allInvs[playerID] }
   }));
   ws.send(JSON.stringify({msg: "setPlayerID", data: playerID}));
   ws.send(JSON.stringify({msg: "startGame"}));

@@ -106,7 +106,7 @@ class Button {
                 this.item.n = this.item.n - c.pointer.item.n;
             }
         }
-        view.updateInventoryMenu(c.player.inv);
+        view.updateInventoryMenu(c.player);
         if (c.selEntity?.inv) view.updateEntityMenu(c.selEntity.inv, true);
     };
 

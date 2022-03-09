@@ -15,7 +15,7 @@ function createWorld(x, y) {
       id: 0, name: "", 
       x: Math.floor(x/10)*10, 
       y: Math.floor(y/10)*10, 
-      map: Array(c.gridSize.x).fill(0).map(()=>Array(c.gridSize.y).fill(0).map(()=>[[undefined, 0], undefined, {id:undefined, n:0}, undefined, undefined, undefined, 0])), 
+      map: Array(c.gridSize.x).fill(0).map(()=>Array(c.gridSize.y).fill(0).map(()=>[[undefined, 0], {id:undefined, n:0}, undefined, 0])), 
       camera: {x: 0, y:0, zoom:4}, 
       res: [0, 100, 0, 0, 0, 0, 100, 0, 0, 0, 0], 
       nb:[],

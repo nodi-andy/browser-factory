@@ -63,11 +63,11 @@ function setCookie(name,value,days) {
         c.playerClass = new Player();
         c.pointer = {};
 
-        c.player = {};
-        c.player.id = 0;
-        c.player.type = 0;
-        c.allEnts.push(c.player);
-        c.playerID = 0;
+        let newID = invfuncs.createInv();
+        c.player = c.allInvs[newID];
+        c.player.id = newID;
+        c.player.type = c.resDB.player.id;
+        c.playerID = newID;
         c.allMovableEntities.push(c.playerID);
         savedData = JSON.stringify(c.game);
         setCookie("game", "savedData", 100);
@@ -108,7 +108,7 @@ function setCookie(name,value,days) {
         if(e.code == "KeyA") c.player.dir.x = -1;
         if(e.code == "Escape") {
             if (c.pointer.item) {
-                c.player.inv.addItem(c.pointer.item);
+                c.player.addItem(c.pointer.item);
             }
             c.pointer.item = undefined;
             invMenu.vis = false;
@@ -156,8 +156,8 @@ function setCookie(name,value,days) {
 
         if (c.game.tick == 0) {
             // SETUP
-            for(let ient = 0; ient < c.allEnts.length; ient++) {
-                let entity = c.allEnts[ient];
+            for(let ient = 0; ient < c.allInvs.length; ient++) {
+                let entity = c.allInvs[ient];
                 c.resName[entity?.type]?.mach?.setup(c.game.map, entity);
             }
         }
@@ -165,18 +165,18 @@ function setCookie(name,value,days) {
         c.game.tick++;
 
         // belts excluded
-        for(let ient = 0; ient < c.allEnts.length; ient++) {
-            let entity = c.allEnts[ient];
+        for(let ient = 0; ient < c.allInvs.length; ient++) {
+            let entity = c.allInvs[ient];
             if (!entity) continue;
             if(entity?.type == c.resDB.belt1.id) continue;
-            if(c.resName[entity.type].mach) {
-            c.resName[entity.type].mach.update(c.game.map, entity);
+            if(c.resName[entity.type]?.mach) {
+                c.resName[entity.type].mach.update(c.game.map, entity);
             }
         }
         // Get all BELTs
         let belts = [];
-        for(let ient = 0; ient < c.allEnts.length; ient++) {
-            let entity = c.allEnts[ient];
+        for(let ient = 0; ient < c.allInvs.length; ient++) {
+            let entity = c.allInvs[ient];
             if (entity?.type == c.resDB.belt1.id) belts.push(entity);
         }
 
@@ -191,7 +191,7 @@ function setCookie(name,value,days) {
 
                     let nbPos = c.dirToVec[belt.dir];
                     let nbTile = c.game.map[x + nbPos.x][y + nbPos.y];
-                    let nbEntity = c.allEnts[nbTile[c.layers.buildings]];
+                    let nbEntity = c.allInvs[nbTile[c.layers.inv]];
                     if (nbEntity?.type == c.resDB.belt1.id && // is it a belt?
                         nbEntity.done == false &&  // already processed?
                         (nbEntity.searching == false || nbEntity.searching == undefined) &&  // circular network?
@@ -211,7 +211,7 @@ function setCookie(name,value,days) {
         }
 
         /*if (c.game.tick % 100 == 0) {
-            ws.send(JSON.stringify({cmd: "updatePlayer", data: c.allEnts[c.playerID]}));
+            ws.send(JSON.stringify({cmd: "updatePlayer", data: c.allInvs[c.playerID]}));
         }*/
 
         setTimeout(gameLoop, 20);
