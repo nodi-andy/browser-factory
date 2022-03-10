@@ -22,10 +22,10 @@ function render(){
                 let tile = c.game.map[ax][ay];
 
                 // ENTITIES
-                let entID = tile[layers.inv];
+                let invID = tile[layers.inv];
                 let b;
-                if (entID != undefined) {
-                    b = c.allInvs[entID];
+                if (invID != undefined) {
+                    b = c.allInvs[invID];
                 }
 
 
@@ -165,10 +165,11 @@ function render(){
         context.fillRect(entityMenu.rect.x , entityMenu.rect.y, entityMenu.rect.w , entityMenu.rect.h);
         context.font = "24px Arial";
         context.fillStyle = "black";
-        context.fillText(resName[c.allInvs[c.selEntity.entID].type].name, entityMenu.rect.x + 16, entityMenu.rect.y + 32);
-        let selInv = c.allInvs[c.selEntity.invID];
+        context.fillText(resName[c.allInvs[c.selEntity.id].type].name, entityMenu.rect.x + 16, entityMenu.rect.y + 32);
+        let selInv = c.allInvs[c.selEntity.id];
         if (selInv) {
             if (selInv.prod) {
+                entityMenu.buttons.PROD[0].item = {id: selInv.prod};
                 context.font = "24px Arial";
                 context.fillStyle = "black";
                 context.fillText("PROD", entityMenu.rect.x + 16, entityMenu.rect.y + dy);

@@ -47,12 +47,12 @@ function createWorld(x, y) {
             for(let ax = 0; ax < nCity.map.length; ax++) {
                 for(let ay = 0; ay < nCity.map[ax].length; ay++) {
                     let perlinVal = terrainmap[ax * c.gridSize.y + ay];
-                    if (perlinVal > 7 && 
+                    if (perlinVal > 8 && 
                         nCity.map[ax][ay][c.layers.res].id == undefined &&
                         nCity.map[ax][ay][c.layers.terrain][0] == c.resDB.grassland.id)
                     {
                         nCity.map[ax][ay][c.layers.res].id = res.id;
-                        nCity.map[ax][ay][c.layers.res].n = Math.round((perlinVal - 8) * 300);
+                        nCity.map[ax][ay][c.layers.res].n = Math.round((perlinVal - 8) * 200);
                     }
                 }
             }

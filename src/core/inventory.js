@@ -23,11 +23,11 @@ class Inventory {
     }
 
     moveItemTo(item, to) {
-      if (this.remItem({res: item, n: item.n})) {
+      if (this.remItem(item)) {
         if(to.addItem(item)) {
           return true;
         } else {
-          this.addItem({res: item, n: item.n})
+          this.addItem(item);
           return false;
         }
       }
@@ -48,7 +48,6 @@ class Inventory {
     addItem(newItem, stackName) {
       if (newItem == undefined) return false;
       if (stackName == undefined) stackName = "INV";
-      let keys = Object.keys(this.stack);
       if (this.stacksize == undefined) this.stacksize = 1;
 
       if (this.stack[stackName] == undefined) {
@@ -85,7 +84,6 @@ class Inventory {
     hasPlaceFor(newItem, stackName) {
       if (newItem == undefined) return false;
       if (stackName == undefined) stackName = "INV";
-      let keys = Object.keys(this.stack);
       if (this.stacksize == undefined) this.stacksize = 1;
 
       if (this.stack[stackName] == undefined) {
@@ -321,9 +319,9 @@ function setInv(x, y, invID){
   tile[c.layers.inv] = invID;
 }
 
-function setEnt(x, y, entID){
+function setEnt(x, y, invID){
   let tile = c.game.map[x][y];
-  tile[c.layers.buildings] = entID;
+  tile[c.layers.buildings] = invID;
 }
 
 function createInvOnMap(x, y){
@@ -389,7 +387,7 @@ function moveStack(data) {
   c.allInvs[data.fromInvID].stack[data.fromInvKey][data.fromStackPos] = undefined;
   //s.sendAll(JSON.stringify({msg:"updateInv", data:c.allInvs}));
   if (data.fromInvID == 0 || data.toInvID == 0) c.player.setInventory(c.allInvs[0]);
-  if (data.fromInvID == c.selEntity?.inv.id || data.toInvID == c.selEntity?.inv.id) view.updateInventoryMenu(c.selEntity.inv);
+  if (data.fromInvID == c.selEntity?.id || data.toInvID == c.selEntity?.id) view.updateInventoryMenu(c.selEntity);
 }
 
 if (exports == undefined) var exports = {};

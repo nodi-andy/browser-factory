@@ -107,7 +107,7 @@ class Button {
             }
         }
         view.updateInventoryMenu(c.player);
-        if (c.selEntity?.inv) view.updateEntityMenu(c.selEntity.inv, true);
+        if (c.selEntity) view.updateEntityMenu(c.selEntity, true);
     };
 
   }

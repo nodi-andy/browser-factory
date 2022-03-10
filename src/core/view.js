@@ -119,13 +119,14 @@ class ViewModule {
 
     // SELECT ITEM MENU
     updateSelectItemMenu(ent) {
-        let items = c.resName[c.allInvs[ent.entID].type].output;
+        let items = c.resName[ent.type].output;
         let pos = 0;
         items.forEach(i => {
             let newButton = new Button ((pos % 8) * (buttonSize), Math.floor(pos/8) * (buttonSize), {id: i} , selectItemMenu);
-            newButton.onClick = () => {
-                c.selEntity.prod = this.item.id;
-                c.selEntity.vis = false;
+            newButton.onClick = (which, button) => {
+                c.assemblyMachine1.setOutput(c.game.map, c.selEntity, button.item.id);
+                c.selEntity.vis = true;
+                selectItemMenu.vis = false;
             };
             selectItemMenu.items.push(newButton)
             pos++;
@@ -187,7 +188,7 @@ class ViewModule {
             let button;
             if (refresh) {
                 entityMenu.buttons.PROD = [];
-                button = new Button(dx , dy, undefined, entityMenu, c.selEntity.inv);
+                button = new Button(dx , dy, undefined, entityMenu, c.selEntity);
                 button.onClick = () => {
                     view.updateSelectItemMenu(c.selEntity);
                     selectItemMenu.vis = true;
@@ -208,7 +209,7 @@ class ViewModule {
             for(let stackPos = 0; stackPos < inv.packsize[s]; stackPos++) {
                 let item = showStack[s][stackPos];
                 let button;
-                if (refresh) button = new Button(dx , dy, item, entityMenu, c.selEntity.inv);
+                if (refresh) button = new Button(dx , dy, item, entityMenu, c.selEntity);
                 else button = entityMenu.buttons[s][stackPos];
                 dx += buttonSize;
                 button.invKey = s;

@@ -56,7 +56,7 @@ class BurnerMiner {
             let hasPlace = targetInv.hasPlaceFor({id: c.resDB.coal.id, n: 1});
 
             if (tile[c.layers.res]?.n && inv.stack["FUEL"][0] && inv.stack["FUEL"][0].n > 0 && hasPlace) {
-                output = c.resName[tile[c.layers.res].id].becomes.id;
+                output = c.resName[tile[c.layers.res].id].becomes;
                 inv.power = 100;
                 tile[c.layers.res].n--;
             }

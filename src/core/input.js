@@ -33,9 +33,10 @@ class InputModule {
     onPointerDown(e)
     {
         let overlayClicked = false;
-        invMenu.items.forEach   (b => {if (b.collision(e)) { overlayClicked = true; }})
-        craftMenu.items.forEach (b => {if (b.collision(e)) { overlayClicked = true; }})
-        entityMenu.items.forEach (b => {if (b.collision(e)) { overlayClicked = true; }})
+        selectItemMenu.items.forEach   (b => {if (b.collision(e, b)) { overlayClicked = true; }})
+        invMenu.items.forEach   (b => {if (b.collision(e, b)) { overlayClicked = true; }})
+        craftMenu.items.forEach (b => {if (b.collision(e, b)) { overlayClicked = true; }})
+        entityMenu.items.forEach (b => {if (b.collision(e, b)) { overlayClicked = true; }})
         
         if (overlayClicked == false) {
             let worldCordinate = view.screenToWorld(getEventLocation(e));
@@ -74,10 +75,10 @@ class InputModule {
         c.playerClass.stopMining(c.allInvs[c.playerID]);
 
         let overlayClicked = false;
-        invMenu.items.forEach   (b => {if (b.collision(e) && b.onClick) { b.onClick(e.which); overlayClicked = true; }})
-        craftMenu.items.forEach (b => {if (b.collision(e) && b.onClick) { b.onClick(e.which); overlayClicked = true; }})
-        entityMenu.items.forEach (b => {if (b.collision(e) && b.onClick) { b.onClick(e.which); overlayClicked = true; }})
-        selectItemMenu.items.forEach (b => {if (b.collision(e) && b.onClick) { b.onClick(e.which); overlayClicked = true; }})
+        selectItemMenu.items.forEach (b => {if (b.collision(e) && b.onClick) { b.onClick(e.which, b); overlayClicked = true; }})
+        invMenu.items.forEach   (b => {if (b.collision(e) && b.onClick) { b.onClick(e.which, b); overlayClicked = true; }})
+        craftMenu.items.forEach (b => {if (b.collision(e) && b.onClick) { b.onClick(e.which, b); overlayClicked = true; }})
+        entityMenu.items.forEach (b => {if (b.collision(e) && b.onClick) { b.onClick(e.which, b); overlayClicked = true; }})
 
         let worldPos = view.screenToWorld({x: e.offsetX, y: e.offsetY});
         let tilePos = worldToTile(worldPos);
@@ -88,9 +89,9 @@ class InputModule {
                 // SHOW ENTITY
                 if (c.pointer?.item?.id == undefined && inv) {
                     let invID = inventory.getInv(tilePos.x, tilePos.y).id;
-                    c.selEntity = {entID: inv.id, inv: c.allInvs[invID], invID: invID};
+                    c.selEntity = c.allInvs[invID];
 
-                    view.updateEntityMenu(c.selEntity.inv, true);
+                    view.updateEntityMenu(c.selEntity, true);
 
                     if (inv) {entityMenu.vis = invMenu.vis = true; craftMenu.vis = false; }
                     else {entityMenu.vis = invMenu.vis = false; craftMenu.vis = true;}

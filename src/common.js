@@ -18,22 +18,22 @@ resDB["water"]                  = {name: "water"        , type: "terrain"};
 resDB["grassland"]              = {name: "grassland"    , type: "terrain"};
 
 
-resDB["iron_plate"]             = {name: "iron plate"    ,  type: "item"};
-resDB["copper_plate"]           = {name: "copper plate"  ,  type: "item"};
+resDB["iron_plate"]             = {name: "iron plate"    , type: "item"};
+resDB["copper_plate"]           = {name: "copper plate"  , type: "item"};
 
-resDB["coal"]                   = {name: "coal"          ,  type: "item", E: 100};
-resDB["stone"]                  = {name: "stone"         ,  type: "item"};
-resDB["iron"]                   = {name: "iron"          ,  type: "item", W: 500, becomes: resDB.iron_plate};
-resDB["copper"]                 = {name: "copper"        ,  type: "item", W: 500, becomes: resDB.copper_plate};
-resDB["raw_wood"]               = {name: "raw_wood"      ,              type: "item"};
+resDB["coal"]                   = {name: "coal"          , type: "item", E: 100};
+resDB["stone"]                  = {name: "stone"         , type: "item"};
+resDB["iron"]                   = {name: "iron"          , type: "item", W: 500};
+resDB["copper"]                 = {name: "copper"        , type: "item", W: 500};
+resDB["raw_wood"]               = {name: "raw_wood"      , type: "item"};
 
-resDB["iron_ore"]               = {name: "iron ore"      , type: "res", W: 500, becomes: resDB.iron};
-resDB["stone_ore"]              = {name: "stone ore"     , type: "res", W: 500, becomes: resDB.stone};
-resDB["tree"]                   = {name: "tree"          , type: "res", E: 500, becomes: resDB.raw_wood};
-resDB["copper_ore"]             = {name: "copper ore"    , type: "res", W: 500, becomes: resDB.copper};
-resDB["coal_ore"]               = {name: "coal ore"      , type: "res", W: 500, becomes: resDB.coal};
+resDB["iron_ore"]               = {name: "iron ore"      , type: "res", W: 500};
+resDB["stone_ore"]              = {name: "stone ore"     , type: "res", W: 500};
+resDB["tree"]                   = {name: "tree"          , type: "res", E: 500};
+resDB["copper_ore"]             = {name: "copper ore"    , type: "res", W: 500};
+resDB["coal_ore"]               = {name: "coal ore"      , type: "res", W: 500};
 
-resDB["copper_cable"]           = {name: "copper cable"  ,  type: "item", lock: 1};
+resDB["copper_cable"]           = {name: "copper cable"  , type: "item", lock: 1};
 resDB["wood"]                   = {name: "wood"          , type: "item", E: 100};
 resDB["wooden_stick"]           = {name: "wooden stick"  , type: "item", E: 100, lock: 1};
 resDB["sharp_stone"]            = {name: "sharp stone"   , type: "item", E: 100, lock: 1};
@@ -92,13 +92,17 @@ Object.keys(resDB).forEach((k) => {
     resName.push(resDB[k]);
 })
 
-resDB.copper_cable.cost = [{id: resDB.copper_plate.id, n: 1}];
-resDB.wood.cost = [{id: resDB.raw_wood.id, n: 1}];
-resDB.wooden_stick.cost = [{id: resDB.wood.id, n: 1}];
-resDB.sharp_stone.cost = [{id: resDB.stone.id, n: 2}];
-resDB.iron_stick.cost = [{id: resDB.iron_plate.id, n: 1}];
-
-resDB.chest.cost               = [{id: resDB.wood.id, n: 4}];
+resDB.iron_ore.becomes          = resDB.iron.id;
+resDB.stone_ore.becomes         = resDB.stone.id;
+resDB.tree.becomes              = resDB.raw_wood.id;
+resDB.copper_ore.becomes        = resDB.copper.id;
+resDB.coal_ore.becomes          = resDB.coal.id;
+resDB.copper_cable.cost         = [{id: resDB.copper_plate.id, n: 1}];
+resDB.wood.cost                 = [{id: resDB.raw_wood.id, n: 1}];
+resDB.wooden_stick.cost         = [{id: resDB.wood.id, n: 1}];
+resDB.sharp_stone.cost          = [{id: resDB.stone.id, n: 2}];
+resDB.iron_stick.cost           = [{id: resDB.iron_plate.id, n: 1}];
+resDB.chest.cost                = [{id: resDB.wood.id, n: 4}];
 resDB.gear.cost                = [{id: resDB.iron_plate.id, n: 2}];
 resDB.hydraulic_piston.cost    = [{id: resDB.iron_plate.id, n: 1}, {id: resDB.iron_stick.id, n: 1}];
 resDB.circuit.cost             = [{id: resDB.iron_plate.id, n: 1}, {id: resDB.copper_cable.id, n: 3}];

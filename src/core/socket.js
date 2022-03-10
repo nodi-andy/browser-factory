@@ -5,10 +5,10 @@ function wssend(msg) {
     if (c.isBrowser) {
         let updateInv = false;
         if (msg.cmd == "addEntity") {
-            let entID = addInventory(msg.data, false);
+            let invID = addInventory(msg.data, false);
             updateInv = true; 
             if (ws.readyState == WebSocket.OPEN) {
-                ws.send(JSON.stringify({cmd: "updateEntity", data: {id: entID, ent: c.allInvs[entID]}}));
+                ws.send(JSON.stringify({cmd: "updateEntity", data: {id: invID, ent: c.allInvs[invID]}}));
                 ws.send(JSON.stringify({cmd: "updateMapData", data: c.game.map}));
             } else if (savedData) {
                 //savedData = JSON.stringify(c);
@@ -62,7 +62,7 @@ ws.onmessage = function(e) {
         }
         c.playerClass.setInventoryID(0);
         if (c.selEntity) {
-            let inv = socketMsg.data[c.selEntity.invID];
+            let inv = socketMsg.data[c.selEntity.id];
             view.updateInventoryMenu(inv);
         }
     }

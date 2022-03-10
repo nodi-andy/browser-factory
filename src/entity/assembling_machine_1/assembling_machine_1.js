@@ -39,39 +39,53 @@ class AssemblingMachine1 {
       ];
     }
 
-    setup(map, ent) {
-        let inv = new inventory.Inventory(c.allInvs, ent.pos);//inventory.getInv(ent.pos.x, ent.pos.y);
+    setup(map, inv) {
         inv.prod = c.resDB.gear.id;
 
-        inventory.setInv(ent.pos.x + 0, ent.pos. y + 1, inv.id);
-        inventory.setInv(ent.pos.x + 0, ent.pos. y + 2, inv.id);
-        inventory.setInv(ent.pos.x + 1, ent.pos. y + 0, inv.id);
-        inventory.setInv(ent.pos.x + 1, ent.pos. y + 1, inv.id);
-        inventory.setInv(ent.pos.x + 1, ent.pos. y + 2, inv.id);
-        inventory.setInv(ent.pos.x + 2, ent.pos. y + 0, inv.id);
-        inventory.setInv(ent.pos.x + 2, ent.pos. y + 1, inv.id);
-        inventory.setInv(ent.pos.x + 2, ent.pos. y + 2, inv.id);
+        inventory.setInv(inv.pos.x + 0, inv.pos. y + 1, inv.id);
+        inventory.setInv(inv.pos.x + 0, inv.pos. y + 2, inv.id);
+        inventory.setInv(inv.pos.x + 1, inv.pos. y + 0, inv.id);
+        inventory.setInv(inv.pos.x + 1, inv.pos. y + 1, inv.id);
+        inventory.setInv(inv.pos.x + 1, inv.pos. y + 2, inv.id);
+        inventory.setInv(inv.pos.x + 2, inv.pos. y + 0, inv.id);
+        inventory.setInv(inv.pos.x + 2, inv.pos. y + 1, inv.id);
+        inventory.setInv(inv.pos.x + 2, inv.pos. y + 2, inv.id);
 
         inv.packsize = 1;
         inv.itemsize = 50;
-        inv.stack.INPUTA = [];
-        inv.stack.INPUTB = [];
-        inv.stack.OUTPUT = [];
+        inv.stack.INPUT = [];
         inv.stacksize = 4;
         inv.packsize = {};
-        inv.packsize.INPUTA = 1;
-        inv.packsize.INPUTB = 1;
-        inv.packsize.OUTPUT = 1;
+        inv.packsize.INPUT = 1;
         inv.packsize.INV = 1;
         inv.state = 0;
         inv.lastTime = performance.now();
     }
 
+    setOutput(map, inv, out) {
+        inv.prod = out;
+        let keys = Object.keys(inv.stack);
+        for(let iStack = 0; iStack < keys.length; iStack++) {
+            let key = keys[iStack];
+            if (key == "PROD") continue;
+            if (inv.stack[key]?.id) c.player.inv.addItems(inv.stack[key]);
+            if (inv.stack[key][0]?.id) c.player.inv.addItems(inv.stack[key][0]);   
+        }
 
-    update(map, ent){
-        let invThis = inventory.getInv(ent.pos.x, ent.pos.y, true);
-        invThis.need = [];
-        invThis.need.push({id: c.resDB.iron_plate.id, n:50});
+        let cost = resName[inv.prod].cost;
+        inv.stack = {};
+        inv.packsize = {};
+        for(let icost = 0; icost < cost.length; icost++) {
+            let item = cost[icost];
+            let name = resName[item.id].name;
+            inv.stack[name] = [];
+            inv.packsize[name] = 1;
+        }
+    }
+
+    update(map, inv){
+        let invThis = inv;
+        invThis.need = resName[inv.prod].cost;
 
         if (invThis.stack.INV) {
             if (invThis.stack.INPUTA == undefined) invThis.stack.INPUTA = invThis.stack.INV[0];
@@ -83,7 +97,7 @@ class AssemblingMachine1 {
                 delete invThis.stack.INV;
             }
         }
-        if(invThis.stack.INPUTA.length && invThis.stack.INPUTA[0].n > 1) {
+        if(invThis.stack.INPUTA?.length && invThis.stack.INPUTA[0].n > 1) {
             if (invThis.state == 0) {invThis.lastTime = performance.now(); invThis.state = 1};
             if (invThis.state == 1) {
                 let deltaT = performance.now() - invThis.lastTime;

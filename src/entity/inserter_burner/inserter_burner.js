@@ -43,13 +43,14 @@ class InserterBurner {
     
                 if (isHandFull == false || isHandFull == undefined) { // PICK
                     let item;
-                    for (let ineed = 0; invTo.need && ineed < invTo.need.length; ineed++) {
-                        if (invFrom.hasItem(invTo.need[ineed])) {
-                            item = invTo.need[ineed];
-                            break;
+                    if (invTo.need.length) {
+                        for (let ineed = 0; invTo.need && ineed < invTo.need.length; ineed++) {
+                            if (invFrom.hasItem(invTo.need[ineed])) {
+                                item = invTo.need[ineed];
+                                break;
+                            }
                         }
-                    }
-                    if (item == undefined) item = invFrom.getFirstPack("OUTPUT");
+                    } else if (item == undefined) item = invFrom.getFirstPack("OUTPUT");
                     if (item?.n && (c.game.tick%64) == 0 && invFrom.moveItemTo({id:item.id, n:1}, invThis)) {
                         invThis.state = 1;
                     } else invThis.state = 0;
