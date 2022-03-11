@@ -7,13 +7,6 @@ function wssend(msg) {
         if (msg.cmd == "addEntity") {
             let invID = addInventory(msg.data, false);
             updateInv = true; 
-            if (ws.readyState == WebSocket.OPEN) {
-                ws.send(JSON.stringify({cmd: "updateEntity", data: {id: invID, ent: c.allInvs[invID]}}));
-                ws.send(JSON.stringify({cmd: "updateMapData", data: c.game.map}));
-            } else if (savedData) {
-                //savedData = JSON.stringify(c);
-                //document.cookie["browserFactorio"] = savedData;
-            }
         }
         if (msg.cmd == "addItem") {
             addItem(msg.data, false);
@@ -60,7 +53,7 @@ ws.onmessage = function(e) {
         for(let inv of rawInvs) {
             c.allInvs.push(Object.assign(new Inventory(), inv));
         }
-        c.playerClass.setInventoryID(0);
+        c.player.setInventoryID(0);
         if (c.selEntity) {
             let inv = socketMsg.data[c.selEntity.id];
             view.updateInventoryMenu(inv);
