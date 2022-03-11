@@ -53,11 +53,8 @@ class AssemblingMachine1 {
 
         inv.packsize = 1;
         inv.itemsize = 50;
-        inv.stack.INPUT = [];
         inv.stacksize = 4;
         inv.packsize = {};
-        inv.packsize.INPUT = 1;
-        inv.packsize.INV = 1;
         inv.state = 0;
         inv.lastTime = performance.now();
     }
@@ -68,13 +65,15 @@ class AssemblingMachine1 {
         for(let iStack = 0; iStack < keys.length; iStack++) {
             let key = keys[iStack];
             if (key == "PROD") continue;
-            if (inv.stack[key]?.id) c.player.inv.addItems(inv.stack[key]);
-            if (inv.stack[key][0]?.id) c.player.inv.addItems(inv.stack[key][0]);   
+            if (inv.stack[key]?.id) c.player.addItem(inv.stack[key]);
+            if (inv.stack[key][0]?.id) c.player.addItems(inv.stack[key]);   
         }
 
         let cost = resName[inv.prod].cost;
         inv.stack = {};
         inv.packsize = {};
+        inv.stack.OUTPUT = [];
+        inv.packsize.OUTPUT = 1;
         for(let icost = 0; icost < cost.length; icost++) {
             let item = cost[icost];
             let name = resName[item.id].name;
@@ -83,32 +82,36 @@ class AssemblingMachine1 {
         }
     }
 
-    update(map, inv){
-        let invThis = inv;
-        invThis.need = resName[inv.prod].cost;
+    update(map, invThis){
 
-        if (invThis.stack.INV) {
-            if (invThis.stack.INPUTA == undefined) invThis.stack.INPUTA = invThis.stack.INV[0];
-            else {
-                let inItem = invThis.stack.INV[0];
-                let targetSlot = "INPUTA";
-//                if (resName[inItem.id].E)  targetSlot = "FUEL";
-                invThis.addItem(inItem, targetSlot);
-                delete invThis.stack.INV;
-            }
+        invThis.need = JSON.parse(JSON.stringify(resName[invThis.prod].cost));
+        for(let costItemID = invThis.need.length-1; costItemID >= 0; costItemID--) {
+            let costItem = invThis.need[costItemID];
+            let existing = invThis.getNumberOfItems(costItem.id);
+            if (existing >= costItem.n) {
+                invThis.need.splice(costItemID, 1);
+            } 
         }
-        if(invThis.stack.INPUTA?.length && invThis.stack.INPUTA[0].n > 1) {
+
+        if (invThis.need.length == 0) invThis.need = JSON.parse(JSON.stringify(resName[invThis.prod].cost));
+
+
+
+        let tempInv = new Inventory();
+        tempInv.stack = JSON.parse(JSON.stringify(invThis.stack));
+        tempInv.packsize = JSON.parse(JSON.stringify(invThis.packsize));
+        tempInv.PROD = [];
+        tempInv.OUTPUT = [];
+        if(invThis.need && tempInv.remItems(invThis.need)) {
             if (invThis.state == 0) {invThis.lastTime = performance.now(); invThis.state = 1};
             if (invThis.state == 1) {
                 let deltaT = performance.now() - invThis.lastTime;
-                let becomesThat = c.resDB.gear;
-                if (becomesThat && deltaT > 1000) {
-                    //if (inv.stack.OUTPUT == undefined || inv.stack.OUTPUT.length == 0) inv.stack.OUTPUT = [c.item(undefined, 0)];
-                    if (invThis.stack.OUTPUT[0] == undefined) invThis.stack.OUTPUT[0] = c.item(undefined, 0);
+                if (invThis.prod && deltaT > 1000) {
+                    if (!invThis.stack.OUTPUT?.length) invThis.stack.OUTPUT = [c.item(invThis.prod, 0)];
+                    if (invThis.stack.OUTPUT[0] == undefined) invThis.stack.OUTPUT[0] = c.item(invThis.prod, 0);
                     if (invThis.stack.OUTPUT[0].n == undefined) invThis.stack.OUTPUT[0].n = 0;
-                    invThis.stack.INPUTA[0].n-=2;
-                    invThis.stack.OUTPUT[0].id = becomesThat.id;
                     invThis.stack.OUTPUT[0].n++;
+                    invThis.remItems(resName[invThis.prod].cost);
                     invThis.lastTime = performance.now();
                 }
             }

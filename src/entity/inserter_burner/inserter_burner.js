@@ -36,14 +36,15 @@ class InserterBurner {
                 let invFrom = inventory.getInv(ent.pos.x - myDir.x, ent.pos.y - myDir.y, true);
                 let invTo = inventory.getInv(ent.pos.x + myDir.x, ent.pos.y + myDir.y, true);
 
-
+                if (!invFrom) return;
+                
                 if (invThis.stack.INV == undefined) invThis.stack.INV = [];
                 invThis.stack.INV.size = 6;
                 let isHandFull = (invThis?.stack?.INV && invThis.stack.INV[0] && invThis.stack.INV[0].n > 0);
     
-                if (isHandFull == false || isHandFull == undefined) { // PICK
+                if (!isHandFull) { // PICK
                     let item;
-                    if (invTo.need.length) {
+                    if (invTo?.need?.length) {
                         for (let ineed = 0; invTo.need && ineed < invTo.need.length; ineed++) {
                             if (invFrom.hasItem(invTo.need[ineed])) {
                                 item = invTo.need[ineed];
@@ -55,7 +56,7 @@ class InserterBurner {
                         invThis.state = 1;
                     } else invThis.state = 0;
                 } else { // PLACE
-                    if (invThis.moveItemTo(invThis.stack.INV[0], invTo))
+                    if (invThis.moveItemTo(invThis.stack.INV[0], invTo, resName[invThis.stack.INV[0].id].name))
                         invThis.state = 1;
                     else
                         invThis.state = 0;

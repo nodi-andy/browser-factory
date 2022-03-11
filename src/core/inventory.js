@@ -5,26 +5,19 @@ if (typeof window === 'undefined') {
 } 
 
 class Inventory {
-    constructor(inv, pos) {
+    constructor(pos, entData) {
         this.stack = {};
         if (pos) this.pos = {x: pos.x, y: pos.y};
         this.stacksize = 1;
         this.packsize = {};
         this.packsize.INV = 4;
         this.itemsize = 1;
-        if (inv) {
-          inv.push(this);
-          this.id = inv.length - 1;
-          if (pos) {
-            let tile = c.game.map[pos.x][pos.y];
-            tile[c.layers.inv] = this.id;
-          }
-        }
+        if (entData) Object.assign(this, entData);
     }
 
-    moveItemTo(item, to) {
+    moveItemTo(item, to, toStackname) {
       if (this.remItem(item)) {
-        if(to.addItem(item)) {
+        if(to.addItem(item, toStackname)) {
           return true;
         } else {
           this.addItem(item);
@@ -327,7 +320,11 @@ function setEnt(x, y, invID){
 function createInvOnMap(x, y){
   let invID = c.game.map[x][y][c.layers.inv];
   if (invID == undefined) {
-      inv = new Inventory(c.allInvs, {x: x, y:y});
+      inv = new Inventory({x: x, y: y});
+
+      c.allInvs.push(inv);
+      inv.id = inv.length - 1;
+
       c.game.map[x][y][c.layers.inv] = inv.id;
       inv.type = "empty";
       invID = inv.id;
@@ -370,7 +367,9 @@ function addItem(newItem) {
   let inv = undefined;
   let invID = c.game.map[newItem.pos.x][newItem.pos.y][c.layers.inv];
   if (invID == undefined) {
-    inv = new Inventory(c.allInvs, newItem.pos);
+    inv = new Inventory(newItem.pos);
+    c.allInvs.push(inv);
+    inv.id = inv.length - 1;
     c.game.map[newItem.pos.x][newItem.pos.y][c.layers.inv] = inv.id;
     inv.type = "empty";
   } else inv = inv = c.allInvs[invID];
