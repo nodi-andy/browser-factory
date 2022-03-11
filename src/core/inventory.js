@@ -16,6 +16,7 @@ class Inventory {
     }
 
     moveItemTo(item, to, toStackname) {
+      if (to == undefined) return false;
       if (this.remItem(item)) {
         if(to.addItem(item, toStackname)) {
           return true;
@@ -218,20 +219,7 @@ class Inventory {
       return ret;
     }
 
-    getNumberOfItems(type) {
-      let n = 0;
-      let keys = Object.keys(this.stack);
-      for(let iStack = 0; iStack < keys.length; iStack++) {
-        let key = keys[iStack];
-        for(let iPack = 0; iPack < this.packsize[key]; iPack++) {
-          let pack = this.stack[key][iPack];
-          if (pack && pack.id == type) {
-            n += pack.n;
-          }
-        }
-      }
-      return n;
-    }
+
 
     getFirstItem(){
       let firstPack = this.getFirstPack();
@@ -266,6 +254,21 @@ class Inventory {
         context.font = "48px Arial";
         context.fillText(this.t, this.x, this.y + 48);
     }
+}
+
+function getNumberOfItems(ent, type) {
+  let n = 0;
+  let keys = Object.keys(ent.stack);
+  for(let iStack = 0; iStack < keys.length; iStack++) {
+    let key = keys[iStack];
+    for(let iPack = 0; iPack < ent.packsize[key]; iPack++) {
+      let pack = ent.stack[key][iPack];
+      if (pack && pack.id == type) {
+        n += pack.n;
+      }
+    }
+  }
+  return n;
 }
 
 function mineToInv(minedItem) {
@@ -323,7 +326,7 @@ function createInvOnMap(x, y){
       inv = new Inventory({x: x, y: y});
 
       c.allInvs.push(inv);
-      inv.id = inv.length - 1;
+      inv.id = c.allInvs.length - 1;
 
       c.game.map[x][y][c.layers.inv] = inv.id;
       inv.type = "empty";
@@ -369,7 +372,7 @@ function addItem(newItem) {
   if (invID == undefined) {
     inv = new Inventory(newItem.pos);
     c.allInvs.push(inv);
-    inv.id = inv.length - 1;
+    inv.id = c.allInvs.length - 1;
     c.game.map[newItem.pos.x][newItem.pos.y][c.layers.inv] = inv.id;
     inv.type = "empty";
   } else inv = inv = c.allInvs[invID];

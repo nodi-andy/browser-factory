@@ -34,15 +34,6 @@
 <script type="text/javascript" src ="src/entity/assembling_machine_1/assembling_machine_1.js"></script>
 <script type="text/javascript">
 
-function setCookie(name,value,days) {
-    var expires = "";
-    if (days) {
-        var date = new Date();
-        date.setTime(date.getTime() + (days*24*60*60*1000));
-        expires = "; expires=" + date.toUTCString();
-    }
-    document.cookie = name + "=" + (value || "")  + expires + "; path=/";
-}
 
     canvas = document.getElementById("myCanvas");
     let context = canvas.getContext("2d");
@@ -53,27 +44,50 @@ function setCookie(name,value,days) {
     let inp = new InputModule (context.canvas);
     let view = new ViewModule (window);
 
-    let savedData = document.cookie["browserFactorio"];
-    if(savedData) {
 
+
+
+    let savedData = window.localStorage.getItem('map');
+    if(savedData) {
+        c.game = {
+            id: 0, name: "", 
+            x: Math.floor(c.gridSize.x/10)*10, 
+            y: Math.floor(c.gridSize.y/10)*10, 
+            map: JSON.parse(savedData), 
+            camera: {x: 0, y:0, zoom:4}, 
+            res: [0, 100, 0, 0, 0, 0, 100, 0, 0, 0, 0], 
+            nb:[],
+            w: [],
+            dist: [],
+            tick : 0
+        };
+        let ents = JSON.parse(window.localStorage.getItem('ents'));
+        for (let i = 0; i < ents.length; i++) {
+            c.allInvs.push(new Inventory(ents[i].pos, ents[i]));
+        }
+        c.player = c.allInvs[0];
+        c.pointer = {};
+        c.player.id = 0;
+        c.playerID = 0;
     } else {
         let newWorld = createWorld(gridSize.x, gridSize.y);
         c.game = newWorld;
-        
-        c.playerClass = new Player();
-        c.pointer = {};
 
         let newID = invfuncs.createInv();
         c.player = c.allInvs[newID];
         c.player.id = newID;
-        c.player.type = c.resDB.player.id;
         c.playerID = newID;
-        c.allMovableEntities.push(c.playerID);
-        savedData = JSON.stringify(c.game);
-        setCookie("game", "savedData", 100);
+        c.pointer = {};
+        c.allInvs[newID].type = c.resDB.player.id;
+
+        window.localStorage.setItem('map', JSON.stringify(c.game.map));
+        window.localStorage.setItem('ents', JSON.stringify(c.allInvs));
     }
 
-    
+
+    c.allMovableEntities.push(c.playerID);
+
+    c.playerClass = new Player();
     new Chest();
     new Belt();
     new BurnerMiner();
@@ -81,13 +95,7 @@ function setCookie(name,value,days) {
     new StoneFurnace();
     c.assemblyMachine1 = new AssemblingMachine1();
 
-    // INV MENU
-    for (let i = 0; i < 8; i++) {
-        for (let j = 0; j < 8; j++) {
-            let newButton = new Button (j * (buttonSize), i * (buttonSize), undefined, invMenu);
-            invMenu.items.push(newButton);
-        }
-    }
+
 
 
     view.updateCraftingMenu();
@@ -163,6 +171,16 @@ function setCookie(name,value,days) {
         }
 
         c.game.tick++;
+
+        if (c.game.tick % 1000 == 0) {
+            if (ws.readyState == WebSocket.OPEN) {
+                ws.send(JSON.stringify({cmd: "updateEntity", data: {id: invID, ent: c.allInvs[invID]}}));
+                ws.send(JSON.stringify({cmd: "updateMapData", data: c.game.map}));
+            } else {
+                window.localStorage.setItem('ents', JSON.stringify(c.allInvs));
+                window.localStorage.setItem('map', JSON.stringify(c.game.map));
+            }
+        }
 
         // belts excluded
         for(let ient = 0; ient < c.allInvs.length; ient++) {

@@ -5,7 +5,7 @@ if (typeof window === 'undefined') {
 
 
 class Player {
-    constructor() {
+    constructor(playerData) {
         let db = c.resDB.player;
         db.mach = this;
         db.output = [
@@ -54,6 +54,7 @@ class Player {
            c.resDB.turret,
            c.resDB.laser_turret,
            c.resDB.car]
+           if (playerData) Object.assign(this, playerData);
     }
 
     setup(map, inv){
@@ -76,15 +77,18 @@ class Player {
         this.workProgress = 0;
         this.miningProgress;
 
-        inv.stack.INV.push({id: c.resDB.stone.id, n: 100});
-        inv.stack.INV.push({id: c.resDB.iron.id, n: 100});
-        inv.stack.INV.push({id: c.resDB.copper.id, n: 100});
-        inv.stack.INV.push({id: c.resDB.raw_wood.id, n: 100});
-        inv.stack.INV.push({id: c.resDB.coal.id, n: 50});
-        inv.stack.INV.push({id: c.resDB.coal.id, n: 50});
-        inv.stack.INV.push({id: c.resDB.coal.id, n: 50});
-        inv.stack.INV.push({id: c.resDB.iron_plate.id, n: 170});
-        inv.stack.INV.push({id: c.resDB.belt1.id, n: 1000});
+        if (inv.stack.INV.length == 0) {
+            inv.stack.INV.push({id: c.resDB.stone.id, n: 100});
+            inv.stack.INV.push({id: c.resDB.iron.id, n: 100});
+            inv.stack.INV.push({id: c.resDB.copper.id, n: 100});
+            inv.stack.INV.push({id: c.resDB.raw_wood.id, n: 100});
+            inv.stack.INV.push({id: c.resDB.coal.id, n: 50});
+            inv.stack.INV.push({id: c.resDB.chest.id, n: 50});
+            inv.stack.INV.push({id: c.resDB.assembling_machine_1.id, n: 50});
+            inv.stack.INV.push({id: c.resDB.inserter_burner.id, n: 50});
+            inv.stack.INV.push({id: c.resDB.iron_plate.id, n: 170});
+            inv.stack.INV.push({id: c.resDB.belt1.id, n: 1000});
+        }
         view.updateInventoryMenu(inv);
     }
 

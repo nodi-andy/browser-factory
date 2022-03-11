@@ -82,19 +82,31 @@ class AssemblingMachine1 {
         }
     }
 
+    compareAmount( itemA, itemB ) {
+        if (itemA[0] == undefined) return -1;
+        if (itemB[0] == undefined) return 1;
+        if ( itemA[0].n < itemB[0].n ) return -1;
+        if ( itemA[0].n > itemB[0].n ) return 1;
+        return 0;
+      }
+
     update(map, invThis){
 
-        invThis.need = JSON.parse(JSON.stringify(resName[invThis.prod].cost));
-        for(let costItemID = invThis.need.length-1; costItemID >= 0; costItemID--) {
-            let costItem = invThis.need[costItemID];
-            let existing = invThis.getNumberOfItems(costItem.id);
+        invThis.preneed = JSON.parse(JSON.stringify(resName[invThis.prod].cost));
+        delete invThis.preneed.OUTPUT;
+        delete invThis.preneed.PROD;
+/*        let order = Object.values(invThis.need);
+        order.sort(this.compareAmount);*/
+        invThis.need = [];
+        for(let costItemID = 0; costItemID < invThis.preneed.length; costItemID++) {
+            let costItem = invThis.preneed[costItemID];
+            let existing = getNumberOfItems(c.allInvs[invThis.id], costItem.id);
             if (existing >= costItem.n) {
-                invThis.need.splice(costItemID, 1);
-            } 
+                invThis.need.push(costItem);
+            } else {
+                invThis.need.unshift(costItem);
+            }
         }
-
-        if (invThis.need.length == 0) invThis.need = JSON.parse(JSON.stringify(resName[invThis.prod].cost));
-
 
 
         let tempInv = new Inventory();

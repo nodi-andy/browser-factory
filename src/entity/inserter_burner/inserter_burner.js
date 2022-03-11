@@ -56,7 +56,10 @@ class InserterBurner {
                         invThis.state = 1;
                     } else invThis.state = 0;
                 } else { // PLACE
-                    if (invThis.moveItemTo(invThis.stack.INV[0], invTo, resName[invThis.stack.INV[0].id].name))
+                    let stackName;
+                    if (invTo.type == c.resDB.assembling_machine_1.id) stackName = resName[invThis.stack.INV[0].id].name;
+                    else if (invTo.type == c.resDB.belt1.id) stackName = "INV";
+                    if (invThis.moveItemTo(invThis.stack.INV[0], invTo, stackName))
                         invThis.state = 1;
                     else
                         invThis.state = 0;

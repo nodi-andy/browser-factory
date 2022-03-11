@@ -4,6 +4,8 @@ var entityMenu = new Dialog();
 var receiptMenu = new Dialog();
 var selectItemMenu = new Dialog();
 
+
+
 class ViewModule {
     constructor(windowElement) {
         this.win = windowElement;
@@ -15,6 +17,14 @@ class ViewModule {
         this.size = {x: canvas.width, y: canvas.height};
         this.scrollFactor = 0.0005;
         this.zoomLimit = {min: 0.5, max:2};
+
+                // INV MENU
+        for (let i = 0; i < 8; i++) {
+            for (let j = 0; j < 8; j++) {
+                let newButton = new Button (j * (buttonSize), i * (buttonSize), undefined, invMenu);
+                invMenu.items.push(newButton);
+            }
+        }
     }
 
     dragcamera(dragStart) {

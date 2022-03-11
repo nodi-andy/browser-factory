@@ -41,7 +41,7 @@ function render(){
                 //context.fillStyle = mapType[type];
                 //if (resName[type].emo && n) context.fillText(resName[type].emo, ax*tileSize, ay*tileSize + 8);
                 if (type && resName[type].img && n) {
-                    context.drawImage(resName[type].img, Math.min(Math.floor(n / 100), 7) * 64, 2, 60, 60, ax * tileSize, ay * tileSize, 64, 64)
+                    context.drawImage(resName[type].img, Math.min(Math.floor(n / 100), 6) * 64, 2, 60, 60, ax * tileSize, ay * tileSize, 64, 64)
                 }
 
                 // ENTITY GROUNDS
@@ -210,7 +210,7 @@ function render(){
                 context.drawImage(resName[costItem.id].img, receiptMenu.rect.x + 6, receiptMenu.rect.y + 64 + dy, 32, 32)
                 let missingItems = "";
                 if (receiptMenu.item.n == 0) {
-                    let existing = c.player.getNumberOfItems(costItem.id);
+                    let existing = getNumberOfItems(c.allInvs[c.player.id],costItem.id);
                     if (existing < costItem.n) {
                         missingItems = existing + " / ";
                         context.fillStyle = "red";

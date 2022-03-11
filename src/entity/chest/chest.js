@@ -20,7 +20,7 @@ class Chest {
         let inv;
         if (ent?.pos) {
           inv = inventory.getInv(ent.pos.x, ent.pos.y, true);
-          inv.stack.INV = [];
+          if (inv.stack.INV == undefined) inv.stack.INV = [];
         }
     }
 }
