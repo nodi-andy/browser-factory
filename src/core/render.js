@@ -52,7 +52,7 @@ function render(){
                     let type = resName[b.type];
                     if (type && type.size) {
                         context.translate(type.size[0] / 2 * tileSize, type.size[1] / 2 * tileSize);
-                        context.rotate(b.dir * Math.PI/2);
+                        if (resName[b.type].rotatable != false) context.rotate(b.dir * Math.PI/2);
                         context.translate(-type.size[0] / 2 * tileSize, -type.size[1] / 2 * tileSize);
                     }
                     
@@ -243,7 +243,7 @@ function render(){
         context.save();
         context.beginPath();
         context.fillStyle = "rgba(150, 150, 190, 0.75)";
-        let menuPos = {x: canvas.width - 200, y: 0}
+        let menuPos = {x: canvas.width - 200, y: canvas.height / 2 - 50}
         context.translate(menuPos.x, menuPos.y);
         context.fillRect(0, 0, 200 , 100);
         context.font = "24px Arial";

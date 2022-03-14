@@ -42,8 +42,34 @@ class StoneFurnace {
     update(map, ent){
         let invThis = inventory.getInv(ent.pos.x, ent.pos.y, true);
         invThis.need = [];
-        if (invThis.stack["FUEL"] == undefined || invThis.stack["FUEL"][0] == undefined || invThis.stack["FUEL"][0].n == 0) invThis.need.push({id: c.resDB.coal.id, n:1});
-        if (invThis.stack["INPUT"] == undefined || invThis.stack["INPUT"][0] == undefined || invThis.stack["INPUT"][0].n == 0) invThis.need.push({id: c.resDB.copper.id, n:1});
+        if (invThis.stack["FUEL"] == undefined || invThis.stack["FUEL"][0] == undefined || invThis.stack["FUEL"][0].n == 0) {
+            invThis.need.push({id: c.resDB.coal.id, n:1});
+            invThis.need.push({id: c.resDB.wood.id, n:1});
+        }
+        if (invThis.stack["INPUT"] == undefined || invThis.stack["INPUT"][0] == undefined || invThis.stack["INPUT"][0].n == 0) {
+            invThis.need.push({id: c.resDB.copper.id, n:1});
+            invThis.need.push({id: c.resDB.stone.id, n:1});
+            invThis.need.push({id: c.resDB.iron.id, n:1});
+            invThis.need.push({id: c.resDB.coal.id, n:1});
+        } else {
+            let inputItem = invThis.stack["INPUT"][0].id;
+            invThis.need.push({id: inputItem, n:1});
+
+            invThis.preneed = JSON.parse(JSON.stringify(resName[resName[inputItem].smeltedInto].cost));
+
+            invThis.need = [];
+            for(let costItemID = 0; costItemID < invThis.preneed.length; costItemID++) {
+                let costItem = invThis.preneed[costItemID];
+                let existing = getNumberOfItems(c.allInvs[invThis.id], costItem.id);
+                if (existing >= costItem.n) {
+                    invThis.need.push(costItem);
+                } else {
+                    invThis.need.unshift(costItem);
+                }
+            }
+        }
+
+        
         
         if (invThis.stack["INV"]) {
             if (invThis.stack.INPUT == undefined) invThis.stack.INPUT = invThis.stack["INV"][0];
@@ -60,7 +86,7 @@ class StoneFurnace {
             inv.stack["INPUT"] == undefined || 
             inv.stack["INPUT"][0] == undefined || 
             inv.stack["INPUT"][0].id == undefined ||
-            c.resName[inv.stack["INPUT"][0].id].becomes == undefined) {
+            c.resName[inv.stack["INPUT"][0].id].smeltedInto == undefined) {
                 inv.state = 0;
                 return;
             }
@@ -70,14 +96,14 @@ class StoneFurnace {
             if (inv.state == 0) {invThis.lastTime = performance.now(); inv.state = 1};
             if (inv.state == 1) {
                 let deltaT = performance.now() - invThis.lastTime;
-                let becomesThat = c.resName[inv.stack["INPUT"][0].id].becomes;
-                if (becomesThat && deltaT > 1000) {
+                let becomesThat = c.resName[inv.stack["INPUT"][0].id].smeltedInto;
+                if (becomesThat && deltaT > 5000) {
                     //if (inv.stack.OUTPUT == undefined || inv.stack.OUTPUT.length == 0) inv.stack.OUTPUT = [c.item(undefined, 0)];
                     if (inv.stack.OUTPUT[0] == undefined) inv.stack.OUTPUT[0] = c.item(undefined, 0);
                     if (inv.stack.OUTPUT[0].n == undefined) inv.stack.OUTPUT[0].n = 0;
                     inv.stack["INPUT"][0].n--;
                     inv.stack["FUEL"][0].n--;
-                    inv.stack["OUTPUT"][0].id = becomesThat.id;
+                    inv.stack["OUTPUT"][0].id = becomesThat;
                     inv.stack["OUTPUT"][0].n++;
                     invThis.lastTime = performance.now();
                 }

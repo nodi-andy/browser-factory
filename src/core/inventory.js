@@ -149,15 +149,13 @@ class Inventory {
     remItem(removingItem, prefStackName) {
         if (removingItem == undefined) return false;
 
-        if (this.stack[prefStackName]) {
-          this.remItemFromStack(removingItem, prefStackName);
-        }
-
-        let keys = Object.keys(this.stack);
-        for(let iStack = 0; iStack < keys.length; iStack++) {
-          if (this.remItemFromStack(removingItem, keys[iStack])) {
-            return true;
-          }
+        if (this.stack[prefStackName] == undefined || this.remItemFromStack(removingItem, prefStackName) == false) {
+          let keys = Object.keys(this.stack);
+          for(let iStack = 0; iStack < keys.length; iStack++) {
+            if (this.remItemFromStack(removingItem, keys[iStack])) {
+              return true;
+            }
+          }       
         }
         return false;
     }

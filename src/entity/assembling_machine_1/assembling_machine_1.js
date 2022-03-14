@@ -82,21 +82,12 @@ class AssemblingMachine1 {
         }
     }
 
-    compareAmount( itemA, itemB ) {
-        if (itemA[0] == undefined) return -1;
-        if (itemB[0] == undefined) return 1;
-        if ( itemA[0].n < itemB[0].n ) return -1;
-        if ( itemA[0].n > itemB[0].n ) return 1;
-        return 0;
-      }
-
     update(map, invThis){
 
         invThis.preneed = JSON.parse(JSON.stringify(resName[invThis.prod].cost));
         delete invThis.preneed.OUTPUT;
         delete invThis.preneed.PROD;
-/*        let order = Object.values(invThis.need);
-        order.sort(this.compareAmount);*/
+
         invThis.need = [];
         for(let costItemID = 0; costItemID < invThis.preneed.length; costItemID++) {
             let costItem = invThis.preneed[costItemID];

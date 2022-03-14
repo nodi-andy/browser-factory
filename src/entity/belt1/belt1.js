@@ -26,14 +26,14 @@ class Belt {
     invThis.packsize = {};
     invThis.packsize.INV = 1;
 
-    if (invThis.stack.LA == undefined) invThis.stack.LA = {};
-    if (invThis.stack.LB == undefined) invThis.stack.LB = {};
-    if (invThis.stack.LC == undefined) invThis.stack.LC = {};
-    if (invThis.stack.LD == undefined) invThis.stack.LD = {};
-    if (invThis.stack.RA == undefined) invThis.stack.RA = {};
-    if (invThis.stack.RB == undefined) invThis.stack.RB = {};
-    if (invThis.stack.RC == undefined) invThis.stack.RC = {};
-    if (invThis.stack.RD == undefined) invThis.stack.RD = {};
+    if (invThis.stack.LA == undefined) invThis.stack.LA = {n: 1};
+    if (invThis.stack.LB == undefined) invThis.stack.LB = {n: 1};
+    if (invThis.stack.LC == undefined) invThis.stack.LC = {n: 1};
+    if (invThis.stack.LD == undefined) invThis.stack.LD = {n: 1};
+    if (invThis.stack.RA == undefined) invThis.stack.RA = {n: 1};
+    if (invThis.stack.RB == undefined) invThis.stack.RB = {n: 1};
+    if (invThis.stack.RC == undefined) invThis.stack.RC = {n: 1};
+    if (invThis.stack.RD == undefined) invThis.stack.RD = {n: 1};
   }
 
   shift(from, itfrom, to, itto, deciding) {
@@ -74,15 +74,22 @@ class Belt {
 
     if (movingParts || decidingMoving) {
 
-      if (invThis.stack.LA == undefined) invThis.stack.LA = {};
-      if (invThis.stack.LB == undefined) invThis.stack.LB = {};
-      if (invThis.stack.LC == undefined) invThis.stack.LC = {};
-      if (invThis.stack.LD == undefined) invThis.stack.LD = {};
-      if (invThis.stack.RA == undefined) invThis.stack.RA = {};
-      if (invThis.stack.RB == undefined) invThis.stack.RB = {};
-      if (invThis.stack.RC == undefined) invThis.stack.RC = {};
-      if (invThis.stack.RD == undefined) invThis.stack.RD = {};
-  
+      if (invThis.stack.LA == undefined) invThis.stack.LA = {n: 1};
+      if (invThis.stack.LB == undefined) invThis.stack.LB = {n: 1};
+      if (invThis.stack.LC == undefined) invThis.stack.LC = {n: 1};
+      if (invThis.stack.LD == undefined) invThis.stack.LD = {n: 1};
+      if (invThis.stack.RA == undefined) invThis.stack.RA = {n: 1};
+      if (invThis.stack.RB == undefined) invThis.stack.RB = {n: 1};
+      if (invThis.stack.RC == undefined) invThis.stack.RC = {n: 1};
+      if (invThis.stack.RD == undefined) invThis.stack.RD = {n: 1};
+      invThis.stack.LA.n = 1;
+      invThis.stack.LB.n = 1;
+      invThis.stack.LC.n = 1;
+      invThis.stack.LD.n = 1;
+      invThis.stack.RA.n = 1;
+      invThis.stack.RB.n = 1;
+      invThis.stack.RC.n = 1;
+      invThis.stack.RD.n = 1;
       if (decidingMoving) {
         invThis.stack.LA.reserved = false;
         invThis.stack.LB.reserved = false;
@@ -142,18 +149,22 @@ class Belt {
 
       if (invThis.stack.INV?.length && invThis.stack.LA?.id == undefined) {
         invThis.stack.LA.id = invThis.stack.INV[0].id;
+        invThis.stack.LA.n = 1;
         invThis.remItem({id: invThis.stack.LA.id, n: 1}, "INV");
       }
       if (invThis.stack.INV?.length && invThis.stack.RA?.id == undefined) {
         invThis.stack.RA.id = invThis.stack.INV[0].id;
+        invThis.stack.RA.n = 1;
         invThis.remItem({id: invThis.stack.RA.id, n: 1}, "INV");
       }
       if (invThis.stack.INV?.length && invThis.stack.LB?.id == undefined) {
         invThis.stack.LB.id = invThis.stack.INV[0].id;
+        invThis.stack.LB.n = 1;
         invThis.remItem({id: invThis.stack.LB.id, n: 1}, "INV");
       }
       if (invThis.stack.INV?.length && invThis.stack.RB?.id == undefined) {
         invThis.stack.RB.id = invThis.stack.INV[0].id;
+        invThis.stack.RB.n = 1;
         invThis.remItem({id: invThis.stack.RB.id, n: 1}, "INV");
       }
         

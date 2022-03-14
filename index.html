@@ -7,8 +7,78 @@
         height: 100%;
         overflow: hidden;
     }
+    .container {
+        display: inline;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 2px;
+        cursor: pointer;
+        background-color:rgb(172, 164, 164);
+    }
+    .overlay {
+        height: 100%;
+        left: 100%;
+        width: 200px;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.9);
+        overflow-x: hidden;
+        transition: 0.5s;
+    }
+
+.overlay-content {
+  position: relative;
+  top: 25%;
+  width: 100%;
+  text-align: center;
+  margin-top: 30px;
+}
+
+.overlay div {
+  padding: 8px;
+  text-decoration: none;
+  font-size: 36px;
+  color: #818181;
+  display: block;
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+.overlay div:hover, .overlay div:focus {
+  color: #f1f1f1;
+}
+
+.overlay .closebtn {
+  position: absolute;
+  top: 20px;
+  right: 45px;
+  font-size: 60px;
+}
+
+@media screen and (max-height: 450px) {
+  .overlay a {font-size: 20px}
+  .overlay .closebtn {
+  font-size: 40px;
+  top: 15px;
+  right: 35px;
+  }
+}
 </style>
-<html><canvas id="myCanvas" style = "display:block;border:none; margin:0"></canvas></html>
+<html>
+    <canvas id="myCanvas" style = "display:block;border:none; margin:0"></canvas>
+    <div id="myNav" class="overlay">
+        <div class="closebtn" onclick="closeNav()">&times;</div>
+        <div class="overlay-content">
+          <div onclick="newGame()">New Game</div>
+          <div onclick="saveGame">Save</div>
+          <div>Load</div>
+        </div>
+      </div>
+    <div class="container" style="font-size:30px;cursor:pointer" onclick="openNav()">&#9776;</div>
+</html>
 <script type="text/javascript" src ="src/common.js"></script>
 
 <script type="text/javascript" src ="src/core/perlin.js"></script>
@@ -32,8 +102,15 @@
 <script type="text/javascript" src ="src/entity/inserter_burner/inserter_burner.js"></script>
 <script type="text/javascript" src ="src/entity/stone_furnace/stone_furnace.js"></script>
 <script type="text/javascript" src ="src/entity/assembling_machine_1/assembling_machine_1.js"></script>
-<script type="text/javascript">
 
+<script type="text/javascript">
+    function openNav() {
+        document.getElementById("myNav").style.left = window.innerWidth - 200;
+    }
+
+    function closeNav() {
+        document.getElementById("myNav").style.left = "100%";
+    }
 
     canvas = document.getElementById("myCanvas");
     let context = canvas.getContext("2d");
@@ -47,13 +124,13 @@
 
 
 
-    let savedData = window.localStorage.getItem('map');
+    let savedData = JSON.parse(window.localStorage.getItem('unnamed1'));
     if(savedData) {
         c.game = {
             id: 0, name: "", 
             x: Math.floor(c.gridSize.x/10)*10, 
             y: Math.floor(c.gridSize.y/10)*10, 
-            map: JSON.parse(savedData), 
+            map: savedData.map, 
             camera: {x: 0, y:0, zoom:4}, 
             res: [0, 100, 0, 0, 0, 0, 100, 0, 0, 0, 0], 
             nb:[],
@@ -61,27 +138,16 @@
             dist: [],
             tick : 0
         };
-        let ents = JSON.parse(window.localStorage.getItem('ents'));
-        for (let i = 0; i < ents.length; i++) {
-            c.allInvs.push(new Inventory(ents[i].pos, ents[i]));
+
+        for (let i = 0; i < savedData.ents.length; i++) {
+            c.allInvs.push(new Inventory(savedData.ents[i].pos, savedData.ents[i]));
         }
         c.player = c.allInvs[0];
         c.pointer = {};
         c.player.id = 0;
         c.playerID = 0;
     } else {
-        let newWorld = createWorld(gridSize.x, gridSize.y);
-        c.game = newWorld;
-
-        let newID = invfuncs.createInv();
-        c.player = c.allInvs[newID];
-        c.player.id = newID;
-        c.playerID = newID;
-        c.pointer = {};
-        c.allInvs[newID].type = c.resDB.player.id;
-
-        window.localStorage.setItem('map', JSON.stringify(c.game.map));
-        window.localStorage.setItem('ents', JSON.stringify(c.allInvs));
+        newGame();
     }
 
 
@@ -99,6 +165,30 @@
 
 
     view.updateCraftingMenu();
+
+    function newGame() {
+        let newWorld = createWorld(gridSize.x, gridSize.y);
+        c.game = newWorld;
+
+        let newID = invfuncs.createInv();
+        c.player = c.allInvs[newID];
+        c.player.id = newID;
+        c.playerID = newID;
+        c.pointer = {};
+        c.allInvs[newID].type = c.resDB.player.id;
+
+        window.localStorage.setItem('unnamed1', JSON.stringify({map: c.game.map, ents: c.allInvs}));
+    }
+
+    function saveGame() {
+        if (ws.readyState == WebSocket.OPEN) {
+                ws.send(JSON.stringify({cmd: "updateEntity", data: {id: invID, ent: c.allInvs[invID]}}));
+                ws.send(JSON.stringify({cmd: "updateMapData", data: c.game.map}));
+            } else {
+                window.localStorage.setItem('ents', JSON.stringify(c.allInvs));
+                window.localStorage.setItem('map', JSON.stringify(c.game.map));
+            }
+    }
 
     function getCityById(searchID) {
         for (let i = 0; i < city.w.length; i++) {
@@ -172,15 +262,7 @@
 
         c.game.tick++;
 
-        if (c.game.tick % 1000 == 0) {
-            if (ws.readyState == WebSocket.OPEN) {
-                ws.send(JSON.stringify({cmd: "updateEntity", data: {id: invID, ent: c.allInvs[invID]}}));
-                ws.send(JSON.stringify({cmd: "updateMapData", data: c.game.map}));
-            } else {
-                window.localStorage.setItem('ents', JSON.stringify(c.allInvs));
-                window.localStorage.setItem('map', JSON.stringify(c.game.map));
-            }
-        }
+        if (c.game.tick % 1000 == 0) saveGame();
 
         // belts excluded
         for(let ient = 0; ient < c.allInvs.length; ient++) {
