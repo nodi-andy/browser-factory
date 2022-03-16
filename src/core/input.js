@@ -5,8 +5,6 @@ let isDragStarted = false;
 let isBuilding = false;
 
 
-
-
 // Gets the relevant location from a mouse or single touch event
 function getEventLocation(e) {
     if (e.touches && e.touches.length == 1)
@@ -26,6 +24,8 @@ class InputModule {
         canvas.addEventListener('pointermove', this.onPointerMove);
         canvas.addEventListener('pointerup', this.onPointerUp);
         canvas.addEventListener("wheel", (e) => view.onZoom(e.deltaY * view.scrollFactor))
+        document.addEventListener("keydown", this.onKeyDown);
+        document.addEventListener("keyup", this.onKeyUp);
     }
 
    
@@ -141,6 +141,37 @@ class InputModule {
             lastResPos = {x: curResPos.x, y: curResPos.y};
         }
     }
+
+    onKeyDown(e){
+        //ws.send(JSON.stringify({cmd: "keydown", data: e.code}));
+        if(e.code == "KeyW") c.playerClass.setDir({y : -1});
+        if(e.code == "KeyS") c.player.dir.y =1;
+        if(e.code == "KeyD") c.player.dir.x = 1;
+        if(e.code == "KeyA") c.player.dir.x = -1;
+        if(e.code == "Escape") {
+            if (c.pointer.item) {
+                c.player.addItem(c.pointer.item);
+            }
+            c.pointer.item = undefined;
+            invMenu.vis = false;
+            entityMenu.vis = false;
+            craftMenu.vis = false;
+        }
+    }
+
+    onKeyUp(e){
+        if(e.code == "KeyW") c.player.dir.y = 0;
+        if(e.code == "KeyS") c.player.dir.y = 0;
+        if(e.code == "KeyD") c.player.dir.x = 0;
+        if(e.code == "KeyA") c.player.dir.x = 0;
+        if(e.code == "KeyR") buildDir = (buildDir+1)%4;
+        if(e.code == "KeyE") { 
+            invMenu.vis = !invMenu.vis; 
+            craftMenu.vis = invMenu.vis;
+            if (invMenu.vis == false) entityMenu.vis = false;
+        }
+    }
+
 
 }
 

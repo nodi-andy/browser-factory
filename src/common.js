@@ -121,10 +121,10 @@ resDB.assembling_machine_1.cost = [{id: resDB.coal.id, n: 2}];
 const dirToVec = [{x: 1, y:0},{x: 0, y:1},{x: -1, y:0},{x: 0, y:-1}];
 const dirToAng = [0, 90, 180, 270];
 const  layers = {terrain: 0, res: 1, inv:2, vis:3 } 
-var allInvs = [];
-var allEnts = [];
-var allMovableEntities = [];
+
 var game        = {};
+var allInvs = [];
+var allMovableEntities = [];
 var pointer; // Inventory on pointer
 var selEntity;
 var curResPos;
@@ -181,7 +181,6 @@ exports.toUnitV = toUnitV;
 exports.getNbOccur = getNbOccur;      
 exports.worldToTile = worldToTile;
 exports.allInvs = allInvs;
-exports.allEnts = allEnts;
 exports.player1 = player1;
 exports.playerID = playerID;
 exports.resName = resName;
@@ -199,7 +198,6 @@ c.resID = resID;
 c.resName = resName;
 c.game = game;
 c.layers = layers;
-c.allEnts = allEnts;
 c.allInvs = allInvs;
 c.selEntity = selEntity;
 c.item = item;
@@ -207,3 +205,6 @@ c.dirToVec = dirToVec;
 c.dirToAng = dirToAng;
 c.playerID = playerID;
 c.allMovableEntities = allMovableEntities;
+c.game.imgsLoaded = false;
+c.gameState = 0;
+c.game.tick = 0;

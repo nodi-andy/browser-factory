@@ -303,11 +303,6 @@ function getInv(x, y, create = false){
   return c.allInvs[tile[c.layers.inv]];
 }
 
-function getEnt(x, y){
-  let tile = c.game.map[x][y];
-  if (tile[c.layers.buildings] != undefined) return c.allEnts[tile[c.layers.buildings]];
-}
-
 function setInv(x, y, invID){
   let tile = c.game.map[x][y];
   tile[c.layers.inv] = invID;
@@ -393,7 +388,6 @@ function moveStack(data) {
 if (exports == undefined) var exports = {};
 exports.Inventory = Inventory;
 exports.getInv = getInv;
-exports.getEnt = getEnt;
 exports.setInv = setInv;
 exports.setEnt = setEnt;
 exports.addItem = addItem;
@@ -404,7 +398,6 @@ exports.createInv = createInv;
 var invfuncs = {};
 invfuncs.Inventory = Inventory;
 invfuncs.getInv = getInv;
-invfuncs.getEnt = getEnt;
 invfuncs.setInv = setInv;
 invfuncs.setEnt = setEnt;
 invfuncs.createInv = createInv;

@@ -210,7 +210,7 @@ function render(){
                 context.drawImage(resName[costItem.id].img, receiptMenu.rect.x + 6, receiptMenu.rect.y + 64 + dy, 32, 32)
                 let missingItems = "";
                 if (receiptMenu.item.n == 0) {
-                    let existing = getNumberOfItems(c.allInvs[c.player.id],costItem.id);
+                    let existing = getNumberOfItems(c.allInvs[c.playerID],costItem.id);
                     if (existing < costItem.n) {
                         missingItems = existing + " / ";
                         context.fillStyle = "red";
@@ -293,8 +293,8 @@ function imgLoaded(imgElement) {
     return imgElement.complete && imgElement.naturalHeight !== 0;
 }
 
-function updateMap() {
-    if (c.game.map == undefined) return;
+function updateOffscreenMap() {
+    if (c.game.map == undefined || !c.imgsLoaded) return;
     canvas.offScreenCanvas.width = gridSize.x * tileSize;
     canvas.offScreenCanvas.height = gridSize.y * tileSize;
     var offScreencontext = canvas.offScreenCanvas.getContext("2d");

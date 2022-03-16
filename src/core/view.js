@@ -1,10 +1,8 @@
-var invMenu = new Dialog();
-var craftMenu = new Dialog();
-var entityMenu = new Dialog();
-var receiptMenu = new Dialog();
-var selectItemMenu = new Dialog();
-
-
+var invMenu;
+var craftMenu;
+var entityMenu;
+var receiptMenu;
+var selectItemMenu;
 
 class ViewModule {
     constructor(windowElement) {

@@ -32,7 +32,7 @@ function wssend(msg) {
 
 function updateMapData(data) {
     c.game.map = data;
-    updateMap();
+    updateOffscreenMap();
 }
 
 ws.onerror = function (e) {

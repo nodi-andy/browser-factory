@@ -58,6 +58,7 @@ class Player {
     }
 
     setup(map, inv){
+        view.updateCraftingMenu();
         if (inv?.tilePos == undefined) inv.tilePos = {x: c.gridSize.x/2, y: c.gridSize.y/2};
         inv.pos = {x: inv.tilePos.x * c.tileSize, y: inv.tilePos.y * c.tileSize};
         inv.dir = {x: 0, y:0};
