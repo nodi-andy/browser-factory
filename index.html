@@ -147,9 +147,18 @@
     let curGame = window.localStorage.getItem("curGame");
     if (curGame == undefined) window.localStorage.setItem("curGame", "unnamed_0");
 
+    canvas = document.getElementById("myCanvas");
+    let context = canvas.getContext("2d");
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+    canvas.offScreenCanvas = document.createElement('canvas');
+    canvas.oncontextmenu = function (e) {e.preventDefault();};
+
     let nextGameID = undefined;
     let htmlList = document.getElementById("savedGameList");
-
+        
+    let inp = new InputModule (context.canvas);
+    let view = new ViewModule (window);
 
     function updateNextGameID() {
         let gamesList = Object.values(Object.keys(window.localStorage));
@@ -229,17 +238,6 @@
         document.getElementById("myNav").style.left = "100%";
     }
 
-    canvas = document.getElementById("myCanvas");
-    let context = canvas.getContext("2d");
-    canvas.width  = window.innerWidth;
-    canvas.height = window.innerHeight;
-    canvas.offScreenCanvas = document.createElement('canvas');
-    canvas.oncontextmenu = function (e) {e.preventDefault();};
-
-  
-    let view;
-
-
     function loadGame(name) {
         updateNextGameID();
         if (name == undefined) name = "unnamed_" + nextGameID;
@@ -251,7 +249,10 @@
         }
 
         curGame = name;
-
+        c.allInvs = [];
+        c.game.tick = 0;
+        c.gameState = 1;
+        
         let savedData = JSON.parse(window.localStorage.getItem(name));
         if(!savedData) newGame(name);
 
@@ -261,9 +262,8 @@
         entityMenu = new Dialog();
         receiptMenu = new Dialog();
         selectItemMenu = new Dialog();
-        c.allInvs = [];
-        c.game.tick = 0;
-        c.gameState = 1;
+
+
 
         savedData = JSON.parse(window.localStorage.getItem(name));
         c.game = {
@@ -290,9 +290,8 @@
 
         c.pointer = {};
 
-        
-        let inp = new InputModule (context.canvas);
-        view = new ViewModule (window);
+        view.createInvMenu();
+
 
         updateGameMenu();
 
@@ -302,6 +301,7 @@
 
     function newGame(name = "unnamed_0") {
         c.game = createWorld(gridSize.x, gridSize.y);
+        c.playerID = 0;
         let newID = invfuncs.createInv();
         curGame = name;
         saveGame();
@@ -312,7 +312,7 @@
                 ws.send(JSON.stringify({cmd: "updateEntity", data: {id: invID, ent: c.allInvs[invID]}}));
                 ws.send(JSON.stringify({cmd: "updateMapData", data: c.game.map}));
             } else {
-                window.localStorage.setItem(curGame, JSON.stringify({map: c.game.map, ents: c.allInvs, playerID: c.player.id}));
+                window.localStorage.setItem(curGame, JSON.stringify({map: c.game.map, ents: c.allInvs, playerID: c.playerID}));
             }
     }
  

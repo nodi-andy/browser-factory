@@ -271,7 +271,7 @@ function getNumberOfItems(ent, type) {
 
 function mineToInv(minedItem) {
   let newItem = {};
-  newItem.id = resName[minedItem.id].becomes.id;
+  newItem.id = resName[minedItem.id].becomes;
   newItem.n = 1;
   c.game.map[minedItem.source.x][minedItem.source.y][layers.res].n--;
   c.allInvs[c.playerID].addItem(newItem);

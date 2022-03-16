@@ -78,7 +78,7 @@ class Player {
         this.workProgress = 0;
         this.miningProgress;
 
-        if (inv.stack.INV.length == 0) {
+        if (inv.stack.INV.length == 0 && DEV) {
             inv.stack.INV.push({id: c.resDB.stone.id, n: 100});
             inv.stack.INV.push({id: c.resDB.iron.id, n: 100});
             inv.stack.INV.push({id: c.resDB.copper.id, n: 100});

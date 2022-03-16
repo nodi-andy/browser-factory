@@ -25,9 +25,9 @@ class StoneFurnace {
 
         inv.packsize = 1;
         inv.itemsize = 50;
-        inv.stack.FUEL = [];
-        inv.stack.INPUT = [];
-        inv.stack.OUTPUT = [];
+        if (inv.stack.FUEL == undefined) inv.stack.FUEL = [];
+        if (inv.stack.INPUT == undefined) inv.stack.INPUT = [];
+        if (inv.stack.OUTPUT == undefined) inv.stack.OUTPUT = [];
         inv.stacksize = 4;
         inv.packsize = {};
         inv.packsize.FUEL = 1;

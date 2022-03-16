@@ -10,21 +10,27 @@ class ViewModule {
         this.win.addEventListener("resize", () => {
             this.resize();
         });
-        this.resize();
+
         this.camera = {x: 0, y: 0, zoom: 1};
         this.size = {x: canvas.width, y: canvas.height};
         this.scrollFactor = 0.0005;
         this.zoomLimit = {min: 0.5, max:2};
 
-                // INV MENU
-        for (let i = 0; i < 8; i++) {
-            for (let j = 0; j < 8; j++) {
-                let newButton = new Button (j * (buttonSize), i * (buttonSize), undefined, invMenu);
-                invMenu.items.push(newButton);
-            }
-        }
+        this.createInvMenu();
     }
 
+    createInvMenu() {
+        // INV MENU
+        if (invMenu) {
+            for (let i = 0; i < 8; i++) {
+                for (let j = 0; j < 8; j++) {
+                    let newButton = new Button (j * (buttonSize), i * (buttonSize), undefined, invMenu);
+                    invMenu.items.push(newButton);
+                }
+            }
+        }
+        this.resize();
+    }
     dragcamera(dragStart) {
         let camPos = {x: 0, y: 0};
         camPos.x = pos.x / this.camera.zoom - dragStart.x
@@ -53,26 +59,30 @@ class ViewModule {
     resize() {
         canvas.width  = window.innerWidth;
         canvas.height = window.innerHeight;
-        invMenu.rect.x = canvas.width / 2 - buttonSize * 8;
-        invMenu.rect.y = canvas.height / 2 - buttonSize * 4;
+        if (invMenu) {
+            invMenu.rect.x = canvas.width / 2 - buttonSize * 8;
+            invMenu.rect.y = canvas.height / 2 - buttonSize * 4;
+        }
 
-        craftMenu.rect.x = canvas.width / 2 + buttonSize / 2;
-        craftMenu.rect.y = canvas.height / 2 - buttonSize * 4;
-        craftMenu.rect.w = 8 * buttonSize;
-        craftMenu.rect.h = 8 * buttonSize;
+        if (craftMenu && selectItemMenu) {
+            craftMenu.rect.x = canvas.width / 2 + buttonSize / 2;
+            craftMenu.rect.y = canvas.height / 2 - buttonSize * 4;
+            craftMenu.rect.w = 8 * buttonSize;
+            craftMenu.rect.h = 8 * buttonSize;
 
-        entityMenu.rect.x = craftMenu.rect.x;
-        entityMenu.rect.y = craftMenu.rect.y;
-        entityMenu.rect.w = craftMenu.rect.w;
-        entityMenu.rect.h = craftMenu.rect.h;
-        
-        receiptMenu.rect.w = craftMenu.rect.w / 2;
-        receiptMenu.rect.h = craftMenu.rect.h;
+            entityMenu.rect.x = craftMenu.rect.x;
+            entityMenu.rect.y = craftMenu.rect.y;
+            entityMenu.rect.w = craftMenu.rect.w;
+            entityMenu.rect.h = craftMenu.rect.h;
+            
+            receiptMenu.rect.w = craftMenu.rect.w / 2;
+            receiptMenu.rect.h = craftMenu.rect.h;
 
-        selectItemMenu.rect.x = craftMenu.rect.x;
-        selectItemMenu.rect.y = craftMenu.rect.y;
-        selectItemMenu.rect.w = craftMenu.rect.w;
-        selectItemMenu.rect.h = craftMenu.rect.h;
+            selectItemMenu.rect.x = craftMenu.rect.x;
+            selectItemMenu.rect.y = craftMenu.rect.y;
+            selectItemMenu.rect.w = craftMenu.rect.w;
+            selectItemMenu.rect.h = craftMenu.rect.h;
+        }
     }
 
     screenToWorld(p) { 

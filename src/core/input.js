@@ -157,6 +157,7 @@ class InputModule {
             entityMenu.vis = false;
             craftMenu.vis = false;
         }
+        c.playerClass.stopMining(c.allInvs[c.playerID]);
     }
 
     onKeyUp(e){
@@ -170,6 +171,7 @@ class InputModule {
             craftMenu.vis = invMenu.vis;
             if (invMenu.vis == false) entityMenu.vis = false;
         }
+        c.playerClass.stopMining(c.allInvs[c.playerID]);
     }
 
 
