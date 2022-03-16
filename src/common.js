@@ -205,6 +205,5 @@ c.dirToVec = dirToVec;
 c.dirToAng = dirToAng;
 c.playerID = playerID;
 c.allMovableEntities = allMovableEntities;
-c.game.imgsLoaded = false;
 c.gameState = 0;
 c.game.tick = 0;

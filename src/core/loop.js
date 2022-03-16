@@ -1,7 +1,7 @@
 // LOOP
 function gameLoop(){
 
-    if (c.game.imgsLoaded == false || c.gameState == 0) {
+    if (c.gameState == 0) {
          setTimeout(gameLoop, 20);
          return;
     }

@@ -198,11 +198,11 @@ function imgLoaded(imgElement) {
 }
 
 function updateOffscreenMap() {
-    if (c.game.map == undefined || !c.imgsLoaded) return;
+    if (c.game.map == undefined) return;
     canvas.offScreenCanvas.width = gridSize.x * tileSize;
     canvas.offScreenCanvas.height = gridSize.y * tileSize;
     var offScreencontext = canvas.offScreenCanvas.getContext("2d");
-
+    let hadError = false;
 
     for(let ax = 0; ax < gridSize.x; ax++) {
         for(let ay = 0; ay < gridSize.y; ay++) {
@@ -211,7 +211,14 @@ function updateOffscreenMap() {
             // MAP
             let type = tile[layers.terrain][0];
             let variant = tile[layers.terrain][1];
-            offScreencontext.drawImage(resName[type].img, variant * 64, 0, tileSize, tileSize, ax * tileSize, ay * tileSize, tileSize, tileSize)
+            if (resName[type]?.img?.complete) {
+                offScreencontext.drawImage(resName[type].img, variant * 64, 0, tileSize, tileSize, ax * tileSize, ay * tileSize, tileSize, tileSize)
+            } else {
+                if (hadError == false) {
+                    hadError = true;
+                    setTimeout(updateOffscreenMap, 1000);
+                }
+            }
         }
     }
 
