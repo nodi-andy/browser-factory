@@ -2,7 +2,7 @@ const tileSize = 64;
 const gridSize = {x: 160, y: 90}
 const buttonSize = 68;
 
-let DEV = true;
+let DEV = false;
 
 let buildDir = 0;
 
