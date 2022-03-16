@@ -272,8 +272,6 @@
             y: Math.floor(c.gridSize.y/10)*10, 
             map: savedData.map, 
             camera: {x: 0, y:0, zoom:4}, 
-            res: [0, 100, 0, 0, 0, 0, 100, 0, 0, 0, 0], 
-            nb:[],
             w: [],
             dist: [],
             tick : 0
@@ -282,10 +280,11 @@
         for (let i = 0; i < savedData.ents.length; i++) {
             c.allInvs.push(new Inventory(savedData.ents[i].pos, savedData.ents[i]));
         }
+        c.playerID = 0;
+        if (savedData.player?.id) c.player.id = savedData.player?.id;
 
-        c.player = c.allInvs[0];
-        c.player.id = 0;
-        c.playerID = c.player.id;
+        c.player = c.allInvs[c.playerID];
+        c.player.id = c.playerID;
         c.allInvs[c.player.id].type = c.resDB.player.id;
         c.allMovableEntities.push(c.playerID);
 
@@ -304,23 +303,20 @@
     function newGame(name = "unnamed_0") {
         c.game = createWorld(gridSize.x, gridSize.y);
         let newID = invfuncs.createInv();
-
-        window.localStorage.setItem(name, JSON.stringify({map: c.game.map, ents: c.allInvs}));
+        curGame = name;
+        saveGame();
     }
-
-
 
     function saveGame() {
         if (ws.readyState == WebSocket.OPEN) {
                 ws.send(JSON.stringify({cmd: "updateEntity", data: {id: invID, ent: c.allInvs[invID]}}));
                 ws.send(JSON.stringify({cmd: "updateMapData", data: c.game.map}));
             } else {
-                window.localStorage.setItem(curGame, JSON.stringify({map: c.game.map, ents: c.allInvs}));
+                window.localStorage.setItem(curGame, JSON.stringify({map: c.game.map, ents: c.allInvs, playerID: c.player.id}));
             }
     }
  
     
-
     // LOAD IMAGES
     Object.keys(resDB).forEach(key => {
             const image = new Image(tileSize, tileSize);
