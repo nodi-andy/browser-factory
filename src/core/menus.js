@@ -67,7 +67,7 @@ function drawReceiptMenu(context) {
                     } else  context.fillStyle = "black";
                 }
                 else         context.fillStyle = "black";
-                context.fillText(missingItems + costItem.n + "x " + costItem.name, receiptMenu.rect.x + 46, receiptMenu.rect.y + 84 + dy);
+                context.fillText(missingItems + costItem.n + "x " + resName[costItem.id].name, receiptMenu.rect.x + 46, receiptMenu.rect.y + 84 + dy);
                 dy += 64;
                 receiptMenu.rect.h = dy + 100;
             }

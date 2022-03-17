@@ -31,6 +31,7 @@ class ViewModule {
         }
         this.resize();
     }
+    
     dragcamera(dragStart) {
         let camPos = {x: 0, y: 0};
         camPos.x = pos.x / this.camera.zoom - dragStart.x
@@ -49,6 +50,7 @@ class ViewModule {
         if (boundary.x > gridSize.x * tileSize) this.camera.x = this.width / this.camera.zoom - (gridSize.x * tileSize);
         if (boundary.y > gridSize.y * tileSize) this.camera.y = this.height / this.camera.zoom - (gridSize.y * tileSize);
     }
+
     setCamPos(pos) {
         this.camera.x = pos.x;
         this.camera.y = pos.y;

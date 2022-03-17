@@ -116,7 +116,7 @@ resDB.inserter_short.cost       = [{id: resDB.coal.id, n: 2}];
 resDB.inserter.cost             = [{id: resDB.coal.id, n: 2}];
 resDB.inserter_long.cost        = [{id: resDB.coal.id, n: 2}];
 resDB.inserter_smart.cost       = [{id: resDB.coal.id, n: 2}];
-resDB.assembling_machine_1.cost = [{id: resDB.coal.id, n: 2}];
+resDB.assembling_machine_1.cost = [{id: resDB.circuit.id, n: 3}, {id: resDB.gear.id, n: 5}, {id: resDB.iron_plate.id, n: 9}];
 
 const dirToVec = [{x: 1, y:0},{x: 0, y:1},{x: -1, y:0},{x: 0, y:-1}];
 const dirToAng = [0, 90, 180, 270];
