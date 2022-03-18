@@ -3,9 +3,9 @@ if (typeof window === 'undefined') {
     var invfuncs = require('../../core/inventory.js'); 
 } 
 
-
-class Player {
+class Player extends Inventory {
     constructor(playerData) {
+        super(playerData)
         let db = c.resDB.player;
         db.mach = this;
         db.output = [
@@ -54,7 +54,7 @@ class Player {
            c.resDB.turret,
            c.resDB.laser_turret,
            c.resDB.car]
-           if (playerData) Object.assign(this, playerData);
+           //if (playerData) Object.assign(this, playerData);
     }
 
     setup(map, inv){
@@ -147,6 +147,28 @@ class Player {
         //console.log(ent.pos, entTile);
     }
 
+    draw(ctx, ent) {
+        ctx.save();
+        ctx.translate(ent.pos.x, ent.pos.y);
+        ctx.drawImage(c.resDB.player.img, ent.ss.x * 96, ent.ss.y * 132, 96, 132, - 48, -100, 96, 132)
+        ctx.beginPath();
+        ctx.fillStyle = "red";
+        ctx.fillRect(-25,-120, 50, 10);
+        ctx.fillStyle = "green";
+        ctx.fillRect(-25,-120, (ent.live / 100) * 50, 10);
+        ctx.fillStyle = "yellow";
+        ctx.fillRect(-25,-130, (ent.workProgress / 100) * 50, 10);
+        ctx.restore();
+    }
+
+    fetch() {
+        if (this.tilePos == undefined) inv.tilePos = {x: c.gridSize.x/2, y: c.gridSize.y/2};
+        let e = inventory.getInv(this.tilePos.x, this.tilePos.y);
+        if (e?.type == c.resDB.empty.type || e?.type == c.resDB.belt1.type) {
+            e.moveItemTo(e.getFirstItem(), this);;
+        }
+    }
+
     setDir(dir) {
         if (dir.y) c.allInvs[c.playerID].dir.y = dir.y;
     }
@@ -157,8 +179,7 @@ class Player {
         let building = c.game.map[pos.x][pos.y][layers.inv];
         let canWalkOn = true;
         if (building) {
-            canWalkOn = false;
-            if(resName[c.allInvs[building].type]?.playerCanWalkOn) canWalkOn  = building.playerCanWalkOn;
+            canWalkOn = !resName[c.allInvs[building].type]?.playerCanWalkOn;
         }
          
         return (terrain == resID.deepwater || terrain == resID.water || terrain == resID.hills || canWalkOn == false)
@@ -197,22 +218,7 @@ class Player {
         this.inv = c.allInvs[this.invID];
         if (typeof window !== "undefined") view.updateInventoryMenu(this.inv);
     }
-
-    draw(ctx, ent) {
-        ctx.save();
-        ctx.translate(ent.pos.x, ent.pos.y);
-        ctx.drawImage(c.resDB.player.img, ent.ss.x * 96, ent.ss.y * 132, 96, 132, - 48, -100, 96, 132)
-        ctx.beginPath();
-        ctx.fillStyle = "red";
-        ctx.fillRect(-25,-120, 50, 10);
-        ctx.fillStyle = "green";
-        ctx.fillRect(-25,-120, (ent.live / 100) * 50, 10);
-        ctx.fillStyle = "yellow";
-        ctx.fillRect(-25,-130, (ent.workProgress / 100) * 50, 10);
-        ctx.restore();
-    }
 }
-
 
 if (exports == undefined) var exports = {};
 exports.Player = Player;

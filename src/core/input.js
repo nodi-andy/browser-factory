@@ -59,7 +59,7 @@ class InputModule {
                 } else {
                     isDragStarted = true;
                     isBuilding = false;
-                    if (res?.id && d < 5*tileSize) c.playerClass.startMining(tileCoordinate, c.allInvs[c.playerID]);
+                    if (res?.id && d < 5*tileSize) c.player.startMining(tileCoordinate, c.allInvs[c.playerID]);
                 }
             } else if (e.buttons == 2) {
                 let inv = c.game.map[tileCoordinate.x][tileCoordinate.y][layers.inv];
@@ -72,7 +72,7 @@ class InputModule {
 
 
     onPointerUp(e) {
-        c.playerClass.stopMining(c.allInvs[c.playerID]);
+        c.player.stopMining(c.allInvs[c.playerID]);
 
         let overlayClicked = false;
         selectItemMenu.items.forEach (b => {if (b.collision(e) && b.onClick) { b.onClick(e.which, b); overlayClicked = true; }})
@@ -144,10 +144,11 @@ class InputModule {
 
     onKeyDown(e){
         //ws.send(JSON.stringify({cmd: "keydown", data: e.code}));
-        if(e.code == "KeyW") c.playerClass.setDir({y : -1});
-        if(e.code == "KeyS") c.player.dir.y =1;
-        if(e.code == "KeyD") c.player.dir.x = 1;
+        if(e.code == "KeyW") c.player.dir.y = -1;
+        if(e.code == "KeyS") c.player.dir.y =  1;
+        if(e.code == "KeyD") c.player.dir.x =  1;
         if(e.code == "KeyA") c.player.dir.x = -1;
+        if(e.code == "KeyF") c.player.fetch();
         if(e.code == "Escape") {
             if (c.pointer.item) {
                 c.player.addItem(c.pointer.item);
@@ -157,7 +158,7 @@ class InputModule {
             entityMenu.vis = false;
             craftMenu.vis = false;
         }
-        c.playerClass.stopMining(c.allInvs[c.playerID]);
+        c.player.stopMining(c.allInvs[c.playerID]);
     }
 
     onKeyUp(e){
@@ -171,7 +172,7 @@ class InputModule {
             craftMenu.vis = invMenu.vis;
             if (invMenu.vis == false) entityMenu.vis = false;
         }
-        c.playerClass.stopMining(c.allInvs[c.playerID]);
+        c.player.stopMining(c.allInvs[c.playerID]);
     }
 
 

@@ -222,7 +222,7 @@
         updateGameMenu();
     }
 
-    c.playerClass = new Player();
+    //c.playerClass = new Player();
     new Chest();
     new Belt();
     new BurnerMiner();
@@ -283,7 +283,8 @@
         c.playerID = 0;
         if (savedData.player?.id) c.player.id = savedData.player?.id;
 
-        c.player = c.allInvs[c.playerID];
+        c.player = new Player(c.allInvs[c.playerID]);
+        c.allInvs[c.playerID] = c.player;
         c.player.id = c.playerID;
         c.allInvs[c.player.id].type = c.resDB.player.id;
         c.allMovableEntities.push(c.playerID);

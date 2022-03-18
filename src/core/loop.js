@@ -14,7 +14,8 @@ function gameLoop(){
         // SETUP
         for(let ient = 0; ient < c.allInvs.length; ient++) {
             let entity = c.allInvs[ient];
-            c.resName[entity?.type]?.mach?.setup(c.game.map, entity);
+            if (entity?.setup) entity.setup(c.game.map, entity);
+            else c.resName[entity?.type]?.mach?.setup(c.game.map, entity);
         }
     }
 

@@ -110,7 +110,7 @@ function render(){
                 for(let ient = 0; c.allMovableEntities && ient <  c.allMovableEntities.length; ient++) {
                     let entity = c.allInvs[c.allMovableEntities[ient]];
                     if (entity.pos && ax-2 == entity.tilePos.x && ay-2 == entity.tilePos.y) {
-                        c.playerClass.draw(context, entity);
+                        c.player.draw(context, entity);
                     }
                 }
             }
