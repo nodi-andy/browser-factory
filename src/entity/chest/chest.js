@@ -5,6 +5,7 @@ if (typeof window === 'undefined') {
 class Chest {
     constructor() {
        c.resDB.chest.mach = this;
+       c.resDB.rotatable = false;
     }
 
     update(map, ent){

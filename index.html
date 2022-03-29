@@ -310,11 +310,11 @@
 
     function saveGame() {
         if (ws.readyState == WebSocket.OPEN) {
-                ws.send(JSON.stringify({cmd: "updateEntity", data: {id: invID, ent: c.allInvs[invID]}}));
-                ws.send(JSON.stringify({cmd: "updateMapData", data: c.game.map}));
-            } else {
-                window.localStorage.setItem(curGame, JSON.stringify({map: c.game.map, ents: c.allInvs, playerID: c.playerID}));
-            }
+            ws.send(JSON.stringify({cmd: "updateEntity", data: {id: invID, ent: c.allInvs[invID]}}));
+            ws.send(JSON.stringify({cmd: "updateMapData", data: c.game.map}));
+        } else {
+            window.localStorage.setItem(curGame, JSON.stringify({map: c.game.map, ents: c.allInvs, playerID: c.playerID}));
+        }
     }
  
     

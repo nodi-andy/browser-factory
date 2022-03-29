@@ -84,10 +84,12 @@ class Button {
                 if (tempItem?.n) c.pointer.item = tempItem;
                 else c.pointer.item = undefined;
             } else {
-                c.pointer.inv = this.inv;
-                c.pointer.invKey = this.invKey;
-                c.pointer.item = {id:this.item?.id, n: this.item?.n};
-                this.inv.remPack(this.invKey, this.stackPos);
+                if (this.item?.id && this.item?.n) {
+                    c.pointer.inv = this.inv;
+                    c.pointer.invKey = this.invKey;
+                    c.pointer.item = {id:this.item?.id, n: this.item?.n};
+                    this.inv.remPack(this.invKey, this.stackPos);
+                }
             }
         } else if (button == 3) {
             c.pointer.button = this;

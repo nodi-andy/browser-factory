@@ -7,6 +7,8 @@ class Player extends Inventory {
     constructor(playerData) {
         super(playerData)
         let db = c.resDB.player;
+        this.tilePos = playerData.tilePos;
+        this.pos = playerData.pos;
         db.mach = this;
         db.output = [
            c.resDB.wood,
