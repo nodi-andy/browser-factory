@@ -222,14 +222,6 @@
         updateGameMenu();
     }
 
-    //c.playerClass = new Player();
-    new Chest();
-    new Belt();
-    new BurnerMiner();
-    new InserterBurner();
-    new StoneFurnace();
-    c.assemblyMachine1 = new AssemblingMachine1();
-
     function openNav() {
         document.getElementById("myNav").style.left = (window.innerWidth - 400) + "px";
     }
@@ -278,12 +270,23 @@
         };
 
         for (let i = 0; i < savedData.ents.length; i++) {
-            c.allInvs.push(new Inventory(savedData.ents[i].pos, savedData.ents[i]));
+            let ent = savedData.ents[i];
+            if (ent) {
+                //c.allInvs.push(new Inventory(savedData.ents[i].pos, savedData.ents[i]));
+                if (resName[savedData.ents[i].type]?.mach?.constructor) {
+                    c.allInvs.push(new resName[ent.type].mach(ent.pos, ent));
+                } else {
+                    c.allInvs.push(new Inventory(ent.pos, ent));
+                }
+
+            } else {
+                c.allInvs.push(null);
+            }
         }
         c.playerID = 0;
         if (savedData.player?.id) c.player.id = savedData.player?.id;
 
-        c.player = new Player(c.allInvs[c.playerID]);
+        c.player = c.allInvs[c.playerID];
         c.allInvs[c.playerID] = c.player;
         c.player.id = c.playerID;
         c.allInvs[c.player.id].type = c.resDB.player.id;
@@ -303,7 +306,7 @@
     function newGame(name = "unnamed_0") {
         c.game = createWorld(gridSize.x, gridSize.y);
         c.playerID = 0;
-        let newID = invfuncs.createInv();
+        c.allInvs.push(new Player());
         curGame = name;
         saveGame();
     }

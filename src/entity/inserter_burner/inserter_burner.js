@@ -4,27 +4,18 @@ if (typeof window === 'undefined') {
 } 
 
 
-class InserterBurner {
-    constructor() {
-        let db = c.resDB.inserter_burner;
-        db.mach = this;
-        db.size = [1, 1];
-       if (typeof Image !== 'undefined') {
-        let image = new Image(64, 64);
-        image.src =  "./src/" + c.resDB.inserter_burner.type + "/inserter_burner/inserter_platform.png";
-        c.resDB.inserter_burner.platform = image;
-        image = new Image(64, 64);
-        image.src =  "./src/" + c.resDB.inserter_burner.type + "/inserter_burner/inserter_burner_hand.png";
-        c.resDB.inserter_burner.hand = image;
-       }
+class InserterBurner extends Inventory {
+    constructor(pos, data) {
+        super(pos, data);
+        data.pos = pos;
+        this.setup(undefined, data);
     }
 
     setup(map, ent) {
-        let invThis = inventory.getInv(ent.pos.x, ent.pos.y, true);
-        invThis.stack["INV"] = [];
-        invThis.stacksize = 3;
-        invThis.packsize = {};
-        invThis.packsize.INV = 1;
+        this.stack["INV"] = [];
+        this.stacksize = 3;
+        this.packsize = {};
+        this.packsize.INV = 1;
     }
 
     update(map, ent){
@@ -57,11 +48,20 @@ class InserterBurner {
                     } else invThis.state = 0;
                 } else { // PLACE
                     let stackName;
-                    if (invTo.type == c.resDB.assembling_machine_1.id) stackName = resName[invThis.stack.INV[0].id].name;
-                    else if (invTo.type == c.resDB.belt1.id) stackName = "INV";
-                    if (invThis.moveItemTo(invThis.stack.INV[0], invTo, stackName))
+
+                    //place onto belt
+                    if (invTo.type == c.resDB.belt1.id) {
+                        let relDir = (invTo.dir - invThis.dir + 3) % 4;
+                        let dirPref = ["L", "R", "L", "R"];
+                        stackName = dirPref[relDir];
+                    } else {  // place into assembling machine
+                        stackName = invTo.getStackName(this.stack.INV[0].id);
+                    }
+
+                    if (invTo.hasPlaceFor(this.stack.INV[0], stackName)) {
+                        invThis.moveItemTo(this.stack.INV[0], invTo, stackName);
                         invThis.state = 1;
-                    else
+                    } else
                         invThis.state = 0;
                 } 
             }
@@ -76,25 +76,35 @@ class InserterBurner {
 
 
         if (ent?.pos) {
-            let invThis = inventory.getInv(ent.pos.x, ent.pos.y, true);
-            let isHandFull = (invThis?.stack?.INV && invThis.stack.INV[0] && invThis.stack.INV[0].n > 0);
+            let isHandFull = (this.stack?.INV && this.stack.INV[0] && this.stack.INV[0].n > 0);
             if (isHandFull) armPos = 32
-            if (invThis?.state == 1) armPos = Math.round(c.game.tick)%64
+            if (this.state == 1) armPos = Math.round(c.game.tick)%64
 
             ctx.translate(tileSize * 0.5, tileSize * 0.5);
             ctx.rotate(armPos * Math.PI / 32);
             ctx.drawImage(c.resDB.inserter_burner.hand, 0, 0, 64, 64, -48, -16, 64, 64);
 
-            let myDir = c.dirToVec[ent.dir];
-            if (invThis?.stack?.INV && invThis?.stack?.INV[0]?.n) {
+            if (this.stack?.INV[0]?.n && this.stack?.INV[0]?.id) {
                 ctx.scale(0.5, 0.5);
-                ctx.drawImage(resName[invThis.stack.INV[0].id].img, -96, -24);
+                ctx.drawImage(resName[this.stack.INV[0].id].img, -96, -24);
                 ctx.scale(2, 2);
             }
         }
         ctx.restore(); 
     }
 }
+
+db = c.resDB.inserter_burner;
+db.size = [1, 1];
+if (typeof Image !== 'undefined') {
+    let image = new Image(64, 64);
+    image.src =  "./src/" + c.resDB.inserter_burner.type + "/inserter_burner/inserter_platform.png";
+    c.resDB.inserter_burner.platform = image;
+    image = new Image(64, 64);
+    image.src =  "./src/" + c.resDB.inserter_burner.type + "/inserter_burner/inserter_burner_hand.png";
+    c.resDB.inserter_burner.hand = image;
+}
+db.mach = InserterBurner;
 
 if (exports == undefined) var exports = {};
 exports.InserterBurner = InserterBurner;

@@ -28,9 +28,9 @@ function gameLoop(){
         let entity = c.allInvs[ient];
         if (!entity) continue;
         if(entity?.type == c.resDB.belt1.id) continue;
-        if(c.resName[entity.type]?.mach) {
-            c.resName[entity.type].mach.update(c.game.map, entity);
-        }
+        if( entity.update) {
+            entity.update(c.game.map, entity);
+        } else entity.draw(context);
     }
     // Get all BELTs
     let belts = [];
@@ -60,7 +60,7 @@ function gameLoop(){
                     belt = nbEntity;
                 } else break;
             }
-            c.resDB.belt1.mach.update(c.game.map, belt, true);
+            belt.update(c.game.map, belt, true);
         }
     }
 

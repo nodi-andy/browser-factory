@@ -2,7 +2,7 @@ const tileSize = 64;
 const gridSize = {x: 160, y: 90}
 const buttonSize = 68;
 
-let DEV = false;
+let DEV = true;
 
 let buildDir = 0;
 
@@ -132,6 +132,7 @@ var lastResPos;
 var canvas;
 var playerID;
 var player1;
+let db;
 
 
 function item(type, n) {return {id: type, n: n}}

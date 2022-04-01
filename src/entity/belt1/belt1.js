@@ -3,37 +3,29 @@ if (typeof window === "undefined") {
   inventory = require("../../core/inventory");
 }
 
-class Belt {
-  constructor() {
-    let db = c.resDB.belt1;
-    db.mach = this;
-    db.playerCanWalkOn = true;
-    db.size = [1, 1];
-    db.cost = [
-      { id: c.resDB.iron_plate.id, n: 1 },
-      { id: c.resDB.gear.id, n: 1 },
-    ];
-    if (typeof Image !== "undefined") {
-      const image = new Image(512, 32);
-      image.src = "./src/" + c.resDB.belt1.type + "/belt1/belt1_anim.png";
-      c.resDB.belt1.anim = image;
-    }
+class Belt extends Inventory{
+  constructor(pos, data) {
+    super(pos, data);
+    this.setup(undefined, data);
   }
 
   setup(map, ent) {
-    let invThis = inventory.getInv(ent.pos.x, ent.pos.y, true);
-    invThis.stacksize = 8;
-    invThis.packsize = {};
-    invThis.packsize.INV = 1;
+    this.stacksize = 8;
+    this.packsize = {};
+    this.packsize.INV = 1;
+    this.packsize.LD = 1;
+    this.packsize.RD = 1;
+    this.packsize.L = 1;
+    this.packsize.R = 1;
 
-    if (invThis.stack.LA == undefined) invThis.stack.LA = {n: 1};
-    if (invThis.stack.LB == undefined) invThis.stack.LB = {n: 1};
-    if (invThis.stack.LC == undefined) invThis.stack.LC = {n: 1};
-    if (invThis.stack.LD == undefined) invThis.stack.LD = {n: 1};
-    if (invThis.stack.RA == undefined) invThis.stack.RA = {n: 1};
-    if (invThis.stack.RB == undefined) invThis.stack.RB = {n: 1};
-    if (invThis.stack.RC == undefined) invThis.stack.RC = {n: 1};
-    if (invThis.stack.RD == undefined) invThis.stack.RD = {n: 1};
+    if (this.stack.LA == undefined) this.stack.LA = {n: 1};
+    if (this.stack.LB == undefined) this.stack.LB = {n: 1};
+    if (this.stack.LC == undefined) this.stack.LC = {n: 1};
+    if (this.stack.LD == undefined) this.stack.LD = {n: 1};
+    if (this.stack.RA == undefined) this.stack.RA = {n: 1};
+    if (this.stack.RB == undefined) this.stack.RB = {n: 1};
+    if (this.stack.RC == undefined) this.stack.RC = {n: 1};
+    if (this.stack.RD == undefined) this.stack.RD = {n: 1};
   }
 
   shift(from, itfrom, to, itto, deciding) {
@@ -65,57 +57,54 @@ class Belt {
 
   update(map, ent, first = false) {
     ent.done = true;
-    let invThis = ent;
 
-    if (invThis == undefined) return;
     let movingParts = c.game.tick % 8 == 0;
     let decidingMoving = (c.game.tick - 1) % 8 == 0;
 
 
     if (movingParts || decidingMoving) {
-
-      if (invThis.stack.LA == undefined) invThis.stack.LA = {n: 1};
-      if (invThis.stack.LB == undefined) invThis.stack.LB = {n: 1};
-      if (invThis.stack.LC == undefined) invThis.stack.LC = {n: 1};
-      if (invThis.stack.LD == undefined) invThis.stack.LD = {n: 1};
-      if (invThis.stack.RA == undefined) invThis.stack.RA = {n: 1};
-      if (invThis.stack.RB == undefined) invThis.stack.RB = {n: 1};
-      if (invThis.stack.RC == undefined) invThis.stack.RC = {n: 1};
-      if (invThis.stack.RD == undefined) invThis.stack.RD = {n: 1};
-      invThis.stack.LA.n = 1;
-      invThis.stack.LB.n = 1;
-      invThis.stack.LC.n = 1;
-      invThis.stack.LD.n = 1;
-      invThis.stack.RA.n = 1;
-      invThis.stack.RB.n = 1;
-      invThis.stack.RC.n = 1;
-      invThis.stack.RD.n = 1;
+      if (this.stack.L == undefined) this.stack.L = {n: 1};
+      if (this.stack.R == undefined) this.stack.R = {n: 1};
+      if (this.stack.LA == undefined) this.stack.LA = {n: 1};
+      if (this.stack.LB == undefined) this.stack.LB = {n: 1};
+      if (this.stack.LC == undefined) this.stack.LC = {n: 1};
+      if (this.stack.LD == undefined) this.stack.LD = {n: 1};
+      if (this.stack.RA == undefined) this.stack.RA = {n: 1};
+      if (this.stack.RB == undefined) this.stack.RB = {n: 1};
+      if (this.stack.RC == undefined) this.stack.RC = {n: 1};
+      if (this.stack.RD == undefined) this.stack.RD = {n: 1};
+      this.stack.LA.n = 1;
+      this.stack.LB.n = 1;
+      this.stack.LC.n = 1;
+      this.stack.LD.n = 1;
+      this.stack.RA.n = 1;
+      this.stack.RB.n = 1;
+      this.stack.RC.n = 1;
+      this.stack.RD.n = 1;
       if (decidingMoving) {
-        invThis.stack.LA.reserved = false;
-        invThis.stack.LB.reserved = false;
-        invThis.stack.LC.reserved = false;
-        invThis.stack.LD.reserved = false;
-        invThis.stack.RA.reserved = false;
-        invThis.stack.RB.reserved = false;
-        invThis.stack.RC.reserved = false;
-        invThis.stack.RD.reserved = false;
+        this.stack.LA.reserved = false;
+        this.stack.LB.reserved = false;
+        this.stack.LC.reserved = false;
+        this.stack.LD.reserved = false;
+        this.stack.RA.reserved = false;
+        this.stack.RB.reserved = false;
+        this.stack.RC.reserved = false;
+        this.stack.RD.reserved = false;
 
-        invThis.stack.LA.moving = false;
-        invThis.stack.LB.moving = false;
-        invThis.stack.LC.moving = false;
-        invThis.stack.LD.moving = false;
-        invThis.stack.RA.moving = false;
-        invThis.stack.RB.moving = false;
-        invThis.stack.RC.moving = false;
-        invThis.stack.RD.moving = false;
+        this.stack.LA.moving = false;
+        this.stack.LB.moving = false;
+        this.stack.LC.moving = false;
+        this.stack.LD.moving = false;
+        this.stack.RA.moving = false;
+        this.stack.RB.moving = false;
+        this.stack.RC.moving = false;
+        this.stack.RD.moving = false;
       }
 
-      //if (invThis.getFilledStackSize() == 0) return;
 
-      let beltThis = inventory.getInv(ent.pos.x, ent.pos.y);
       let nbPos = c.dirToVec[ent.dir];
       let beltFrom = inventory.getInv(ent.pos.x - nbPos.x, ent.pos.y - nbPos.y);
-      if (beltFrom && Math.abs(beltThis.dir - beltFrom.dir) == 2)
+      if (beltFrom && Math.abs(this.dir - beltFrom.dir) == 2)
         beltFrom = undefined;
       if (beltFrom == undefined) {
         // LEFT
@@ -144,65 +133,76 @@ class Belt {
           if (beltFromRight) beltFrom = beltFromRight;
         }
       }
+
       let beltTo = inventory.getInv(ent.pos.x + nbPos.x, ent.pos.y + nbPos.y);
       let invTo = inventory.getInv(ent.pos.x + nbPos.x, ent.pos.y + nbPos.y);
+      if (this.stack.INV?.length && this.stack.L?.length == 0) {
+        this.stack.LA = {id: this.stack.INV.id};
+      }
+      if (this.stack.L?.id) {
+          if(this.stack.LA?.id == undefined && this.stack.LA.reserved == false) {
+              this.stack.LA.id = this.stack.L.id;
+          } else if (this.stack.LB?.id == undefined && this.stack.LB.reserved == false) {
+              this.stack.LB.id = this.stack.L.id;
+          } else if (this.stack.LC?.id == undefined && this.stack.LC.reserved == false) {
+              this.stack.LC.id = this.stack.L.id;
+          } else if (this.stack.LD?.id == undefined && this.stack.LD.reserved == false) {
+              this.stack.LD.id = this.stack.L.id;
+          }
+          delete this.stack.L.id;
+      }
 
-      if (invThis.stack.INV?.length && invThis.stack.LA?.id == undefined) {
-        invThis.stack.LA.id = invThis.stack.INV[0].id;
-        invThis.stack.LA.n = 1;
-        invThis.remItem({id: invThis.stack.LA.id, n: 1}, "INV");
+      if (this.stack.R) {
+          if(this.stack.RA?.id == undefined && this.stack.RA.reserved == false) {
+              this.stack.RA.id = this.stack.R.id;
+          }
+          if (this.stack.RB?.id == undefined && this.stack.RB.reserved == false) {
+              this.stack.RB.id = this.stack.R.id;
+          }
+          if (this.stack.RC?.id == undefined && this.stack.RC.reserved == false) {
+              this.stack.RC.id = this.stack.R.id;
+          }
+          if (this.stack.RD?.id == undefined && this.stack.RD.reserved == false) {
+              this.stack.RD.id = this.stack.R.id;
+          }
+          delete this.stack.R.id;
       }
-      if (invThis.stack.INV?.length && invThis.stack.RA?.id == undefined) {
-        invThis.stack.RA.id = invThis.stack.INV[0].id;
-        invThis.stack.RA.n = 1;
-        invThis.remItem({id: invThis.stack.RA.id, n: 1}, "INV");
-      }
-      if (invThis.stack.INV?.length && invThis.stack.LB?.id == undefined) {
-        invThis.stack.LB.id = invThis.stack.INV[0].id;
-        invThis.stack.LB.n = 1;
-        invThis.remItem({id: invThis.stack.LB.id, n: 1}, "INV");
-      }
-      if (invThis.stack.INV?.length && invThis.stack.RB?.id == undefined) {
-        invThis.stack.RB.id = invThis.stack.INV[0].id;
-        invThis.stack.RB.n = 1;
-        invThis.remItem({id: invThis.stack.RB.id, n: 1}, "INV");
-      }
-        
-      delete invThis.stack.INV;
 
       //SHIFT INTO NEXT BELT
       if (beltTo && beltTo.type != c.resDB.belt1.id) beltTo = undefined;
       if (beltTo) {
-        let dAng = c.dirToAng[beltTo.dir] - c.dirToAng[beltThis.dir];
+        let dAng = c.dirToAng[beltTo.dir] - c.dirToAng[this.dir];
         if (first == false) dAng = 0;
         if (dAng == 0) {
-          this.shift(invThis, "LA", invTo, "LD", decidingMoving);
-          this.shift(invThis, "RA", invTo, "RD", decidingMoving);
+          this.shift(this, "LA", invTo, "LD", decidingMoving);
+          this.shift(this, "RA", invTo, "RD", decidingMoving);
         } else if (dAng == -270 || dAng == 90) {
-          this.shift(invThis, "LA", invTo, "RB", decidingMoving);
-          this.shift(invThis, "RA", invTo, "RA", decidingMoving);
+          this.shift(this, "LA", invTo, "RB", decidingMoving);
+          this.shift(this, "RA", invTo, "RA", decidingMoving);
         } else if (dAng == 270 || dAng == -90) {
-          this.shift(invThis, "LA", invTo, "LA", decidingMoving);
-          this.shift(invThis, "RA", invTo, "LB", decidingMoving);
+          this.shift(this, "LA", invTo, "LA", decidingMoving);
+          this.shift(this, "RA", invTo, "LB", decidingMoving);
         }
       } else { // No next belt
-        if (invThis.stack.LA) {
-          if (invThis.stack.LA?.id) invThis.stack.LA.reserved = true; else invThis.stack.LA.reserved = false
+        if (this.stack.LA) {
+          if (this.stack.LA?.id) this.stack.LA.reserved = true; else this.stack.LA.reserved = false
         }
-        if (invThis.stack.RA) {
-          if (invThis.stack.RA?.id) invThis.stack.RA.reserved = true; else invThis.stack.RA.reserved = false
+        if (this.stack.RA) {
+          if (this.stack.RA?.id) this.stack.RA.reserved = true; else this.stack.RA.reserved = false
         }
       }
       // SHIFT ON THE BELT
-      this.shift(invThis, "LB", invThis, "LA", decidingMoving);
-      this.shift(invThis, "LC", invThis, "LB", decidingMoving);
-      this.shift(invThis, "LD", invThis, "LC", decidingMoving);
-      this.shift(invThis, "RB", invThis, "RA", decidingMoving);
-      this.shift(invThis, "RC", invThis, "RB", decidingMoving);
-      this.shift(invThis, "RD", invThis, "RC", decidingMoving);
+      this.shift(this, "LB", this, "LA", decidingMoving);
+      this.shift(this, "LC", this, "LB", decidingMoving);
+      this.shift(this, "LD", this, "LC", decidingMoving);
+      this.shift(this, "RB", this, "RA", decidingMoving);
+      this.shift(this, "RC", this, "RB", decidingMoving);
+      this.shift(this, "RD", this, "RC", decidingMoving);
+
+      this.stack.L.full = !!((this.stack.LA.id || this.stack.LA.reserved) && (this.stack.LB.id || this.stack.LB.reserved)  && (this.stack.LC.id || this.stack.LC.reserved)  && (this.stack.LD.id || this.stack.LD.reserved));
 
       if (beltFrom && beltFrom.type != c.resDB.belt1.id) beltFrom = undefined;
-      if (beltFrom && beltFrom.done == false) this.update(map, beltFrom);
+      if (beltFrom && beltFrom.done == false) beltFrom.update(map, beltFrom);
     }
   }
 
@@ -215,17 +215,15 @@ class Belt {
   drawItems(ctx, ent) {
     let beltPos = Math.round(c.game.tick / 1) % 8;
     if (ent.pos) {
-      let invThis = inventory.getInv(ent.pos.x, ent.pos.y);
-      if (invThis == undefined) return; // if the server is slow, no inventory for the entity
-      if (invThis.stack == undefined) return;
+      if (this.stack == undefined) return;
       let pos = 0;
       let xpos = 0.6;
       let dx = -0.25;
-      if (invThis.stack.LA?.id) {
-        if (invThis.stack.LA.moving) pos = beltPos;
+      if (this.stack.LA?.id) {
+        if (this.stack.LA.moving) pos = beltPos;
         else pos = 0;
         ctx.drawImage(
-          resName[invThis.stack.LA.id].img,
+          resName[this.stack.LA.id].img,
           0,
           0,
           64,
@@ -237,11 +235,11 @@ class Belt {
         );
       }
 
-      if (invThis.stack.RA?.id) {
-        if (invThis.stack.RA.moving) pos = beltPos;
+      if (this.stack.RA?.id) {
+        if (this.stack.RA.moving) pos = beltPos;
         else pos = 0;
         ctx.drawImage(
-          resName[invThis.stack.RA.id].img,
+          resName[this.stack.RA.id].img,
           0,
           0,
           64,
@@ -253,11 +251,11 @@ class Belt {
         );
       }
       xpos += dx;
-      if (invThis.stack.LB?.id) {
-        if (invThis.stack.LB.moving) pos = beltPos;
+      if (this.stack.LB?.id) {
+        if (this.stack.LB.moving) pos = beltPos;
         else pos = 0;
         ctx.drawImage(
-          resName[invThis.stack.LB.id].img,
+          resName[this.stack.LB.id].img,
           0,
           0,
           64,
@@ -269,44 +267,11 @@ class Belt {
         );
       }
 
-      if (invThis.stack.RB?.id) {
-        if (invThis.stack.RB.moving) pos = beltPos;
+      if (this.stack.RB?.id) {
+        if (this.stack.RB.moving) pos = beltPos;
         else pos = 0;
         ctx.drawImage(
-          resName[invThis.stack.RB.id].img,
-          0,
-          0,
-          64,
-          64,
-          pos * 2 + xpos * tileSize,
-          0.4 * tileSize,
-          32,
-          32
-        );
-      }
-
-      xpos += dx;
-      if (invThis.stack.LC?.id) {
-        if (invThis.stack.LC.moving) pos = beltPos;
-        else pos = 0;
-        ctx.drawImage(
-          resName[invThis.stack.LC.id].img,
-          0,
-          0,
-          64,
-          64,
-          pos * 2 + xpos * tileSize,
-          0.1 * tileSize,
-          32,
-          32
-        );
-      }
-
-      if (invThis.stack.RC?.id) {
-        if (invThis.stack.RC.moving) pos = beltPos;
-        else pos = 0;
-        ctx.drawImage(
-          resName[invThis.stack.RC.id].img,
+          resName[this.stack.RB.id].img,
           0,
           0,
           64,
@@ -319,11 +284,11 @@ class Belt {
       }
 
       xpos += dx;
-      if (invThis.stack.LD?.id) {
-        if (invThis.stack.LD.moving) pos = beltPos;
+      if (this.stack.LC?.id) {
+        if (this.stack.LC.moving) pos = beltPos;
         else pos = 0;
         ctx.drawImage(
-          resName[invThis.stack.LD.id].img,
+          resName[this.stack.LC.id].img,
           0,
           0,
           64,
@@ -335,11 +300,44 @@ class Belt {
         );
       }
 
-      if (invThis.stack.RD?.id) {
-        if (invThis.stack.RD.moving) pos = beltPos;
+      if (this.stack.RC?.id) {
+        if (this.stack.RC.moving) pos = beltPos;
         else pos = 0;
         ctx.drawImage(
-          resName[invThis.stack.RD.id].img,
+          resName[this.stack.RC.id].img,
+          0,
+          0,
+          64,
+          64,
+          pos * 2 + xpos * tileSize,
+          0.4 * tileSize,
+          32,
+          32
+        );
+      }
+
+      xpos += dx;
+      if (this.stack.LD?.id) {
+        if (this.stack.LD.moving) pos = beltPos;
+        else pos = 0;
+        ctx.drawImage(
+          resName[this.stack.LD.id].img,
+          0,
+          0,
+          64,
+          64,
+          pos * 2 + xpos * tileSize,
+          0.1 * tileSize,
+          32,
+          32
+        );
+      }
+
+      if (this.stack.RD?.id) {
+        if (this.stack.RD.moving) pos = beltPos;
+        else pos = 0;
+        ctx.drawImage(
+          resName[this.stack.RD.id].img,
           0,
           0,
           64,
@@ -354,5 +352,18 @@ class Belt {
   }
 }
 
+db = c.resDB.belt1;
+db.playerCanWalkOn = true;
+db.size = [1, 1];
+db.cost = [
+  { id: c.resDB.iron_plate.id, n: 1 },
+  { id: c.resDB.gear.id, n: 1 },
+];
+if (typeof Image !== "undefined") {
+  const image = new Image(512, 32);
+  image.src = "./src/" + c.resDB.belt1.type + "/belt1/belt1_anim.png";
+  c.resDB.belt1.anim = image;
+}
+db.mach = Belt;
 if (exports == undefined) var exports = {};
 exports.Belt = Belt;

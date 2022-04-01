@@ -4,11 +4,17 @@ if (typeof window === 'undefined') {
 } 
 
 class Player extends Inventory {
-    constructor(playerData) {
-        super(playerData)
+    constructor(pos, data) {
+        if (data == undefined) data = { 
+            tilePos : {x: c.gridSize.x/2, y: c.gridSize.y/2},
+            pos : pos,
+            stack : {}
+        }
+        super(pos, data)
         let db = c.resDB.player;
-        this.tilePos = playerData.tilePos;
-        this.pos = playerData.pos;
+        this.tilePos = data.tilePos;
+        this.pos = data.pos;
+        this.stack = data.stack;
         db.mach = this;
         db.output = [
            c.resDB.wood,
@@ -181,10 +187,11 @@ class Player extends Inventory {
         let building = c.game.map[pos.x][pos.y][layers.inv];
         let canWalkOn = true;
         if (building) {
-            canWalkOn = !resName[c.allInvs[building].type]?.playerCanWalkOn;
+            canWalkOn == false;
+            if (resName[c.allInvs[building]?.type]) canWalkOn = resName[c.allInvs[building].type].playerCanWalkOn;
         }
          
-        return (terrain == resID.deepwater || terrain == resID.water || terrain == resID.hills || canWalkOn == false)
+        return (terrain == resID.deepwater || terrain == resID.water || terrain == resID.hills || !canWalkOn)
     }
 
     startMining(tileCoordinate, ent) {
@@ -221,6 +228,6 @@ class Player extends Inventory {
         if (typeof window !== "undefined") view.updateInventoryMenu(this.inv);
     }
 }
-
+c.resDB.player.mach = Player;
 if (exports == undefined) var exports = {};
 exports.Player = Player;

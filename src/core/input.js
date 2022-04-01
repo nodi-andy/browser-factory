@@ -63,9 +63,11 @@ class InputModule {
                 }
             } else if (e.buttons == 2) {
                 let inv = c.game.map[tileCoordinate.x][tileCoordinate.y][layers.inv];
-                if (inv) c.allInvs[inv] = undefined
-                c.game.map[tileCoordinate.x][tileCoordinate.y][layers.inv] = null;
-                c.allInvs[c.playerID].addItem(c.allInvs[ent]);
+                if (inv) {
+                    c.allInvs[c.playerID].addItem({id: c.allInvs[inv].type, n: 1});
+                    c.allInvs[inv] = undefined
+                    c.game.map[tileCoordinate.x][tileCoordinate.y][layers.inv] = null;
+                }
             }            
         }
     }
@@ -102,6 +104,8 @@ class InputModule {
                 isDragging = false;
                 dragStart = undefined;
                 isBuilding = false;
+            } else  if (e.buttons == 1) {
+                
             }
         }
     }

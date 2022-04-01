@@ -3,44 +3,42 @@ if (typeof window === 'undefined') {
     inventory = require("../../core/inventory");
 } 
 
-class StoneFurnace {
-    constructor() {
-        let db = c.resDB.stone_furnace;
-        db.mach = this;
-        db.type = "entity";
-        if (typeof Image !== 'undefined') {
-            const image = new Image(512, 32);
-            image.src =  "./src/" + db.type + "/stone_furnace/stone_furnace_64.png";
-            db.anim1 = image;
+class StoneFurnace extends Inventory {
+    constructor(pos, data) {
+        if (data == undefined) {
+            data = { 
+                tilePos : {x: c.gridSize.x/2, y: c.gridSize.y/2},
+                pos : pos,
+                stack : {}
+            }
         }
-        db.size = [2, 2];
-        db.cost = [{id: c.resDB.stone.id, n: 5}];
-        db.rotatable = false;
+        super(pos, data);
+        this.setup(undefined, this);
     }
 
     setup(map, inv) {
-        inventory.setInv(inv.pos.x + 1, inv.pos. y + 0, inv.id);
-        inventory.setInv(inv.pos.x + 1, inv.pos. y + 1, inv.id);
-        inventory.setInv(inv.pos.x + 0, inv.pos. y + 1, inv.id);
+        inventory.setInv(this.pos.x + 1, this.pos. y + 0, this.id);
+        inventory.setInv(this.pos.x + 1, this.pos. y + 1, this.id);
+        inventory.setInv(this.pos.x + 0, this.pos. y + 1, this.id);
 
-        inv.packsize = 1;
-        inv.itemsize = 50;
-        if (inv.stack.FUEL == undefined) inv.stack.FUEL = [];
-        if (inv.stack.INPUT == undefined) inv.stack.INPUT = [];
-        if (inv.stack.OUTPUT == undefined) inv.stack.OUTPUT = [];
-        inv.stacksize = 4;
-        inv.packsize = {};
-        inv.packsize.FUEL = 1;
-        inv.packsize.INPUT = 1;
-        inv.packsize.OUTPUT = 1;
-        inv.packsize.INV = 8;
-        inv.state = 0;
-        inv.lastTime = performance.now();
+        this.packsize = 1;
+        this.itemsize = 50;
+        if (this.stack.FUEL == undefined) this.stack.FUEL = [];
+        if (this.stack.INPUT == undefined) this.stack.INPUT = [];
+        if (this.stack.OUTPUT == undefined) this.stack.OUTPUT = [];
+        this.stacksize = 4;
+        this.packsize = {};
+        this.packsize.FUEL = 1;
+        this.packsize.INPUT = 1;
+        this.packsize.OUTPUT = 1;
+        this.packsize.INV = 8;
+        this.state = 0;
+        this.lastTime = performance.now();
     }
 
 
     update(map, ent){
-        let invThis = inventory.getInv(ent.pos.x, ent.pos.y, true);
+        let invThis = this;
         invThis.need = [];
         if (invThis.stack["FUEL"] == undefined || invThis.stack["FUEL"][0] == undefined || invThis.stack["FUEL"][0].n == 0) {
             invThis.need.push({id: c.resDB.coal.id, n:1});
@@ -115,7 +113,22 @@ class StoneFurnace {
         let db = c.resDB.stone_furnace;
         ctx.drawImage(db.anim1, 0, 0, db.size[0]*tileSize, db.size[1]*tileSize, 0, 0, db.size[0]*tileSize, db.size[1]*tileSize);
     }
+
+    getStackName(type) {
+        if ( type == c.resDB.coal.id) return "FUEL";
+    }
 }
 
+db = c.resDB.stone_furnace;
+db.type = "entity";
+if (typeof Image !== 'undefined') {
+    const image = new Image(512, 32);
+    image.src =  "./src/" + db.type + "/stone_furnace/stone_furnace_64.png";
+    db.anim1 = image;
+}
+db.size = [2, 2];
+db.cost = [{id: c.resDB.stone.id, n: 5}];
+db.rotatable = false;
+db.mach = StoneFurnace;
 if (exports == undefined) var exports = {};
 exports.StoneFurnace = StoneFurnace;

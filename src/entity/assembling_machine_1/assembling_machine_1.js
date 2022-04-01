@@ -4,43 +4,15 @@ if (typeof window === 'undefined') {
 } 
 
 
-class AssemblingMachine1 {
-    constructor() {
-      let db = c.resDB.assembling_machine_1;
-      db.mach = this;
-      if (typeof Image !== 'undefined') {
-        const image = new Image(512, 32);
-        image.src = "./src/" + db.type + "/assembling_machine_1/platform.png";
-        db.anim = image;
-      }
-      db.size = [3, 3];
-      db.output = [
-        c.resDB.wooden_stick.id,
-        c.resDB.sharp_stone.id,
-        c.resDB.iron_stick.id,
-        c.resDB.gear.id,
-        c.resDB.hydraulic_piston.id,
-        c.resDB.copper_cable.id,
-        c.resDB.circuit.id,
-        c.resDB.stone_axe.id,
-        c.resDB.iron_axe.id,
-        c.resDB.gun.id,
-        c.resDB.rocket_launcher.id,
-        c.resDB.bullet.id,
-        c.resDB.rocket.id,
-        c.resDB.weak_armor.id,
-        c.resDB.strong_armor.id,
-        c.resDB.chest.id,
-        c.resDB.iron_chest.id,
-        c.resDB.stone_furnace.id,
-        c.resDB.burner_miner.id,
-        c.resDB.electrical_miner.id,
-        c.resDB.belt1.id,
-      ];
+class AssemblingMachine1 extends Inventory {
+    constructor(pos, data) {
+        super(data.pos, data);
+        data.pos = pos;
+        this.setup(undefined, data);
     }
 
     setup(map, inv) {
-        inv.prod = c.resDB.gear.id;
+        this.prod = c.resDB.gear.id;
 
         inventory.setInv(inv.pos.x + 0, inv.pos. y + 1, inv.id);
         inventory.setInv(inv.pos.x + 0, inv.pos. y + 2, inv.id);
@@ -51,58 +23,59 @@ class AssemblingMachine1 {
         inventory.setInv(inv.pos.x + 2, inv.pos. y + 1, inv.id);
         inventory.setInv(inv.pos.x + 2, inv.pos. y + 2, inv.id);
 
-        inv.packsize = 1;
-        inv.itemsize = 50;
-        inv.stacksize = 4;
-        inv.packsize = {};
-        inv.state = 0;
-        inv.lastTime = performance.now();
+        this.packsize = 1;
+        this.itemsize = 50;
+        this.stacksize = 4;
+        this.packsize = {};
+        this.state = 0;
+        this.lastTime = performance.now();
+        this.setOutput(map, inv, this.prod);
     }
 
     setOutput(map, inv, out) {
-        inv.prod = out;
-        let keys = Object.keys(inv.stack);
+        this.prod = out;
+        let keys = Object.keys(this.stack);
         for(let iStack = 0; iStack < keys.length; iStack++) {
             let key = keys[iStack];
             if (key == "PROD") continue;
-            if (inv.stack[key]?.id) c.player.addItem(inv.stack[key]);
-            if (inv.stack[key][0]?.id) c.player.addItems(inv.stack[key]);   
+            if (this.stack[key]?.id) c.player.addItem(this.stack[key]);
+            if (this.stack[key][0]?.id) c.player.addItems(this.stack[key]);   
         }
 
-        let cost = resName[inv.prod].cost;
-        inv.stack = {};
-        inv.packsize = {};
-        inv.stack.OUTPUT = [];
-        inv.packsize.OUTPUT = 1;
+        let cost = resName[this.prod].cost;
+        this.stack = {};
+        this.packsize = {};
+        this.stack.OUTPUT = [];
+        this.packsize.OUTPUT = 1;
         for(let icost = 0; icost < cost.length; icost++) {
             let item = cost[icost];
             let name = resName[item.id].name;
-            inv.stack[name] = [];
-            inv.packsize[name] = 1;
+            this.stack[name] = [];
+            this.packsize[name] = 1;
         }
     }
 
     update(map, invThis){
 
-        invThis.preneed = JSON.parse(JSON.stringify(resName[invThis.prod].cost));
-        delete invThis.preneed.OUTPUT;
-        delete invThis.preneed.PROD;
+        this.preneed = JSON.parse(JSON.stringify(resName[this.prod].cost));
+        delete this.preneed.OUTPUT;
+        delete this.preneed.PROD;
 
-        invThis.need = [];
-        for(let costItemID = 0; costItemID < invThis.preneed.length; costItemID++) {
-            let costItem = invThis.preneed[costItemID];
-            let existing = getNumberOfItems(c.allInvs[invThis.id], costItem.id);
+        this.need = [];
+        for(let costItemID = 0; costItemID < this.preneed.length; costItemID++) {
+            let costItem = this.preneed[costItemID];
+            let existing = getNumberOfItems(c.allInvs[this.id], costItem.id);
             if (existing >= costItem.n) {
-                invThis.need.push(costItem);
+                this.need.push(costItem);
             } else {
-                invThis.need.unshift(costItem);
+                this.need.unshift(costItem);
             }
         }
 
 
         let tempInv = new Inventory();
-        tempInv.stack = JSON.parse(JSON.stringify(invThis.stack));
-        tempInv.packsize = JSON.parse(JSON.stringify(invThis.packsize));
+        tempInv.stack = JSON.parse(JSON.stringify(this.stack));
+        tempInv.packsize = JSON.parse(JSON.stringify(this.packsize));
         tempInv.PROD = [];
         tempInv.OUTPUT = [];
         if(invThis.need && tempInv.remItems(invThis.need)) {
@@ -126,6 +99,36 @@ class AssemblingMachine1 {
         ctx.drawImage(db.anim, 0, 0, db.size[0]*tileSize, db.size[1]*tileSize, 0, 0, db.size[0]*tileSize, db.size[1]*tileSize);
     }
 }
-
+db = c.resDB.assembling_machine_1;
+if (typeof Image !== 'undefined') {
+    const image = new Image(512, 32);
+    image.src = "./src/" + db.type + "/assembling_machine_1/platform.png";
+    db.anim = image;
+}
+db.size = [3, 3];
+db.output = [
+c.resDB.wooden_stick.id,
+c.resDB.sharp_stone.id,
+c.resDB.iron_stick.id,
+c.resDB.gear.id,
+c.resDB.hydraulic_piston.id,
+c.resDB.copper_cable.id,
+c.resDB.circuit.id,
+c.resDB.stone_axe.id,
+c.resDB.iron_axe.id,
+c.resDB.gun.id,
+c.resDB.rocket_launcher.id,
+c.resDB.bullet.id,
+c.resDB.rocket.id,
+c.resDB.weak_armor.id,
+c.resDB.strong_armor.id,
+c.resDB.chest.id,
+c.resDB.iron_chest.id,
+c.resDB.stone_furnace.id,
+c.resDB.burner_miner.id,
+c.resDB.electrical_miner.id,
+c.resDB.belt1.id,
+];
+db.mach = AssemblingMachine1;
 if (exports == undefined) var exports = {};
 exports.AssemblingMachine1 = AssemblingMachine1;

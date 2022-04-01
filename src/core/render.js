@@ -56,7 +56,7 @@ function render(){
                         context.translate(-type.size[0] / 2 * tileSize, -type.size[1] / 2 * tileSize);
                     }
                     
-                    if (resName[b.type]?.mach?.draw) resName[b.type].mach.draw(context, b);
+                    if (b?.draw) b.draw(context, b);
                     else context.drawImage(resName[b.type].img, 0, 0);
                     b.drawn = true;
 
@@ -95,14 +95,14 @@ function render(){
                 if (tile[layers.inv] != undefined) {
                     b = c.allInvs[tile[layers.inv]];
                 }
-                if (b?.type && resName[b.type] && resName[b.type]?.mach?.drawItems) {
+                if (b?.type && resName[b.type] && b.drawItems) {
                     // Build a tree for the belts
                     //if (b.type == c.resDB.belt1.id) continue;
                     context.save();
                     context.translate((ax + 0.5) * tileSize, (ay + 0.5) *tileSize);
                         context.rotate(b.dir * Math.PI/2);
                     context.translate(-tileSize / 2, -tileSize / 2);
-                    resName[b.type].mach.drawItems(context, b);
+                    b.drawItems(context, b);
                     context.restore();
                 }
                 
@@ -134,7 +134,7 @@ function render(){
             if (item.type == "entity" && item.rotatable != false) context.rotate(buildDir * Math.PI/2);
             context.translate(-size[0] / 2 * tileSize, -size[1] / 2 * tileSize);
 
-            if (item.mach?.draw) item.mach.draw(context, c.pointer.item);
+            if (item.mach?.prototype?.draw) item.mach.prototype.draw(context, c.pointer.item);
             else context.drawImage(item.img, 0, 0);
             context.restore();
         }

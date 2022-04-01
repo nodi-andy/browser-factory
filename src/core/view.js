@@ -143,8 +143,9 @@ class ViewModule {
         let pos = 0;
         items.forEach(i => {
             let newButton = new Button ((pos % 8) * (buttonSize), Math.floor(pos/8) * (buttonSize), {id: i} , selectItemMenu);
+            newButton.ent = ent;
             newButton.onClick = (which, button) => {
-                c.assemblyMachine1.setOutput(c.game.map, c.selEntity, button.item.id);
+                button.ent.setOutput(c.game.map, c.selEntity, button.item.id);
                 c.selEntity.vis = true;
                 selectItemMenu.vis = false;
             };
