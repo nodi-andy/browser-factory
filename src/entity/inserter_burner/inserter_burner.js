@@ -12,76 +12,74 @@ class InserterBurner extends Inventory {
     }
 
     setup(map, ent) {
-        this.stack["INV"] = [];
+        this.stack.INV = [];
+        this.stack.INV.size = 6;
         this.stacksize = 3;
         this.packsize = {};
         this.packsize.INV = 1;
+        this.armPos = 0;
     }
 
     update(map, ent){
         ent.done = true;
-        if (c.game.tick%32 == 0) {
-            if (ent.pos) {
-                let myDir = c.dirToVec[ent.dir];
-                let invThis = inventory.getInv(ent.pos.x, ent.pos.y, true);
+        if (ent.pos) {
+            let myDir = c.dirToVec[ent.dir];
+
+            let isHandFull = this.stack?.INV[0]?.n > 0;
+
+            if ((isHandFull || this.armPos > 0) && this.state == 1) this.armPos = (this.armPos + 1) % 64;
+
+
+            let invTo = inventory.getInv(ent.pos.x + myDir.x, ent.pos.y + myDir.y, true);
+            if (this.armPos == 0 && !isHandFull) { // PICK
                 let invFrom = inventory.getInv(ent.pos.x - myDir.x, ent.pos.y - myDir.y, true);
-                let invTo = inventory.getInv(ent.pos.x + myDir.x, ent.pos.y + myDir.y, true);
-
-                if (!invFrom) return;
-                
-                if (invThis.stack.INV == undefined) invThis.stack.INV = [];
-                invThis.stack.INV.size = 6;
-                let isHandFull = (invThis?.stack?.INV && invThis.stack.INV[0] && invThis.stack.INV[0].n > 0);
-    
-                if (!isHandFull) { // PICK
-                    let item;
-                    if (invTo?.need?.length) {
-                        for (let ineed = 0; invTo.need && ineed < invTo.need.length; ineed++) {
-                            if (invFrom.hasItem(invTo.need[ineed])) {
-                                item = invTo.need[ineed];
-                                break;
-                            }
+                let item;
+                if (invFrom.stack.OUTPUT)
+                    item = invFrom.getFirstPack("OUTPUT");
+                else if (invTo?.need?.length) {
+                    for (let ineed = 0; ineed < invTo.need.length; ineed++) {
+                        if (invFrom.hasItem(invTo.need[ineed])) {
+                            item = invTo.need[ineed];
+                            break;
                         }
-                    } else if (item == undefined) item = invFrom.getFirstPack("OUTPUT");
-                    if (item?.n && (c.game.tick%64) == 0 && invFrom.moveItemTo({id:item.id, n:1}, invThis)) {
-                        invThis.state = 1;
-                    } else invThis.state = 0;
-                } else { // PLACE
-                    let stackName;
-
-                    //place onto belt
-                    if (invTo.type == c.resDB.belt1.id) {
-                        let relDir = (invTo.dir - invThis.dir + 3) % 4;
-                        let dirPref = ["L", "R", "L", "R"];
-                        stackName = dirPref[relDir];
-                    } else {  // place into assembling machine
-                        stackName = invTo.getStackName(this.stack.INV[0].id);
                     }
+                } else item = invFrom.getFirstPack();
 
-                    if (invTo.hasPlaceFor(this.stack.INV[0], stackName)) {
-                        invThis.moveItemTo(this.stack.INV[0], invTo, stackName);
-                        invThis.state = 1;
-                    } else
-                        invThis.state = 0;
-                } 
-            }
+                if (item?.n && invFrom.moveItemTo({id:item.id, n:1}, this)) {
+                    this.state = 1;
+                } else this.state = 0;
+            } else if (this.armPos == 32 && isHandFull) { // PLACE
+                if (invTo == undefined) return;
+                let stackName;
+
+                //place onto belt
+                if (invTo.type == c.resDB.belt1.id) {
+                    let relDir = (invTo.dir - this.dir + 3) % 4;
+                    let dirPref = ["L", "R", "L", "R"];
+                    stackName = dirPref[relDir];
+                } else {  // place into assembling machine
+                    stackName = invTo.getStackName(this.stack.INV[0].id);
+                }
+
+                if (invTo.hasPlaceFor(this.stack.INV[0], stackName)) {
+                    this.moveItemTo(this.stack.INV[0], invTo, stackName);
+                    this.state = 1;
+                } else
+                    this.state = 0;
+            } 
+        
         }
     }
 
     draw(ctx, ent) {
         let db = c.resDB.burner_miner;
-        let armPos = 0;
         ctx.drawImage(c.resDB.inserter_burner.platform, 0, 0, db.size[0]*tileSize, db.size[1]*tileSize, 0, 0, db.size[0]*tileSize, db.size[1]*tileSize);
         ctx.save();
 
 
         if (ent?.pos) {
-            let isHandFull = (this.stack?.INV && this.stack.INV[0] && this.stack.INV[0].n > 0);
-            if (isHandFull) armPos = 32
-            if (this.state == 1) armPos = Math.round(c.game.tick)%64
-
             ctx.translate(tileSize * 0.5, tileSize * 0.5);
-            ctx.rotate(armPos * Math.PI / 32);
+            ctx.rotate(this.armPos * Math.PI / 32);
             ctx.drawImage(c.resDB.inserter_burner.hand, 0, 0, 64, 64, -48, -16, 64, 64);
 
             if (this.stack?.INV[0]?.n && this.stack?.INV[0]?.id) {
@@ -105,6 +103,7 @@ if (typeof Image !== 'undefined') {
     c.resDB.inserter_burner.hand = image;
 }
 db.mach = InserterBurner;
+db.cost      = [{id: resDB.iron_plate.id, n: 1}, {id: resDB.gear.id, n: 1}, {id: resDB.hydraulic_piston.id, n: 1}];
 
 if (exports == undefined) var exports = {};
 exports.InserterBurner = InserterBurner;

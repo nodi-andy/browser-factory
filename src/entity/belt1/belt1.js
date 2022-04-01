@@ -41,7 +41,7 @@ class Belt extends Inventory{
     {
       if (deciding) {
         from.stack[itfrom].moving = true;
-        to.stack[itto].reserved = true;
+        if (to.stack[itto]) to.stack[itto].reserved = true;
       } else {
         if (from.stack[itfrom].moving) {
           to.stack[itto] = from.stack[itfrom];
@@ -152,17 +152,14 @@ class Belt extends Inventory{
           delete this.stack.L.id;
       }
 
-      if (this.stack.R) {
+      if (this.stack.R?.id) {
           if(this.stack.RA?.id == undefined && this.stack.RA.reserved == false) {
               this.stack.RA.id = this.stack.R.id;
-          }
-          if (this.stack.RB?.id == undefined && this.stack.RB.reserved == false) {
+          } else if (this.stack.RB?.id == undefined && this.stack.RB.reserved == false) {
               this.stack.RB.id = this.stack.R.id;
-          }
-          if (this.stack.RC?.id == undefined && this.stack.RC.reserved == false) {
+          } else if (this.stack.RC?.id == undefined && this.stack.RC.reserved == false) {
               this.stack.RC.id = this.stack.R.id;
-          }
-          if (this.stack.RD?.id == undefined && this.stack.RD.reserved == false) {
+          } else if (this.stack.RD?.id == undefined && this.stack.RD.reserved == false) {
               this.stack.RD.id = this.stack.R.id;
           }
           delete this.stack.R.id;
@@ -200,6 +197,7 @@ class Belt extends Inventory{
       this.shift(this, "RD", this, "RC", decidingMoving);
 
       this.stack.L.full = !!((this.stack.LA.id || this.stack.LA.reserved) && (this.stack.LB.id || this.stack.LB.reserved)  && (this.stack.LC.id || this.stack.LC.reserved)  && (this.stack.LD.id || this.stack.LD.reserved));
+      this.stack.R.full = !!((this.stack.RA.id || this.stack.RA.reserved) && (this.stack.RB.id || this.stack.RB.reserved)  && (this.stack.RC.id || this.stack.RC.reserved)  && (this.stack.RD.id || this.stack.RD.reserved));
 
       if (beltFrom && beltFrom.type != c.resDB.belt1.id) beltFrom = undefined;
       if (beltFrom && beltFrom.done == false) beltFrom.update(map, beltFrom);

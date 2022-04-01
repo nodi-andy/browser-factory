@@ -87,7 +87,7 @@ class InputModule {
         let inv = inventory.getInv(tilePos.x, tilePos.y);
         
         if (overlayClicked == false) {
-            if (e.buttons == 0) {
+            if (e.which == 1) {
                 // SHOW ENTITY
                 if (c.pointer?.item?.id == undefined && inv) {
                     let invID = inventory.getInv(tilePos.x, tilePos.y).id;
@@ -129,7 +129,7 @@ class InputModule {
             let tileCoordinate = view.screenToTile(mousePos);
             curResPos = {x: tileCoordinate.x, y: tileCoordinate.y};
 
-            if (e.buttons == 1) {
+            if (e.which == 1) {
                 if (isBuilding) {
                     if ((lastResPos.x != curResPos.x || lastResPos.y != curResPos.y) && c.pointer?.item?.id) {
                         if (c.pointer.type == "entity") {

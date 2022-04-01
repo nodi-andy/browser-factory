@@ -95,7 +95,7 @@ class Player extends Inventory {
             inv.stack.INV.push({id: c.resDB.chest.id, n: 50});
             inv.stack.INV.push({id: c.resDB.assembling_machine_1.id, n: 50});
             inv.stack.INV.push({id: c.resDB.inserter_burner.id, n: 50});
-            inv.stack.INV.push({id: c.resDB.iron_plate.id, n: 170});
+            inv.stack.INV.push({id: c.resDB.iron_plate.id, n: 1000});
             inv.stack.INV.push({id: c.resDB.belt1.id, n: 1000});
         }
         view.updateInventoryMenu(inv);

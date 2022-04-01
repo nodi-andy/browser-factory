@@ -111,7 +111,6 @@ resDB.hydraulic_piston.cost     = [{id: resDB.iron_plate.id, n: 1}, {id: resDB.i
 resDB.circuit.cost              = [{id: resDB.iron_plate.id, n: 1}, {id: resDB.copper_cable.id, n: 3}];
 resDB.stone_axe.cost            = [{id: resDB.wooden_stick.id, n: 2}, {id: resDB.sharp_stone.id, n: 2}];
 resDB.iron_axe.cost             = [{id: resDB.iron_stick.id, n: 2}, {id: resDB.iron_plate.id, n: 2}];
-resDB.inserter_burner.cost      = [{id: resDB.iron_plate.id, n: 1}, {id: resDB.gear.id, n: 1}, {id: resDB.hydraulic_piston.id, n: 1}];
 resDB.inserter_short.cost       = [{id: resDB.coal.id, n: 2}];
 resDB.inserter.cost             = [{id: resDB.coal.id, n: 2}];
 resDB.inserter_long.cost        = [{id: resDB.coal.id, n: 2}];

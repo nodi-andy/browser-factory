@@ -8,11 +8,13 @@ class AssemblingMachine1 extends Inventory {
     constructor(pos, data) {
         super(data.pos, data);
         data.pos = pos;
+        this.stack = data.stack;
         this.setup(undefined, data);
     }
 
     setup(map, inv) {
-        this.prod = c.resDB.gear.id;
+        this.prod = inv.prod;
+        if (this.prod == undefined) this.prod = c.resDB.gear.id;
 
         inventory.setInv(inv.pos.x + 0, inv.pos. y + 1, inv.id);
         inventory.setInv(inv.pos.x + 0, inv.pos. y + 2, inv.id);
@@ -29,23 +31,25 @@ class AssemblingMachine1 extends Inventory {
         this.packsize = {};
         this.state = 0;
         this.lastTime = performance.now();
-        this.setOutput(map, inv, this.prod);
     }
 
     setOutput(map, inv, out) {
         this.prod = out;
-        let keys = Object.keys(this.stack);
-        for(let iStack = 0; iStack < keys.length; iStack++) {
-            let key = keys[iStack];
-            if (key == "PROD") continue;
-            if (this.stack[key]?.id) c.player.addItem(this.stack[key]);
-            if (this.stack[key][0]?.id) c.player.addItems(this.stack[key]);   
+        if (this.stack) {
+            let keys = Object.keys(this.stack);
+            for(let iStack = 0; iStack < keys.length; iStack++) {
+                let key = keys[iStack];
+                if (key == "PROD") continue;
+                if (this.stack[key]?.id) c.player?.addItem(this.stack[key]);
+                if (this.stack[key][0]?.id) c.player?.addItems(this.stack[key]);   
+            }
         }
 
         let cost = resName[this.prod].cost;
         this.stack = {};
         this.packsize = {};
         this.stack.OUTPUT = [];
+        this.stack.OUTPUT.itemsize = 50;
         this.packsize.OUTPUT = 1;
         for(let icost = 0; icost < cost.length; icost++) {
             let item = cost[icost];
@@ -86,9 +90,11 @@ class AssemblingMachine1 extends Inventory {
                     if (!invThis.stack.OUTPUT?.length) invThis.stack.OUTPUT = [c.item(invThis.prod, 0)];
                     if (invThis.stack.OUTPUT[0] == undefined) invThis.stack.OUTPUT[0] = c.item(invThis.prod, 0);
                     if (invThis.stack.OUTPUT[0].n == undefined) invThis.stack.OUTPUT[0].n = 0;
-                    invThis.stack.OUTPUT[0].n++;
-                    invThis.remItems(resName[invThis.prod].cost);
-                    invThis.lastTime = performance.now();
+                    if (this.stack.OUTPUT[0].n < this.itemsize) {
+                        invThis.stack.OUTPUT[0].n++;
+                        invThis.remItems(resName[invThis.prod].cost);
+                        invThis.lastTime = performance.now();
+                    }
                 }
             }
         }
@@ -97,6 +103,10 @@ class AssemblingMachine1 extends Inventory {
     draw(ctx, ent) {
         let db = c.resDB.assembling_machine_1;
         ctx.drawImage(db.anim, 0, 0, db.size[0]*tileSize, db.size[1]*tileSize, 0, 0, db.size[0]*tileSize, db.size[1]*tileSize);
+    }
+
+    getStackName(type) {
+        return c.resName[type].name;
     }
 }
 db = c.resDB.assembling_machine_1;
@@ -107,27 +117,28 @@ if (typeof Image !== 'undefined') {
 }
 db.size = [3, 3];
 db.output = [
-c.resDB.wooden_stick.id,
-c.resDB.sharp_stone.id,
-c.resDB.iron_stick.id,
-c.resDB.gear.id,
-c.resDB.hydraulic_piston.id,
-c.resDB.copper_cable.id,
-c.resDB.circuit.id,
-c.resDB.stone_axe.id,
-c.resDB.iron_axe.id,
-c.resDB.gun.id,
-c.resDB.rocket_launcher.id,
-c.resDB.bullet.id,
-c.resDB.rocket.id,
-c.resDB.weak_armor.id,
-c.resDB.strong_armor.id,
-c.resDB.chest.id,
-c.resDB.iron_chest.id,
-c.resDB.stone_furnace.id,
-c.resDB.burner_miner.id,
-c.resDB.electrical_miner.id,
-c.resDB.belt1.id,
+    c.resDB.wooden_stick.id,
+    c.resDB.sharp_stone.id,
+    c.resDB.iron_stick.id,
+    c.resDB.gear.id,
+    c.resDB.hydraulic_piston.id,
+    c.resDB.copper_cable.id,
+    c.resDB.circuit.id,
+    c.resDB.stone_axe.id,
+    c.resDB.iron_axe.id,
+    c.resDB.gun.id,
+    c.resDB.rocket_launcher.id,
+    c.resDB.bullet.id,
+    c.resDB.rocket.id,
+    c.resDB.weak_armor.id,
+    c.resDB.strong_armor.id,
+    c.resDB.chest.id,
+    c.resDB.iron_chest.id,
+    c.resDB.stone_furnace.id,
+    c.resDB.burner_miner.id,
+    c.resDB.electrical_miner.id,
+    c.resDB.belt1.id,
+    c.resDB.inserter_burner.id
 ];
 db.mach = AssemblingMachine1;
 if (exports == undefined) var exports = {};
