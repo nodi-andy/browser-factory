@@ -253,6 +253,7 @@ class Inventory {
 }
 
 function getNumberOfItems(ent, type) {
+  if (ent == undefined || ent.stack == undefined) return;
   let n = 0;
   let keys = Object.keys(ent.stack);
   for(let iStack = 0; iStack < keys.length; iStack++) {

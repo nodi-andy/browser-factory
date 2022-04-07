@@ -49,7 +49,7 @@ class BurnerMiner extends Inventory {
             //place onto belt
             else if (invTo.type == c.resDB.belt1.id) {
                 let relDir = (invTo.dir - this.dir + 3) % 4;
-                let dirPref = ["RD", "LD", "RD", "LD"];
+                let dirPref = ["L", "R", "L", "R"];
                 stackName = dirPref[relDir];
             }
 

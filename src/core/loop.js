@@ -36,7 +36,12 @@ function gameLoop(){
     let belts = [];
     for(let ient = 0; ient < c.allInvs.length; ient++) {
         let entity = c.allInvs[ient];
-        if (entity?.type == c.resDB.belt1.id) belts.push(entity);
+
+        if (entity?.type == c.resDB.belt1.id) {
+            entity.done = false;
+            entity.searching = false;
+            belts.push(entity);
+        }
     }
 
     for(let ibelt = 0; ibelt < belts.length;) {
@@ -64,10 +69,6 @@ function gameLoop(){
         }
     }
 
-    for(let ibelt = 0; ibelt < belts.length; ibelt++) {
-        belts[ibelt].done = false;
-        belts[ibelt].searching = false;
-    }
 
     /*if (c.game.tick % 100 == 0) {
         ws.send(JSON.stringify({cmd: "updatePlayer", data: c.allInvs[c.playerID]}));

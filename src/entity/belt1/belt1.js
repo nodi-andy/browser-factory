@@ -18,6 +18,8 @@ class Belt extends Inventory{
     this.packsize.L = 1;
     this.packsize.R = 1;
 
+    if (this.stack.L == undefined) this.stack.L = {n: 1};
+    if (this.stack.R == undefined) this.stack.R = {n: 1};
     if (this.stack.LA == undefined) this.stack.LA = {n: 1};
     if (this.stack.LB == undefined) this.stack.LB = {n: 1};
     if (this.stack.LC == undefined) this.stack.LC = {n: 1};
@@ -63,81 +65,52 @@ class Belt extends Inventory{
 
 
     if (movingParts || decidingMoving) {
-      if (this.stack.L == undefined) this.stack.L = {n: 1};
-      if (this.stack.R == undefined) this.stack.R = {n: 1};
-      if (this.stack.LA == undefined) this.stack.LA = {n: 1};
-      if (this.stack.LB == undefined) this.stack.LB = {n: 1};
-      if (this.stack.LC == undefined) this.stack.LC = {n: 1};
-      if (this.stack.LD == undefined) this.stack.LD = {n: 1};
-      if (this.stack.RA == undefined) this.stack.RA = {n: 1};
-      if (this.stack.RB == undefined) this.stack.RB = {n: 1};
-      if (this.stack.RC == undefined) this.stack.RC = {n: 1};
-      if (this.stack.RD == undefined) this.stack.RD = {n: 1};
-      this.stack.LA.n = 1;
-      this.stack.LB.n = 1;
-      this.stack.LC.n = 1;
-      this.stack.LD.n = 1;
-      this.stack.RA.n = 1;
-      this.stack.RB.n = 1;
-      this.stack.RC.n = 1;
-      this.stack.RD.n = 1;
-      if (decidingMoving) {
-        this.stack.LA.reserved = false;
-        this.stack.LB.reserved = false;
-        this.stack.LC.reserved = false;
-        this.stack.LD.reserved = false;
-        this.stack.RA.reserved = false;
-        this.stack.RB.reserved = false;
-        this.stack.RC.reserved = false;
-        this.stack.RD.reserved = false;
 
-        this.stack.LA.moving = false;
-        this.stack.LB.moving = false;
-        this.stack.LC.moving = false;
-        this.stack.LD.moving = false;
-        this.stack.RA.moving = false;
-        this.stack.RB.moving = false;
-        this.stack.RC.moving = false;
-        this.stack.RD.moving = false;
+      if (decidingMoving) {
+        let keys = Object.keys(this.stack);
+        for(let iStack = 0; iStack < keys.length; iStack++) {
+          let key = keys[iStack];
+          this.stack[key].reserved = false;
+          this.stack[key].moving = false;
+        }
       }
 
-
       let nbPos = c.dirToVec[ent.dir];
-      let beltFrom = inventory.getInv(ent.pos.x - nbPos.x, ent.pos.y - nbPos.y);
-      if (beltFrom && Math.abs(this.dir - beltFrom.dir) == 2)
-        beltFrom = undefined;
-      if (beltFrom == undefined) {
-        // LEFT
-        let nbLeft = c.dirToVec[(ent.dir + 1) % 4];
-        let beltFromLeft = inventory.getInv(
-          ent.pos.x - nbLeft.x,
-          ent.pos.y - nbLeft.y
-        );
-        if (beltFromLeft && (beltFromLeft.dir - ent.dir + 4) % 4 != 1) {
-          beltFromLeft = undefined;
-        }
+      this.beltFrom = inventory.getInv(ent.pos.x - nbPos.x, ent.pos.y - nbPos.y);
+      if (this.beltFrom && (Math.abs(this.dir - this.beltFrom.dir) == 2 || this.beltFrom.type != c.resDB.belt1.id)) this.beltFrom = undefined;
+      
+      // LEFT
+      let nbLeft = c.dirToVec[(ent.dir + 1) % 4];
+      this.beltFromLeft = inventory.getInv(
+        ent.pos.x - nbLeft.x,
+        ent.pos.y - nbLeft.y
+      );
+      if (this.beltFromLeft && ((this.beltFromLeft.dir - ent.dir + 4) % 4 != 1 || this.beltFromLeft.type != c.resDB.belt1.id)) {
+        this.beltFromLeft = undefined;
+      }
 
-        // RIGHT
-        let nbRight = c.dirToVec[(ent.dir + 3) % 4];
-        let beltFromRight = inventory.getInv(
-          ent.pos.x - nbRight.x,
-          ent.pos.y - nbRight.y
-        );
-        if (beltFromRight && (beltFromRight.dir - ent.dir + 4) % 4 != 3) {
-          beltFromRight = undefined;
-        }
-
+      // RIGHT
+      let nbRight = c.dirToVec[(ent.dir + 3) % 4];
+      this.beltFromRight = inventory.getInv(
+        ent.pos.x - nbRight.x,
+        ent.pos.y - nbRight.y
+      );
+      if (this.beltFromRight && ((this.beltFromRight.dir - ent.dir + 4) % 4 != 3 || this.beltFromRight.type != c.resDB.belt1.id)) {
+        this.beltFromRight = undefined;
+      }
+      
+      /*if (beltFrom == undefined) {
         if (beltFromLeft && beltFromRight) beltFrom = undefined;
         else {
           if (beltFromLeft) beltFrom = beltFromLeft;
           if (beltFromRight) beltFrom = beltFromRight;
         }
-      }
+      }*/
 
-      let beltTo = inventory.getInv(ent.pos.x + nbPos.x, ent.pos.y + nbPos.y);
-      let invTo = inventory.getInv(ent.pos.x + nbPos.x, ent.pos.y + nbPos.y);
-      if (this.stack.INV?.length && this.stack.L?.length == 0) {
-        this.stack.LA = {id: this.stack.INV.id};
+      this.beltTo = inventory.getInv(ent.pos.x + nbPos.x, ent.pos.y + nbPos.y);
+      if (this.stack.INV?.length && this.stack.L?.id == undefined) {
+        this.stack.L = {id: this.stack.INV[0].id};
+        delete this.stack.INV[0];
       }
       if (this.stack.L?.id) {
           if(this.stack.LA?.id == undefined && this.stack.LA.reserved == false) {
@@ -163,22 +136,22 @@ class Belt extends Inventory{
               this.stack.RD.id = this.stack.R.id;
           }
           delete this.stack.R.id;
-      }
+      }s
 
       //SHIFT INTO NEXT BELT
-      if (beltTo && beltTo.type != c.resDB.belt1.id) beltTo = undefined;
-      if (beltTo) {
-        let dAng = c.dirToAng[beltTo.dir] - c.dirToAng[this.dir];
+      if (this.beltTo && this.beltTo.type != c.resDB.belt1.id) this.beltTo = undefined;
+      if (this.beltTo) {
+        let dAng = c.dirToAng[this.beltTo.dir] - c.dirToAng[this.dir];
         if (first == false) dAng = 0;
         if (dAng == 0) {
-          this.shift(this, "LA", invTo, "LD", decidingMoving);
-          this.shift(this, "RA", invTo, "RD", decidingMoving);
+          this.shift(this, "LA", this.beltTo, "LD", decidingMoving);
+          this.shift(this, "RA", this.beltTo, "RD", decidingMoving);
         } else if (dAng == -270 || dAng == 90) {
-          this.shift(this, "LA", invTo, "RB", decidingMoving);
-          this.shift(this, "RA", invTo, "RA", decidingMoving);
+          this.shift(this, "LA", this.beltTo, "RB", decidingMoving);
+          this.shift(this, "RA", this.beltTo, "RA", decidingMoving);
         } else if (dAng == 270 || dAng == -90) {
-          this.shift(this, "LA", invTo, "LA", decidingMoving);
-          this.shift(this, "RA", invTo, "LB", decidingMoving);
+          this.shift(this, "LA", this.beltTo, "LA", decidingMoving);
+          this.shift(this, "RA", this.beltTo, "LB", decidingMoving);
         }
       } else { // No next belt
         if (this.stack.LA) {
@@ -196,11 +169,12 @@ class Belt extends Inventory{
       this.shift(this, "RC", this, "RB", decidingMoving);
       this.shift(this, "RD", this, "RC", decidingMoving);
 
-      this.stack.L.full = !!((this.stack.LA.id || this.stack.LA.reserved) && (this.stack.LB.id || this.stack.LB.reserved)  && (this.stack.LC.id || this.stack.LC.reserved)  && (this.stack.LD.id || this.stack.LD.reserved));
-      this.stack.R.full = !!((this.stack.RA.id || this.stack.RA.reserved) && (this.stack.RB.id || this.stack.RB.reserved)  && (this.stack.RC.id || this.stack.RC.reserved)  && (this.stack.RD.id || this.stack.RD.reserved));
+      this.stack.L.full = !!((this.stack.LA?.id || this.stack.LA?.reserved) && (this.stack.LB?.id || this.stack.LB?.reserved)  && (this.stack.LC?.id || this.stack.LC?.reserved)  && (this.stack.LD?.id || this.stack.LD?.reserved));
+      this.stack.R.full = !!((this.stack.RA?.id || this.stack.RA?.reserved) && (this.stack.RB?.id || this.stack.RB?.reserved)  && (this.stack.RC?.id || this.stack.RC?.reserved)  && (this.stack.RD?.id || this.stack.RD?.reserved));
 
-      if (beltFrom && beltFrom.type != c.resDB.belt1.id) beltFrom = undefined;
-      if (beltFrom && beltFrom.done == false) beltFrom.update(map, beltFrom);
+      if (this.beltFrom && this.beltFrom.done == false) this.beltFrom.update(map, this.beltFrom);
+      if (this.beltFromLeft && this.beltFromLeft.done == false) this.beltFromLeft.update(map, this.beltFromLeft);
+      if (this.beltFromRight && this.beltFromRight.done == false) this.beltFromRight.update(map, this.beltFromRight);
     }
   }
 
@@ -210,10 +184,15 @@ class Belt extends Inventory{
     ctx.drawImage(c.resDB.belt1.anim, 0, beltPos * 64, 64, 64, 0, 0, 64, 64);
   }
 
-  drawItems(ctx, ent) {
+  drawItems(ctx) {
     let beltPos = Math.round(c.game.tick / 1) % 8;
-    if (ent.pos) {
-      if (this.stack == undefined) return;
+    if (this.pos && this.stack) {
+
+      context.save();
+      context.translate((this.pos.x + 0.5) * tileSize, (this.pos.y + 0.5) *tileSize);
+      context.rotate(this.dir * Math.PI/2);
+      context.translate(-tileSize / 2, -tileSize / 2);
+
       let pos = 0;
       let xpos = 0.6;
       let dx = -0.25;
@@ -248,6 +227,7 @@ class Belt extends Inventory{
           32
         );
       }
+
       xpos += dx;
       if (this.stack.LB?.id) {
         if (this.stack.LB.moving) pos = beltPos;
@@ -346,6 +326,12 @@ class Belt extends Inventory{
           32
         );
       }
+      context.restore();
+      this.drawn = 2; // set draw layer
+
+      if (this.beltFrom && this.beltFrom.drawn < 2) this.beltFrom.drawItems(ctx);
+      if (this.beltFromLeft && this.beltFromLeft.drawn < 2) this.beltFromLeft.drawItems(ctx);
+      if (this.beltFromRight && this.beltFromRight.drawn < 2) this.beltFromRight.drawItems(ctx);
     }
   }
 }

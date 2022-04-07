@@ -8,7 +8,6 @@ class AssemblingMachine1 extends Inventory {
     constructor(pos, data) {
         super(data.pos, data);
         data.pos = pos;
-        this.stack = data.stack;
         this.setup(undefined, data);
     }
 
@@ -31,11 +30,12 @@ class AssemblingMachine1 extends Inventory {
         this.packsize = {};
         this.state = 0;
         this.lastTime = performance.now();
+        this.setOutput(this.prod, false);
     }
 
-    setOutput(map, inv, out) {
+    setOutput(out, transferInputToPlayer) {
         this.prod = out;
-        if (this.stack) {
+        if (this.stack && transferInputToPlayer) {
             let keys = Object.keys(this.stack);
             for(let iStack = 0; iStack < keys.length; iStack++) {
                 let key = keys[iStack];
@@ -46,15 +46,16 @@ class AssemblingMachine1 extends Inventory {
         }
 
         let cost = resName[this.prod].cost;
-        this.stack = {};
+        if (this.stack == undefined && inv.stack) this.stack = inv.stack;
+        if (this.stack == undefined) this.stack = {};
         this.packsize = {};
-        this.stack.OUTPUT = [];
+        if (this.stack.OUTPUT == undefined) this.stack.OUTPUT = [];
         this.stack.OUTPUT.itemsize = 50;
         this.packsize.OUTPUT = 1;
         for(let icost = 0; icost < cost.length; icost++) {
             let item = cost[icost];
             let name = resName[item.id].name;
-            this.stack[name] = [];
+            if (this.stack[name] == undefined) this.stack[name] = [];
             this.packsize[name] = 1;
         }
     }

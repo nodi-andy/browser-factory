@@ -272,7 +272,6 @@
         for (let i = 0; i < savedData.ents.length; i++) {
             let ent = savedData.ents[i];
             if (ent) {
-                //c.allInvs.push(new Inventory(savedData.ents[i].pos, savedData.ents[i]));
                 if (resName[savedData.ents[i].type]?.mach?.constructor) {
                     c.allInvs.push(new resName[ent.type].mach(ent.pos, ent));
                 } else {

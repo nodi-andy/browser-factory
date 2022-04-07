@@ -15,7 +15,7 @@ class Player extends Inventory {
         this.tilePos = data.tilePos;
         this.pos = data.pos;
         this.stack = data.stack;
-        db.mach = this;
+
         db.output = [
            c.resDB.wood,
            c.resDB.wooden_stick,
@@ -229,5 +229,6 @@ class Player extends Inventory {
     }
 }
 c.resDB.player.mach = Player;
+
 if (exports == undefined) var exports = {};
 exports.Player = Player;

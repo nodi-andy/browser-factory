@@ -55,7 +55,7 @@ class InserterBurner extends Inventory {
                 //place onto belt
                 if (invTo.type == c.resDB.belt1.id) {
                     let relDir = (invTo.dir - this.dir + 3) % 4;
-                    let dirPref = ["L", "R", "L", "R"];
+                    let dirPref = ["R", "L", "R", "L"];
                     stackName = dirPref[relDir];
                 } else {  // place into assembling machine
                     stackName = invTo.getStackName(this.stack.INV[0].id);
