@@ -140,12 +140,13 @@ class ViewModule {
     // SELECT ITEM MENU
     updateSelectItemMenu(ent) {
         let items = c.resName[ent.type].output;
+        selectItemMenu.items = [];
         let pos = 0;
         items.forEach(i => {
             let newButton = new Button ((pos % 8) * (buttonSize), Math.floor(pos/8) * (buttonSize), {id: i} , selectItemMenu);
             newButton.ent = ent;
             newButton.onClick = (which, button) => {
-                button.ent.setOutput(c.game.map, c.selEntity, button.item.id);
+                button.ent.setOutput(button.item.id);
                 c.selEntity.vis = true;
                 selectItemMenu.vis = false;
             };

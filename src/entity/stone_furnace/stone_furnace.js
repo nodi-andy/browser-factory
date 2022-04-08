@@ -38,45 +38,43 @@ class StoneFurnace extends Inventory {
 
 
     update(map, ent){
-        let invThis = this;
-        invThis.need = [];
-        if (invThis.stack["FUEL"] == undefined || invThis.stack["FUEL"][0] == undefined || invThis.stack["FUEL"][0].n == 0) {
-            invThis.need.push({id: c.resDB.coal.id, n:1});
-            invThis.need.push({id: c.resDB.wood.id, n:1});
-        }
-        if (invThis.stack["INPUT"] == undefined || invThis.stack["INPUT"][0] == undefined || invThis.stack["INPUT"][0].n == 0) {
-            invThis.need.push({id: c.resDB.copper.id, n:1});
-            invThis.need.push({id: c.resDB.stone.id, n:1});
-            invThis.need.push({id: c.resDB.iron.id, n:1});
-            invThis.need.push({id: c.resDB.coal.id, n:1});
-        } else {
-            let inputItem = invThis.stack["INPUT"][0].id;
-            invThis.need.push({id: inputItem, n:1});
+        this.need = [];
+        this.preneed = [];
 
-            invThis.preneed = JSON.parse(JSON.stringify(resName[resName[inputItem].smeltedInto].cost));
+        if (this.stack["OUTPUT"][0]?.id !== undefined) {
+            let outputItem = this.stack["OUTPUT"][0].id;
+            this.preneed = JSON.parse(JSON.stringify(resName[outputItem].cost));
 
-            invThis.need = [];
-            for(let costItemID = 0; costItemID < invThis.preneed.length; costItemID++) {
-                let costItem = invThis.preneed[costItemID];
-                let existing = getNumberOfItems(c.allInvs[invThis.id], costItem.id);
-                if (existing >= costItem.n) {
-                    invThis.need.push(costItem);
-                } else {
-                    invThis.need.unshift(costItem);
-                }
+        } else { 
+            if (this.stack["INPUT"] == undefined || this.stack["INPUT"][0] == undefined || this.stack["INPUT"][0].n == 0) {
+                this.preneed.push({id: c.resDB.copper.id, n:1});
+                this.preneed.push({id: c.resDB.stone.id, n:1});
+                this.preneed.push({id: c.resDB.iron.id, n:1});
+            }
+            if (this.stack["FUEL"] == undefined || this.stack["FUEL"][0] == undefined || this.stack["FUEL"][0].n == 0) {
+                this.preneed.push({id: c.resDB.coal.id, n:1});
+                this.preneed.push({id: c.resDB.wood.id, n:1});
             }
         }
 
-        
-        
-        if (invThis.stack["INV"]) {
-            if (invThis.stack.INPUT == undefined) invThis.stack.INPUT = invThis.stack["INV"][0];
+        for(let costItemID = 0; costItemID < this.preneed.length; costItemID++) {
+            let costItem = this.preneed[costItemID];
+            let existing = getNumberOfItems(c.allInvs[this.id], costItem.id);
+            if (existing >= costItem.n) {
+                this.need.push(costItem);
+            } else {
+                this.need.unshift(costItem);
+            }
+        }
+
+        if (this.stack["INV"]) {
+            if (this.stack.INPUT == undefined) this.stack.INPUT = this.stack["INV"][0];
             else {
-                let inItem = invThis.stack["INV"][0];
+                let inItem = this.stack["INV"][0];
                 let targetSlot = "INPUT";
                 if (resName[inItem.id].E)  targetSlot = "FUEL";
-                invThis.addItem(inItem, targetSlot);
-                delete invThis.stack["INV"];
+                this.addItem(inItem, targetSlot);
+                delete this.stack["INV"];
             }
         }
         let inv = inventory.getInv(ent.pos.x, ent.pos.y);
@@ -91,9 +89,9 @@ class StoneFurnace extends Inventory {
 
 
         if(inv.stack.FUEL.length && inv.stack.FUEL[0].n && inv.stack.INPUT.length && inv.stack.INPUT[0].n) {
-            if (inv.state == 0) {invThis.lastTime = performance.now(); inv.state = 1};
+            if (inv.state == 0) {this.lastTime = performance.now(); inv.state = 1};
             if (inv.state == 1) {
-                let deltaT = performance.now() - invThis.lastTime;
+                let deltaT = performance.now() - this.lastTime;
                 let becomesThat = c.resName[inv.stack["INPUT"][0].id].smeltedInto;
                 if (becomesThat && deltaT > 5000) {
                     //if (inv.stack.OUTPUT == undefined || inv.stack.OUTPUT.length == 0) inv.stack.OUTPUT = [c.item(undefined, 0)];
@@ -103,7 +101,7 @@ class StoneFurnace extends Inventory {
                     inv.stack["FUEL"][0].n--;
                     inv.stack["OUTPUT"][0].id = becomesThat;
                     inv.stack["OUTPUT"][0].n++;
-                    invThis.lastTime = performance.now();
+                    this.lastTime = performance.now();
                 }
             }
         }

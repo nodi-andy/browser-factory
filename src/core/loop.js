@@ -65,7 +65,7 @@ function gameLoop(){
                     belt = nbEntity;
                 } else break;
             }
-            belt.update(c.game.map, belt, true);
+            belt.update(c.game.map, belt);
         }
     }
 

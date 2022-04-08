@@ -50,7 +50,12 @@ class Inventory {
       if (this.stacksize == undefined) this.stacksize = 1;
 
       if (this.stack[stackName] == undefined) {
-        if (this.getFilledStackSize() < this.stacksize)  this.stack[stackName] = [];
+        if (this.getFilledStackSize() < this.stacksize) {
+          if (this.packsize[stackName] == 1)
+            this.stack[stackName] = {};
+          else
+            this.stack[stackName] = [];
+        }
         else return false;
       }
 
@@ -59,19 +64,19 @@ class Inventory {
       for(let iPack = 0; iPack < this.packsize[key]; iPack++) {
         let pack = this.stack[key];
         if (Array.isArray(pack)) pack = pack[iPack];
-          if (pack == undefined) {
+        if (pack == undefined) {
+          pack = {id: newItem.id, n: 1}
+          this.stack[key].push(pack);
+          return true;
+        } else if (pack.id == undefined) {
+          if (pack.reserved == true) return false;
             pack = {id: newItem.id, n: 1}
-            this.stack[key].push(pack);
+            this.stack[key] = pack;
             return true;
-          } else if (pack.id == undefined) {
-            if (pack.reserved == true) return false;
-              pack = {id: newItem.id, n: 1}
-              this.stack[key] = pack;
-              return true;
-          } else if (pack.id == newItem.id && pack.n + newItem.n <= this.itemsize) {
-            pack.n += newItem.n;
-            return true;
-          }
+        } else if (pack.id == newItem.id && pack.n + newItem.n <= this.itemsize) {
+          pack.n += newItem.n;
+          return true;
+        }
       }
       
       return false;

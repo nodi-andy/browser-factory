@@ -33,15 +33,15 @@ class AssemblingMachine1 extends Inventory {
         this.setOutput(this.prod, false);
     }
 
-    setOutput(out, transferInputToPlayer) {
+    setOutput(out, transferInputToPlayer = true) {
         this.prod = out;
         if (this.stack && transferInputToPlayer) {
             let keys = Object.keys(this.stack);
-            for(let iStack = 0; iStack < keys.length; iStack++) {
-                let key = keys[iStack];
-                if (key == "PROD") continue;
-                if (this.stack[key]?.id) c.player?.addItem(this.stack[key]);
-                if (this.stack[key][0]?.id) c.player?.addItems(this.stack[key]);   
+            for(s of Object.keys(this.stack)) {
+                if (s.id == "PROD") continue;
+                if (this.stack[s]?.id) c.player?.addItem(this.stack[s]);
+                if (this.stack[s][0]?.id) c.player?.addItems(this.stack[s]);
+                delete this.stack[s];
             }
         }
 
