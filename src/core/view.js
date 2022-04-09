@@ -16,6 +16,12 @@ class ViewModule {
         this.scrollFactor = 0.0005;
         this.zoomLimit = {min: 0.5, max:2};
 
+        invMenu = new Dialog();
+        craftMenu = new Dialog();
+        entityMenu = new Dialog();
+        receiptMenu = new Dialog();
+        selectItemMenu = new Dialog();
+
         this.createInvMenu();
     }
 
@@ -124,6 +130,7 @@ class ViewModule {
     updateCraftingMenu() {
         let items = resDB.player.output;
         let pos = 0;
+        craftMenu.items = [];
         items.forEach(i => {
             let newButton = new Button ((pos % 8) * (buttonSize), Math.floor(pos/8) * (buttonSize), {id: i.id, n: 0} , craftMenu);
             newButton.onClick = () => {
@@ -178,15 +185,15 @@ class ViewModule {
         }
 
         for(let craftItem of craftMenu.items ) {
-            let inv = new Inventory();
-            inv.stack = JSON.parse(JSON.stringify(c.player.stack));
-            inv.stack.INV.size = 64;
-            inv.packsize = c.player.packsize;
-            inv.itemsize = c.player.itemsize;
+            let tInv = new Inventory();
+            tInv.stack = JSON.parse(JSON.stringify(inv.stack));
+            tInv.stack.INV.size = 64;
+            tInv.packsize = inv.packsize;
+            tInv.itemsize = inv.itemsize;
             let cost = resName[craftItem.item.id].cost;
             craftItem.item.n = 0;
             if (cost) {
-                while (inv.remItems(cost)) craftItem.item.n++; // how much can be build
+                while (tInv.remItems(cost)) craftItem.item.n++; // how much can be build
             }
         }
     }

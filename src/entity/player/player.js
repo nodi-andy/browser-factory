@@ -5,100 +5,53 @@ if (typeof window === 'undefined') {
 
 class Player extends Inventory {
     constructor(pos, data) {
-        if (data == undefined) data = { 
+        if (data == undefined) data = {
             tilePos : {x: c.gridSize.x/2, y: c.gridSize.y/2},
             pos : pos,
             stack : {}
         }
-        super(pos, data)
-        let db = c.resDB.player;
+
+        super(pos, data);
         this.tilePos = data.tilePos;
         this.pos = data.pos;
-        this.stack = data.stack;
-
-        db.output = [
-           c.resDB.wood,
-           c.resDB.wooden_stick,
-           c.resDB.sharp_stone,
-           c.resDB.iron_stick,
-           c.resDB.gear,
-           c.resDB.hydraulic_piston,
-           c.resDB.copper_cable,
-           c.resDB.circuit,
-           c.resDB.stone_axe,
-           c.resDB.iron_axe,
-           c.resDB.gun,
-           c.resDB.rocket_launcher,
-           c.resDB.bullet,
-           c.resDB.rocket,
-           c.resDB.weak_armor,
-           c.resDB.strong_armor,
-           c.resDB.chest,
-           c.resDB.iron_chest,
-           c.resDB.stone_furnace,
-           c.resDB.burner_miner,
-           c.resDB.electrical_miner,
-           c.resDB.belt1,
-           c.resDB.belt2,
-           c.resDB.belt3,
-           c.resDB.inserter_burner,
-           c.resDB.inserter_short,
-           c.resDB.inserter,
-           c.resDB.inserter_long,
-           c.resDB.inserter_smart,
-           c.resDB.assembling_machine_1,
-           c.resDB.assembling_machine_2,
-           c.resDB.assembling_machine_3,
-           c.resDB.assembling_machine_4,
-           c.resDB.pump,
-           c.resDB.pipe,
-           c.resDB.boiler,
-           c.resDB.generator,
-           c.resDB.e_pole,
-           c.resDB.locomotive,
-           c.resDB.rail,
-           c.resDB.rail_curved,
-           c.resDB.asfalt,
-           c.resDB.turret,
-           c.resDB.laser_turret,
-           c.resDB.car]
-           //if (playerData) Object.assign(this, playerData);
+        this.stack = data.stack;        
+        this.setup();
     }
 
     setup(map, inv){
         view.updateCraftingMenu();
-        if (inv?.tilePos == undefined) inv.tilePos = {x: c.gridSize.x/2, y: c.gridSize.y/2};
-        inv.pos = {x: inv.tilePos.x * c.tileSize, y: inv.tilePos.y * c.tileSize};
-        inv.dir = {x: 0, y:0};
-        inv.live = 100;
-        inv.nextPos = {x: 0, y: 0};
-        inv.type = c.resID.player;
-        inv.movable = true;
+        if (this.tilePos == undefined) this.tilePos = {x: c.gridSize.x/2, y: c.gridSize.y/2};
+        this.pos = {x: this.tilePos.x * c.tileSize, y: this.tilePos.y * c.tileSize};
+        this.dir = {x: 0, y:0};
+        this.live = 100;
+        this.nextPos = {x: 0, y: 0};
+        this.type = c.resID.player;
+        this.movable = true;
 
         
-        inv.ss = {x:0, y:0};
-        if (inv.stack?.INV == undefined) inv.stack.INV = [];
-        inv.stacksize = 1;
-        inv.packsize = {};
-        inv.packsize.INV = 64;
-        inv.itemsize = 1000;
+        this.ss = {x:0, y:0};
+        if (this.stack?.INV == undefined) this.stack.INV = [];
+        this.stacksize = 1;
+        this.packsize = {};
+        this.packsize.INV = 64;
+        this.itemsize = 1000;
         this.workInterval = undefined;
         this.workProgress = 0;
         this.miningProgress;
 
-        if (inv.stack.INV.length == 0 && DEV) {
-            inv.stack.INV.push({id: c.resDB.stone.id, n: 100});
-            inv.stack.INV.push({id: c.resDB.iron.id, n: 100});
-            inv.stack.INV.push({id: c.resDB.copper.id, n: 100});
-            inv.stack.INV.push({id: c.resDB.raw_wood.id, n: 100});
-            inv.stack.INV.push({id: c.resDB.coal.id, n: 50});
-            inv.stack.INV.push({id: c.resDB.chest.id, n: 50});
-            inv.stack.INV.push({id: c.resDB.assembling_machine_1.id, n: 50});
-            inv.stack.INV.push({id: c.resDB.inserter_burner.id, n: 50});
-            inv.stack.INV.push({id: c.resDB.iron_plate.id, n: 1000});
-            inv.stack.INV.push({id: c.resDB.belt1.id, n: 1000});
+        if (this.stack.INV.length == 0 && DEV) {
+            this.stack.INV.push({id: c.resDB.stone.id, n: 100});
+            this.stack.INV.push({id: c.resDB.iron.id, n: 100});
+            this.stack.INV.push({id: c.resDB.copper.id, n: 100});
+            this.stack.INV.push({id: c.resDB.raw_wood.id, n: 100});
+            this.stack.INV.push({id: c.resDB.coal.id, n: 50});
+            this.stack.INV.push({id: c.resDB.chest.id, n: 50});
+            this.stack.INV.push({id: c.resDB.assembling_machine_1.id, n: 50});
+            this.stack.INV.push({id: c.resDB.inserter_burner.id, n: 50});
+            this.stack.INV.push({id: c.resDB.iron_plate.id, n: 1000});
+            this.stack.INV.push({id: c.resDB.belt1.id, n: 1000});
         }
-        view.updateInventoryMenu(inv);
+        view.updateInventoryMenu(this);
     }
 
     update(map, ent){
@@ -191,7 +144,7 @@ class Player extends Inventory {
             if (resName[c.allInvs[building]?.type]) canWalkOn = resName[c.allInvs[building].type].playerCanWalkOn;
         }
          
-        return (terrain == resID.deepwater || terrain == resID.water || terrain == resID.hills || !canWalkOn)
+        return (terrain == resID.deepsea || terrain == resID.sea || terrain == resID.hills || !canWalkOn)
     }
 
     startMining(tileCoordinate, ent) {
@@ -228,7 +181,55 @@ class Player extends Inventory {
         if (typeof window !== "undefined") view.updateInventoryMenu(this.inv);
     }
 }
-c.resDB.player.mach = Player;
 
+db = c.resDB.player;
+db.mach = Player;
+db.output = [
+    c.resDB.wood,
+    c.resDB.wooden_stick,
+    c.resDB.sharp_stone,
+    c.resDB.iron_stick,
+    c.resDB.gear,
+    c.resDB.hydraulic_piston,
+    c.resDB.copper_cable,
+    c.resDB.circuit,
+    c.resDB.stone_axe,
+    c.resDB.iron_axe,
+    c.resDB.gun,
+    c.resDB.rocket_launcher,
+    c.resDB.bullet,
+    c.resDB.rocket,
+    c.resDB.weak_armor,
+    c.resDB.strong_armor,
+    c.resDB.chest,
+    c.resDB.iron_chest,
+    c.resDB.stone_furnace,
+    c.resDB.burner_miner,
+    c.resDB.electrical_miner,
+    c.resDB.belt1,
+    c.resDB.belt2,
+    c.resDB.belt3,
+    c.resDB.inserter_burner,
+    c.resDB.inserter_short,
+    c.resDB.inserter,
+    c.resDB.inserter_long,
+    c.resDB.inserter_smart,
+    c.resDB.assembling_machine_1,
+    c.resDB.assembling_machine_2,
+    c.resDB.assembling_machine_3,
+    c.resDB.assembling_machine_4,
+    c.resDB.pump,
+    c.resDB.pipe,
+    c.resDB.boiler,
+    c.resDB.generator,
+    c.resDB.e_pole,
+    c.resDB.locomotive,
+    c.resDB.rail,
+    c.resDB.rail_curved,
+    c.resDB.asfalt,
+    c.resDB.turret,
+    c.resDB.laser_turret,
+    c.resDB.car
+ ];
 if (exports == undefined) var exports = {};
 exports.Player = Player;

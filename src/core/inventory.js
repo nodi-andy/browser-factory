@@ -358,6 +358,13 @@ function addInventory(newEntity, updateDir) {
       if (c.resName[newEntity.type].mach && c.resName[newEntity.type].mach.setup) c.resName[newEntity.type].mach.setup(c.game.map, inv);
     }
   }
+
+  // Update Neighbours
+  for (let nbV of c.nbVec) {
+    let nb = getInv(newEntity.pos.x + nbV.x, newEntity.pos.y + nbV.y);
+    if (nb?.updateNB) nb.updateNB();
+  }
+  
   if (inv) return inv.id;
 }
 

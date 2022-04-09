@@ -11,6 +11,7 @@
         height: 100%;
         overflow: hidden;
     }
+
     .container {
         display: inline;
         position: absolute;
@@ -31,6 +32,7 @@
     .gameEntrySelected{
         background-color:rgb(196, 36, 36);
     }
+
     .overlay {
         height: 100%;
         left: 100%;
@@ -141,6 +143,8 @@
 <script type="text/javascript" src ="src/entity/inserter_burner/inserter_burner.js"></script>
 <script type="text/javascript" src ="src/entity/stone_furnace/stone_furnace.js"></script>
 <script type="text/javascript" src ="src/entity/assembling_machine_1/assembling_machine_1.js"></script>
+<script type="text/javascript" src ="src/entity/pump/pump.js"></script>
+<script type="text/javascript" src ="src/entity/pipe/pipe.js"></script>
 
 <script type="text/javascript">
 
@@ -156,7 +160,7 @@
 
     let nextGameID = undefined;
     let htmlList = document.getElementById("savedGameList");
-        
+
     let inp = new InputModule (context.canvas);
     let view = new ViewModule (window);
 
@@ -231,6 +235,7 @@
     }
 
     function loadGame(name) {
+
         updateNextGameID();
         if (name == undefined) name = "unnamed_" + nextGameID;
 
@@ -249,11 +254,7 @@
         if(!savedData) newGame(name);
 
         
-        invMenu = new Dialog();
-        craftMenu = new Dialog();
-        entityMenu = new Dialog();
-        receiptMenu = new Dialog();
-        selectItemMenu = new Dialog();
+
 
 
 
@@ -282,6 +283,10 @@
                 c.allInvs.push(null);
             }
         }
+        c.allInvs.forEach(ent => {
+            if (ent?.updateNB) ent.updateNB();
+        })
+
         c.playerID = 0;
         if (savedData.player?.id) c.player.id = savedData.player?.id;
 
@@ -292,9 +297,6 @@
         c.allMovableEntities.push(c.playerID);
 
         c.pointer = {};
-
-        view.createInvMenu();
-
 
         updateGameMenu();
 

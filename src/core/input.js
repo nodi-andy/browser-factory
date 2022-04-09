@@ -42,7 +42,6 @@ class InputModule {
             let worldCordinate = view.screenToWorld(getEventLocation(e));
             let tileCoordinate = worldToTile(worldCordinate);
             if (e.buttons == 1) {
-
                 dragStart = worldCordinate;
                 let res = c.game.map[tileCoordinate.x][tileCoordinate.y][layers.res];
                 let d = dist(c.allInvs[c.playerID].pos, worldCordinate);

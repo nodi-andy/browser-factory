@@ -2,48 +2,49 @@
 function gameLoop(){
 
     if (c.gameState == 0) {
-         setTimeout(gameLoop, 20);
-         return;
+        setTimeout(gameLoop, 20);
+        return;
     }
 
     if(c.gameState == 2) {
         c.game.stopped();
         return;
     }
+
+    // SETUP
+    /*
     if (c.game.tick == 0) {
-        // SETUP
         for(let ient = 0; ient < c.allInvs.length; ient++) {
             let entity = c.allInvs[ient];
             if (entity?.setup) entity.setup(c.game.map, entity);
             else c.resName[entity?.type]?.mach?.setup(c.game.map, entity);
         }
     }
-
+    */
+    // Game tick increment
     c.game.tick++;
 
+    // Autosave
     if (c.game.tick % 1000 == 0) saveGame();
 
     // belts excluded
-    for(let ient = 0; ient < c.allInvs.length; ient++) {
-        let entity = c.allInvs[ient];
-        if (!entity) continue;
-        if(entity?.type == c.resDB.belt1.id) continue;
-        if( entity.update) {
-            entity.update(c.game.map, entity);
-        } else entity.draw(context);
-    }
-    // Get all BELTs
     let belts = [];
     for(let ient = 0; ient < c.allInvs.length; ient++) {
         let entity = c.allInvs[ient];
-
-        if (entity?.type == c.resDB.belt1.id) {
+        if (!entity) continue;
+        if(entity?.type == c.resDB.belt1.id) 
+        {
             entity.done = false;
             entity.searching = false;
             belts.push(entity);
+        } else {
+            if( entity.update) {
+                entity.update(c.game.map, entity);
+            } else entity.draw(context);
         }
     }
 
+    // BELTS SYSTEM
     for(let ibelt = 0; ibelt < belts.length;) {
         let belt = belts[ibelt];
         if (belt.done) ibelt++
@@ -68,11 +69,6 @@ function gameLoop(){
             belt.update(c.game.map, belt);
         }
     }
-
-
-    /*if (c.game.tick % 100 == 0) {
-        ws.send(JSON.stringify({cmd: "updatePlayer", data: c.allInvs[c.playerID]}));
-    }*/
 
     setTimeout(gameLoop, 20);
 }

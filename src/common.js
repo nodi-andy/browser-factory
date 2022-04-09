@@ -13,8 +13,8 @@ resDB["empty"]                  = {name: "empty"      , type: "empty"};
 resDB["player"]                 = {name: "player"      , type: "entity"};
 
 resDB["hills"]                  = {name: "hills"        , type: "terrain"};
-resDB["deepwater"]              = {name: "deep water"   , type: "terrain"};
-resDB["water"]                  = {name: "water"        , type: "terrain"};
+resDB["deepsea"]                = {name: "deep sea"     , type: "terrain"};
+resDB["sea"]                    = {name: "sea"          , type: "terrain"};
 resDB["grassland"]              = {name: "grassland"    , type: "terrain"};
 
 
@@ -31,7 +31,8 @@ resDB["iron_ore"]               = {name: "iron ore"      , type: "res", W: 500};
 resDB["stone_ore"]              = {name: "stone ore"     , type: "res", W: 500};
 resDB["tree"]                   = {name: "tree"          , type: "res", E: 500};
 resDB["copper_ore"]             = {name: "copper ore"    , type: "res", W: 500};
-resDB["coal_ore"]               = {name: "coal ore"      , type: "res", W: 500};
+resDB["coal_ore"]               = {name: "coal ore"      , type: "res", E: 500};
+resDB["water"]                  = {name: "water"         , type: "item"};
 
 resDB["copper_cable"]           = {name: "copper cable"  , type: "item"};
 resDB["wood"]                   = {name: "wood"          , type: "item", E: 100};
@@ -69,7 +70,7 @@ resDB["assembling_machine_2"]   = {name: "assembling machine 2"          , type:
 resDB["assembling_machine_3"]   = {name: "assembling machine 3"          , type: "entity", lock: 1};
 resDB["assembling_machine_4"]   = {name: "assembling machine 4"          , type: "entity", lock: 1};
 resDB["pump"]                   = {name: "pump"                          , type: "entity"};
-resDB["pipe"]                   = {name: "pipe"          , type: "entity", lock: 1};
+resDB["pipe"]                   = {name: "pipe"                         , type: "entity"};
 resDB["u_pipe"]                 = {name: "u_pipe"          , type: "entity", lock: 1};
 resDB["boiler"]                 = {name: "boiler"          , type: "entity", lock: 1};
 resDB["generator"]              = {name: "generator"          , type: "entity", lock: 1};
@@ -119,6 +120,7 @@ resDB.assembling_machine_1.cost = [{id: resDB.circuit.id, n: 3}, {id: resDB.gear
 
 const dirToVec = [{x: 1, y:0},{x: 0, y:1},{x: -1, y:0},{x: 0, y:-1}];
 const dirToAng = [0, 90, 180, 270];
+const nbVec = [{x: 1, y: 0}, {x: 1, y: -1}, {x: 0, y: -1}, {x: -1, y: -1}, {x: -1, y: 0}, {x: -1, y: 1}, {x: 0, y: 1} , {x: 1, y: 1}]
 const  layers = {terrain: 0, res: 1, inv:2, vis:3 } 
 
 var game        = {};
@@ -207,3 +209,4 @@ c.playerID = playerID;
 c.allMovableEntities = allMovableEntities;
 c.gameState = 0;
 c.game.tick = 0;
+c.nbVec = nbVec;

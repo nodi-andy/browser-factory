@@ -30,8 +30,8 @@ function createWorld(x, y) {
         for(let ay = 0; ay < nCity.map[ax].length; ay++) {
             let perlinVal = terrainmap[ax * c.gridSize.y + ay];
             let resVal = 0;
-            if (perlinVal < 1) resVal = [c.resDB.deepwater.id, 0];
-            else if (perlinVal < 2) resVal = [c.resDB.water.id, 0];
+            if (perlinVal < 1) resVal = [c.resDB.deepsea.id, 0];
+            else if (perlinVal < 2) resVal = [c.resDB.sea.id, 0];
             else if (perlinVal < 8) resVal = [c.resDB.grassland.id, Math.round(Math.random() * 3)];
             else resVal = [c.resDB.hills.id, Math.round(Math.random() * 3)];
 
@@ -42,7 +42,7 @@ function createWorld(x, y) {
 
     Object.keys(c.resDB).forEach(name => {
         let res = c.resDB[name];
-        if (res.type == "res") {
+        if (res.type == "res" && res.id !== c.resDB.water.id) {
             terrainmap = generateTerrain(c.gridSize.x, c.gridSize.y);
             for(let ax = 0; ax < nCity.map.length; ax++) {
                 for(let ay = 0; ay < nCity.map[ax].length; ay++) {

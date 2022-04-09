@@ -85,8 +85,8 @@ function addCity(nID, x, y, t) {
       for(let ay = 0; ay < nCity.map[ax].length; ay++) {
         let perlinVal = terrainmap[ax * c.gridSize.y + ay];
         let resVal = 0;
-        if (perlinVal < 1) resVal = [c.resDB.deepwater.id, 0];
-        else if (perlinVal < 2) resVal = [c.resDB.water.id, 0];
+        if (perlinVal < 1) resVal = [c.resDB.deepsea.id, 0];
+        else if (perlinVal < 2) resVal = [c.resDB.sea.id, 0];
         else if (perlinVal < 8) resVal = [c.resDB.grassland.id, Math.round(Math.random() * 3)];
         else resVal = [c.resDB.hills.id, Math.round(Math.random() * 3)];
 
