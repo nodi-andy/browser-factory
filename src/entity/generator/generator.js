@@ -3,7 +3,7 @@ if (typeof window === "undefined") {
   inventory = require("../../core/inventory");
 }
 
-class Pipe extends Inventory{
+class Generator extends Inventory{
   constructor(pos, data) {
     super(pos, data);
     this.setup(undefined, data);
@@ -13,8 +13,12 @@ class Pipe extends Inventory{
     this.stacksize = 8;
     this.packsize = {};
     this.packsize.INV = 1;
+    this.packsize.FUEL = 1;
+    this.packsize.OUTPUT = 1;
     
-    if (this.stack.INV == undefined) this.stack.INV = [{n: 0}];
+    if (this.stack.FUEL == undefined) this.stack.FUEL = [];
+    if (this.stack.INV == undefined) this.stack.INV = [{id: c.resDB.steam.id, n: 0}];
+    if (this.stack.OUTPUT == undefined) this.stack.OUTPUT = [{id: c.resDB.coulomb.id, n: 0}];
 
     this.nbPipes = [];
   }
@@ -47,27 +51,28 @@ class Pipe extends Inventory{
     }
     let rest = total - (medVal * nSameType);
     this.stack.INV[0].n += rest;
+
+    if (this.stack.INV[0].n > 0 && this.stack.OUTPUT[0].n < 100) {
+      this.stack.INV[0].n--;
+      this.stack.OUTPUT[0].n++;
+    }
   }
 
   updateNB() {
     this.nbPipes = [];
     let nbs = [
-      inventory.getInv(this.pos.x + 1, this.pos.y - 1),
       inventory.getInv(this.pos.x + 1, this.pos.y + 0),
-      inventory.getInv(this.pos.x + 1, this.pos.y + 1),
       inventory.getInv(this.pos.x + 0, this.pos.y + 1),
-      inventory.getInv(this.pos.x - 1, this.pos.y + 1),
       inventory.getInv(this.pos.x - 1, this.pos.y + 0),
-      inventory.getInv(this.pos.x - 1, this.pos.y - 1),
       inventory.getInv(this.pos.x - 0, this.pos.y - 1)
     ];
     for (let n of nbs) {
-      if (n?.type == c.resDB.pipe.id || n?.type == c.resDB.boiler.id) this.nbPipes.push(n.id);
+      if (n?.type == c.resDB.pipe.id) this.nbPipes.push(n.id);
     }
   }
 
   draw(ctx, ent) {
-    ctx.drawImage(c.resDB.pipe.img, 0, 0, db.size[0]*tileSize, db.size[1]*tileSize, 0, 0, db.size[0]*tileSize, db.size[1]*tileSize);
+    ctx.drawImage(c.resDB.generator.img, 0, 0, db.size[0]*tileSize, db.size[1]*tileSize, 0, 0, db.size[0]*tileSize, db.size[1]*tileSize);
   }
 
   drawItems(ctx) {
@@ -83,19 +88,19 @@ class Pipe extends Inventory{
   }
 }
 
-db = c.resDB.pipe;
+db = c.resDB.generator;
 db.playerCanWalkOn = false;
-db.size = [1, 1];
+db.size = [4, 1];
 db.cost = [
   { id: c.resDB.iron_plate.id, n: 1 }
 ];
 
 if (typeof Image !== "undefined") {
   const image = new Image(512, 32);
-  image.src = "./src/" + c.resDB.pipe.type + "/pipe/pipe-straight-horizontal.png";
-  c.resDB.pipe.img = image;
+  image.src = "./src/" + c.resDB.generator.type + "/generator/generator.png";
+  c.resDB.generator.img = image;
 }
 
-db.mach = Pipe;
+db.mach = Generator;
 if (exports == undefined) var exports = {};
-exports.Pipe = Pipe;
+exports.Generator = Generator;

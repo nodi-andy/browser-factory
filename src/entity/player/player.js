@@ -226,7 +226,6 @@ db.output = [
     c.resDB.locomotive,
     c.resDB.rail,
     c.resDB.rail_curved,
-    c.resDB.asfalt,
     c.resDB.turret,
     c.resDB.laser_turret,
     c.resDB.car
