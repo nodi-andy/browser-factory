@@ -22,7 +22,7 @@ resDB["copper_plate"]           = {name: "copper plate"                 , type: 
 
 resDB["coal"]                   = {name: "coal"                         , type: "item", E: 100};
 resDB["stone"]                  = {name: "stone"                        , type: "item"};
-resDB["iron"]                   = {name: "iron"                         , type: "item", W: 500};
+resDB["iron"]                   = {name: "iron"                         , type: "item", W: 25};
 resDB["copper"]                 = {name: "copper"                       , type: "item", W: 500};
 resDB["raw_wood"]               = {name: "raw_wood"                     , type: "item"};
 
@@ -30,7 +30,7 @@ resDB["iron_ore"]               = {name: "iron ore"                     , type: 
 resDB["stone_ore"]              = {name: "stone ore"                    , type: "res", W: 500};
 resDB["tree"]                   = {name: "tree"                         , type: "res", E: 500};
 resDB["copper_ore"]             = {name: "copper ore"                   , type: "res", W: 500};
-resDB["coal_ore"]               = {name: "coal ore"                     , type: "res", E: 500};
+resDB["coal_ore"]               = {name: "coal ore"                     , type: "res", E: 20};
 resDB["water"]                  = {name: "water"                        , type: "item"};
 resDB["steam"]                  = {name: "steam"                        , type: "item", W: 200};
 resDB["coulomb"]                = {name: "coulomb"                      , type: "item", W: 200};

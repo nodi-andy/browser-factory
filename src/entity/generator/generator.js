@@ -13,10 +13,8 @@ class Generator extends Inventory{
     this.stacksize = 8;
     this.packsize = {};
     this.packsize.INV = 1;
-    this.packsize.FUEL = 1;
     this.packsize.OUTPUT = 1;
     
-    if (this.stack.FUEL == undefined) this.stack.FUEL = [];
     if (this.stack.INV == undefined) this.stack.INV = [{id: c.resDB.steam.id, n: 0}];
     if (this.stack.OUTPUT == undefined) this.stack.OUTPUT = [{id: c.resDB.coulomb.id, n: 0}];
 
@@ -24,7 +22,7 @@ class Generator extends Inventory{
   }
 
   update(map, ent) {
-    if (c.game.tick%100) return;
+    if (c.game.tick % 100) return;
 
     if (this.nbPipes.length == 0 || this.stack.INV[0].n == 0) return;
     
@@ -72,7 +70,7 @@ class Generator extends Inventory{
   }
 
   draw(ctx, ent) {
-    ctx.drawImage(c.resDB.generator.img, 0, 0, db.size[0]*tileSize, db.size[1]*tileSize, 0, 0, db.size[0]*tileSize, db.size[1]*tileSize);
+    ctx.drawImage(c.resDB.generator.img, 0, 0, c.resDB.generator.size[0]*tileSize, c.resDB.generator.size[1]*tileSize, 0, 0, c.resDB.generator.size[0]*tileSize, c.resDB.generator.size[1]*tileSize);
   }
 
   drawItems(ctx) {

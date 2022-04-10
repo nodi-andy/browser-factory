@@ -12,27 +12,37 @@ class InserterBurner extends Inventory {
     }
 
     setup(map, ent) {
+        this.stack = {};
         this.stack.INV = [];
-        this.stack.INV.size = 6;
+        this.stack.FUEL = [];
         this.stacksize = 3;
         this.packsize = {};
         this.packsize.INV = 1;
+        this.packsize.FUEL = 1;
         this.armPos = 0;
+        this.energy = 0;
     }
 
     update(map, ent){
-        ent.done = true;
-        if (ent.pos) {
-            let myDir = c.dirToVec[ent.dir];
-
+        if (this.stack.FUEL == undefined) this.stack.FUEL = [];
+        this.done = true;
+        if (this.pos) {
+            if (this.stack["FUEL"][0]?.n > 0 && this.energy <= 2) {
+                this.energy += c.resName[this.stack["FUEL"][0].id].E; // add time factor
+                this.stack["FUEL"][0].n--;
+            }
             let isHandFull = this.stack?.INV[0]?.n > 0;
 
+            let myDir = c.dirToVec[this.dir];
+
+
+
             if ((isHandFull || this.armPos > 0) && this.state == 1) this.armPos = (this.armPos + 1) % 64;
-
-
+            let invFrom = inventory.getInv(ent.pos.x - myDir.x, ent.pos.y - myDir.y, true);
             let invTo = inventory.getInv(ent.pos.x + myDir.x, ent.pos.y + myDir.y, true);
-            if (this.armPos == 0 && !isHandFull) { // PICK
-                let invFrom = inventory.getInv(ent.pos.x - myDir.x, ent.pos.y - myDir.y, true);
+            if (this.armPos == 0 && !isHandFull && this.energy <= 0 && invFrom.hasItem(c.resDB.coal.id)) { // LOAD COAL
+                invFrom.moveItemTo({id:c.resDB.coal.id, n:1}, this, "FUEL");
+            } else if (this.armPos == 0 && !isHandFull && this.energy > 0) { // PICK
                 let item;
                 if (invFrom.stack.OUTPUT)
                     item = invFrom.getFirstPack("OUTPUT");
@@ -46,6 +56,7 @@ class InserterBurner extends Inventory {
                 } else item = invFrom.getFirstPack();
 
                 if (item?.n && invFrom.moveItemTo({id:item.id, n:1}, this)) {
+                    this.energy--;
                     this.state = 1;
                 } else this.state = 0;
             } else if (this.armPos == 32 && isHandFull) { // PLACE
