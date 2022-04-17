@@ -17,10 +17,12 @@ class BurnerMiner extends Inventory {
         if (this.stack.FUEL == undefined) this.stack.FUEL = [];
         this.packsize = {};
         this.packsize.FUEL = 1;
-
-        inventory.setInv(ent.pos.x + 1, ent.pos. y, this.id);
-        inventory.setInv(ent.pos.x + 1, ent.pos. y + 1, this.id);
-        inventory.setInv(ent.pos.x, ent.pos. y + 1, this.id);
+        let size = c.resDB.burner_miner.size;
+        for(let i = 0; i < size[0]; i++) {
+            for(let j = 0; j < size[1]; j++) {
+                inventory.setInv(ent.pos.x + i, ent.pos. y + j, this.id);
+            }
+        }
         this.energy = 0;
         this.power = 0;
     }
@@ -103,5 +105,4 @@ if (typeof Image !== 'undefined') {
  db.anim2 = image;
 }
 db.size = [2, 2];
-if (exports == undefined) var exports = {};
 exports.BurnerMiner = BurnerMiner;
