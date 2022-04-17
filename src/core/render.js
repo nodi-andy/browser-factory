@@ -21,7 +21,7 @@ function render(){
     let maxTile = view.screenToTile({x: context.canvas.width, y: context.canvas.height});
     for(let ay = minTile.y - 3; ay < Math.min(maxTile.y + 5, gridSize.y); ay++) {
         for(let ax = minTile.x - 3; ax < Math.min(maxTile.x + 2, gridSize.x); ax++) {
-
+            if (ax < 0 || ay < 0) continue;
             // GET TILE
             let tile = c.game.map[ax][ay];
 
@@ -52,7 +52,7 @@ function render(){
                     context.translate(-type.size[0] / 2 * tileSize, -type.size[1] / 2 * tileSize);
                 }
                 
-                if (ent?.draw) ent.draw(context, ent);
+                if (ent?.draw) ent.draw(context);
                 else context.drawImage(resName[ent.type].img, 0, 0);
                 ent.drawn = 1; // static objects are drawn now
 
@@ -111,39 +111,36 @@ function render(){
                     belt = nbEntity;
                 } else break;
             }
-
+            
             belt.drawItems(ctx);
         }
     }
 
     // ITEMS
-    for(let ax = minTile.x; ax < Math.min(maxTile.x + 2, gridSize.x); ax++) {
-        for(let ay = minTile.y; ay < Math.min(maxTile.y + 5, gridSize.y); ay++) {
-            let tile = c.game.map[ax][ay];
-            let b;
-            if (tile[layers.inv] != undefined) {
-                b = c.allInvs[tile[layers.inv]];
-            }
-            if (b?.type && resName[b.type] && b.drawItems) {
-                // Build a tree for the belts
-                //if (b.type == c.resDB.belt1.id) continue;
-                
-                /*
+    for(let ay = minTile.y - 3; ay < Math.min(maxTile.y + 5, gridSize.y); ay++) {
+        for(let ax = minTile.x - 3; ax < Math.min(maxTile.x + 2, gridSize.x); ax++) {
+            if (ax < 0 || ay < 0) continue;
+            let entID = c.game.map[ax][ay][layers.inv];
+            let ent;
+            if (entID) ent = c.allInvs[entID];
+            if (ent && ent.drawn < 2 && ent.type != c.resDB.belt1.id) {
                 context.save();
-                context.translate((ax + 0.5) * tileSize, (ay + 0.5) *tileSize);
-                    context.rotate(b.dir * Math.PI/2);
-                context.translate(-tileSize / 2, -tileSize / 2);
-                b.drawItems(context, b);
+                context.translate(ax * tileSize, ay * tileSize);
+                let type = resName[ent.type];
+                if (type && type.size) {
+                    context.translate(type.size[0] / 2 * tileSize, type.size[1] / 2 * tileSize);
+                    if (resName[ent.type].rotatable != false) context.rotate(ent.dir * Math.PI/2);
+                    context.translate(-type.size[0] / 2 * tileSize, -type.size[1] / 2 * tileSize);
+                }
+                if (ent?.drawItems) ent.drawItems(context);
+                ent.drawn = 2;
                 context.restore();
-                */
             }
             
             // PLAYERS
-            for(let ient = 0; c.allMovableEntities && ient <  c.allMovableEntities.length; ient++) {
-                let entity = c.allInvs[c.allMovableEntities[ient]];
-                if (entity.pos && ax-2 == entity.tilePos.x && ay-2 == entity.tilePos.y) {
-                    c.player.draw(context, entity);
-                }
+            let entity = c.player;
+            if (entity.tilePos && ax-2 == entity.tilePos.x && ay == entity.tilePos.y) {
+                c.player.draw(context, entity);
             }
         }
     }
@@ -163,7 +160,8 @@ function render(){
             context.translate(-size[0] / 2 * tileSize, -size[1] / 2 * tileSize);
 
             if (item.mach?.prototype?.draw) item.mach.prototype.draw(context, c.pointer.item);
-            else context.drawImage(item.img, 0, 0);
+            if (item.mach?.prototype?.drawItems) item.mach.prototype.drawItems(context, c.pointer.item);
+            
             context.restore();
         }
     }
