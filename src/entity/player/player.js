@@ -65,6 +65,12 @@ class Player extends Inventory {
         ent.unitdir = toUnitV(ent.dir);
         let entTile = worldToTile({x: ent.pos.x, y: ent.pos.y});
 
+        let entMap = inventory.getInv(entTile.x, entTile.y);
+        if (entMap?.type == c.resDB.belt1.id) {
+            ent.pos.x += dirToVec[entMap.dir].x * 2;
+            ent.pos.y += dirToVec[entMap.dir].y * 2;
+        }
+
         ent.nextPos.x = ent.pos.x + 5 * ent.unitdir.x;
         let nextXTile = worldToTile({x: ent.nextPos.x, y: ent.pos.y});
         if (nextXTile.x > 0 && nextXTile.x < gridSize.x - 1 && this.checkCollision({x: nextXTile.x, y: entTile.y}) == false) ent.pos.x = ent.nextPos.x;
@@ -205,7 +211,7 @@ db.output = [
     c.resDB.iron_chest,
     c.resDB.stone_furnace,
     c.resDB.burner_miner,
-    c.resDB.electrical_miner,
+    c.resDB.e_miner,
     c.resDB.belt1,
     c.resDB.belt2,
     c.resDB.belt3,
@@ -222,7 +228,7 @@ db.output = [
     c.resDB.pipe,
     c.resDB.boiler,
     c.resDB.generator,
-    c.resDB.e_pole,
+    c.resDB.pole,
     c.resDB.locomotive,
     c.resDB.rail,
     c.resDB.rail_curved,
@@ -230,5 +236,4 @@ db.output = [
     c.resDB.laser_turret,
     c.resDB.car
  ];
-if (exports == undefined) var exports = {};
 exports.Player = Player;
