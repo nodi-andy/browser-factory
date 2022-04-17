@@ -108,10 +108,15 @@ class StoneFurnace extends Inventory {
     }
 
     draw(ctx, ent) {
-        let db = c.resDB.stone_furnace;
-        ctx.drawImage(db.anim1, 0, 0, db.size[0]*tileSize, db.size[1]*tileSize, 0, 0, db.size[0]*tileSize, db.size[1]*tileSize);
     }
 
+    drawItems(ctx) {
+        let mapSize = c.resDB.stone_furnace.size;
+        let viewSize = c.resDB.stone_furnace.viewsize;
+        ctx.drawImage(c.resDB.stone_furnace.img, 0, 0, tileSize, tileSize, 0, -(viewSize[1] - mapSize[1] + 1) * tileSize, viewSize[0] * tileSize, viewSize[1] * tileSize);
+    
+    }
+    
     getStackName(type) {
         if ( type == c.resDB.coal.id) return "FUEL";
     }
@@ -122,11 +127,11 @@ db.type = "entity";
 if (typeof Image !== 'undefined') {
     const image = new Image(512, 32);
     image.src =  "./src/" + db.type + "/stone_furnace/stone_furnace_64.png";
-    db.anim1 = image;
+    db.img = image;
 }
 db.size = [2, 2];
+db.viewsize = [2, 3]
 db.cost = [{id: c.resDB.stone.id, n: 5}];
 db.rotatable = false;
 db.mach = StoneFurnace;
-if (exports == undefined) var exports = {};
 exports.StoneFurnace = StoneFurnace;
