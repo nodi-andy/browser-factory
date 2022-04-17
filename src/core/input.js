@@ -66,6 +66,11 @@ class InputModule {
                     c.allInvs[c.playerID].addItem({id: c.allInvs[inv].type, n: 1});
                     c.allInvs[inv] = undefined
                     c.game.map[tileCoordinate.x][tileCoordinate.y][layers.inv] = null;
+                    // Update Neighbours
+                    for (let nbV of c.nbVec) {
+                        let nb = getInv(tileCoordinate.x + nbV.x, tileCoordinate.y + nbV.y);
+                        if (nb?.updateNB) nb.updateNB();
+                    }
                 }
             }            
         }
@@ -73,7 +78,7 @@ class InputModule {
 
 
     onPointerUp(e) {
-        c.player.stopMining(c.allInvs[c.playerID]);
+        if (c.player) c.player.stopMining(c.allInvs[c.playerID]);
 
         let overlayClicked = false;
         selectItemMenu.items.forEach (b => {if (b.collision(e) && b.onClick) { b.onClick(e.which, b); overlayClicked = true; }})
