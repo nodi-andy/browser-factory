@@ -350,6 +350,7 @@ function addInventory(newEntity, updateDir) {
       inv.dir = newEntity.dir;
       inv.type = newEntity.type;
       c.game.map[newEntity.pos.x][newEntity.pos.y][c.layers.inv] = inv.id;
+      if (inv?.updateNB) inv.updateNB();
       if (typeof window !== "undefined") view.updateInventoryMenu(c.player);
       c.pointer.item.n--;
       if (c.pointer.item.n == 0) c.pointer.item = undefined;
