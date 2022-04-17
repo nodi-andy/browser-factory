@@ -88,7 +88,7 @@ class Button {
                     c.pointer.inv = this.inv;
                     c.pointer.invKey = this.invKey;
                     c.pointer.item = {id:this.item?.id, n: this.item?.n};
-                    this.inv.remPack(this.invKey, this.stackPos);
+                    if (this.inv) this.inv.remPack(this.invKey, this.stackPos);
                 }
             }
         } else if (button == 3) {
