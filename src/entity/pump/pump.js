@@ -17,6 +17,13 @@ class Pump extends Inventory {
         if (this.stack == undefined) this.stack = {};
         this.packsize = {};
         this.packsize.OUTPUT = 1;
+        this.mapsize = {x: c.resDB.generator.size[0], y: c.resDB.generator.size[1]};
+        if (this.dir == 1 || this.dir == 3) this.mapsize = {x: c.resDB.generator.size[1], y: c.resDB.generator.size[0]};
+        for(let i = 0; i < this.mapsize.x; i++) {
+            for(let j = 0; j < this.mapsize.y; j++) {
+                inventory.setInv(this.pos.x + i, this.pos. y + j, this.id);
+            }
+        }
     }
 
 
@@ -32,24 +39,24 @@ class Pump extends Inventory {
         if (this.nbPipes[0].stack.INV[0].id == undefined) this.nbPipes[0].stack.INV[0].id = output.id;
         if (this.nbPipes[0].stack.INV[0].id == output.id) {
             let total = output.n + this.nbPipes[0].stack.INV[0].n;
-            let medVal = Math.ceil(total / 2);
+            let medVal = Math.floor(total / 2);
             this.nbPipes[0].stack.INV[0].n = medVal;
             this.stack.OUTPUT[0].n = total - medVal;
         }
     }
 
     updateNB() {
-        let nbPos = c.dirToVec[(this.dir + 3) % 4];
+        let nbPos = c.dirToVec[(this.dir + 1) % 4];
         let nbPipe = inventory.getInv(this.pos.x - nbPos.x, this.pos.y - nbPos.y);
         this.nbPipes = [];
         if (nbPipe) this.nbPipes.push(nbPipe);
     }
 
     draw(ctx, ent) {
-        let db = c.resDB.pump;
-        context.save();
-        ctx.drawImage(db.img, 0, 0, db.size[0]*tileSize, db.size[1]*tileSize, 0, 0, db.size[0]*tileSize, db.size[1]*tileSize);
-        context.restore();
+        let mapSize = c.resDB.pump.size;
+        let viewSize = c.resDB.pump.viewsize;
+        ctx.drawImage(c.resDB.pump.img, 0, 0, tileSize, tileSize, 0, -(viewSize[1] - mapSize[1]) * tileSize, viewSize[0] * tileSize, viewSize[1] * tileSize);
+  
     }
 }
 
@@ -62,6 +69,6 @@ if (typeof Image !== 'undefined') {
   image.src =  "./src/" + db.type + "/pump/pump.png";
   db.anim1 = image;
 }
-db.size = [1, 1];
-if (exports == undefined) var exports = {};
+db.size = [1, 2];
+db.viewsize = [1, 2];
 exports.Pump = Pump;
