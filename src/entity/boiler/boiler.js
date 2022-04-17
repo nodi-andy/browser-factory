@@ -15,60 +15,108 @@ class Boiler extends Inventory{
     this.packsize.INV = 1;
     this.packsize.FUEL = 1;
     this.packsize.OUTPUT = 1;
+    this.energy = 0;
     
     if (this.stack.FUEL == undefined) this.stack.FUEL = [];
     if (this.stack.INV == undefined) this.stack.INV = [{id: c.resDB.water.id, n: 0}];
     if (this.stack.OUTPUT == undefined) this.stack.OUTPUT = [{id: c.resDB.steam.id, n: 0}];
 
-    this.nbPipes = [];
+    this.nbInputs = [];
+    this.nbOutputs = [];
   }
 
   update(map, ent) {
-    if (c.game.tick%100) return;
+    if (c.game.tick % 100) return;
 
-    if (this.nbPipes.length == 0 || this.stack.INV[0].n == 0) return;
+    if (this.stack.INV[0].n == 0) return;
     
+    if (this.stack["FUEL"][0]?.n > 0 && this.energy <= 1) {
+      this.energy += c.resName[this.stack["FUEL"][0].id].E; // add time factor
+      this.stack["FUEL"][0].n--;
+    }
+
+    // INPUT
     let total = 0;
-    let nSameType = 0;
-    for (let nbID of this.nbPipes) {
+    let nSameType = 1;
+    for (let nbID of this.nbInputs) {
       let n = c.allInvs[nbID];
+      if (n == undefined) continue;
       if (n.stack.INV[0].id == undefined) n.stack.INV[0].id = this.stack.INV[0].id;
-      if (n.stack.INV[0].id ==  this.stack.INV[0].id) {
+      if (n.stack.INV[0].id == this.stack.INV[0].id) {
+        total += n.stack.INV[0].n;
+        nSameType++;
+      }
+    }
+
+    total += this.stack.INV[0].n;
+    let medVal = Math.floor(total / nSameType);
+
+    for (let nbID of this.nbInputs) {
+      let n = c.allInvs[nbID];
+      if (n == undefined) continue;
+      if (n.stack.INV[0].id == this.stack.INV[0].id) {
+        n.stack.INV[0].n = medVal;
+      }
+    }
+    let rest = total - (medVal * nSameType);
+    this.stack.INV[0].n = medVal;
+    this.stack.INV[0].n += rest;
+
+    // PROCESS
+    if (this.stack.INV[0].n > 0 && this.energy > 0 && this.stack.OUTPUT[0].n < 100) {
+      this.energy--;
+      this.stack.INV[0].n--;
+      this.stack.OUTPUT[0].n++;
+    }
+
+    // OUTPUT
+    total = 0;
+    nSameType = 0;
+    for (let nbID of this.nbOutputs) {
+      let n = c.allInvs[nbID];
+      if (n == undefined) continue;
+      if (n.stack.INV[0].id == undefined) n.stack.INV[0].id = this.stack.OUTPUT[0].id;
+      if (n.stack.INV[0].id == this.stack.OUTPUT[0].id) {
         total += n.stack.INV[0].n;
         nSameType++;
       }
     }
 
     nSameType++;
-    total += this.stack.INV[0].n;
-    let medVal = Math.ceil(total / nSameType);
+    total += this.stack.OUTPUT[0].n;
+    medVal = Math.floor(total / nSameType);
 
-    for (let nbID of this.nbPipes) {
+    for (let nbID of this.nbOutputs) {
       let n = c.allInvs[nbID];
-      if (n.stack.INV[0].id ==  this.stack.INV[0].id) {
+      if (n == undefined) continue;
+      if (n.stack.INV[0].id == this.stack.OUTPUT[0].id) {
         n.stack.INV[0].n = medVal;
       }
     }
-    let rest = total - (medVal * nSameType);
-    this.stack.INV[0].n += rest;
-
-    if (this.stack.INV[0].n > 0 && this.stack.OUTPUT[0].n < 100) {
-      this.stack.INV[0].n--;
-      this.stack.OUTPUT[0].n++;
-    }
+    rest = total - (medVal * nSameType);
+    this.stack.OUTPUT[0].n = medVal;
+    this.stack.OUTPUT[0].n += rest;
   }
 
   updateNB() {
-    this.nbPipes = [];
-    let nbs = [
-      inventory.getInv(this.pos.x + 1, this.pos.y + 0),
-      inventory.getInv(this.pos.x + 0, this.pos.y + 1),
-      inventory.getInv(this.pos.x - 1, this.pos.y + 0),
-      inventory.getInv(this.pos.x - 0, this.pos.y - 1)
-    ];
-    for (let n of nbs) {
-      if (n?.type == c.resDB.pipe.id) this.nbPipes.push(n.id);
-    }
+    this.nbInputs = [];
+    this.nbOutputs = [];
+
+    let nbPos = c.dirToVec[this.dir];
+    let nb = inventory.getInv(this.pos.x - nbPos.x, this.pos.y - nbPos.y);
+    if (nb?.type == c.resDB.pipe.id || nb?.type == c.resDB.generator.id) this.nbOutputs.push(nb.id);
+
+    nb = inventory.getInv(this.pos.x + nbPos.x, this.pos.y + nbPos.y);
+    if (nb?.type == c.resDB.pipe.id || nb?.type == c.resDB.generator.id) this.nbOutputs.push(nb.id);
+
+
+    nbPos = c.dirToVec[(this.dir + 1) % 4];
+    nb = inventory.getInv(this.pos.x - nbPos.x, this.pos.y - nbPos.y);
+    if (nb?.type == c.resDB.pipe.id || nb?.type == c.resDB.boiler.id) this.nbInputs.push(nb.id);
+
+    nb = inventory.getInv(this.pos.x + nbPos.x, this.pos.y + nbPos.y);
+    if (nb?.type == c.resDB.pipe.id || nb?.type == c.resDB.boiler.id) this.nbInputs.push(nb.id);
+
   }
 
   draw(ctx, ent) {
@@ -102,5 +150,4 @@ if (typeof Image !== "undefined") {
 }
 
 db.mach = Boiler;
-if (exports == undefined) var exports = {};
 exports.Boiler = Boiler;
