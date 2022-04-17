@@ -34,5 +34,4 @@ if (typeof Image !== 'undefined') {
   image.src =  "./src/" + db.type + "/chest/chest.png";
   db.img = image;
 }
-if (exports == undefined) var exports = {};
 exports.Chest = Chest;

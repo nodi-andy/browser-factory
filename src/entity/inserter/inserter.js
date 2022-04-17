@@ -27,5 +27,4 @@ class Inserter {
     }
 }
 
-if (exports == undefined) var exports = {};
 exports.Inserter = Inserter;

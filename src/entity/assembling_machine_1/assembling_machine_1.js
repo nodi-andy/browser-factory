@@ -137,10 +137,9 @@ db.output = [
     c.resDB.iron_chest.id,
     c.resDB.stone_furnace.id,
     c.resDB.burner_miner.id,
-    c.resDB.electrical_miner.id,
+    c.resDB.e_miner.id,
     c.resDB.belt1.id,
     c.resDB.inserter_burner.id
 ];
 db.mach = AssemblingMachine1;
-if (exports == undefined) var exports = {};
 exports.AssemblingMachine1 = AssemblingMachine1;
