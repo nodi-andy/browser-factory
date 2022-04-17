@@ -17,78 +17,106 @@ class Generator extends Inventory{
     
     if (this.stack.INV == undefined) this.stack.INV = [{id: c.resDB.steam.id, n: 0}];
     if (this.stack.OUTPUT == undefined) this.stack.OUTPUT = [{id: c.resDB.coulomb.id, n: 0}];
-
-    this.nbPipes = [];
+    this.mapsize = {x: c.resDB.generator.size[0], y: c.resDB.generator.size[1]};
+    if (this.dir == 1 || this.dir == 3) this.mapsize = {x: c.resDB.generator.size[1], y: c.resDB.generator.size[0]};
+    for(let i = 0; i < this.mapsize.x; i++) {
+        for(let j = 0; j < this.mapsize.y; j++) {
+            inventory.setInv(ent.pos.x + i, ent.pos. y + j, this.id);
+        }
+    }
   }
 
   update(map, ent) {
     if (c.game.tick % 100) return;
 
-    if (this.nbPipes.length == 0 || this.stack.INV[0].n == 0) return;
-    
+    // INPUT
     let total = 0;
-    let nSameType = 0;
-    for (let nbID of this.nbPipes) {
+    let nSameType = 1;
+    for (let nbID of this.nbInputs) {
       let n = c.allInvs[nbID];
+      if (n == undefined) continue;
       if (n.stack.INV[0].id == undefined) n.stack.INV[0].id = this.stack.INV[0].id;
-      if (n.stack.INV[0].id ==  this.stack.INV[0].id) {
+      if (n.stack.INV[0].id == this.stack.INV[0].id) {
+        total += n.stack.INV[0].n;
+        nSameType++;
+      }
+    }
+
+    total += this.stack.INV[0].n;
+    let medVal = Math.floor(total / nSameType);
+
+    for (let nbID of this.nbInputs) {
+      let n = c.allInvs[nbID];
+      if (n == undefined) continue;
+      if (n.stack.INV[0].id == this.stack.INV[0].id) {
+        n.stack.INV[0].n = medVal;
+      }
+    }
+    let rest = total - (medVal * nSameType);
+    this.stack.INV[0].n = medVal;
+    this.stack.INV[0].n += rest;
+
+    // PROCESS
+    if (this.stack.INV[0].n > 0 && this.stack.OUTPUT[0].n < 100) {
+      this.stack.INV[0].n--;
+      this.stack.OUTPUT[0].n++;
+    }
+
+    // OUTPUT
+    total = 0;
+    nSameType = 0;
+    for (let nbID of this.nbOutputs) {
+      let n = c.allInvs[nbID];
+      if (n == undefined) continue;
+      if (n.stack.INV[0].id == undefined) n.stack.INV[0].id = this.stack.OUTPUT[0].id;
+      if (n.stack.INV[0].id == this.stack.OUTPUT[0].id) {
         total += n.stack.INV[0].n;
         nSameType++;
       }
     }
 
     nSameType++;
-    total += this.stack.INV[0].n;
-    let medVal = Math.ceil(total / nSameType);
+    total += this.stack.OUTPUT[0].n;
+    medVal = Math.floor(total / nSameType);
 
-    for (let nbID of this.nbPipes) {
+    for (let nbID of this.nbOutputs) {
       let n = c.allInvs[nbID];
-      if (n.stack.INV[0].id ==  this.stack.INV[0].id) {
+      if (n == undefined) continue;
+      if (n.stack.INV[0].id == this.stack.OUTPUT[0].id) {
         n.stack.INV[0].n = medVal;
       }
     }
-    let rest = total - (medVal * nSameType);
-    this.stack.INV[0].n += rest;
-
-    if (this.stack.INV[0].n > 0 && this.stack.OUTPUT[0].n < 100) {
-      this.stack.INV[0].n--;
-      this.stack.OUTPUT[0].n++;
-    }
+    rest = total - (medVal * nSameType);
+    this.stack.OUTPUT[0].n = medVal;
+    this.stack.OUTPUT[0].n += rest;
   }
 
   updateNB() {
-    this.nbPipes = [];
-    let nbs = [
-      inventory.getInv(this.pos.x + 1, this.pos.y + 0),
-      inventory.getInv(this.pos.x + 0, this.pos.y + 1),
-      inventory.getInv(this.pos.x - 1, this.pos.y + 0),
-      inventory.getInv(this.pos.x - 0, this.pos.y - 1)
-    ];
-    for (let n of nbs) {
-      if (n?.type == c.resDB.pipe.id) this.nbPipes.push(n.id);
-    }
-  }
+    this.nbInputs = [];
+    this.nbOutputs = [];
 
-  draw(ctx, ent) {
-    ctx.drawImage(c.resDB.generator.img, 0, 0, c.resDB.generator.size[0]*tileSize, c.resDB.generator.size[1]*tileSize, 0, 0, c.resDB.generator.size[0]*tileSize, c.resDB.generator.size[1]*tileSize);
+    let scanArea = {x: this.pos.x - 1, y: this.pos.y - 1, x2: this.pos.x + this.mapsize.x + 2, y2: this.pos.y + this.mapsize.y + 2}
+    for(let x = scanArea.x; x < scanArea.x2; x++) {
+      for(let y = scanArea.y; y < scanArea.y2; y++) {
+        let nb = inventory.getInv(x, y);
+        if (nb?.id == this.id) continue;
+        if (nb?.type == c.resDB.boiler.id && this.nbInputs.includes(nb.id) == false) this.nbInputs.push(nb.id);
+        if (nb?.type == c.resDB.pole.id && this.nbOutputs.includes(nb.id) == false) this.nbOutputs.push(nb.id);
+      }
+    }
   }
 
   drawItems(ctx) {
-    if (this.pos && this.stack) {
-
-      context.save();
-      context.translate((this.pos.x + 0.5) * tileSize, (this.pos.y + 0.5) *tileSize);
-      context.rotate(this.dir * Math.PI/2);
-      context.translate(-tileSize / 2, -tileSize / 2);
-
-      context.restore();
-    }
+    let mapSize = c.resDB.generator.size;
+    let viewSize = c.resDB.generator.viewsize;
+    ctx.drawImage(c.resDB.generator.img, 0, 0, tileSize, tileSize, 0, -(viewSize[1] - mapSize[1]) * tileSize, viewSize[0] * tileSize, viewSize[1] * tileSize);
   }
 }
 
 db = c.resDB.generator;
 db.playerCanWalkOn = false;
-db.size = [4, 1];
+db.size = [3, 1];
+db.viewsize = [3, 2];
 db.cost = [
   { id: c.resDB.iron_plate.id, n: 1 }
 ];
@@ -100,5 +128,4 @@ if (typeof Image !== "undefined") {
 }
 
 db.mach = Generator;
-if (exports == undefined) var exports = {};
 exports.Generator = Generator;

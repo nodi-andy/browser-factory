@@ -137,6 +137,7 @@
 <script type="text/javascript" src ="src/entity/player/player.js"></script>
 
 <script type="text/javascript" src ="src/entity/chest/chest.js"></script>
+<script type="text/javascript" src ="src/entity/belt/belt.js"></script>
 <script type="text/javascript" src ="src/entity/belt1/belt1.js"></script>
 <script type="text/javascript" src ="src/entity/burner_miner/burner_miner.js"></script>
 <script type="text/javascript" src ="src/entity/inserter_burner/inserter_burner.js"></script>
@@ -146,6 +147,8 @@
 <script type="text/javascript" src ="src/entity/pipe/pipe.js"></script>
 <script type="text/javascript" src ="src/entity/boiler/boiler.js"></script>
 <script type="text/javascript" src ="src/entity/generator/generator.js"></script>
+<script type="text/javascript" src ="src/entity/pole/pole.js"></script>
+<script type="text/javascript" src ="src/entity/e_miner/e_miner.js"></script>
 
 <script type="text/javascript">
 
@@ -253,11 +256,6 @@
         
         let savedData = JSON.parse(window.localStorage.getItem(name));
         if(!savedData) newGame(name);
-
-        
-
-
-
 
         savedData = JSON.parse(window.localStorage.getItem(name));
         c.game = {
