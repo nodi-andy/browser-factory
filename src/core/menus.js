@@ -86,9 +86,15 @@ function drawContentMenu(context){
             //console.log(JSON.stringify(game.map[curResPos.x][curResPos.y]), inv);
             context.font = "24px Arial";
             context.fillStyle = "white";
-            context.fillText(curResPos.x + ", " + curResPos.y, mousePos.x, mousePos.y);
+
             if (res != undefined) context.fillText(JSON.stringify(res, null, 1), mousePos.x, mousePos.y + 24);
-            if (inv != undefined) context.fillText(JSON.stringify(inv.stack, null, 1), mousePos.x , mousePos.y + 48);
+            if (inv != undefined) {
+                context.fillText(inv.id + ": " + curResPos.x + ", " + curResPos.y, mousePos.x, mousePos.y);
+                context.fillText(JSON.stringify(inv.stack, null, 1), mousePos.x , mousePos.y + 48);
+                context.fillText(JSON.stringify(inv.nbInputs, null, 1), mousePos.x , mousePos.y + 72);
+                context.fillText(JSON.stringify(inv.nbOutputs, null, 1), mousePos.x , mousePos.y + 96);
+                context.fillText(JSON.stringify(inv.dir, null, 1), mousePos.x , mousePos.y + 120);
+            }
             context.stroke();
         }
 
