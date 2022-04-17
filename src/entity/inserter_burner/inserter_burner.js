@@ -35,11 +35,11 @@ class InserterBurner extends Inventory {
 
             let myDir = c.dirToVec[this.dir];
 
-
-
             if ((isHandFull || this.armPos > 0) && this.state == 1) this.armPos = (this.armPos + 1) % 64;
+            
             let invFrom = inventory.getInv(ent.pos.x - myDir.x, ent.pos.y - myDir.y, true);
             let invTo = inventory.getInv(ent.pos.x + myDir.x, ent.pos.y + myDir.y, true);
+
             if (this.armPos == 0 && !isHandFull && this.energy <= 0 && invFrom.hasItem(c.resDB.coal.id)) { // LOAD COAL
                 invFrom.moveItemTo({id:c.resDB.coal.id, n:1}, this, "FUEL");
             } else if (this.armPos == 0 && !isHandFull && this.energy > 0) { // PICK
@@ -85,14 +85,15 @@ class InserterBurner extends Inventory {
     draw(ctx, ent) {
         let db = c.resDB.burner_miner;
         ctx.drawImage(c.resDB.inserter_burner.platform, 0, 0, db.size[0]*tileSize, db.size[1]*tileSize, 0, 0, db.size[0]*tileSize, db.size[1]*tileSize);
+    }
+
+    drawItems(ctx) {
         ctx.save();
 
-
-        if (ent?.pos) {
+        if (this.pos) {
             ctx.translate(tileSize * 0.5, tileSize * 0.5);
             ctx.rotate(this.armPos * Math.PI / 32);
-            ctx.drawImage(c.resDB.inserter_burner.hand, 0, 0, 64, 64, -48, -16, 64, 64);
-
+            ctx.drawImage(c.resDB.inserter_burner.hand, 0, 0, 64, 64, -48, -15, 64, 64);
             if (this.stack?.INV[0]?.n && this.stack?.INV[0]?.id) {
                 ctx.scale(0.5, 0.5);
                 ctx.drawImage(resName[this.stack.INV[0].id].img, -96, -24);
@@ -116,5 +117,4 @@ if (typeof Image !== 'undefined') {
 db.mach = InserterBurner;
 db.cost      = [{id: resDB.iron_plate.id, n: 1}, {id: resDB.gear.id, n: 1}, {id: resDB.hydraulic_piston.id, n: 1}];
 
-if (exports == undefined) var exports = {};
 exports.InserterBurner = InserterBurner;
