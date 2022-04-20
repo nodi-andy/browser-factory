@@ -19,7 +19,7 @@ class Belt extends Inventory{
     this.packsize.R = 1;
     this.speed = 2;
     
-    if (this.stack.N == undefined) this.stack.N = {n: 1};
+    if (this.stack.INV == undefined) this.stack.INV = {n: 1};
     if (this.stack.L == undefined) this.stack.L = {n: 1};
     if (this.stack.R == undefined) this.stack.R = {n: 1};
     if (this.stack.LA == undefined) this.stack.LA = {n: 1};
@@ -30,6 +30,7 @@ class Belt extends Inventory{
     if (this.stack.RB == undefined) this.stack.RB = {n: 1};
     if (this.stack.RC == undefined) this.stack.RC = {n: 1};
     if (this.stack.RD == undefined) this.stack.RD = {n: 1};
+    this.setupDone = true;
   }
 
   shift(from, itfrom, to, itto, deciding) {
@@ -60,7 +61,13 @@ class Belt extends Inventory{
   }
 
   update(map, ent) {
+    // sanity
+    if (!this.setupDone) this.setup();
+
+    // Do not update twice
     ent.done = true;
+
+    // Only update if necessary
     if (c.decidingMoving == false && c.movingParts == false) return;
 
     if (c.decidingMoving) {
@@ -115,6 +122,16 @@ class Belt extends Inventory{
     if (beltFrom) this.direct = true;
     
     // ITEM LAID ON BELT
+    if (this.stack.INV[0]?.id && !this.stack.L?.id) {
+      this.stack.L.id = this.stack.INV[0].id;
+      this.stack.INV.shift();
+    }
+    if (this.stack.INV[0]?.id && !this.stack.R?.id) {
+      this.stack.R.id = this.stack.INV[0].id;
+      this.stack.INV.shift();
+    }
+
+
     if (this.stack.L?.id) {
         if(this.stack.LA?.id == undefined && this.stack.LA.reserved == false) {
             this.stack.LA.id = this.stack.L.id;

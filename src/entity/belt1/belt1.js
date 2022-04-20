@@ -7,10 +7,10 @@ if (typeof window === "undefined") {
 class Belt1 extends Belt{
   constructor(pos, data) {
     super(pos, data);
-    this.setup(undefined, data);
+    this.setupBelt(undefined, data);
   }
 
-  setup(map, ent) {
+  setupBelt(map, ent) {
     this.speed = 2;
   }
 

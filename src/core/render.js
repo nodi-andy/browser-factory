@@ -160,7 +160,8 @@ function render(){
             context.translate(-size[0] / 2 * tileSize, -size[1] / 2 * tileSize);
 
             if (item.mach?.prototype?.draw) item.mach.prototype.draw(context, c.pointer.item);
-            if (item.mach?.prototype?.drawItems) item.mach.prototype.drawItems(context, c.pointer.item);
+            else if (item.mach?.prototype?.drawItems) item.mach.prototype.drawItems(context, c.pointer.item);
+            else context.drawImage(item.img, 0, 0);
             
             context.restore();
         }

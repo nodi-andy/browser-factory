@@ -45,6 +45,9 @@ function gameLoop(){
     }
 
     // BELTS SYSTEM
+    c.decidingMoving = ((c.game.tick + 0) % 8 == 0);
+    c.movingParts = ((c.game.tick + 1) % 8 == 0);
+
     for(let ibelt = 0; ibelt < belts.length;) {
         let belt = belts[ibelt];
         if (belt.done) ibelt++
