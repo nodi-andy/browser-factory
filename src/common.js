@@ -138,21 +138,15 @@ let db;
 
 function item(type, n) {return {id: type, n: n}}
 
-function floorTile(p) {return {x: Math.floor(p.x/10)*10, y: Math.floor(p.y/10)*10}};
-function ceilTile(p) {return {x: Math.ceil(p.x/10), y: Math.ceil(p.y/10)}};
 function worldToTile(p) {
     return (
         {x: Math.min(Math.floor(p.x/tileSize), gridSize.x), 
          y: Math.min(Math.floor(p.y/tileSize), gridSize.y)});
 }
 function dist(a, b) {return Math.hypot(a.x-b.x, a.y-b.y);}
-function getDistance(b1, b2) {
-    var d = {x: b1.x - b2.x, y: b1.y - b2.y}
-    var distance = Math.sqrt(d.x * d.x + d.y * d.y);
-    if (b2.r == undefined) b2.r = 0;
-    return distance - (b1.r + b2.r);
-}
+
 function distV(a, b) {return {x: a.x-b.x, y: a.y-b.y};}
+
 function toUnitV(v) {
     if (v.x == 0 && v.y == 0) return {x:0, y:0};
     let len = Math.hypot(v.x, v.y);
