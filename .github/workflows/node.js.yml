@@ -1,9 +1,17 @@
-- name: Create Awesome Badge
-  uses: schneegans/dynamic-badges-action@v1.3.0
-  with:
-    auth: ${{ secrets.GIST_SECRET }}
-    gistID: <gist-ID>
-    filename: test.json
-    label: Hello
-    message: World
-    color: orange
+name: Go CI
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  ci:
+    - name: Create Awesome Badge
+        uses: schneegans/dynamic-badges-action@v1.3.0
+        with:
+          auth: ${{ secrets.GIST_SECRET }}
+          gistID: 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
+          filename: test.json
+          label: Hello
+          message: World
+          color: orange
