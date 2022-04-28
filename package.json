@@ -8,14 +8,14 @@
     "test:coverage": "npm test -- --coverage",
     "test:badges": "npm run test:coverage  && jest-coverage-badges",
     "test:ci": "jest --ci --coverage",
+    "coveralls": "jest --coverage && cat ./tests/coverage/lcov.info | coveralls",
     "lint": "eslint src"
   },
   "jest": {
     "coverageReporters": [
-      "json-summary", 
+      "json-summary",
       "text",
-      "lcov",
-      "json-summary"
+      "lcov"
     ]
   },
   "dependencies": {
@@ -36,6 +36,7 @@
   },
   "homepage": "https://github.com/nodi-andy/browser-factorio#readme",
   "devDependencies": {
+    "coveralls": "^3.1.1",
     "eslint": "^8.14.0",
     "eslint-config-standard": "^17.0.0",
     "eslint-plugin-import": "^2.26.0",

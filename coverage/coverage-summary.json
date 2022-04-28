@@ -1,0 +1,3 @@
+{"total": {"lines":{"total":160,"covered":150,"skipped":0,"pct":93.75},"statements":{"total":164,"covered":150,"skipped":0,"pct":91.46},"functions":{"total":7,"covered":2,"skipped":0,"pct":28.57},"branches":{"total":10,"covered":1,"skipped":0,"pct":10},"branchesTrue":{"total":0,"covered":0,"skipped":0,"pct":"Unknown"}}
+,"E:\\browser-factory\\src\\common.js": {"lines":{"total":160,"covered":150,"skipped":0,"pct":93.75},"functions":{"total":7,"covered":2,"skipped":0,"pct":28.57},"statements":{"total":164,"covered":150,"skipped":0,"pct":91.46},"branches":{"total":10,"covered":1,"skipped":0,"pct":10}}
+}
