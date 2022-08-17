@@ -56,7 +56,7 @@ class BurnerMiner extends Inventory {
             }
 
             let hasPlace = invTo.hasPlaceFor({id: output, n: 1}, stackName);
-            let neededEnergy = c.resName[tile[c.layers.res].id].E;
+            let neededEnergy = c.resName[tile[c.layers.res].id].W;
             if (this.stack["FUEL"][0]?.n > 0 && hasPlace && this.energy <= neededEnergy) {
                 this.energy += c.resName[this.stack["FUEL"][0].id].E; // add time factor
                 this.power = 100;
