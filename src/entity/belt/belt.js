@@ -3,13 +3,13 @@ if (typeof window === "undefined") {
   inventory = require("../../core/inventory");
 }
 
-class Belt extends Inventory{
+class Belt extends Inventory {
   constructor(pos, data) {
     super(pos, data);
     this.setup(undefined, data);
   }
 
-  setup(map, ent) {
+  setup (map, ent) {
     this.stacksize = 8;
     this.packsize = {};
     this.packsize.INV = 1;
@@ -18,18 +18,18 @@ class Belt extends Inventory{
     this.packsize.L = 1;
     this.packsize.R = 1;
     this.speed = 2;
-    
-    if (this.stack.INV == undefined) this.stack.INV = {n: 1};
-    if (this.stack.L == undefined) this.stack.L = {n: 1};
-    if (this.stack.R == undefined) this.stack.R = {n: 1};
-    if (this.stack.LA == undefined) this.stack.LA = {n: 1};
-    if (this.stack.LB == undefined) this.stack.LB = {n: 1};
-    if (this.stack.LC == undefined) this.stack.LC = {n: 1};
-    if (this.stack.LD == undefined) this.stack.LD = {n: 1};
-    if (this.stack.RA == undefined) this.stack.RA = {n: 1};
-    if (this.stack.RB == undefined) this.stack.RB = {n: 1};
-    if (this.stack.RC == undefined) this.stack.RC = {n: 1};
-    if (this.stack.RD == undefined) this.stack.RD = {n: 1};
+
+    if (this.stack.INV == undefined) this.stack.INV = { n: 1 };
+    if (this.stack.L == undefined) this.stack.L = { n: 1 };
+    if (this.stack.R == undefined) this.stack.R = { n: 1 };
+    if (this.stack.LA == undefined) this.stack.LA = { n: 1 };
+    if (this.stack.LB == undefined) this.stack.LB = { n: 1 };
+    if (this.stack.LC == undefined) this.stack.LC = { n: 1 };
+    if (this.stack.LD == undefined) this.stack.LD = { n: 1 };
+    if (this.stack.RA == undefined) this.stack.RA = { n: 1 };
+    if (this.stack.RB == undefined) this.stack.RB = { n: 1 };
+    if (this.stack.RC == undefined) this.stack.RC = { n: 1 };
+    if (this.stack.RD == undefined) this.stack.RD = { n: 1 };
     this.setupDone = true;
   }
 
@@ -51,7 +51,7 @@ class Belt extends Inventory{
         if (from.stack[itfrom].moving) {
           to.stack[itto] = from.stack[itfrom];
           to.stack[itto].moving = false;
-          from.stack[itfrom] = {n: 1};
+          from.stack[itfrom] = { n: 1 };
         }
       }
     } else {
@@ -112,7 +112,7 @@ class Belt extends Inventory{
     let beltTo = inventory.getInv(ent.pos.x + nbPos.x, ent.pos.y + nbPos.y);
     if (beltTo) this.beltToID = beltTo.id;
     if (this.stack.INV?.id && this.stack.L?.id == undefined) {
-      this.stack.L = {id: this.stack.INV.id};
+      this.stack.L = { id: this.stack.INV.id };
       this.stack.INV.id = undefined;
     }
 
@@ -131,32 +131,33 @@ class Belt extends Inventory{
       this.stack.INV.shift();
     }
 
-
     if (this.stack.L?.id) {
-        if(this.stack.LA?.id == undefined && this.stack.LA.reserved == false) {
-            this.stack.LA.id = this.stack.L.id;
-        } else if (this.stack.LB?.id == undefined && this.stack.LB.reserved == false) {
-            this.stack.LB.id = this.stack.L.id;
-        } else if (this.stack.LC?.id == undefined && this.stack.LC.reserved == false) {
-            this.stack.LC.id = this.stack.L.id;
-        } else if (this.stack.LD?.id == undefined && this.stack.LD.reserved == false) {
-            this.stack.LD.id = this.stack.L.id;
-        }
-        delete this.stack.L.id;
+      if (this.stack.LA?.id === undefined && this.stack.LA?.reserved === false) {
+        this.stack.LA.id = this.stack.L.id;
+      } else if (this.stack.LB?.id === undefined && this.stack.LB?.reserved === false) {
+        this.stack.LB.id = this.stack.L.id;
+      } else if (this.stack.LC?.id === undefined && this.stack.LC?.reserved === false) {
+        this.stack.LC.id = this.stack.L.id;
+      } else if (this.stack.LD?.id === undefined && this.stack.LD?.reserved === false) {
+        this.stack.LD.id = this.stack.L.id;
+      } else {
+        this.stack.LD = { id: this.stack.L.id, n: 1 }
+      }
+      delete this.stack.L.id;
     }
 
-    if (this.stack.R?.id) {
-        if(this.stack.RA?.id == undefined && this.stack.RA.reserved == false) {
-            this.stack.RA.id = this.stack.R.id;
-        } else if (this.stack.RB?.id == undefined && this.stack.RB.reserved == false) {
-            this.stack.RB.id = this.stack.R.id;
-        } else if (this.stack.RC?.id == undefined && this.stack.RC.reserved == false) {
-            this.stack.RC.id = this.stack.R.id;
-        } else if (this.stack.RD?.id == undefined && this.stack.RD.reserved == false) {
-            this.stack.RD.id = this.stack.R.id;
-        }
-        delete this.stack.R.id;
-    }
+  if (this.stack.R?.id) {
+      if(this.stack.RA?.id == undefined && this.stack.RA.reserved == false) {
+          this.stack.RA.id = this.stack.R.id;
+      } else if (this.stack.RB?.id == undefined && this.stack.RB.reserved == false) {
+          this.stack.RB.id = this.stack.R.id;
+      } else if (this.stack.RC?.id == undefined && this.stack.RC.reserved == false) {
+          this.stack.RC.id = this.stack.R.id;
+      } else if (this.stack.RD?.id == undefined && this.stack.RD.reserved == false) {
+          this.stack.RD.id = this.stack.R.id;
+      }
+      delete this.stack.R.id;
+  }
 
     //SHIFT INTO NEXT BELT
     if (beltTo && beltTo.type != c.resDB.belt1.id) beltTo = undefined;

@@ -4,17 +4,11 @@
   "description": "",
   "main": "node.js",
   "scripts": {
-    "test": "nyc --reporter=clover mocha",
+    "test": "jest --coverage --collectCoverageFrom='./src/**'",
     "lint": "eslint src"
   },
   "jest": {
-    "coverageReporters": [
-      "text"
-    ],
-    "reporters": [
-      "default",
-      "jest-junit"
-    ]
+    "verbose": true
   },
   "dependencies": {
     "express": "^4.17.3",

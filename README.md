@@ -4,17 +4,12 @@ Play the game here: [github.io](https://htmlpreview.github.io/?https://github.co
 
 
 # State
-
+[![Build Status](https://scrutinizer-ci.com/g/nodi-andy/browser-factory/badges/build.png?b=main)](https://scrutinizer-ci.com/g/nodi-andy/browser-factory/build-status/main)
 [![Open in Visual Studio Code](https://img.shields.io/static/v1?logo=visualstudiocode&label=&message=Open%20in%20Visual%20Studio%20Code&labelColor=2c2c32&color=007acc&logoColor=007acc)](https://open.vscode.dev/nodi-andy/browser-factory)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/nodi-andy/browser-factory/badges/quality-score.png?b=main)](https://scrutinizer-ci.com/g/nodi-andy/browser-factory/?branch=main)
+[![Code Coverage](https://scrutinizer-ci.com/g/nodi-andy/browser-factory/badges/coverage.png?b=main)](https://scrutinizer-ci.com/g/nodi-andy/browser-factory/?branch=main)
 
 
-![](coverage/badge-branches.svg)
-
-![](coverage/badge-functions.svg)
-
-![](coverage/badge-lines.svg)
-
-![](coverage/badge-statements.svg)
 
 # Game content
 
