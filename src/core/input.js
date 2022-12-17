@@ -1,8 +1,11 @@
-const mousePos = { x: 0, y: 0 }
-let isDragging = false
-let dragStart = { x: 0, y: 0 }
-let isDragStarted = false
-let isBuilding = false
+import { Settings, worldToTile, dist } from '../common.js'
+import { invfuncs } from './inventory.js'
+
+window.mousePos = { x: 0, y: 0 }
+window.isDragging = false
+window.dragStart = { x: 0, y: 0 }
+window.isDragStarted = false
+window.isBuilding = false
 
 // Gets the relevant location from a mouse or single touch event
 function getEventLocation (e) {
@@ -19,49 +22,49 @@ class InputModule {
     canvas.addEventListener('pointerdown', this.onPointerDown)
     canvas.addEventListener('pointermove', this.onPointerMove)
     canvas.addEventListener('pointerup', this.onPointerUp)
-    canvas.addEventListener('wheel', (e) => view.onZoom(e.deltaY * view.scrollFactor))
+    canvas.addEventListener('wheel', (e) => window.view.onZoom(e.deltaY * window.view.scrollFactor))
     document.addEventListener('keydown', this.onKeyDown)
     document.addEventListener('keyup', this.onKeyUp)
   }
 
   onPointerDown (e) {
     let overlayClicked = false
-    selectItemMenu.items.forEach(b => { if (b.collision(e, b)) { overlayClicked = true } })
-    invMenu.items.forEach(b => { if (b.collision(e, b)) { overlayClicked = true } })
-    craftMenu.items.forEach(b => { if (b.collision(e, b)) { overlayClicked = true } })
-    entityMenu.items.forEach(b => { if (b.collision(e, b)) { overlayClicked = true } })
+    window.selectItemMenu.items.forEach(b => { if (b.collision(e, b)) { overlayClicked = true } })
+    window.invMenu.items.forEach(b => { if (b.collision(e, b)) { overlayClicked = true } })
+    window.craftMenu.items.forEach(b => { if (b.collision(e, b)) { overlayClicked = true } })
+    window.entityMenu.items.forEach(b => { if (b.collision(e, b)) { overlayClicked = true } })
 
-    if (overlayClicked == false) {
-      const worldCordinate = view.screenToWorld(getEventLocation(e))
+    if (overlayClicked === false) {
+      const worldCordinate = window.view.screenToWorld(getEventLocation(e))
       const tileCoordinate = worldToTile(worldCordinate)
-      if (e.buttons == 1) {
-        dragStart = worldCordinate
-        const res = c.game.map[tileCoordinate.x][tileCoordinate.y][layers.res]
-        const d = dist(c.allInvs[c.playerID].pos, worldCordinate)
+      if (e.buttons === 1) {
+        window.dragStart = worldCordinate
+        const res = Settings.game.map[tileCoordinate.x][tileCoordinate.y][Settings.layers.res]
+        const d = dist(Settings.allInvs[Settings.playerID].pos, worldCordinate)
 
-        if (c.pointer?.item?.id) {
-          c.pointer.type = resName[c.pointer.item.id].type
-          if (c.pointer.type == 'entity') {
-            wssend({ cmd: 'addEntity', data: { pos: { x: tileCoordinate.x, y: tileCoordinate.y }, dir: buildDir, type: c.pointer.item.id } })
+        if (Settings.pointer?.item?.id) {
+          Settings.pointer.type = Settings.resName[Settings.pointer.item.id].type
+          if (Settings.pointer.type === 'entity') {
+            // wssend({ cmd: 'addEntity', data: { pos: { x: tileCoordinate.x, y: tileCoordinate.y }, dir: Settings.buildDir, type: Settings.pointer.item.id } })
           } else {
-            wssend({ cmd: 'addItem', data: { pos: tileCoordinate, dir: buildDir, inv: { item: c.pointer.item } } })
+            // wssend({ cmd: 'addItem', data: { pos: tileCoordinate, dir: Settings.buildDir, inv: { item: Settings.pointer.item } } })
           }
-          isDragStarted = false
-          isBuilding = true
+          window.isDragStarted = false
+          window.isBuilding = true
         } else {
-          isDragStarted = true
-          isBuilding = false
-          if (res?.id && d < 5 * tileSize) c.player.startMining(tileCoordinate, c.allInvs[c.playerID])
+          window.isDragStarted = true
+          window.isBuilding = false
+          if (res?.id && d < 5 * Settings.tileSize) Settings.player.startMining(tileCoordinate, Settings.allInvs[Settings.playerID])
         }
-      } else if (e.buttons == 2) {
-        const inv = c.game.map[tileCoordinate.x][tileCoordinate.y][layers.inv]
+      } else if (e.buttons === 2) {
+        const inv = Settings.game.map[tileCoordinate.x][tileCoordinate.y][Settings.layers.inv]
         if (inv) {
-          c.allInvs[c.playerID].addItem({ id: c.allInvs[inv].type, n: 1 })
-          c.allInvs[inv] = undefined
-          c.game.map[tileCoordinate.x][tileCoordinate.y][layers.inv] = null
+          Settings.allInvs[Settings.playerID].addItem({ id: Settings.allInvs[inv].type, n: 1 })
+          Settings.allInvs[inv] = undefined
+          Settings.game.map[tileCoordinate.x][tileCoordinate.y][Settings.layers.inv] = null
           // Update Neighbours
-          for (const nbV of c.nbVec) {
-            const nb = getInv(tileCoordinate.x + nbV.x, tileCoordinate.y + nbV.y)
+          for (const nbV of Settings.nbVec) {
+            const nb = invfuncs.getInv(tileCoordinate.x + nbV.x, tileCoordinate.y + nbV.y)
             if (nb?.updateNB) nb.updateNB()
           }
         }
@@ -70,108 +73,105 @@ class InputModule {
   }
 
   onPointerUp (e) {
-    if (c.player) c.player.stopMining(c.allInvs[c.playerID])
+    if (Settings.player) Settings.player.stopMining(Settings.allInvs[Settings.playerID])
 
     let overlayClicked = false
-    selectItemMenu.items.forEach(b => { if (b.collision(e) && b.onClick) { b.onClick(e.which, b); overlayClicked = true } })
-    invMenu.items.forEach(b => { if (b.collision(e) && b.onClick) { b.onClick(e.which, b); overlayClicked = true } })
-    craftMenu.items.forEach(b => { if (b.collision(e) && b.onClick) { b.onClick(e.which, b); overlayClicked = true } })
-    entityMenu.items.forEach(b => { if (b.collision(e) && b.onClick) { b.onClick(e.which, b); overlayClicked = true } })
+    window.selectItemMenu.items.forEach(b => { if (b.collision(e) && b.onClick) { b.onClick(e.which, b); overlayClicked = true } })
+    window.invMenu.items.forEach(b => { if (b.collision(e) && b.onClick) { b.onClick(e.which, b); overlayClicked = true } })
+    window.craftMenu.items.forEach(b => { if (b.collision(e) && b.onClick) { b.onClick(e.which, b); overlayClicked = true } })
+    window.entityMenu.items.forEach(b => { if (b.collision(e) && b.onClick) { b.onClick(e.which, b); overlayClicked = true } })
 
-    const worldPos = view.screenToWorld({ x: e.offsetX, y: e.offsetY })
+    const worldPos = window.view.screenToWorld({ x: e.offsetX, y: e.offsetY })
     const tilePos = worldToTile(worldPos)
-    const inv = inventory.getInv(tilePos.x, tilePos.y)
+    const inv = invfuncs.getInv(tilePos.x, tilePos.y)
 
-    if (overlayClicked == false) {
-      if (e.which == 1) {
+    if (overlayClicked === false) {
+      if (e.which === 1) {
         // SHOW ENTITY
-        if (c.pointer?.item?.id == undefined && inv) {
-          const invID = inventory.getInv(tilePos.x, tilePos.y).id
-          c.selEntity = c.allInvs[invID]
+        if (Settings.pointer?.item?.id === undefined && inv) {
+          const invID = invfuncs.getInv(tilePos.x, tilePos.y).id
+          Settings.selEntity = Settings.allInvs[invID]
 
-          view.updateEntityMenu(c.selEntity, true)
+          window.view.updateEntityMenu(Settings.selEntity, true)
 
-          if (inv) { entityMenu.vis = invMenu.vis = true; craftMenu.vis = false } else { entityMenu.vis = invMenu.vis = false; craftMenu.vis = true }
+          if (inv) { window.entityMenu.vis = window.invMenu.vis = true; window.craftMenu.vis = false } else { window.entityMenu.vis = window.invMenu.vis = false; window.craftMenu.vis = true }
         }
 
-        if (inv == undefined) entityMenu.vis = false
+        if (inv === undefined) window.entityMenu.vis = false
 
-        isDragging = false
-        dragStart = undefined
-        isBuilding = false
-      } else if (e.buttons == 1) {
-
+        window.isDragging = false
+        window.dragStart = undefined
+        window.isBuilding = false
       }
     }
   }
 
   onPointerMove (e) {
     const pointer = getEventLocation(e)
-    if (pointer == undefined) return
-    mousePos.x = pointer.x
-    mousePos.y = pointer.y
+    if (pointer === undefined) return
+    window.mousePos.x = pointer.x
+    window.mousePos.y = pointer.y
 
     let isOverlay = false
-    invMenu.items.forEach(b => { b.hover = b.collision(e); if (b.hover) { isOverlay = true } })
-    craftMenu.items.forEach(b => { b.hover = b.collision(e); if (b.hover) { isOverlay = true } })
-    entityMenu.items.forEach(b => { b.hover = b.collision(e); if (b.hover) { isOverlay = true } })
-    if (c.pointer) c.pointer.overlay = isOverlay
-    receiptMenu.rect.x = mousePos.x + 16
-    receiptMenu.rect.y = mousePos.y
+    window.invMenu.items.forEach(b => { b.hover = b.collision(e); if (b.hover) { isOverlay = true } })
+    window.craftMenu.items.forEach(b => { b.hover = b.collision(e); if (b.hover) { isOverlay = true } })
+    window.entityMenu.items.forEach(b => { b.hover = b.collision(e); if (b.hover) { isOverlay = true } })
+    if (Settings.pointer) Settings.pointer.overlay = isOverlay
+    window.receiptMenu.rect.x = window.mousePos.x + 16
+    window.receiptMenu.rect.y = window.mousePos.y
 
-    if (isOverlay == false) {
-      const tileCoordinate = view.screenToTile(mousePos)
-      curResPos = { x: tileCoordinate.x, y: tileCoordinate.y }
+    if (isOverlay === false) {
+      const tileCoordinate = window.view.screenToTile(window.mousePos)
+      window.curResPos = { x: tileCoordinate.x, y: tileCoordinate.y }
 
       if (e.which === 1) {
-        if (isBuilding) {
-          if ((lastResPos.x != curResPos.x || lastResPos.y != curResPos.y) && c.pointer?.item?.id) {
-            if (c.pointer.type == 'entity') {
-              wssend({ cmd: 'addEntity', data: { pos: { x: tileCoordinate.x, y: tileCoordinate.y }, dir: buildDir, type: c.pointer.item.id } })
+        if (window.isBuilding) {
+          if ((window.lastResPos.x !== window.curResPos.x || window.lastResPos.y !== window.curResPos.y) && Settings.pointer?.item?.id) {
+            if (Settings.pointer.type === 'entity') {
+              // wssend({ cmd: 'addEntity', data: { pos: { x: tileCoordinate.x, y: tileCoordinate.y }, dir: Settings.buildDir, type: Settings.pointer.item.id } })
             } else {
-              wssend({ cmd: 'addItem', data: { pos: tileCoordinate, dir: buildDir, inv: { item: c.pointer.item } } })
+              // wssend({ cmd: 'addItem', data: { pos: tileCoordinate, dir: Settings.buildDir, inv: { item: Settings.pointer.item } } })
             }
           }
         } else {
-          isDragging = true
+          window.isDragging = true
         }
       }
-      lastResPos = { x: curResPos.x, y: curResPos.y }
+      window.lastResPos = { x: window.curResPos.x, y: window.curResPos.y }
     }
   }
 
   onKeyDown (e) {
-    if (e.code === 'KeyW') c.player.dir.y = -1
-    if (e.code === 'KeyS') c.player.dir.y = 1
-    if (e.code === 'KeyD') c.player.dir.x = 1
-    if (e.code === 'KeyA') c.player.dir.x = -1
-    if (e.code === 'KeyF') c.player.fetch()
+    if (e.code === 'KeyW') Settings.player.dir.y = -1
+    if (e.code === 'KeyS') Settings.player.dir.y = 1
+    if (e.code === 'KeyD') Settings.player.dir.x = 1
+    if (e.code === 'KeyA') Settings.player.dir.x = -1
+    if (e.code === 'KeyF') Settings.player.fetch()
     if (e.code === 'Escape') {
-      if (c.pointer.item) {
-        c.player.addItem(c.pointer.item)
+      if (Settings.pointer.item) {
+        Settings.player.addItem(Settings.pointer.item)
       }
-      c.pointer.item = undefined
-      invMenu.vis = false
-      entityMenu.vis = false
-      craftMenu.vis = false
+      Settings.pointer.item = undefined
+      window.invMenu.vis = false
+      window.entityMenu.vis = false
+      window.craftMenu.vis = false
     }
-    c.player.stopMining(c.allInvs[c.playerID])
+    Settings.player.stopMining(Settings.allInvs[Settings.playerID])
   }
 
   onKeyUp (e) {
-    if (e.code == 'KeyW') c.player.dir.y = 0
-    if (e.code == 'KeyS') c.player.dir.y = 0
-    if (e.code == 'KeyD') c.player.dir.x = 0
-    if (e.code == 'KeyA') c.player.dir.x = 0
-    if (e.code == 'KeyR') buildDir = (buildDir + 1) % 4
-    if (e.code == 'KeyE') {
-      invMenu.vis = !invMenu.vis
-      craftMenu.vis = invMenu.vis
-      if (invMenu.vis == false) entityMenu.vis = false
+    if (e.code === 'KeyW') Settings.player.dir.y = 0
+    if (e.code === 'KeyS') Settings.player.dir.y = 0
+    if (e.code === 'KeyD') Settings.player.dir.x = 0
+    if (e.code === 'KeyA') Settings.player.dir.x = 0
+    if (e.code === 'KeyR') Settings.buildDir = (Settings.buildDir + 1) % 4
+    if (e.code === 'KeyE') {
+      window.invMenu.vis = !window.invMenu.vis
+      window.craftMenu.vis = window.invMenu.vis
+      if (window.invMenu.vis === false) window.entityMenu.vis = false
     }
-    c.player.stopMining(c.allInvs[c.playerID])
+    Settings.player.stopMining(Settings.allInvs[Settings.playerID])
   }
 }
 
-if (exports == undefined) var exports = {}
-exports.InputModule = InputModule
+export { InputModule }

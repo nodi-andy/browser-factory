@@ -5,3 +5,5 @@ class Dialog {
     this.vis = vis
   }
 }
+
+export { Dialog }

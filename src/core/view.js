@@ -1,4 +1,7 @@
+import { Settings, worldToTile } from '../common.js'
 import { Button } from './button.js'
+import { Dialog } from './dialog.js'
+import { Inventory, invfuncs } from './inventory.js'
 
 class ViewModule {
   constructor (windowElement) {
@@ -8,7 +11,7 @@ class ViewModule {
     })
 
     this.camera = { x: 0, y: 0, zoom: 1 }
-    this.size = { x: canvas.width, y: canvas.height }
+    this.size = { x: window.canvas.width, y: window.canvas.height }
     this.scrollFactor = 0.0005
     this.zoomLimit = { min: 0.5, max: 2 }
 
@@ -23,11 +26,11 @@ class ViewModule {
 
   createInvMenu () {
     // INV MENU
-    if (invMenu) {
+    if (window.invMenu) {
       for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
-          const newButton = new Button(j * (buttonSize), i * (buttonSize), undefined, invMenu)
-          invMenu.items.push(newButton)
+          const newButton = new Button(j * (Settings.buttonSize), i * (Settings.buttonSize), undefined, window.invMenu)
+          window.invMenu.items.push(newButton)
         }
       }
     }
@@ -48,9 +51,9 @@ class ViewModule {
   secureBoundaries () {
     if (this.camera.x > 0) this.camera.x = 0
     if (this.camera.y > 0) this.camera.y = 0
-    const boundary = view.screenToWorld({ x: this.width, y: this.height })
-    if (boundary.x > gridSize.x * tileSize) this.camera.x = this.width / this.camera.zoom - (gridSize.x * tileSize)
-    if (boundary.y > gridSize.y * tileSize) this.camera.y = this.height / this.camera.zoom - (gridSize.y * tileSize)
+    const boundary = window.view.screenToWorld({ x: this.width, y: this.height })
+    if (boundary.x > Settings.gridSize.x * Settings.tileSize) this.camera.x = this.width / this.camera.zoom - (Settings.gridSize.x * Settings.tileSize)
+    if (boundary.y > Settings.gridSize.y * Settings.tileSize) this.camera.y = this.height / this.camera.zoom - (Settings.gridSize.y * Settings.tileSize)
   }
 
   setCamPos (pos) {
@@ -61,31 +64,31 @@ class ViewModule {
   }
 
   resize () {
-    canvas.width = window.innerWidth
-    canvas.height = window.innerHeight
-    if (invMenu) {
-      invMenu.rect.x = canvas.width / 2 - buttonSize * 8
-      invMenu.rect.y = canvas.height / 2 - buttonSize * 4
+    window.canvas.width = window.innerWidth
+    window.canvas.height = window.innerHeight
+    if (window.invMenu) {
+      window.invMenu.rect.x = window.canvas.width / 2 - Settings.buttonSize * 8
+      window.invMenu.rect.y = window.canvas.height / 2 - Settings.buttonSize * 4
     }
 
-    if (craftMenu && selectItemMenu) {
-      craftMenu.rect.x = canvas.width / 2 + buttonSize / 2
-      craftMenu.rect.y = canvas.height / 2 - buttonSize * 4
-      craftMenu.rect.w = 8 * buttonSize
-      craftMenu.rect.h = 8 * buttonSize
+    if (window.craftMenu && window.selectItemMenu) {
+      window.craftMenu.rect.x = window.canvas.width / 2 + Settings.buttonSize / 2
+      window.craftMenu.rect.y = window.canvas.height / 2 - Settings.buttonSize * 4
+      window.craftMenu.rect.w = 8 * Settings.buttonSize
+      window.craftMenu.rect.h = 8 * Settings.buttonSize
 
-      entityMenu.rect.x = craftMenu.rect.x
-      entityMenu.rect.y = craftMenu.rect.y
-      entityMenu.rect.w = craftMenu.rect.w
-      entityMenu.rect.h = craftMenu.rect.h
+      window.entityMenu.rect.x = window.craftMenu.rect.x
+      window.entityMenu.rect.y = window.craftMenu.rect.y
+      window.entityMenu.rect.w = window.craftMenu.rect.w
+      window.entityMenu.rect.h = window.craftMenu.rect.h
 
-      receiptMenu.rect.w = craftMenu.rect.w / 2
-      receiptMenu.rect.h = craftMenu.rect.h
+      window.receiptMenu.rect.w = window.craftMenu.rect.w / 2
+      window.receiptMenu.rect.h = window.craftMenu.rect.h
 
-      selectItemMenu.rect.x = craftMenu.rect.x
-      selectItemMenu.rect.y = craftMenu.rect.y
-      selectItemMenu.rect.w = craftMenu.rect.w
-      selectItemMenu.rect.h = craftMenu.rect.h
+      window.selectItemMenu.rect.x = window.craftMenu.rect.x
+      window.selectItemMenu.rect.y = window.craftMenu.rect.y
+      window.selectItemMenu.rect.w = window.craftMenu.rect.w
+      window.selectItemMenu.rect.h = window.craftMenu.rect.h
     }
   }
 
@@ -98,12 +101,12 @@ class ViewModule {
   }
 
   onZoom (zoomFactor) {
-    if (!isDragging) {
+    if (!window.isDragging) {
       const zoomAmount = (1 - zoomFactor)
       const newZoom = this.camera.zoom * zoomAmount
       // console.log(newZoom)
       /* if (DEV) {
-                this.camera.zoom = Math.max( this.camera.zoom, Math.max(canvas.width / (gridSize.x * tileSize), canvas.height / (gridSize.y * tileSize)))
+                this.camera.zoom = Math.max( this.camera.zoom, Math.max(canvas.width / (gridSize.x * Settings.tileSize), canvas.height / (gridSize.y * Settings.tileSize)))
                 this.camera.x += (mousePos.x / this.camera.zoom) - (mousePos.x / (this.camera.zoom / zoomAmount));
                 this.camera.y += (mousePos.y / this.camera.zoom) - (mousePos.y / (this.camera.zoom / zoomAmount));
                 this.secureBoundaries();
@@ -111,8 +114,8 @@ class ViewModule {
       {
         this.camera.zoom = Math.min(this.zoomLimit.max, Math.max(newZoom, this.zoomLimit.min))
         const myMid = {}
-        myMid.x = c.allInvs[c.playerID].pos.x
-        myMid.y = c.allInvs[c.playerID].pos.y - 66
+        myMid.x = Settings.allInvs[Settings.playerID].pos.x
+        myMid.y = Settings.allInvs[Settings.playerID].pos.y - 66
         this.setCamOn(myMid)
       }
 
@@ -122,69 +125,69 @@ class ViewModule {
 
   // CRAFT MENU
   updateCraftingMenu () {
-    const items = resDB.player.output
+    const items = Settings.resDB.player.output
     let pos = 0
-    craftMenu.items = []
+    window.craftMenu.items = []
     items.forEach(i => {
-      const newButton = new Button((pos % 8) * (buttonSize), Math.floor(pos / 8) * (buttonSize), { id: i.id, n: 0 }, craftMenu)
+      const newButton = new Button((pos % 8) * (Settings.buttonSize), Math.floor(pos / 8) * (Settings.buttonSize), { id: i.id, n: 0 }, window.craftMenu)
       newButton.onClick = () => {
-        if (resName[i.id].lock == undefined) craftToInv(c.player, [i])
+        if (Settings.resName[i.id].lock === undefined) invfuncs.craftToInv(Settings.player, [i])
       }
       newButton.type = 'craft'
-      craftMenu.items.push(newButton)
+      window.craftMenu.items.push(newButton)
       pos++
-      if (newButton.x + newButton.w > craftMenu.rect.w) craftMenu.rect.w = newButton.x + newButton.w
-      if (newButton.y + newButton.h > craftMenu.rect.h) craftMenu.rect.h = newButton.y + newButton.h
+      if (newButton.x + newButton.w > window.craftMenu.rect.w) window.craftMenu.rect.w = newButton.x + newButton.w
+      if (newButton.y + newButton.h > window.craftMenu.rect.h) window.craftMenu.rect.h = newButton.y + newButton.h
     })
   }
 
   // SELECT ITEM MENU
   updateSelectItemMenu (ent) {
-    const items = c.resName[ent.type].output
-    selectItemMenu.items = []
+    const items = Settings.resName[ent.type].output
+    window.selectItemMenu.items = []
     let pos = 0
     items.forEach(i => {
-      const newButton = new Button((pos % 8) * (buttonSize), Math.floor(pos / 8) * (buttonSize), { id: i }, selectItemMenu)
+      const newButton = new Button((pos % 8) * (Settings.buttonSize), Math.floor(pos / 8) * (Settings.buttonSize), { id: i }, window.selectItemMenu)
       newButton.ent = ent
       newButton.onClick = (which, button) => {
         button.ent.setOutput(button.item.id)
-        c.selEntity.vis = true
-        selectItemMenu.vis = false
+        Settings.selEntity.vis = true
+        window.selectItemMenu.vis = false
       }
-      selectItemMenu.items.push(newButton)
+      window.selectItemMenu.items.push(newButton)
       pos++
-      if (newButton.x + newButton.w > selectItemMenu.rect.w) selectItemMenu.rect.w = newButton.x + newButton.w
-      if (newButton.y + newButton.h > selectItemMenu.rect.h) selectItemMenu.rect.h = newButton.y + newButton.h
+      if (newButton.x + newButton.w > window.selectItemMenu.rect.w) window.selectItemMenu.rect.w = newButton.x + newButton.w
+      if (newButton.y + newButton.h > window.selectItemMenu.rect.h) window.selectItemMenu.rect.h = newButton.y + newButton.h
     })
   }
 
   updateInventoryMenu (inv) {
     const pack = inv.stack.INV
 
-    if (pack == undefined) return
+    if (pack === undefined) return
 
     for (let i = 0; i < pack.length; i++) {
       const item = pack[i]
-      invMenu.items[i].item = item
-      invMenu.items[i].inv = c.player
-      invMenu.items[i].invKey = 'INV'
-      invMenu.items[i].stackPos = i
+      window.invMenu.items[i].item = item
+      window.invMenu.items[i].inv = Settings.player
+      window.invMenu.items[i].invKey = 'INV'
+      window.invMenu.items[i].stackPos = i
     }
 
-    for (let i = pack.length; i < invMenu.items.length; i++) {
-      invMenu.items[i].item = undefined
-      invMenu.items[i].inv = c.player
-      invMenu.items[i].invKey = 'INV'
-      invMenu.items[i].stackPos = i
+    for (let i = pack.length; i < window.invMenu.items.length; i++) {
+      window.invMenu.items[i].item = undefined
+      window.invMenu.items[i].inv = Settings.player
+      window.invMenu.items[i].invKey = 'INV'
+      window.invMenu.items[i].stackPos = i
     }
 
-    for (const craftItem of craftMenu.items) {
+    for (const craftItem of window.craftMenu.items) {
       const tInv = new Inventory()
       tInv.stack = JSON.parse(JSON.stringify(inv.stack))
       tInv.stack.INV.size = 64
       tInv.packsize = inv.packsize
       tInv.itemsize = inv.itemsize
-      const cost = resName[craftItem.item.id].cost
+      const cost = Settings.resName[craftItem.item.id].cost
       craftItem.item.n = 0
       if (cost) {
         while (tInv.remItems(cost)) craftItem.item.n++ // how much can be build
@@ -193,16 +196,16 @@ class ViewModule {
   }
 
   updateEntityMenu (inv, forceUpdate = false) {
-    if (inv == undefined) return
+    if (inv === undefined) return
     const showStack = inv.stack
 
-    entityMenu.vis = true
-    const init = entityMenu.invID != inv.id
+    window.entityMenu.vis = true
+    const init = window.entityMenu.invID !== inv.id
     const refresh = init || forceUpdate
-    entityMenu.invID = inv.id
+    window.entityMenu.invID = inv.id
     if (refresh) {
-      entityMenu.buttons = {}
-      entityMenu.items = []
+      window.entityMenu.buttons = {}
+      window.entityMenu.items = []
     }
 
     let dx = 128
@@ -210,39 +213,39 @@ class ViewModule {
     if (inv.prod) {
       let button
       if (refresh) {
-        entityMenu.buttons.PROD = []
-        button = new Button(dx, dy, undefined, entityMenu, c.selEntity)
+        window.entityMenu.buttons.PROD = []
+        button = new Button(dx, dy, undefined, window.entityMenu, Settings.selEntity)
         button.onClick = () => {
-          view.updateSelectItemMenu(c.selEntity)
-          selectItemMenu.vis = true
+          window.view.updateSelectItemMenu(Settings.selEntity)
+          window.selectItemMenu.vis = true
         }
-        dy += buttonSize
-      } else button = entityMenu.buttons.PROD
+        dy += Settings.buttonSize
+      } else button = window.entityMenu.buttons.PROD
       button.invKey = 'PROD'
       button.stackPos = 0
-      button.item = item
+      // button.item = item
 
-      if (refresh) entityMenu.items.push(button)
-      if (refresh) entityMenu.buttons.PROD.push(button)
+      if (refresh) window.entityMenu.items.push(button)
+      if (refresh) window.entityMenu.buttons.PROD.push(button)
     }
 
     for (const s of Object.keys(showStack)) {
       dx = 128
-      if (refresh) entityMenu.buttons[s] = []
+      if (refresh) window.entityMenu.buttons[s] = []
       for (let stackPos = 0; stackPos < inv.packsize[s]; stackPos++) {
         const item = showStack[s][stackPos]
         let button
-        if (refresh) button = new Button(dx, dy, item, entityMenu, c.selEntity)
-        else button = entityMenu.buttons[s][stackPos]
-        dx += buttonSize
+        if (refresh) button = new Button(dx, dy, item, window.entityMenu, Settings.selEntity)
+        else button = window.entityMenu.buttons[s][stackPos]
+        dx += Settings.buttonSize
         button.invKey = s
         button.stackPos = stackPos
         button.item = item
 
-        if (refresh) entityMenu.items.push(button)
-        if (refresh) entityMenu.buttons[s].push(button)
+        if (refresh) window.entityMenu.items.push(button)
+        if (refresh) window.entityMenu.buttons[s].push(button)
       }
-      dy += buttonSize
+      dy += Settings.buttonSize
     }
   }
 }

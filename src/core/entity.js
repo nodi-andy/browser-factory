@@ -20,7 +20,7 @@ class Entity {
   draw (ctx) {
     ctx.font = '8px Arial'
     ctx.fillStyle = 'black'
-    ctx.fillText(resDB[Object.keys(resDB)[this.id]].emo, this.x * tileSize, this.y * tileSize + 8)
+    ctx.fillText(resDB[Object.keys(resDB)[this.id]].emo, this.x * Settings.tileSize, this.y * Settings.tileSize + 8)
   }
 
   update (map) {
@@ -28,7 +28,8 @@ class Entity {
   }
 }
 
-if (exports == undefined) var exports = {}
-exports.Entity = Entity
+if (exports === undefined) var exports = {}
 
 const e = { Entity }
+
+export { Entity }

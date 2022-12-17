@@ -1,9 +1,11 @@
+import { Settings } from '../common.js'
+
 class Button {
   constructor (x, y, item, parent, inv) {
     this.x = x
     this.y = y
-    this.h = buttonSize
-    this.w = buttonSize
+    this.h = Settings.buttonSize
+    this.w = Settings.buttonSize
     this.item = item
     this.inv = inv
     this.invKey = ''
@@ -27,8 +29,8 @@ class Button {
     ctx.beginPath()
 
     if (this.hover) {
-      if (this.type === 'craft') receiptMenu.item = this.item
-      else receiptMenu.item = undefined
+      if (this.type === 'craft') window.receiptMenu.item = this.item
+      else window.receiptMenu.item = undefined
     }
 
     if (this.hover) ctx.fillStyle = 'rgba(100, 100, 0, 1)'
@@ -46,70 +48,70 @@ class Button {
     if (this.item !== undefined) {
       if (this.img) { // special image
         ctx.drawImage(this.img, this.screen.x, this.screen.y)
-      } else if (this.item.id && resName[this.item.id].img) { // standard image
-        ctx.drawImage(resName[this.item.id].img, this.screen.x + 2, this.screen.y + 2)
+      } else if (this.item.id && Settings.resName[this.item.id].img) { // standard image
+        ctx.drawImage(Settings.resName[this.item.id].img, this.screen.x + 2, this.screen.y + 2)
       }
 
-      if (this.item?.id && resName[this.item.id].lock) {
+      if (this.item?.id && Settings.resName[this.item.id].lock) {
         ctx.beginPath()
         ctx.fillStyle = 'rgb(200, 100, 100, 0.3)'
-        ctx.rect(this.screen.x, this.screen.y, buttonSize, buttonSize)
+        ctx.rect(this.screen.x, this.screen.y, Settings.buttonSize, Settings.buttonSize)
         ctx.fill()
       }
 
-      if (this.item.n != undefined) {
+      if (this.item.n !== undefined) {
         ctx.font = '24px Arial'
         ctx.fillStyle = 'white'
-        ctx.fillText(this.item.n, this.screen.x, this.screen.y + buttonSize)
+        ctx.fillText(this.item.n, this.screen.x, this.screen.y + Settings.buttonSize)
       }
     }
   }
 
   onClick (button) {
-    if (this.item?.id && resName[this.item?.id].lock === 1) return
+    if (this.item?.id && Settings.resName[this.item?.id].lock === 1) return
     if (button === 1) {
-      if (c.pointer?.item) {
+      if (Settings.pointer?.item) {
         let tempItem
-        if (this.item?.id === c.pointer.item?.id) {
-          this.item.n += c.pointer.item.n
+        if (this.item?.id === Settings.pointer.item?.id) {
+          this.item.n += Settings.pointer.item.n
         } else {
           if (this.item?.id) {
             tempItem = this.item
             this.inv.remPack(this.invKey, this.stackPos)
           }
-          if (c.pointer.item) {
-            this.inv.addPack(this.invKey, this.stackPos, c.pointer.item)
+          if (Settings.pointer.item) {
+            this.inv.addPack(this.invKey, this.stackPos, Settings.pointer.item)
           }
         }
-        if (tempItem?.n) c.pointer.item = tempItem
-        else c.pointer.item = undefined
+        if (tempItem?.n) Settings.pointer.item = tempItem
+        else Settings.pointer.item = undefined
       } else {
         if (this.item?.id && this.item?.n) {
-          c.pointer.inv = this.inv
-          c.pointer.invKey = this.invKey
-          c.pointer.item = { id: this.item?.id, n: this.item?.n }
+          Settings.pointer.inv = this.inv
+          Settings.pointer.invKey = this.invKey
+          Settings.pointer.item = { id: this.item?.id, n: this.item?.n }
           if (this.inv) this.inv.remPack(this.invKey, this.stackPos)
         }
       }
     } else if (button === 3) {
-      c.pointer.button = this
-      if (c.pointer.item) {
-        const transfer = Math.round(c.pointer.item.n / 2)
-        c.pointer.item.n -= transfer
-        if (c.pointer.button?.item?.n) {
-          c.pointer.button.item.n += transfer
+      Settings.pointer.button = this
+      if (Settings.pointer.item) {
+        const transfer = Math.round(Settings.pointer.item.n / 2)
+        Settings.pointer.item.n -= transfer
+        if (Settings.pointer.button?.item?.n) {
+          Settings.pointer.button.item.n += transfer
         } else {
-          const item = { id: c.pointer.item.id, n: transfer }
-          c.pointer.inv.addItem(item)
+          const item = { id: Settings.pointer.item.id, n: transfer }
+          Settings.pointer.inv.addItem(item)
         }
       } else if (this.item) {
-        c.pointer.item = { id: this.item.id, n: this.item.n }
-        c.pointer.item.n = Math.round(c.pointer.item.n / 2)
-        this.item.n = this.item.n - c.pointer.item.n
+        Settings.pointer.item = { id: this.item.id, n: this.item.n }
+        Settings.pointer.item.n = Math.round(Settings.pointer.item.n / 2)
+        this.item.n = this.item.n - Settings.pointer.item.n
       }
     }
-    view.updateInventoryMenu(c.player)
-    if (c.selEntity) view.updateEntityMenu(c.selEntity, true)
+    window.view.updateInventoryMenu(Settings.player)
+    if (Settings.selEntity) window.view.updateEntityMenu(Settings.selEntity, true)
   };
 }
 

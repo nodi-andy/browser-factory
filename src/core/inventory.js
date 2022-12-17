@@ -1,8 +1,5 @@
-if (typeof window === 'undefined') {
-  var c = require('../common.js')
-  const s = require('../../socket.js')
-  const e = require('./entity.js')
-}
+/* eslint-disable no-unmodified-loop-condition */
+import { Settings } from '../common.js'
 
 class Inventory {
   constructor (pos, entData) {
@@ -20,7 +17,7 @@ class Inventory {
   }
 
   moveItemTo (item, to, toStackname) {
-    if (to == undefined) return false
+    if (to === undefined) return false
     if (this.remItem(item)) {
       if (to.addItem(item, toStackname)) {
         return true
@@ -44,14 +41,14 @@ class Inventory {
 
   // use this.hasPlaceFor()
   addItem (newItem, stackName) {
-    if (newItem == undefined) return false
-    if (stackName == undefined) stackName = 'INV'
-    if (this.hasPlaceFor(newItem, stackName) == false) return false
-    if (this.stacksize == undefined) this.stacksize = 1
+    if (newItem === undefined) return false
+    if (stackName === undefined) stackName = 'INV'
+    if (this.hasPlaceFor(newItem, stackName) === false) return false
+    if (this.stacksize === undefined) this.stacksize = 1
 
-    if (this.stack[stackName] == undefined) {
+    if (this.stack[stackName] === undefined) {
       if (this.getFilledStackSize() < this.stacksize) {
-        if (this.packsize[stackName] == 1) { this.stack[stackName] = {} } else { this.stack[stackName] = [] }
+        if (this.packsize[stackName] === 1) { this.stack[stackName] = {} } else { this.stack[stackName] = [] }
       } else return false
     }
 
@@ -60,16 +57,16 @@ class Inventory {
     for (let iPack = 0; iPack < this.packsize[key]; iPack++) {
       let pack = this.stack[key]
       if (Array.isArray(pack)) pack = pack[iPack]
-      if (pack == undefined) {
+      if (pack === undefined) {
         pack = { id: newItem.id, n: 1 }
         this.stack[key].push(pack)
         return true
-      } else if (pack.id == undefined) {
-        if (pack.reserved == true) return false
+      } else if (pack.id === undefined) {
+        if (pack.reserved === true) return false
         pack = { id: newItem.id, n: 1 }
         this.stack[key] = pack
         return true
-      } else if (pack.id == newItem.id && pack.n + newItem.n <= this.itemsize) {
+      } else if (pack.id === newItem.id && pack.n + newItem.n <= this.itemsize) {
         pack.n += newItem.n
         return true
       }
@@ -79,22 +76,22 @@ class Inventory {
   }
 
   hasPlaceFor (newItem, stackName) {
-    if (newItem == undefined) return false
-    if (stackName == undefined) stackName = 'INV'
-    if (this.stacksize == undefined) this.stacksize = 1
+    if (newItem === undefined) return false
+    if (stackName === undefined) stackName = 'INV'
+    if (this.stacksize === undefined) this.stacksize = 1
 
-    if (this.stack[stackName] == undefined) {
+    if (this.stack[stackName] === undefined) {
       if (this.getFilledStackSize() >= this.stacksize) return false
     }
 
-    if (this.stack[stackName]?.full == true) return false
+    if (this.stack[stackName]?.full === true) return false
 
     const key = stackName
     for (let iPack = 0; iPack < this.packsize[key]; iPack++) {
       let pack = this.stack[key]
       if (Array.isArray(pack)) pack = pack[iPack]
-      if (pack?.id == undefined) return true
-      if (pack.id == newItem.id) {
+      if (pack?.id === undefined) return true
+      if (pack.id === newItem.id) {
         if (pack.n + newItem.n <= this.itemsize) {
           return true
         }
@@ -112,14 +109,14 @@ class Inventory {
   }
 
   remItemFromStack (removingItem, stackName) {
-    if (Array.isArray(this.stack[stackName]) == false) {
+    if (Array.isArray(this.stack[stackName]) === false) {
       const pack = this.stack[stackName]
-      if (pack && pack.id == removingItem.id) {
+      if (pack && pack.id === removingItem.id) {
         const n = pack.n - removingItem.n
         if (n > 0) {
           pack.n = n
           return true
-        } else if (n == 0) {
+        } else if (n === 0) {
           delete this.stack[stackName]
           return true
         } else return false
@@ -127,12 +124,12 @@ class Inventory {
     } else {
       for (let iPack = 0; iPack < this.packsize[stackName] && removingItem; iPack++) {
         const pack = this.stack[stackName][iPack]
-        if (pack && pack.id == removingItem.id) { // Find the pack
+        if (pack && pack.id === removingItem.id) { // Find the pack
           const n = pack.n - removingItem.n
           if (n > 0) {
             pack.n = n
             return true
-          } else if (n == 0) {
+          } else if (n === 0) {
             this.stack[stackName].splice(iPack, 1) // Remove empty pack
             iPack--
             return true
@@ -143,9 +140,9 @@ class Inventory {
   }
 
   remItem (removingItem, prefStackName) {
-    if (removingItem == undefined) return false
+    if (removingItem === undefined) return false
 
-    if (this.stack[prefStackName] == undefined || this.remItemFromStack(removingItem, prefStackName) == false) {
+    if (this.stack[prefStackName] === undefined || this.remItemFromStack(removingItem, prefStackName) === false) {
       const keys = Object.keys(this.stack)
       for (let iStack = 0; iStack < keys.length; iStack++) {
         if (this.remItemFromStack(removingItem, keys[iStack])) {
@@ -192,12 +189,12 @@ class Inventory {
       if (Array.isArray(this.stack[key])) {
         for (let iPack = 0; iPack < this.stack[key].length && searchItem; iPack++) {
           const pack = this.stack[key][iPack]
-          if (pack && pack.id == searchItem.id) { // Find the pack
+          if (pack && pack.id === searchItem.id) { // Find the pack
             return (pack.n >= searchItem.n)
           }
         }
       } else {
-        if (this.stack[key] && this.stack[key]?.id == searchItem.id) { // Find the pack
+        if (this.stack[key] && this.stack[key]?.id === searchItem.id) { // Find the pack
           return (this.stack[key].n >= 0)
         }
       }
@@ -235,7 +232,7 @@ class Inventory {
         }
       }
     }
-    if (selectedKey == undefined) return
+    if (selectedKey === undefined) return
     let pack = this.stack[selectedKey]
     if (Array.isArray(pack)) pack = pack[0]
     return pack
@@ -252,14 +249,14 @@ class Inventory {
 }
 
 function getNumberOfItems (ent, type) {
-  if (ent == undefined || ent.stack == undefined) return
+  if (ent === undefined || ent.stack === undefined) return
   let n = 0
   const keys = Object.keys(ent.stack)
   for (let iStack = 0; iStack < keys.length; iStack++) {
     const key = keys[iStack]
     for (let iPack = 0; iPack < ent.packsize[key]; iPack++) {
       const pack = ent.stack[key][iPack]
-      if (pack && pack.id == type) {
+      if (pack && pack.id === type) {
         n += pack.n
       }
     }
@@ -269,11 +266,11 @@ function getNumberOfItems (ent, type) {
 
 function mineToInv (minedItem) {
   const newItem = {}
-  newItem.id = resName[minedItem.id].becomes
+  newItem.id = Settings.resName[minedItem.id].becomes
   newItem.n = 1
-  c.game.map[minedItem.source.x][minedItem.source.y][layers.res].n--
-  c.allInvs[c.playerID].addItem(newItem)
-  view.updateInventoryMenu(c.player)
+  Settings.game.map[minedItem.source.x][minedItem.source.y][Settings.layers.res].n--
+  Settings.allInvs[Settings.playerID].addItem(newItem)
+  window.view.updateInventoryMenu(Settings.player)
 }
 
 function craftToInv (inv, items) {
@@ -286,39 +283,39 @@ function craftToInv (inv, items) {
     }
     if (itemsExist) {
       const newItem = { id: item.id, n: 1 }
-      c.player.addItem(newItem)
+      Settings.player.addItem(newItem)
       inv.remItems(item.cost)
-      view.updateInventoryMenu(c.player)
+      window.view.updateInventoryMenu(Settings.player)
     }
     return itemsExist
   })
 }
 
 function getInv (x, y, create = false) {
-  const tile = c.game.map[x][y]
-  if (tile[c.layers.inv] == undefined && create) createInvOnMap(x, y)
-  return c.allInvs[tile[c.layers.inv]]
+  const tile = Settings.game.map[x][y]
+  if (tile[Settings.layers.inv] === undefined && create) createInvOnMap(x, y)
+  return Settings.allInvs[tile[Settings.layers.inv]]
 }
 
 function setInv (x, y, invID) {
-  const tile = c.game.map[x][y]
-  tile[c.layers.inv] = invID
+  const tile = Settings.game.map[x][y]
+  tile[Settings.layers.inv] = invID
 }
 
 function setEnt (x, y, invID) {
-  const tile = c.game.map[x][y]
-  tile[c.layers.buildings] = invID
+  const tile = Settings.game.map[x][y]
+  tile[Settings.layers.buildings] = invID
 }
 
 function createInvOnMap (x, y) {
-  let invID = c.game.map[x][y][c.layers.inv]
-  if (invID == undefined) {
-    inv = new Inventory({ x, y })
+  let invID = Settings.game.map[x][y][Settings.layers.inv]
+  if (invID === undefined) {
+    const inv = new Inventory({ x, y })
 
-    c.allInvs.push(inv)
-    inv.id = c.allInvs.length - 1
+    Settings.allInvs.push(inv)
+    inv.id = Settings.allInvs.length - 1
 
-    c.game.map[x][y][c.layers.inv] = inv.id
+    Settings.game.map[x][y][Settings.layers.inv] = inv.id
     inv.type = 'empty'
     invID = inv.id
   }
@@ -326,35 +323,35 @@ function createInvOnMap (x, y) {
 }
 
 function createInv (type, newEntity) {
-  newEntity.id = c.allInvs.length
-  c.allInvs.push(new resName[type].mach(newEntity.pos, newEntity))
-  return c.allInvs.length - 1
+  newEntity.id = Settings.allInvs.length
+  Settings.allInvs.push(new Settings.resName[type].Mach(newEntity.pos, newEntity))
+  return Settings.allInvs.length - 1
 }
 
 function addInventory (newEntity, updateDir) {
   if (!newEntity) return
   let inv = getInv(newEntity.pos.x, newEntity.pos.y)
-  if (inv == undefined || inv.type == 'empty') {
-    if (c.pointer.item.n > 0) {
+  if (inv === undefined || inv.type === 'empty') {
+    if (Settings.pointer.item.n > 0) {
       const invID = createInv(newEntity.type, newEntity)
-      inv = c.allInvs[invID]
+      inv = Settings.allInvs[invID]
       inv.id = invID
       inv.pos = { x: newEntity.pos.x, y: newEntity.pos.y }
       inv.dir = newEntity.dir
       inv.type = newEntity.type
-      c.game.map[newEntity.pos.x][newEntity.pos.y][c.layers.inv] = inv.id
+      Settings.game.map[newEntity.pos.x][newEntity.pos.y][Settings.layers.inv] = inv.id
       if (inv?.updateNB) inv.updateNB()
-      if (typeof window !== 'undefined') view.updateInventoryMenu(c.player)
-      c.pointer.item.n--
-      if (c.pointer.item.n == 0) c.pointer.item = undefined
+      if (typeof window !== 'undefined') window.view.updateInventoryMenu(Settings.player)
+      Settings.pointer.item.n--
+      if (Settings.pointer.item.n === 0) Settings.pointer.item = undefined
     }
-    if (c.isBrowser) {
-      if (c.resName[newEntity.type].mach && c.resName[newEntity.type].mach.setup) c.resName[newEntity.type].mach.setup(c.game.map, inv)
+    if (Settings.isBrowser) {
+      if (Settings.resName[newEntity.type].Mach && Settings.resName[newEntity.type].Mach.setup) Settings.resName[newEntity.type].Mach.setup(Settings.game.map, inv)
     }
   }
 
   // Update Neighbours
-  for (const nbV of c.nbVec) {
+  for (const nbV of Settings.nbVec) {
     const nb = getInv(newEntity.pos.x + nbV.x, newEntity.pos.y + nbV.y)
     if (nb?.updateNB) nb.updateNB()
   }
@@ -364,38 +361,28 @@ function addInventory (newEntity, updateDir) {
 
 function addItem (newItem) {
   let inv
-  const invID = c.game.map[newItem.pos.x][newItem.pos.y][c.layers.inv]
-  if (invID == undefined) {
+  const invID = Settings.game.map[newItem.pos.x][newItem.pos.y][Settings.layers.inv]
+  if (invID === undefined) {
     inv = new Inventory(newItem.pos)
-    c.allInvs.push(inv)
-    inv.id = c.allInvs.length - 1
-    c.game.map[newItem.pos.x][newItem.pos.y][c.layers.inv] = inv.id
+    Settings.allInvs.push(inv)
+    inv.id = Settings.allInvs.length - 1
+    Settings.game.map[newItem.pos.x][newItem.pos.y][Settings.layers.inv] = inv.id
     inv.type = 'empty'
-  } else inv = inv = c.allInvs[invID]
+  } else inv = inv = Settings.allInvs[invID]
   inv.addItem({ id: newItem.inv.item.id, n: 1 })
-  /* s.sendAll(JSON.stringify({msg:"updateInv", data:c.allInvs}));
-  s.sendAll(JSON.stringify({msg: "updateMapData", data:c.game.map})); */
+  /* s.sendAll(JSON.stringify({msg:"updateInv", data:Settings.allInvs}));
+  s.sendAll(JSON.stringify({msg: "updateMapData", data:Settings.game.map})); */
 }
 
 function moveStack (data) {
-  if (data.fromInvID == data.toInvID && data.fromInvKey == data.toInvKey && data.fromStackPos == data.toStackPos) return
-  const from = c.allInvs[data.fromInvID].stack[data.fromInvKey][data.fromStackPos]
-  c.allInvs[data.toInvID].stack[data.toInvKey][data.toStackPos] = from
-  c.allInvs[data.fromInvID].stack[data.fromInvKey][data.fromStackPos] = undefined
-  // s.sendAll(JSON.stringify({msg:"updateInv", data:c.allInvs}));
-  if (data.fromInvID == 0 || data.toInvID == 0) c.player.setInventory(c.allInvs[0])
-  if (data.fromInvID == c.selEntity?.id || data.toInvID == c.selEntity?.id) view.updateInventoryMenu(c.selEntity)
+  if (data.fromInvID === data.toInvID && data.fromInvKey === data.toInvKey && data.fromStackPos === data.toStackPos) return
+  const from = Settings.allInvs[data.fromInvID].stack[data.fromInvKey][data.fromStackPos]
+  Settings.allInvs[data.toInvID].stack[data.toInvKey][data.toStackPos] = from
+  Settings.allInvs[data.fromInvID].stack[data.fromInvKey][data.fromStackPos] = undefined
+  // s.sendAll(JSON.stringify({msg:"updateInv", data:Settings.allInvs}));
+  if (data.fromInvID === 0 || data.toInvID === 0) Settings.player.setInventory(Settings.allInvs[0])
+  if (data.fromInvID === Settings.selEntity?.id || data.toInvID === Settings.selEntity?.id) window.view.updateInventoryMenu(Settings.selEntity)
 }
-
-if (exports == undefined) var exports = {}
-exports.Inventory = Inventory
-exports.getInv = getInv
-exports.setInv = setInv
-exports.setEnt = setEnt
-exports.addItem = addItem
-exports.moveStack = moveStack
-exports.craftToInv = craftToInv
-exports.createInv = createInv
 
 const invfuncs = {}
 invfuncs.Inventory = Inventory
@@ -403,4 +390,11 @@ invfuncs.getInv = getInv
 invfuncs.setInv = setInv
 invfuncs.setEnt = setEnt
 invfuncs.createInv = createInv
-const inventory = invfuncs
+invfuncs.mineToInv = mineToInv
+invfuncs.moveStack = moveStack
+invfuncs.addItem = addItem
+invfuncs.addInventory = addInventory
+invfuncs.getNumberOfItems = getNumberOfItems
+invfuncs.craftToInv = craftToInv
+
+export { Inventory, invfuncs }

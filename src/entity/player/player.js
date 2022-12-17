@@ -1,12 +1,11 @@
-if (typeof window === 'undefined') {
-  var c = require('../../common.js')
-}
+import { Settings, worldToTile, toUnitV } from '../../common.js'
+import { Inventory, invfuncs } from '../../core/inventory.js'
 
 class Player extends Inventory {
   constructor (pos, data) {
-    if (data == undefined) {
+    if (data === undefined) {
       data = {
-        tilePos: { x: c.gridSize.x / 2, y: c.gridSize.y / 2 },
+        tilePos: { x: Settings.gridSize.x / 2, y: Settings.gridSize.y / 2 },
         pos,
         stack: {}
       }
@@ -16,86 +15,85 @@ class Player extends Inventory {
     this.tilePos = data.tilePos
     this.pos = data.pos
     this.stack = data.stack
-    //this.view = view
     this.setup()
   }
 
   setup (map, inv) {
-    //this.view.updateCraftingMenu()
-    if (this.tilePos == undefined) this.tilePos = { x: c.gridSize.x / 2, y: c.gridSize.y / 2 }
-    this.pos = { x: this.tilePos.x * c.tileSize, y: this.tilePos.y * c.tileSize }
+    window.view.updateCraftingMenu()
+    if (this.tilePos === undefined) this.tilePos = { x: Settings.gridSize.x / 2, y: Settings.gridSize.y / 2 }
+    this.pos = { x: this.tilePos.x * Settings.tileSize, y: this.tilePos.y * Settings.tileSize }
     this.dir = { x: 0, y: 0 }
     this.live = 100
     this.nextPos = { x: 0, y: 0 }
-    this.type = c.resID.player
+    this.type = Settings.resID.player
     this.movable = true
 
     this.ss = { x: 0, y: 0 }
-    if (this.stack?.INV == undefined) this.stack.INV = []
+    if (this.stack?.INV === undefined) this.stack.INV = []
     this.stacksize = 1
     this.packsize = {}
     this.packsize.INV = 64
     this.itemsize = 1000
     this.workInterval = undefined
     this.workProgress = 0
-    this.miningProgress
+    this.miningProgress = 0
 
-    if (this.stack.INV.length == 0 && DEV) this.addResources()
-    //this.view.updateInventoryMenu(this)
+    if (this.stack.INV.length === 0 && Settings.DEV) this.addResources()
+    window.view.updateInventoryMenu(this)
   }
 
   update (map, ent) {
     ent.tilePos = worldToTile({ x: ent.pos.x, y: ent.pos.y })
     while (this.checkCollision(ent.tilePos)) {
       ent.tilePos.x++
-      ent.pos = { x: ent.tilePos.x * c.tileSize, y: ent.tilePos.y * c.tileSize }
+      ent.pos = { x: ent.tilePos.x * Settings.tileSize, y: ent.tilePos.y * Settings.tileSize }
     }
 
-    if (c.game.map == undefined) return
+    if (Settings.game.map === undefined) return
     ent.unitdir = toUnitV(ent.dir)
     const entTile = worldToTile({ x: ent.pos.x, y: ent.pos.y })
 
-    const entMap = inventory.getInv(entTile.x, entTile.y)
-    if (entMap?.type == c.resDB.belt1.id) {
-      ent.pos.x += dirToVec[entMap.dir].x * 2
-      ent.pos.y += dirToVec[entMap.dir].y * 2
+    const entMap = invfuncs.getInv(entTile.x, entTile.y)
+    if (entMap?.type === Settings.resDB.belt1.id) {
+      ent.pos.x += Settings.dirToVec[entMap.dir].x * 2
+      ent.pos.y += Settings.dirToVec[entMap.dir].y * 2
     }
 
     ent.nextPos.x = ent.pos.x + 5 * ent.unitdir.x
     const nextXTile = worldToTile({ x: ent.nextPos.x, y: ent.pos.y })
-    if (nextXTile.x > 0 && nextXTile.x < gridSize.x - 1 && this.checkCollision({ x: nextXTile.x, y: entTile.y }) == false) ent.pos.x = ent.nextPos.x
+    if (nextXTile.x > 0 && nextXTile.x < Settings.gridSize.x - 1 && this.checkCollision({ x: nextXTile.x, y: entTile.y }) === false) ent.pos.x = ent.nextPos.x
 
     ent.nextPos.y = ent.pos.y + 5 * ent.unitdir.y
     const nextYTile = worldToTile({ x: ent.pos.x, y: ent.nextPos.y })
-    if (nextYTile.y > 0 && nextYTile.y < gridSize.y - 1 && this.checkCollision({ x: entTile.x, y: nextYTile.y }) == false) ent.pos.y = ent.nextPos.y
+    if (nextYTile.y > 0 && nextYTile.y < Settings.gridSize.y - 1 && this.checkCollision({ x: entTile.x, y: nextYTile.y }) === false) ent.pos.y = ent.nextPos.y
 
     if (ent.dir.x < 0) ent.ss.x--; else ent.ss.x++
 
-    if (ent.dir.y == -1 && ent.dir.x == -1) ent.ss.y = 5
-    if (ent.dir.y == -1 && ent.dir.x == 0) ent.ss.y = 0
-    if (ent.dir.y == -1 && ent.dir.x == 1) ent.ss.y = 1
-    if (ent.dir.y == 0 && ent.dir.x == -1) ent.ss.y = 6
-    if (ent.dir.y == 0 && ent.dir.x == 1) ent.ss.y = 2
-    if (ent.dir.y == 1 && ent.dir.x == -1) ent.ss.y = 7
-    if (ent.dir.y == 1 && ent.dir.x == 0) ent.ss.y = 4
-    if (ent.dir.y == 1 && ent.dir.x == 1) ent.ss.y = 3
+    if (ent.dir.y === -1 && ent.dir.x === -1) ent.ss.y = 5
+    if (ent.dir.y === -1 && ent.dir.x === 0) ent.ss.y = 0
+    if (ent.dir.y === -1 && ent.dir.x === 1) ent.ss.y = 1
+    if (ent.dir.y === 0 && ent.dir.x === -1) ent.ss.y = 6
+    if (ent.dir.y === 0 && ent.dir.x === 1) ent.ss.y = 2
+    if (ent.dir.y === 1 && ent.dir.x === -1) ent.ss.y = 7
+    if (ent.dir.y === 1 && ent.dir.x === 0) ent.ss.y = 4
+    if (ent.dir.y === 1 && ent.dir.x === 1) ent.ss.y = 3
 
     ent.ss.x += 30
     ent.ss.x %= 30
-    if (ent.dir.x == 0 && ent.dir.y == 0) ent.ss.x = 5
+    if (ent.dir.x === 0 && ent.dir.y === 0) ent.ss.x = 5
 
-    if (ent.pos && ent.id == c.playerID) {
+    if (ent.pos && ent.id === Settings.playerID) {
       const myMid = {}
       myMid.x = ent.pos.x
       myMid.y = ent.pos.y - 66
-      //this.view.setCamOn(myMid)
-      if (ent.dir.x != 0 || ent.dir.y != 0) {
+      window.view.setCamOn(myMid)
+      if (ent.dir.x !== 0 || ent.dir.y !== 0) {
         ent.needUpdate = true
       } else {
-        wssend(JSON.stringify({ cmd: 'updateEntity', data: { id: c.playerID, ent: c.allInvs[c.playerID] } }))
+        // wssend(JSON.stringify({ cmd: 'updateEntity', data: { id: Settings.playerID, ent: Settings.allInvs[Settings.playerID] } }))
         ent.needUpdate = false
       }
-      if (ent.needUpdate) wssend(JSON.stringify({ cmd: 'updateEntity', data: { id: c.playerID, ent: c.allInvs[c.playerID] } }))
+      // if (ent.needUpdate) wssend(JSON.stringify({ cmd: 'updateEntity', data: { id: Settings.playerID, ent: Settings.allInvs[Settings.playerID] } }))
     }
 
     // console.log(ent.pos, entTile);
@@ -104,7 +102,7 @@ class Player extends Inventory {
   draw (ctx, ent) {
     ctx.save()
     ctx.translate(ent.pos.x, ent.pos.y)
-    ctx.drawImage(c.resDB.player.img, ent.ss.x * 96, ent.ss.y * 132, 96, 132, -48, -100, 96, 132)
+    ctx.drawImage(Settings.resDB.player.img, ent.ss.x * 96, ent.ss.y * 132, 96, 132, -48, -100, 96, 132)
     ctx.beginPath()
     ctx.fillStyle = 'red'
     ctx.fillRect(-25, -120, 50, 10)
@@ -117,48 +115,48 @@ class Player extends Inventory {
 
   fetch () {
     if (this.tilePos !== undefined) {
-      this.fetchTile(this.tilePos.x - 1, this.tilePos.y - 1);
-      this.fetchTile(this.tilePos.x + 0, this.tilePos.y - 1);
-      this.fetchTile(this.tilePos.x + 1, this.tilePos.y - 1);
-      this.fetchTile(this.tilePos.x - 1, this.tilePos.y);
-      this.fetchTile(this.tilePos.x + 0, this.tilePos.y);
-      this.fetchTile(this.tilePos.x + 1, this.tilePos.y);
-      this.fetchTile(this.tilePos.x - 1, this.tilePos.y + 1);
-      this.fetchTile(this.tilePos.x + 0, this.tilePos.y + 1);
-      this.fetchTile(this.tilePos.x + 1, this.tilePos.y + 1);
+      this.fetchTile(this.tilePos.x - 1, this.tilePos.y - 1)
+      this.fetchTile(this.tilePos.x + 0, this.tilePos.y - 1)
+      this.fetchTile(this.tilePos.x + 1, this.tilePos.y - 1)
+      this.fetchTile(this.tilePos.x - 1, this.tilePos.y)
+      this.fetchTile(this.tilePos.x + 0, this.tilePos.y)
+      this.fetchTile(this.tilePos.x + 1, this.tilePos.y)
+      this.fetchTile(this.tilePos.x - 1, this.tilePos.y + 1)
+      this.fetchTile(this.tilePos.x + 0, this.tilePos.y + 1)
+      this.fetchTile(this.tilePos.x + 1, this.tilePos.y + 1)
     }
   }
 
-  fetchTile(x, y) {
-    const e = inventory.getInv(x, y);
-    if (e?.type === c.resDB.empty.type || e?.type === c.resDB.belt1.id) {
-      const pickedItem = e.getFirstItem();
+  fetchTile (x, y) {
+    const e = invfuncs.getInv(x, y)
+    if (e?.type === Settings.resDB.empty.type || e?.type === Settings.resDB.belt1.id) {
+      const pickedItem = e.getFirstItem()
       e.moveItemTo(pickedItem, this)
-      if (pickedItem?.reserved === true) pickedItem.reserved = false;
+      if (pickedItem?.reserved === true) pickedItem.reserved = false
     }
   }
 
   setDir (dir) {
-    if (dir.y) c.allInvs[c.playerID].dir.y = dir.y
+    if (dir.y) Settings.allInvs[Settings.playerID].dir.y = dir.y
   }
 
   checkCollision (pos) {
-    if (c.game.map === undefined) return
-    const terrain = c.game.map[pos.x][pos.y][layers.terrain][0]
-    const building = c.game.map[pos.x][pos.y][layers.inv]
+    if (Settings.game.map === undefined) return
+    const terrain = Settings.game.map[pos.x][pos.y][Settings.layers.terrain][0]
+    const building = Settings.game.map[pos.x][pos.y][Settings.layers.inv]
     let canWalkOn = true
     if (building) {
-      canWalkOn == false
-      if (resName[c.allInvs[building]?.type]) canWalkOn = resName[c.allInvs[building].type].playerCanWalkOn
+      canWalkOn = false
+      if (Settings.resName[Settings.allInvs[building]?.type]) canWalkOn = Settings.resName[Settings.allInvs[building].type].playerCanWalkOn
     }
 
-    return (terrain == resID.deepsea || terrain == resID.sea || terrain == resID.hills || !canWalkOn)
+    return (terrain === Settings.resID.deepsea || terrain === Settings.resID.sea || terrain === Settings.resID.hills || !canWalkOn)
   }
 
   startMining (tileCoordinate, ent) {
     this.workInterval = setInterval(function () {
-      const res = c.game.map[tileCoordinate.x][tileCoordinate.y][layers.res]
-      mineToInv({ source: tileCoordinate, id: res.id, n: 1 })
+      const res = Settings.game.map[tileCoordinate.x][tileCoordinate.y][Settings.layers.res]
+      invfuncs.mineToInv({ source: tileCoordinate, id: res.id, n: 1 })
     }, 1000)
     this.miningProgress = setInterval(function () { ent.workProgress += 10; ent.workProgress %= 100 }, 100)
   }
@@ -170,84 +168,86 @@ class Player extends Inventory {
   }
 
   setInventory (newInv, newID) {
-    c.allInvs[this.invID].stack = JSON.parse(JSON.stringify(newInv.stack))
-    c.allInvs[this.invID].packsize = newInv.packsize
-    c.allInvs[this.invID].itemsize = newInv.itemsize
+    Settings.allInvs[this.invID].stack = JSON.parse(JSON.stringify(newInv.stack))
+    Settings.allInvs[this.invID].packsize = newInv.packsize
+    Settings.allInvs[this.invID].itemsize = newInv.itemsize
 
-    const currentID = c.allInvs[this.invID].id
-    if (newInv.id != undefined) { this.invID = newInv.id; c.allInvs[this.invID].id = newID } else if (newID != undefined) { this.invID = newID; c.allInvs[this.invID].id = newID }
+    const currentID = Settings.allInvs[this.invID].id
+    if (newInv.id !== undefined) {
+      this.invID = newInv.id; Settings.allInvs[this.invID].id = newID
+    } else if (newID !== undefined) { this.invID = newID; Settings.allInvs[this.invID].id = newID }
 
-    if (c.allInvs[this.invID].id == undefined) c.allInvs[this.invID].id = currentID
-    this.inv = c.allInvs[this.invID]
-    //if (typeof window !== 'undefined') this.view.updateInventoryMenu(this.inv)
+    if (Settings.allInvs[this.invID].id === undefined) Settings.allInvs[this.invID].id = currentID
+    this.inv = Settings.allInvs[this.invID]
+    window.view.updateInventoryMenu(this.inv)
   }
 
   setInventoryID (newID) {
     this.invID = newID
-    this.inv = c.allInvs[this.invID]
-    //if (typeof window !== 'undefined') this.view.updateInventoryMenu(this.inv)
+    this.inv = Settings.allInvs[this.invID]
+    window.view.updateInventoryMenu(this.inv)
   }
 
   addResources () {
-    this.stack.INV.push({ id: c.resDB.stone.id, n: 100 })
-    this.stack.INV.push({ id: c.resDB.iron.id, n: 100 })
-    this.stack.INV.push({ id: c.resDB.copper.id, n: 100 })
-    this.stack.INV.push({ id: c.resDB.raw_wood.id, n: 100 })
-    this.stack.INV.push({ id: c.resDB.coal.id, n: 50 })
-    this.stack.INV.push({ id: c.resDB.chest.id, n: 50 })
-    this.stack.INV.push({ id: c.resDB.assembling_machine_1.id, n: 50 })
-    this.stack.INV.push({ id: c.resDB.inserter_burner.id, n: 50 })
-    this.stack.INV.push({ id: c.resDB.iron_plate.id, n: 1000 })
-    this.stack.INV.push({ id: c.resDB.belt1.id, n: 1000 })
+    this.stack.INV.push({ id: Settings.resDB.stone.id, n: 100 })
+    this.stack.INV.push({ id: Settings.resDB.iron.id, n: 100 })
+    this.stack.INV.push({ id: Settings.resDB.copper.id, n: 100 })
+    this.stack.INV.push({ id: Settings.resDB.raw_wood.id, n: 100 })
+    this.stack.INV.push({ id: Settings.resDB.coal.id, n: 50 })
+    this.stack.INV.push({ id: Settings.resDB.chest.id, n: 50 })
+    this.stack.INV.push({ id: Settings.resDB.assembling_machine_1.id, n: 50 })
+    this.stack.INV.push({ id: Settings.resDB.inserter_burner.id, n: 50 })
+    this.stack.INV.push({ id: Settings.resDB.iron_plate.id, n: 1000 })
+    this.stack.INV.push({ id: Settings.resDB.belt1.id, n: 1000 })
   }
 }
 
-db = c.resDB.player
+const db = Settings.resDB.player
 db.mach = Player
 db.output = [
-  c.resDB.wood,
-  c.resDB.wooden_stick,
-  c.resDB.sharp_stone,
-  c.resDB.iron_stick,
-  c.resDB.gear,
-  c.resDB.hydraulic_piston,
-  c.resDB.copper_cable,
-  c.resDB.circuit,
-  c.resDB.stone_axe,
-  c.resDB.iron_axe,
-  c.resDB.gun,
-  c.resDB.rocket_launcher,
-  c.resDB.bullet,
-  c.resDB.rocket,
-  c.resDB.weak_armor,
-  c.resDB.strong_armor,
-  c.resDB.chest,
-  c.resDB.iron_chest,
-  c.resDB.stone_furnace,
-  c.resDB.burner_miner,
-  c.resDB.e_miner,
-  c.resDB.belt1,
-  c.resDB.belt2,
-  c.resDB.belt3,
-  c.resDB.inserter_burner,
-  c.resDB.inserter_short,
-  c.resDB.inserter,
-  c.resDB.inserter_long,
-  c.resDB.inserter_smart,
-  c.resDB.assembling_machine_1,
-  c.resDB.assembling_machine_2,
-  c.resDB.assembling_machine_3,
-  c.resDB.assembling_machine_4,
-  c.resDB.pump,
-  c.resDB.pipe,
-  c.resDB.boiler,
-  c.resDB.generator,
-  c.resDB.pole,
-  c.resDB.locomotive,
-  c.resDB.rail,
-  c.resDB.rail_curved,
-  c.resDB.turret,
-  c.resDB.laser_turret,
-  c.resDB.car
+  Settings.resDB.wood,
+  Settings.resDB.wooden_stick,
+  Settings.resDB.sharp_stone,
+  Settings.resDB.iron_stick,
+  Settings.resDB.gear,
+  Settings.resDB.hydraulic_piston,
+  Settings.resDB.copper_cable,
+  Settings.resDB.circuit,
+  Settings.resDB.stone_axe,
+  Settings.resDB.iron_axe,
+  Settings.resDB.gun,
+  Settings.resDB.rocket_launcher,
+  Settings.resDB.bullet,
+  Settings.resDB.rocket,
+  Settings.resDB.weak_armor,
+  Settings.resDB.strong_armor,
+  Settings.resDB.chest,
+  Settings.resDB.iron_chest,
+  Settings.resDB.stone_furnace,
+  Settings.resDB.burner_miner,
+  Settings.resDB.e_miner,
+  Settings.resDB.belt1,
+  Settings.resDB.belt2,
+  Settings.resDB.belt3,
+  Settings.resDB.inserter_burner,
+  Settings.resDB.inserter_short,
+  Settings.resDB.inserter,
+  Settings.resDB.inserter_long,
+  Settings.resDB.inserter_smart,
+  Settings.resDB.assembling_machine_1,
+  Settings.resDB.assembling_machine_2,
+  Settings.resDB.assembling_machine_3,
+  Settings.resDB.assembling_machine_4,
+  Settings.resDB.pump,
+  Settings.resDB.pipe,
+  Settings.resDB.boiler,
+  Settings.resDB.generator,
+  Settings.resDB.pole,
+  Settings.resDB.locomotive,
+  Settings.resDB.rail,
+  Settings.resDB.rail_curved,
+  Settings.resDB.turret,
+  Settings.resDB.laser_turret,
+  Settings.resDB.car
 ]
-exports.Player = Player
+export { Player }
