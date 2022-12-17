@@ -16,11 +16,12 @@ class Player extends Inventory {
     this.tilePos = data.tilePos
     this.pos = data.pos
     this.stack = data.stack
+    //this.view = view
     this.setup()
   }
 
   setup (map, inv) {
-    view.updateCraftingMenu()
+    //this.view.updateCraftingMenu()
     if (this.tilePos == undefined) this.tilePos = { x: c.gridSize.x / 2, y: c.gridSize.y / 2 }
     this.pos = { x: this.tilePos.x * c.tileSize, y: this.tilePos.y * c.tileSize }
     this.dir = { x: 0, y: 0 }
@@ -40,7 +41,7 @@ class Player extends Inventory {
     this.miningProgress
 
     if (this.stack.INV.length == 0 && DEV) this.addResources()
-    view.updateInventoryMenu(this)
+    //this.view.updateInventoryMenu(this)
   }
 
   update (map, ent) {
@@ -87,7 +88,7 @@ class Player extends Inventory {
       const myMid = {}
       myMid.x = ent.pos.x
       myMid.y = ent.pos.y - 66
-      view.setCamOn(myMid)
+      //this.view.setCamOn(myMid)
       if (ent.dir.x != 0 || ent.dir.y != 0) {
         ent.needUpdate = true
       } else {
@@ -115,10 +116,23 @@ class Player extends Inventory {
   }
 
   fetch () {
-    if (this.tilePos === undefined) inv.tilePos = { x: c.gridSize.x / 2, y: c.gridSize.y / 2 }
-    const e = inventory.getInv(this.tilePos.x, this.tilePos.y)
+    if (this.tilePos !== undefined) {
+      this.fetchTile(this.tilePos.x - 1, this.tilePos.y - 1);
+      this.fetchTile(this.tilePos.x + 0, this.tilePos.y - 1);
+      this.fetchTile(this.tilePos.x + 1, this.tilePos.y - 1);
+      this.fetchTile(this.tilePos.x - 1, this.tilePos.y);
+      this.fetchTile(this.tilePos.x + 0, this.tilePos.y);
+      this.fetchTile(this.tilePos.x + 1, this.tilePos.y);
+      this.fetchTile(this.tilePos.x - 1, this.tilePos.y + 1);
+      this.fetchTile(this.tilePos.x + 0, this.tilePos.y + 1);
+      this.fetchTile(this.tilePos.x + 1, this.tilePos.y + 1);
+    }
+  }
+
+  fetchTile(x, y) {
+    const e = inventory.getInv(x, y);
     if (e?.type === c.resDB.empty.type || e?.type === c.resDB.belt1.id) {
-      const pickedItem = e.getFirstItem()
+      const pickedItem = e.getFirstItem();
       e.moveItemTo(pickedItem, this)
       if (pickedItem?.reserved === true) pickedItem.reserved = false;
     }
@@ -165,13 +179,13 @@ class Player extends Inventory {
 
     if (c.allInvs[this.invID].id == undefined) c.allInvs[this.invID].id = currentID
     this.inv = c.allInvs[this.invID]
-    if (typeof window !== 'undefined') view.updateInventoryMenu(this.inv)
+    //if (typeof window !== 'undefined') this.view.updateInventoryMenu(this.inv)
   }
 
   setInventoryID (newID) {
     this.invID = newID
     this.inv = c.allInvs[this.invID]
-    if (typeof window !== 'undefined') view.updateInventoryMenu(this.inv)
+    //if (typeof window !== 'undefined') this.view.updateInventoryMenu(this.inv)
   }
 
   addResources () {

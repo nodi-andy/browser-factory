@@ -2,13 +2,14 @@ const times = []
 let fps
 
 function render () {
-  const ctx = context
-  context.clearRect(0, 0, context.canvas.width, context.canvas.height)
-  context.resetTransform()
-  context.scale(view.camera.zoom, view.camera.zoom)
-  context.translate(view.camera.x, view.camera.y) // console.log(camera);
+  const ctx = window.context
+  if (ctx == undefined) return;
+  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+  ctx.resetTransform()
+  ctx.scale(window.view.camera.zoom, window.view.camera.zoom)
+  ctx.translate(window.view.camera.x, window.view.camera.y) // console.log(camera);
   // DRAW TERRAIN
-  context.drawImage(canvas.offScreenCanvas, 0, 0)
+  ctx.drawImage(canvas.offScreenCanvas, 0, 0)
 
   if (!c.game.map) return
 
@@ -17,8 +18,8 @@ function render () {
   const beltsToDraw = [] // list of belts to draw the items in second stage of drawing
   const entsToDraw = [] // all other items
   // scan all tiles in view
-  const minTile = view.screenToTile({ x: 0, y: 0 })
-  const maxTile = view.screenToTile({ x: context.canvas.width, y: context.canvas.height })
+  const minTile = window.view.screenToTile({ x: 0, y: 0 })
+  const maxTile = window.view.screenToTile({ x: ctx.canvas.width, y: ctx.canvas.height })
   for (let ay = minTile.y - 3; ay < Math.min(maxTile.y + 5, gridSize.y); ay++) {
     for (let ax = minTile.x - 3; ax < Math.min(maxTile.x + 2, gridSize.x); ax++) {
       if (ax < 0 || ay < 0) continue
@@ -36,12 +37,12 @@ function render () {
       const n = tile[layers.res].n
 
       if (type && resName[type].img && n) {
-        context.drawImage(resName[type].img, Math.min(Math.floor(n / 100), 6) * 64, 2, 60, 60, ax * tileSize, ay * tileSize, 64, 64)
+        ctx.drawImage(resName[type].img, Math.min(Math.floor(n / 100), 6) * 64, 2, 60, 60, ax * tileSize, ay * tileSize, 64, 64)
       }
 
       // ENTITY GROUNDS
-      context.save()
-      context.translate(ax * tileSize, ay * tileSize)
+      ctx.save()
+      ctx.translate(ax * tileSize, ay * tileSize)
 
       if (resName[ent?.type]?.img && ent.drawn == 0) {
         const type = resName[ent.type]

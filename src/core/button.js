@@ -112,3 +112,5 @@ class Button {
     if (c.selEntity) view.updateEntityMenu(c.selEntity, true)
   };
 }
+
+export { Button }

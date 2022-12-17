@@ -1,8 +1,4 @@
-let invMenu
-let craftMenu
-let entityMenu
-let receiptMenu
-let selectItemMenu
+import { Button } from './button.js'
 
 class ViewModule {
   constructor (windowElement) {
@@ -16,11 +12,11 @@ class ViewModule {
     this.scrollFactor = 0.0005
     this.zoomLimit = { min: 0.5, max: 2 }
 
-    invMenu = new Dialog()
-    craftMenu = new Dialog()
-    entityMenu = new Dialog()
-    receiptMenu = new Dialog()
-    selectItemMenu = new Dialog()
+    window.invMenu = new Dialog()
+    window.craftMenu = new Dialog()
+    window.entityMenu = new Dialog()
+    window.receiptMenu = new Dialog()
+    window.selectItemMenu = new Dialog()
 
     this.createInvMenu()
   }
@@ -250,3 +246,5 @@ class ViewModule {
     }
   }
 }
+
+export { ViewModule }

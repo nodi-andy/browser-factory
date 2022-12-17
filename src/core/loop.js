@@ -24,7 +24,7 @@ function gameLoop () {
   c.game.tick++
 
   // Autosave
-  if (c.game.tick % 1000 == 0) saveGame()
+  if (c.game.tick % 1000 === 0) window.saveGame()
 
   // belts excluded
   const belts = []

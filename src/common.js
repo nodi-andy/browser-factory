@@ -70,18 +70,18 @@ resDB["assembling_machine_1"]   = {name: "assembling machine 1"         , type: 
 resDB["assembling_machine_2"]   = {name: "assembling machine 2"         , type: "entity", lock: 1};
 resDB["assembling_machine_3"]   = {name: "assembling machine 3"         , type: "entity", lock: 1};
 resDB["assembling_machine_4"]   = {name: "assembling machine 4"         , type: "entity", lock: 1};
-resDB["pump"]                   = {name: "pump"                         , type: "entity", lock: !DEV};
-resDB["pipe"]                   = {name: "pipe"                         , type: "entity", lock: !DEV};
-resDB["u_pipe"]                 = {name: "u_pipe"                       , type: "entity", lock: 1};
-resDB["boiler"]                 = {name: "boiler"                       , type: "entity", lock: !DEV};
-resDB["generator"]              = {name: "generator"                    , type: "entity", lock: !DEV};
-resDB["pole"]                   = {name: "electrical pole"              , type: "entity", lock: !DEV};
+resDB["pump"]                   = {name: "pump"                         , type: "entity"};
+resDB["pipe"]                   = {name: "pipe"                         , type: "entity"};
+resDB["u_pipe"]                 = {name: "u_pipe"                       , type: "entity"};
+resDB["boiler"]                 = {name: "boiler"                       , type: "entity"};
+resDB["generator"]              = {name: "generator"                    , type: "entity"};
+resDB["pole"]                   = {name: "electrical pole"              , type: "entity"};
 resDB["locomotive"]             = {name: "locomotive"                   , type: "entity", lock: 1};
 resDB["rail"]                   = {name: "rail"                         , type: "entity", lock: 1};
 resDB["rail_curved"]            = {name: "rail_curved"                  , type: "entity", lock: 1};
 resDB["turret"]                 = {name: "turret"                       , type: "entity", lock: 1};
 resDB["laser_turret"]           = {name: "laser_turret"                 , type: "entity", lock: 1};
-resDB["car"]                    = {name: "car"                          , type: "entity", lock: 1};
+resDB["car"]                    = {name: "car"                          , type: "entity"};
 
 resDB["player"]                 = {name: "player"                       , type: "entity", P: 100};
 

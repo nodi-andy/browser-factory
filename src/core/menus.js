@@ -15,7 +15,7 @@ function drawSelectItemMenu (context) {
     context.font = '24px Arial'
     context.fillStyle = 'black'
     let resText = "";
-    if (c.selEntity.id && c.allInvs[c.selEntity.id]?.type) resText = resName[c.allInvs[c.selEntity.id].type].name;
+    if (c.selEntity.id && c.allInvs[c.selEntity.id]?.type) resText = resName[c.allInvs[c.selEntity.id].type]?.name;
     context.fillText(resText, entityMenu.rect.x + 16, entityMenu.rect.y + 32)
     const selInv = c.allInvs[c.selEntity.id]
     if (selInv) {

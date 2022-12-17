@@ -147,14 +147,16 @@ class Belt extends Inventory {
     }
 
   if (this.stack.R?.id) {
-      if(this.stack.RA?.id == undefined && this.stack.RA.reserved == false) {
+      if(this.stack.RA?.id == undefined && this.stack.RA?.reserved == false) {
           this.stack.RA.id = this.stack.R.id;
-      } else if (this.stack.RB?.id == undefined && this.stack.RB.reserved == false) {
+      } else if (this.stack.RB?.id == undefined && this.stack.RB?.reserved == false) {
           this.stack.RB.id = this.stack.R.id;
-      } else if (this.stack.RC?.id == undefined && this.stack.RC.reserved == false) {
+      } else if (this.stack.RC?.id == undefined && this.stack.RC?.reserved == false) {
           this.stack.RC.id = this.stack.R.id;
-      } else if (this.stack.RD?.id == undefined && this.stack.RD.reserved == false) {
+      } else if (this.stack.RD?.id == undefined && this.stack.RD?.reserved == false) {
           this.stack.RD.id = this.stack.R.id;
+      } else {
+        this.stack.RD = { id: this.stack.R.id, n: 1 }
       }
       delete this.stack.R.id;
   }

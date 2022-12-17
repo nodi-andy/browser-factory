@@ -17,13 +17,13 @@ class Pump extends Inventory {
         if (this.stack == undefined) this.stack = {};
         this.packsize = {};
         this.packsize.OUTPUT = 1;
-        this.mapsize = {x: c.resDB.generator.size[0], y: c.resDB.generator.size[1]};
+        /*this.mapsize = {x: c.resDB.generator.size[0], y: c.resDB.generator.size[1]};
         if (this.dir == 1 || this.dir == 3) this.mapsize = {x: c.resDB.generator.size[1], y: c.resDB.generator.size[0]};
         for(let i = 0; i < this.mapsize.x; i++) {
             for(let j = 0; j < this.mapsize.y; j++) {
                 inventory.setInv(this.pos.x + i, this.pos. y + j, this.id);
             }
-        }
+        }*/
     }
 
 

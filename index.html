@@ -129,11 +129,11 @@
 <script type="text/javascript" src ="src/core/socket.js"></script>
 <script type="text/javascript" src ="src/core/loop.js"></script>
 
-<script type="text/javascript" src ="src/core/button.js"></script>
+<script type="module" src ="src/core/button.js"></script>
 <script type="text/javascript" src ="src/core/input.js"></script>
 <script type="text/javascript" src ="src/core/menus.js"></script>
 <script type="text/javascript" src ="src/core/render.js"></script>
-<script type="text/javascript" src ="src/core/view.js"></script>
+<script type="module" src ="src/core/view.js"></script>
 <script type="text/javascript" src ="src/entity/player/player.js"></script>
 
 <script type="text/javascript" src ="src/entity/chest/chest.js"></script>
@@ -150,13 +150,13 @@
 <script type="text/javascript" src ="src/entity/pole/pole.js"></script>
 <script type="text/javascript" src ="src/entity/e_miner/e_miner.js"></script>
 
-<script type="text/javascript">
-
+<script type="module">
+    import { ViewModule } from './src/core/view.js'
     let curGame = window.localStorage.getItem("curGame");
     if (curGame == undefined) window.localStorage.setItem("curGame", "unnamed_0");
 
     canvas = document.getElementById("myCanvas");
-    let context = canvas.getContext("2d");
+    window.context = canvas.getContext("2d");
     canvas.width  = window.innerWidth;
     canvas.height = window.innerHeight;
     canvas.offScreenCanvas = document.createElement('canvas');
@@ -166,7 +166,7 @@
     let htmlList = document.getElementById("savedGameList");
 
     let inp = new InputModule (context.canvas);
-    let view = new ViewModule (window);
+    window.view = new ViewModule (window);
 
     function updateNextGameID() {
         let gamesList = Object.values(Object.keys(window.localStorage));
@@ -182,7 +182,7 @@
     function updateGameMenu() {
         let gamesList = Object.values(Object.keys(window.localStorage));
         htmlList.innerHTML = "";
-        for(gameID in gamesList) {
+        for(let gameID in gamesList) {
             if (gamesList[gameID] == "curGame") continue;
             let gameDiv = document.createElement("div");
             gameDiv.id = gamesList[gameID];
@@ -306,10 +306,11 @@
     function newGame(name = "unnamed_0") {
         c.game = createWorld(gridSize.x, gridSize.y);
         c.playerID = 0;
-        c.allInvs.push(new Player());
+        c.allInvs.push(new Player(view));
         curGame = name;
         saveGame();
     }
+
 
     function saveGame() {
         if (ws.readyState == WebSocket.OPEN) {
@@ -320,6 +321,7 @@
         }
     }
  
+    window.saveGame = saveGame;
     
     // LOAD IMAGES
     Object.keys(resDB).forEach(key => {
