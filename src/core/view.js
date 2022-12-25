@@ -10,7 +10,6 @@ class ViewModule {
       this.resize()
     })
 
-    this.camera = { x: 0, y: 0, zoom: 1 }
     this.size = { x: window.canvas.width, y: window.canvas.height }
     this.scrollFactor = 0.0005
     this.zoomLimit = { min: 0.5, max: 2 }
@@ -22,45 +21,6 @@ class ViewModule {
     window.selectItemMenu = new Dialog()
 
     this.createInvMenu()
-  }
-
-  createInvMenu () {
-    // INV MENU
-    if (window.invMenu) {
-      for (let i = 0; i < 8; i++) {
-        for (let j = 0; j < 8; j++) {
-          const newButton = new Button(j * (Settings.buttonSize), i * (Settings.buttonSize), undefined, window.invMenu)
-          window.invMenu.items.push(newButton)
-        }
-      }
-    }
-    this.resize()
-  }
-
-  dragcamera (dragStart) {
-    const camPos = { x: 0, y: 0 }
-    camPos.x = pos.x / this.camera.zoom - dragStart.x
-    camPos.y = pos.y / this.camera.zoom - dragStart.y
-    this.setCamPos(camPos)
-  }
-
-  setCamOn (pos) {
-    this.setCamPos({ x: -pos.x + (this.size.x / 2 / this.camera.zoom), y: -pos.y + (this.size.y / 2 / this.camera.zoom) })
-  }
-
-  secureBoundaries () {
-    if (this.camera.x > 0) this.camera.x = 0
-    if (this.camera.y > 0) this.camera.y = 0
-    const boundary = window.view.screenToWorld({ x: this.width, y: this.height })
-    if (boundary.x > Settings.gridSize.x * Settings.tileSize) this.camera.x = this.width / this.camera.zoom - (Settings.gridSize.x * Settings.tileSize)
-    if (boundary.y > Settings.gridSize.y * Settings.tileSize) this.camera.y = this.height / this.camera.zoom - (Settings.gridSize.y * Settings.tileSize)
-  }
-
-  setCamPos (pos) {
-    this.camera.x = pos.x
-    this.camera.y = pos.y
-    // console.log(this.camera);
-    this.secureBoundaries()
   }
 
   resize () {
