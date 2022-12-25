@@ -2,9 +2,11 @@ import { Settings, worldToTile } from '../common.js'
 import { Button } from './button.js'
 import { Dialog } from './dialog.js'
 import { Inventory, invfuncs } from './inventory.js'
+import * as NC from 'nodicanvas'
 
-class ViewModule {
-  constructor (windowElement) {
+class ViewModule extends NC.NodiView {
+  constructor (windowElement, canvas) {
+    super(canvas)
     this.win = windowElement
     this.win.addEventListener('resize', () => {
       this.resize()
@@ -50,10 +52,49 @@ class ViewModule {
       window.selectItemMenu.rect.w = window.craftMenu.rect.w
       window.selectItemMenu.rect.h = window.craftMenu.rect.h
     }
+    super.resize(window.canvas.width, window.canvas.height)
+  }
+
+  createInvMenu () {
+    // INV MENU
+    if (window.invMenu) {
+      for (let i = 0; i < 8; i++) {
+        for (let j = 0; j < 8; j++) {
+          const newButton = new Button(j * (Settings.buttonSize), i * (Settings.buttonSize), undefined, window.invMenu)
+          window.invMenu.items.push(newButton)
+        }
+      }
+    }
+    this.resize()
+  }
+
+  setCamOn (pos) {
+    this.setCamPos(
+      {
+        x: ((this.size.x / 2) /* / this.sx */) - pos.x,
+        y: ((this.size.y / 2) /* / this.sy */) - pos.y
+      }
+    )
+    console.log(pos)
+  }
+
+  secureBoundaries () {
+    /* if (this.tx > 0) this.tx = 0
+    if (this.ty > 0) this.ty = 0
+    const boundary = window.view.screenToWorld({ x: this.size.x, y: this.size.y })
+    if (boundary.x > Settings.gridSize.x * Settings.tileSize) this.tx = this.width / this.sx - (Settings.gridSize.x * Settings.tileSize)
+    if (boundary.y > Settings.gridSize.y * Settings.tileSize) this.ty = this.height / this.sy - (Settings.gridSize.y * Settings.tileSize) */
+  }
+
+  setCamPos (pos) {
+    this.view.tx = pos.x
+    this.view.ty = pos.y
+    // console.log(this.camera);
+    this.secureBoundaries()
   }
 
   screenToWorld (p) {
-    return { x: p.x / this.camera.zoom - this.camera.x, y: p.y / this.camera.zoom - this.camera.y }
+    return { x: p.x / this.sx - this.tx, y: p.y / this.sy - this.ty }
   }
 
   screenToTile (p) {
@@ -63,8 +104,8 @@ class ViewModule {
   onZoom (zoomFactor) {
     if (!window.isDragging) {
       const zoomAmount = (1 - zoomFactor)
-      const newZoom = this.camera.zoom * zoomAmount
-      // console.log(newZoom)
+      const newZoom = this.sx * zoomAmount
+      // console.log(newZoom)*/
       /* if (DEV) {
                 this.camera.zoom = Math.max( this.camera.zoom, Math.max(canvas.width / (gridSize.x * Settings.tileSize), canvas.height / (gridSize.y * Settings.tileSize)))
                 this.camera.x += (mousePos.x / this.camera.zoom) - (mousePos.x / (this.camera.zoom / zoomAmount));
@@ -72,19 +113,14 @@ class ViewModule {
                 this.secureBoundaries();
             } else */
       {
-        this.camera.zoom = Math.min(this.zoomLimit.max, Math.max(newZoom, this.zoomLimit.min))
-        const myMid = {}
-        myMid.x = Settings.allInvs[Settings.playerID].pos.x
-        myMid.y = Settings.allInvs[Settings.playerID].pos.y - 66
-        this.setCamOn(myMid)
-      }
-
+        this.setScale(Math.min(this.zoomLimit.max, Math.max(newZoom, this.zoomLimit.min)))
       // ws.send(JSON.stringify({cmd: "camera", data: camera}));
     }
   }
 
   // CRAFT MENU
-  updateCraftingMenu () {
+  updateCraftingMenu ()
+  {
     const items = Settings.resDB.player.output
     let pos = 0
     window.craftMenu.items = []
@@ -102,7 +138,8 @@ class ViewModule {
   }
 
   // SELECT ITEM MENU
-  updateSelectItemMenu (ent) {
+  updateSelectItemMenu (ent)
+  {
     const items = Settings.resName[ent.type].output
     window.selectItemMenu.items = []
     let pos = 0
@@ -121,7 +158,8 @@ class ViewModule {
     })
   }
 
-  updateInventoryMenu (inv) {
+  updateInventoryMenu (inv)
+  {
     const pack = inv.stack.INV
 
     if (pack === undefined) return
@@ -155,7 +193,8 @@ class ViewModule {
     }
   }
 
-  updateEntityMenu (inv, forceUpdate = false) {
+  updateEntityMenu (inv, forceUpdate = false)
+  {
     if (inv === undefined) return
     const showStack = inv.stack
 
