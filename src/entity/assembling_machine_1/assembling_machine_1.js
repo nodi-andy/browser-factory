@@ -1,7 +1,47 @@
 import { Settings } from '../../common.js'
 import { Inventory, invfuncs } from '../../core/inventory.js'
 
-class AssemblingMachine1 extends Inventory {
+Settings.resDB.assembling_machine_1.name = 'assembling machine 1'
+Settings.resDB.assembling_machine_1.type = 'entity'
+Settings.resDB.assembling_machine_1.cost = [
+  { id: Settings.resDB.circuit.id, n: 3 },
+  { id: Settings.resDB.gear.id, n: 5 },
+  { id: Settings.resDB.iron_plate.id, n: 9 }
+]
+
+if (typeof Image !== 'undefined') {
+  const image = new Image(512, 32)
+  image.src = './src/' + Settings.resDB.assembling_machine_1.type + '/assembling_machine_1/platform.png'
+  Settings.resDB.assembling_machine_1.anim = image
+}
+
+Settings.resDB.assembling_machine_1.size = [3, 3]
+Settings.resDB.assembling_machine_1.output = [
+  Settings.resDB.wooden_stick.id,
+  Settings.resDB.sharp_stone.id,
+  Settings.resDB.iron_stick.id,
+  Settings.resDB.gear.id,
+  Settings.resDB.hydraulic_piston.id,
+  Settings.resDB.copper_cable.id,
+  Settings.resDB.circuit.id,
+  Settings.resDB.stone_axe.id,
+  Settings.resDB.iron_axe.id,
+  Settings.resDB.gun.id,
+  Settings.resDB.rocket_launcher.id,
+  Settings.resDB.bullet.id,
+  Settings.resDB.rocket.id,
+  Settings.resDB.weak_armor.id,
+  Settings.resDB.strong_armor.id,
+  Settings.resDB.chest.id,
+  Settings.resDB.iron_chest.id,
+  Settings.resDB.stone_furnace.id,
+  Settings.resDB.burner_miner.id,
+  Settings.resDB.e_miner.id,
+  Settings.resDB.belt1.id,
+  Settings.resDB.inserter_burner.id
+]
+
+export class AssemblingMachine1 extends Inventory {
   constructor (pos, data) {
     super(data.pos, data)
     data.pos = pos
@@ -66,10 +106,8 @@ class AssemblingMachine1 extends Inventory {
     for (let costItemID = 0; costItemID < this.preneed.length; costItemID++) {
       const costItem = this.preneed[costItemID]
       const existing = invfuncs.getNumberOfItems(Settings.allInvs[this.id], costItem.id)
-      if (existing >= costItem.n) {
+      if (existing < costItem.n) {
         this.need.push(costItem)
-      } else {
-        this.need.unshift(costItem)
       }
     }
 
@@ -81,15 +119,13 @@ class AssemblingMachine1 extends Inventory {
     if (invThis.need && tempInv.remItems(invThis.need)) {
       if (invThis.state === 0) { invThis.lastTime = performance.now(); invThis.state = 1 };
       if (invThis.state === 1) {
-        const deltaT = performance.now() - invThis.lastTime
-        if (invThis.prod && deltaT > 1000) {
+        if (invThis.prod) {
           if (!invThis.stack.OUTPUT?.length) invThis.stack.OUTPUT = [Settings.item(invThis.prod, 0)]
           if (invThis.stack.OUTPUT[0] === undefined) invThis.stack.OUTPUT[0] = Settings.item(invThis.prod, 0)
           if (invThis.stack.OUTPUT[0].n === undefined) invThis.stack.OUTPUT[0].n = 0
           if (this.stack.OUTPUT[0].n < this.itemsize) {
             invThis.stack.OUTPUT[0].n++
             invThis.remItems(Settings.resName[invThis.prod].cost)
-            invThis.lastTime = performance.now()
           }
         }
       }
@@ -105,35 +141,5 @@ class AssemblingMachine1 extends Inventory {
     return Settings.resName[type].name
   }
 }
-const db = Settings.resDB.assembling_machine_1
-if (typeof Image !== 'undefined') {
-  const image = new Image(512, 32)
-  image.src = './src/' + db.type + '/assembling_machine_1/platform.png'
-  db.anim = image
-}
-db.size = [3, 3]
-db.output = [
-  Settings.resDB.wooden_stick.id,
-  Settings.resDB.sharp_stone.id,
-  Settings.resDB.iron_stick.id,
-  Settings.resDB.gear.id,
-  Settings.resDB.hydraulic_piston.id,
-  Settings.resDB.copper_cable.id,
-  Settings.resDB.circuit.id,
-  Settings.resDB.stone_axe.id,
-  Settings.resDB.iron_axe.id,
-  Settings.resDB.gun.id,
-  Settings.resDB.rocket_launcher.id,
-  Settings.resDB.bullet.id,
-  Settings.resDB.rocket.id,
-  Settings.resDB.weak_armor.id,
-  Settings.resDB.strong_armor.id,
-  Settings.resDB.chest.id,
-  Settings.resDB.iron_chest.id,
-  Settings.resDB.stone_furnace.id,
-  Settings.resDB.burner_miner.id,
-  Settings.resDB.e_miner.id,
-  Settings.resDB.belt1.id,
-  Settings.resDB.inserter_burner.id
-]
-db.Mach = AssemblingMachine1
+
+Settings.resDB.assembling_machine_1.mach = AssemblingMachine1

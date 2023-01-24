@@ -190,7 +190,7 @@ class Inventory {
         for (let iPack = 0; iPack < this.stack[key].length && searchItem; iPack++) {
           const pack = this.stack[key][iPack]
           if (pack && pack.id === searchItem.id) { // Find the pack
-            return (pack.n >= searchItem.n)
+            return (pack.n >= searchItem.n || searchItem.n === undefined)
           }
         }
       } else {
@@ -292,8 +292,11 @@ function craftToInv (inv, items) {
 }
 
 function getInv (x, y, create = false) {
+  if (x < 0) return
+  if (y < 0) return
+
   const tile = Settings.game.map[x][y]
-  if (tile[Settings.layers.inv] === undefined && create) createInvOnMap(x, y)
+  if (tile[Settings.layers.inv] === null && create) createInvOnMap(x, y)
   return Settings.allInvs[tile[Settings.layers.inv]]
 }
 
@@ -309,7 +312,7 @@ function setEnt (x, y, invID) {
 
 function createInvOnMap (x, y) {
   let invID = Settings.game.map[x][y][Settings.layers.inv]
-  if (invID === undefined) {
+  if (invID === null) {
     const inv = new Inventory({ x, y })
 
     Settings.allInvs.push(inv)
@@ -324,14 +327,14 @@ function createInvOnMap (x, y) {
 
 function createInv (type, newEntity) {
   newEntity.id = Settings.allInvs.length
-  Settings.allInvs.push(new Settings.resName[type].Mach(newEntity.pos, newEntity))
+  Settings.allInvs.push(new Settings.resName[type].mach(newEntity.pos, newEntity))
   return Settings.allInvs.length - 1
 }
 
 function addInventory (newEntity, updateDir) {
   if (!newEntity) return
   let inv = getInv(newEntity.pos.x, newEntity.pos.y)
-  if (inv === undefined || inv.type === 'empty') {
+  if (inv == null || inv?.type === 'empty') {
     if (Settings.pointer.item.n > 0) {
       const invID = createInv(newEntity.type, newEntity)
       inv = Settings.allInvs[invID]
@@ -346,7 +349,7 @@ function addInventory (newEntity, updateDir) {
       if (Settings.pointer.item.n === 0) Settings.pointer.item = undefined
     }
     if (Settings.isBrowser) {
-      if (Settings.resName[newEntity.type].Mach && Settings.resName[newEntity.type].Mach.setup) Settings.resName[newEntity.type].Mach.setup(Settings.game.map, inv)
+      if (Settings.resName[newEntity.type].mach && Settings.resName[newEntity.type].mach.setup) Settings.resName[newEntity.type].mach.setup(Settings.game.map, inv)
     }
   }
 
@@ -362,7 +365,7 @@ function addInventory (newEntity, updateDir) {
 function addItem (newItem) {
   let inv
   const invID = Settings.game.map[newItem.pos.x][newItem.pos.y][Settings.layers.inv]
-  if (invID === undefined) {
+  if (invID == null) {
     inv = new Inventory(newItem.pos)
     Settings.allInvs.push(inv)
     inv.id = Settings.allInvs.length - 1

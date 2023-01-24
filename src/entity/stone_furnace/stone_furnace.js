@@ -75,7 +75,7 @@ class StoneFurnace extends Inventory {
       }
     }
     const inv = invfuncs.getInv(ent.pos.x, ent.pos.y)
-    if (inv.stack.FUEL === undefined ||
+    if (inv?.stack?.FUEL === undefined ||
             inv.stack.INPUT === undefined ||
             inv.stack.INPUT[0] === undefined ||
             inv.stack.INPUT[0].id === undefined ||
@@ -84,7 +84,7 @@ class StoneFurnace extends Inventory {
       return
     }
 
-    if (inv.stack.FUEL.length && inv.stack.FUEL[0].n && inv.stack.INPUT.length && inv.stack.INPUT[0].n) {
+    if (inv?.stack?.FUEL.length && inv.stack.FUEL[0].n && inv.stack.INPUT.length && inv.stack.INPUT[0].n) {
       if (inv.state === 0) { this.lastTime = performance.now(); inv.state = 1 };
       if (inv.state === 1) {
         const deltaT = performance.now() - this.lastTime
@@ -123,6 +123,7 @@ class StoneFurnace extends Inventory {
 }
 
 const db = Settings.resDB.stone_furnace
+db.name = 'stone furnace'
 db.type = 'entity'
 if (typeof Image !== 'undefined') {
   const image = new Image(512, 32)

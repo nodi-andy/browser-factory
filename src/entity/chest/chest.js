@@ -26,9 +26,13 @@ class Chest extends Inventory {
 }
 
 const db = Settings.resDB.chest
+db.name = 'chest'
+db.type = 'entity'
 db.size = [1, 1]
-db.Mach = Chest
+db.mach = Chest
 db.rotatable = false
+db.cost = [{ id: Settings.resDB.wood.id, n: 4 }]
+
 if (typeof Image !== 'undefined') {
   const image = new Image(512, 32)
   image.src = './src/' + db.type + '/chest/chest.png'

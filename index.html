@@ -103,59 +103,128 @@
   }
 }
 </style>
+
+<script type="importmap">
+    {
+      "imports": { 
+        "nodicanvasr": "https://cdn.jsdelivr.net/gh/nodi-andy/nodi.canvas@v0.2/build/nodicanvas.module.js",
+        "nodicanvas": "http://localhost:8080/build/nodicanvas.module.js" 
+       }
+    }
+</script>
+
 <html>
     <body>
     <canvas id="myCanvas" style = "display:block;border:none; margin:0"></canvas>
     <div id="myNav" class="overlay">
-        <div class="closebtn" onclick="closeNav()">&times;</div>
+        <div id = "closeNavBtn" class="closebtn" >&times;</div>
         <div class="overlay-content">
-          <div onclick="loadGame()">New Game</div>
-          <div onclick="saveGame()">Save</div>
+          <div id = "newGameBtn">New Game</div>
+          <div id = "saveGameBtn">Save</div>
           <div id="savedGameList"></div>
         </div>
       </div>
-    <div class="container" style="font-size:30px;cursor:pointer" onclick="openNav()">&#9776;</div>
+    <div id = "openNavBtn" class="container" style="font-size:30px;cursor:pointer">&#9776;</div>
 </body>
 </html>
 
 <script type="module" src ="src/common.js"></script>
 
-<script type="text/javascript" src ="src/core/perlin.js"></script>
-<script type="text/javascript" src ="src/core/world.js"></script>
-<script type="module" src ="src/core/dialog.js"></script>
+<script type="module" src ="src/terrain/perlin.js"></script>
+<script type="module" src ="src/terrain/terrain.js"></script>
+<script type="module" src ="src/terrain/hills/hills.js"></script>
+<script type="module" src ="src/terrain/sea/sea.js"></script>
+<script type="module" src ="src/terrain/deepsea/deepsea.js"></script>
+<script type="module" src ="src/terrain/grassland/grassland.js"></script>
+
 <script type="module" src ="src/core/inventory.js"></script>
-<script type="module" src ="src/core/entity.js"></script>
 <script type="module" src ="src/server/localserver.js"></script>
 <script type="module" src ="src/core/loop.js"></script>
 
-<script type="module" src ="src/core/button.js"></script>
 <script type="module" src ="src/core/input.js"></script>
-<script type="module" src ="src/core/menus.js"></script>
 <script type="module" src ="src/core/render.js"></script>
 <script type="module" src ="src/core/view.js"></script>
 <script type="module" src ="src/entity/player/player.js"></script>
 
+
+<script type="module" src ="src/res/coal_ore/coal_ore.js"></script>
+<script type="module" src ="src/res/copper_ore/copper_ore.js"></script>
+<script type="module" src ="src/res/iron_ore/iron_ore.js"></script>
+<script type="module" src ="src/res/stone_ore/stone_ore.js"></script>
+<script type="module" src ="src/res/tree/tree.js"></script>
+
+<script type="module" src ="src/item/bullet/bullet.js"></script>
+<script type="module" src ="src/item/circuit/circuit.js"></script>
+<script type="module" src ="src/item/coal/coal.js"></script>
+<script type="module" src ="src/item/copper/copper.js"></script>
+<script type="module" src ="src/item/copper_cable/copper_cable.js"></script>
+<script type="module" src ="src/item/copper_plate/copper_plate.js"></script>
+<script type="module" src ="src/item/coulomb/coulomb.js"></script>
+<script type="module" src ="src/item/gear/gear.js"></script>
+<script type="module" src ="src/item/gun/gun.js"></script>
+<script type="module" src ="src/item/hydraulic_piston/hydraulic_piston.js"></script>
+<script type="module" src ="src/item/inserter_burner/inserter_burner.js"></script>
+<script type="module" src ="src/item/iron/iron.js"></script>
+<script type="module" src ="src/item/iron_axe/iron_axe.js"></script>
+<script type="module" src ="src/item/iron_chest/iron_chest.js"></script>
+<script type="module" src ="src/item/iron_plate/iron_plate.js"></script>
+<script type="module" src ="src/item/iron_stick/iron_stick.js"></script>
+<script type="module" src ="src/item/raw_wood/raw_wood.js"></script>
+<script type="module" src ="src/item/rocket/rocket.js"></script>
+<script type="module" src ="src/item/rocket_launcher/rocket_launcher.js"></script>
+<script type="module" src ="src/item/sharp_stone/sharp_stone.js"></script>
+<script type="module" src ="src/item/steam/steam.js"></script>
+<script type="module" src ="src/item/stone/stone.js"></script>
+<script type="module" src ="src/item/stone_axe/stone_axe.js"></script>
+<script type="module" src ="src/item/strong_armor/strong_armor.js"></script>
+<script type="module" src ="src/item/water/water.js"></script>
+<script type="module" src ="src/item/weak_armor/weak_armor.js"></script>
+<script type="module" src ="src/item/wood/wood.js"></script>
+<script type="module" src ="src/item/wooden_stick/wooden_stick.js"></script>
+
+<script type="module" src ="src/entity/entity.js"></script>
+<script type="module" src ="src/entity/assembling_machine_1/assembling_machine_1.js"></script>
+<script type="module" src ="src/entity/assembling_machine_2/assembling_machine_2.js"></script>
+<script type="module" src ="src/entity/assembling_machine_3/assembling_machine_3.js"></script>
 <script type="module" src ="src/entity/chest/chest.js"></script>
 <script type="module" src ="src/entity/belt/belt.js"></script>
 <script type="module" src ="src/entity/belt1/belt1.js"></script>
+<script type="module" src ="src/entity/belt2/belt2.js"></script>
+<script type="module" src ="src/entity/belt3/belt3.js"></script>
 <script type="module" src ="src/entity/burner_miner/burner_miner.js"></script>
+<script type="module" src ="src/entity/car/car.js"></script>
+<script type="module" src ="src/entity/inserter/inserter.js"></script>
+<script type="module" src ="src/entity/inserter_smart/inserter_smart.js"></script>
 <script type="module" src ="src/entity/inserter_burner/inserter_burner.js"></script>
+<script type="module" src ="src/entity/inserter_long/inserter_long.js"></script>
 <script type="module" src ="src/entity/stone_furnace/stone_furnace.js"></script>
-<script type="module" src ="src/entity/assembling_machine_1/assembling_machine_1.js"></script>
 <script type="module" src ="src/entity/pump/pump.js"></script>
 <script type="module" src ="src/entity/pipe/pipe.js"></script>
+<script type="module" src ="src/entity/u_pipe/u_pipe.js"></script>
 <script type="module" src ="src/entity/boiler/boiler.js"></script>
 <script type="module" src ="src/entity/generator/generator.js"></script>
 <script type="module" src ="src/entity/pole/pole.js"></script>
+<script type="module" src ="src/entity/rail/rail.js"></script>
+<script type="module" src ="src/entity/rail_curved/rail_curved.js"></script>
+<script type="module" src ="src/entity/turret/turret.js"></script>
 <script type="module" src ="src/entity/e_miner/e_miner.js"></script>
+<script type="module" src ="src/entity/locomotive/locomotive.js"></script>
+<script type="module" src ="src/entity/laser_turret/laser_turret.js"></script>
 
 <script type="module">
+
     import { ViewModule } from './src/core/view.js'
-    import { InputModule } from './src/core/input.js' 
+    //import { InputModule } from './src/core/input.js' 
     import { Settings } from './src/common.js'
     import { Time } from './src/core/loop.js'
     import { Inventory, invfuncs } from './src/core/inventory.js'
-    import { render } from './src/core/render.js'
+    import { updateOffscreenMap } from './src/core/render.js'
+    import { Terrain } from './src/terrain/terrain.js'
+    import { Player } from './src/entity/player/player.js'
+    import { EntityLayer } from './src/entity/entityLayer.js'
+    import { ResLayer } from './src/res/resLayer.js'
+    import { DialogLayer } from './src/dialogs/dialogLayer.js'
+    import * as NC from 'nodicanvas'
 
     let curGame = window.localStorage.getItem("curGame");
     if (curGame === undefined) window.localStorage.setItem("curGame", "unnamed_0");
@@ -171,12 +240,17 @@
     let nextGameID = undefined;
     let htmlList = document.getElementById("savedGameList");
 
-    let inp = new InputModule (context.canvas);
-    window.view = new ViewModule (window);
+    window.terrain = new Terrain("terrain", Settings.gridSize, Settings.tileSize)
+    window.entityLayer = new EntityLayer("entity", Settings.gridSize, Settings.tileSize)
+    window.view = new ViewModule (window.canvas);
+    window.view.addLayer(window.terrain)
+    window.view.addLayer(new ResLayer("resource", Settings.gridSize, Settings.tileSize))
+    window.view.addLayer(window.entityLayer)
+    window.view.addLayer(new DialogLayer("dialog", Settings.gridSize, Settings.tileSize))
 
     function updateNextGameID() {
         let gamesList = Object.values(Object.keys(window.localStorage));
-
+        nextGameID = 0;
         for(let i = 0; i < gamesList.length; i++) {
             if (gamesList.includes("unnamed_" + i) === false) {
                 nextGameID = i;
@@ -247,7 +321,7 @@
     function loadGame(name) {
 
         updateNextGameID();
-        if (name === undefined) name = "unnamed_" + nextGameID;
+        if (name === undefined || name === null) name = "unnamed_" + nextGameID;
 
         if (Settings.gameState === 1) {
             Settings.gameState = 2;
@@ -263,7 +337,10 @@
         let savedData = JSON.parse(window.localStorage.getItem(name));
         if(!savedData) newGame(name);
 
-        savedData = JSON.parse(window.localStorage.getItem(name));
+        // try again, after creation
+        Settings.allInvs = [];
+        savedData = JSON.parse(window.localStorage.getItem(name)); 
+
         Settings.game = {
             id: 0, name: "", 
             x: Math.floor(Settings.gridSize.x/10)*10, 
@@ -278,7 +355,8 @@
         for (let i = 0; i < savedData.ents.length; i++) {
             let ent = savedData.ents[i];
             if (ent) {
-                if (Settings.resName[savedData.ents[i].type]?.mach?.constructor) {
+                ent.layer = view.layers[ent.layer]
+                if (Settings.resName[ent.type]?.mach?.constructor) {
                     Settings.allInvs.push(new Settings.resName[ent.type].mach(ent.pos, ent));
                 } else {
                     Settings.allInvs.push(new Inventory(ent.pos, ent));
@@ -299,21 +377,22 @@
         Settings.allInvs[Settings.playerID] = Settings.player;
         Settings.player.id = Settings.playerID;
         Settings.allInvs[Settings.player.id].type = Settings.resDB.player.id;
-        Settings.allMovableEntities.push(Settings.playerID);
+
 
         Settings.pointer = {};
 
         updateGameMenu();
 
-        // updateMapData(Settings.game.map);
+        updateOffscreenMap(Settings.game.map);
         window.Time.gameLoop();
     }
 
-    function newGame(name = "unnamed_0") {
-        Settings.game = createWorld(gridSize.x, Settings.gridSize.y);
+    function newGame(name) {
+        if (name === undefined || name === null) name = "unnamed_0"
         Settings.playerID = 0;
-        Settings.allInvs.push(new Player(view));
+        Settings.allInvs.push(new Player());
         curGame = name;
+        Settings.game = window.terrain.createWorld(Settings.gridSize)
         saveGame();
     }
 
@@ -323,7 +402,20 @@
             ws.send(JSON.stringify({cmd: "updateEntity", data: {id: invID, ent: Settings.allInvs[invID]}}));
             ws.send(JSON.stringify({cmd: "updateMapData", data: Settings.game.map}));
         } else {*/
+           /* for(const [key, value] of Object.entries(window.view.layers)) {
+                delete value.view;
+            }*/
+
+            Settings.allInvs = Settings.allInvs.filter(function( element ) {
+                return element !== undefined;
+            });
+            for(const [key, value] of Object.entries(Settings.allInvs)) {
+                if (value?.layer) value.layer = value.layer.name;
+            }
             window.localStorage.setItem(curGame, JSON.stringify({map: Settings.game.map, ents: Settings.allInvs, playerID: Settings.playerID}));
+            for(const [key, value] of Object.entries(Settings.allInvs)) {
+                if (value.layer) value.layer = window.view.layers[value.layer];
+            }
         //}
     }
  
@@ -340,5 +432,11 @@
 
 
     loadGame(curGame);
-    requestAnimationFrame( render );
+    window.addEventListener("load", function() { window.view.resize(); } );
+
+    document.getElementById("openNavBtn").onclick = openNav;
+    document.getElementById("closeNavBtn").onclick = closeNav;
+    document.getElementById("saveGameBtn").onclick = saveGame;
+    document.getElementById("newGameBtn").onclick = newGame;
+    //requestAnimationFrame( render );
 </script>

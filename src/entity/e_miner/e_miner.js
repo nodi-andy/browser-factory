@@ -45,9 +45,9 @@ class ElectricalMiner extends Inventory {
       // Shift output on next tile
       let stackName
       // place into assembling machine
-      if (invTo.type === Settings.resDB.assembling_machine_1.id) stackName = Settings.resName[this.stack.INV[0].id].name
+      if (invTo?.type === Settings.resDB.assembling_machine_1.id) stackName = Settings.resName[this.stack.INV[0].id].name
       // place onto belt
-      else if (invTo.type === Settings.resDB.belt1.id) {
+      else if (invTo?.type === Settings.resDB.belt1.id) {
         const relDir = (invTo.dir - this.dir + 3) % 4
         const dirPref = ['L', 'R', 'L', 'R']
         stackName = dirPref[relDir]
@@ -101,7 +101,9 @@ class ElectricalMiner extends Inventory {
 }
 
 const db = Settings.resDB.e_miner
-db.Mach = ElectricalMiner
+db.mach = ElectricalMiner
+db.name = 'electrical miner'
+db.lock = 1
 db.type = 'entity'
 db.cost = [{ id: Settings.resDB.stone_furnace.id, n: 1 }, { id: Settings.resDB.iron_plate.id, n: 3 }, { id: Settings.resDB.gear.id, n: 2 }]
 if (typeof Image !== 'undefined') {

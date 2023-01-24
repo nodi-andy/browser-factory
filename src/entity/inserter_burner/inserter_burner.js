@@ -37,11 +37,15 @@ class InserterBurner extends Inventory {
       const invFrom = invfuncs.getInv(ent.pos.x - myDir.x, ent.pos.y - myDir.y, true)
       const invTo = invfuncs.getInv(ent.pos.x + myDir.x, ent.pos.y + myDir.y, true)
 
-      if (this.armPos === 0 && !isHandFull && this.energy <= 0 && invFrom.hasItem(Settings.resDB.coal.id)) { // LOAD COAL
+      // LOAD COAL
+      if (this.armPos === 0 && !isHandFull && this.energy <= 0 && invFrom.hasItem(Settings.resDB.coal)) {
         invFrom.moveItemTo({ id: Settings.resDB.coal.id, n: 1 }, this, 'FUEL')
-      } else if (this.armPos === 0 && !isHandFull && this.energy > 0) { // PICK
+      // PICK
+      } else if (this.armPos === 0 && !isHandFull && this.energy > 0) {
         let item
-        if (invFrom.stack.OUTPUT) { item = invFrom.getFirstPack('OUTPUT') } else if (invTo?.need?.length) {
+        if (invFrom.stack.OUTPUT) {
+          item = invFrom.getFirstPack('OUTPUT')
+        } else if (invTo?.need?.length) {
           for (let ineed = 0; ineed < invTo.need.length; ineed++) {
             if (invFrom.hasItem(invTo.need[ineed])) {
               item = invTo.need[ineed]
@@ -54,18 +58,25 @@ class InserterBurner extends Inventory {
           this.energy--
           this.state = 1
         } else this.state = 0
-      } else if (this.armPos === 32 && isHandFull) { // PLACE
-        if (invTo === undefined) return
+      // PLACE
+      } else if (this.armPos === 32 && isHandFull) {
+        if (invTo === undefined) {
+          this.state = 0
+          return
+        }
         let stackName
 
         // place onto belt
-        if (invTo.type === Settings.resDB.belt1.id) {
+        if (invTo?.type === Settings.resDB.belt1.id) {
           const relDir = (invTo.dir - this.dir + 3) % 4
           const dirPref = ['R', 'L', 'R', 'L']
           stackName = dirPref[relDir]
-        } else if (invTo.type === Settings.resDB.burner_miner.id) { // place into burner miner
+        // place into burner miner
+        } else if (invTo?.type === Settings.resDB.burner_miner.id) {
           stackName = 'FUEL'
-        } else { // place into assembling machine
+
+        // place into assembling machine
+        } else {
           stackName = invTo.getStackName(this.stack.INV[0].id)
         }
 
@@ -73,6 +84,9 @@ class InserterBurner extends Inventory {
           this.moveItemTo(this.stack.INV[0], invTo, stackName)
           this.state = 1
         } else { this.state = 0 }
+      // GO TO INITIAL POS
+      } else if (this.armPos !== 0 && !isHandFull) {
+        this.state = 1
       }
     }
   }
@@ -101,6 +115,7 @@ class InserterBurner extends Inventory {
 
 const db = Settings.resDB.inserter_burner
 db.size = [1, 1]
+db.type = 'entity'
 if (typeof Image !== 'undefined') {
   let image = new Image(64, 64)
   image.src = './src/' + Settings.resDB.inserter_burner.type + '/inserter_burner/inserter_platform.png'
@@ -109,7 +124,7 @@ if (typeof Image !== 'undefined') {
   image.src = './src/' + Settings.resDB.inserter_burner.type + '/inserter_burner/inserter_burner_hand.png'
   Settings.resDB.inserter_burner.hand = image
 }
-db.Mach = InserterBurner
+db.mach = InserterBurner
 db.cost = [{ id: Settings.resDB.iron_plate.id, n: 1 }, { id: Settings.resDB.gear.id, n: 1 }, { id: Settings.resDB.hydraulic_piston.id, n: 1 }]
 
 export { InserterBurner }

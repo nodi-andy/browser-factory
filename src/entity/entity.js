@@ -1,3 +1,5 @@
+import { Settings } from '../common.js'
+
 class Entity {
   constructor (entList, x, y, dir, h, w, type, onClick) {
     this.pos = { x, y }
@@ -20,16 +22,12 @@ class Entity {
   draw (ctx) {
     ctx.font = '8px Arial'
     ctx.fillStyle = 'black'
-    ctx.fillText(resDB[Object.keys(resDB)[this.id]].emo, this.x * Settings.tileSize, this.y * Settings.tileSize + 8)
+    ctx.fillText(Settings.resDB[Object.keys(Settings.resDB)[this.id]].emo, this.x * Settings.tileSize, this.y * Settings.tileSize + 8)
   }
 
   update (map) {
 
   }
 }
-
-if (exports === undefined) var exports = {}
-
-const e = { Entity }
 
 export { Entity }

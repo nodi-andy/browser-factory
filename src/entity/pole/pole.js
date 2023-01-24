@@ -80,6 +80,7 @@ class Pole extends Inventory {
 
 const db = Settings.resDB.pole
 db.size = [1, 1]
+db.type = 'entity'
 db.viewsize = [1, 3]
 db.cost = [
   { id: Settings.resDB.iron_plate.id, n: 1 }
@@ -87,8 +88,11 @@ db.cost = [
 
 if (typeof Image !== 'undefined') {
   const image = new Image(512, 32)
-  image.src = './src/' + Settings.resDB.pole.type + '/pole/pole.png'
-  Settings.resDB.pole.img = image
+  image.src = './src/' + db.type + '/pole/pole.png'
+  db.img = image
 }
 
 db.mach = Pole
+db.name = 'electrical pole'
+db.type = 'entity'
+db.lock = 1

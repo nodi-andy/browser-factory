@@ -29,6 +29,8 @@ class Belt extends Inventory {
     if (this.stack.RC === undefined) this.stack.RC = { n: 1 }
     if (this.stack.RD === undefined) this.stack.RD = { n: 1 }
     this.setupDone = true
+    this.decidingMoving = false
+    this.movingParts = false
   }
 
   shift (from, itfrom, to, itto, deciding) {
@@ -57,17 +59,25 @@ class Belt extends Inventory {
     }
   }
 
+  isBelt (id) {
+    return (id === Settings.resDB.belt1.id || Settings.resDB.belt2.id || Settings.resDB.belt3.id)
+  }
+
   update (map, ent) {
     // sanity
     if (!this.setupDone) this.setup()
+
+    // BELTS SYSTEM
+    this.decidingMoving = ((Settings.game.tick + 0) % (16 / this.speed) === 0)
+    this.movingParts = ((Settings.game.tick + 1) % (16 / this.speed) === 0)
 
     // Do not update twice
     ent.done = true
 
     // Only update if necessary
-    if (Settings.decidingMoving === false && Settings.movingParts === false) return
+    if (this.decidingMoving === false && this.movingParts === false) return
 
-    if (Settings.decidingMoving) {
+    if (this.decidingMoving) {
       const keys = Object.keys(this.stack)
       for (let iStack = 0; iStack < keys.length; iStack++) {
         const key = keys[iStack]
@@ -80,7 +90,7 @@ class Belt extends Inventory {
     // DIRECT
     const nbPos = Settings.dirToVec[ent.dir]
     let beltFrom = invfuncs.getInv(ent.pos.x - nbPos.x, ent.pos.y - nbPos.y)
-    if (beltFrom && (Math.abs(this.dir - beltFrom.dir) === 2 || beltFrom.type !== Settings.resDB.belt1.id)) beltFrom = undefined
+    if (beltFrom && (Math.abs(this.dir - beltFrom.dir) === 2 || this.isBelt(beltFrom.type) === false)) beltFrom = undefined
     if (beltFrom) this.beltFromID = beltFrom.id
 
     // LEFT
@@ -89,7 +99,7 @@ class Belt extends Inventory {
       ent.pos.x - nbLeft.x,
       ent.pos.y - nbLeft.y
     )
-    if (beltFromLeft && ((beltFromLeft.dir - ent.dir + 4) % 4 !== 1 || beltFromLeft.type !== Settings.resDB.belt1.id)) {
+    if (beltFromLeft && ((beltFromLeft.dir - ent.dir + 4) % 4 !== 1 || this.isBelt(beltFromLeft.type) === false)) {
       beltFromLeft = undefined
     }
     if (beltFromLeft) this.beltFromLeftID = beltFromLeft.id
@@ -100,7 +110,7 @@ class Belt extends Inventory {
       ent.pos.x - nbRight.x,
       ent.pos.y - nbRight.y
     )
-    if (beltFromRight && ((beltFromRight.dir - ent.dir + 4) % 4 !== 3 || beltFromRight.type !== Settings.resDB.belt1.id)) {
+    if (beltFromRight && ((beltFromRight.dir - ent.dir + 4) % 4 !== 3 || this.isBelt(beltFromRight.type) === false)) {
       beltFromRight = undefined
     }
     if (beltFromRight) this.beltFromRightID = beltFromRight.id
@@ -134,7 +144,7 @@ class Belt extends Inventory {
       } else if (this.stack.LB?.id === undefined && this.stack.LB?.reserved === false) {
         this.stack.LB.id = this.stack.L.id
       } else if (this.stack.LC?.id === undefined && this.stack.LC?.reserved === false) {
-        this.stack.LSettings.id = this.stack.L.id
+        this.stack.LC.id = this.stack.L.id
       } else if (this.stack.LD?.id === undefined && this.stack.LD?.reserved === false) {
         this.stack.LD.id = this.stack.L.id
       } else {
@@ -149,7 +159,7 @@ class Belt extends Inventory {
       } else if (this.stack.RB?.id === undefined && this.stack.RB?.reserved === false) {
         this.stack.RB.id = this.stack.R.id
       } else if (this.stack.RC?.id === undefined && this.stack.RC?.reserved === false) {
-        this.stack.RSettings.id = this.stack.R.id
+        this.stack.RC.id = this.stack.R.id
       } else if (this.stack.RD?.id === undefined && this.stack.RD?.reserved === false) {
         this.stack.RD.id = this.stack.R.id
       } else {
@@ -159,19 +169,19 @@ class Belt extends Inventory {
     }
 
     // SHIFT INTO NEXT BELT
-    if (beltTo && beltTo.type !== Settings.resDB.belt1.id) beltTo = undefined
+    if (beltTo && this.isBelt(beltTo.type) === false) beltTo = undefined
     if (beltTo) {
       let dAng = Settings.dirToAng[beltTo.dir] - Settings.dirToAng[this.dir]
       if (beltTo.direct === false) dAng = 0
       if (dAng === 0) {
-        this.shift(this, 'LA', beltTo, 'LD', Settings.decidingMoving)
-        this.shift(this, 'RA', beltTo, 'RD', Settings.decidingMoving)
+        this.shift(this, 'LA', beltTo, 'LD', this.decidingMoving)
+        this.shift(this, 'RA', beltTo, 'RD', this.decidingMoving)
       } else if (dAng === -270 || dAng === 90) {
-        this.shift(this, 'LA', beltTo, 'RB', Settings.decidingMoving)
-        this.shift(this, 'RA', beltTo, 'RA', Settings.decidingMoving)
+        this.shift(this, 'LA', beltTo, 'RB', this.decidingMoving)
+        this.shift(this, 'RA', beltTo, 'RA', this.decidingMoving)
       } else if (dAng === 270 || dAng === -90) {
-        this.shift(this, 'LA', beltTo, 'LA', Settings.decidingMoving)
-        this.shift(this, 'RA', beltTo, 'LB', Settings.decidingMoving)
+        this.shift(this, 'LA', beltTo, 'LA', this.decidingMoving)
+        this.shift(this, 'RA', beltTo, 'LB', this.decidingMoving)
       }
     } else { // No next belt
       if (this.stack.LA) {
@@ -182,12 +192,12 @@ class Belt extends Inventory {
       }
     }
     // SHIFT ON THE BELT
-    this.shift(this, 'LB', this, 'LA', Settings.decidingMoving)
-    this.shift(this, 'LC', this, 'LB', Settings.decidingMoving)
-    this.shift(this, 'LD', this, 'LC', Settings.decidingMoving)
-    this.shift(this, 'RB', this, 'RA', Settings.decidingMoving)
-    this.shift(this, 'RC', this, 'RB', Settings.decidingMoving)
-    this.shift(this, 'RD', this, 'RC', Settings.decidingMoving)
+    this.shift(this, 'LB', this, 'LA', this.decidingMoving)
+    this.shift(this, 'LC', this, 'LB', this.decidingMoving)
+    this.shift(this, 'LD', this, 'LC', this.decidingMoving)
+    this.shift(this, 'RB', this, 'RA', this.decidingMoving)
+    this.shift(this, 'RC', this, 'RB', this.decidingMoving)
+    this.shift(this, 'RD', this, 'RC', this.decidingMoving)
 
     this.stack.L.full = !!((this.stack.LA?.id || this.stack.LA?.reserved) && (this.stack.LB?.id || this.stack.LB?.reserved) && (this.stack.LC?.id || this.stack.LC?.reserved) && (this.stack.LD?.id || this.stack.LD?.reserved))
     this.stack.R.full = !!((this.stack.RA?.id || this.stack.RA?.reserved) && (this.stack.RB?.id || this.stack.RB?.reserved) && (this.stack.RC?.id || this.stack.RC?.reserved) && (this.stack.RD?.id || this.stack.RD?.reserved))
@@ -197,13 +207,8 @@ class Belt extends Inventory {
     if (beltFromRight && beltFromRight.done === false) beltFromRight.update(map, beltFromRight)
   }
 
-  draw (ctx, ent) {
-    const beltPos = Math.round(Settings.game.tick / 1) % 16
-    ctx.drawImage(Settings.resDB.belt1.anim, 0, beltPos * 64, 64, 64, 0, 0, 64, 64)
-  }
-
   drawItems (ctx) {
-    const beltPos = Math.round(Settings.game.tick / 1) % 8
+    const beltPos = (Math.round(Settings.game.tick) * this.speed / 2) % 8
     if (this.pos && this.stack) {
       window.context.save()
       window.context.translate((this.pos.x + 0.5) * Settings.tileSize, (this.pos.y + 0.5) * Settings.tileSize)
@@ -280,10 +285,10 @@ class Belt extends Inventory {
 
       xpos += dx
       if (this.stack.LC?.id) {
-        if (this.stack.LSettings.moving) pos = beltPos
+        if (this.stack.LC.moving) pos = beltPos
         else pos = 0
         ctx.drawImage(
-          Settings.resName[this.stack.LSettings.id].img,
+          Settings.resName[this.stack.LC.id].img,
           0,
           0,
           64,
@@ -296,10 +301,10 @@ class Belt extends Inventory {
       }
 
       if (this.stack.RC?.id) {
-        if (this.stack.RSettings.moving) pos = beltPos
+        if (this.stack.RC.moving) pos = beltPos
         else pos = 0
         ctx.drawImage(
-          Settings.resName[this.stack.RSettings.id].img,
+          Settings.resName[this.stack.RC.id].img,
           0,
           0,
           64,
@@ -348,9 +353,9 @@ class Belt extends Inventory {
       const beltFrom = Settings.allInvs[this.beltFromID]
       const beltFromLeft = Settings.allInvs[this.beltFromLeftID]
       const beltFromRight = Settings.allInvs[this.beltFromRightID]
-      if (beltFrom && beltFrom.drawn < 2) beltFrom.drawItems(ctx)
-      if (beltFromLeft && beltFromLeft.drawn < 2) beltFromLeft.drawItems(ctx)
-      if (beltFromRight && beltFromRight.drawn < 2) beltFromRight.drawItems(ctx)
+      if (beltFrom && beltFrom.drawItems && beltFrom.drawn < 2) beltFrom.drawItems(ctx)
+      if (beltFromLeft && beltFromLeft.drawItems && beltFromLeft.drawn < 2) beltFromLeft.drawItems(ctx)
+      if (beltFromRight && beltFromRight.drawItems && beltFromRight.drawn < 2) beltFromRight.drawItems(ctx)
     }
   }
 }

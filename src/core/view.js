@@ -1,28 +1,14 @@
-import { Settings, worldToTile } from '../common.js'
-import { Button } from './button.js'
-import { Dialog } from './dialog.js'
+import { Settings } from '../common.js'
+import { Button } from '../dialogs/button.js'
 import { Inventory, invfuncs } from './inventory.js'
 import * as NC from 'nodicanvas'
 
 class ViewModule extends NC.NodiView {
-  constructor (windowElement, canvas) {
+  constructor (canvas) {
     super(canvas)
-    this.win = windowElement
-    this.win.addEventListener('resize', () => {
-      this.resize()
-    })
-
     this.size = { x: window.canvas.width, y: window.canvas.height }
     this.scrollFactor = 0.0005
     this.zoomLimit = { min: 0.5, max: 2 }
-
-    window.invMenu = new Dialog()
-    window.craftMenu = new Dialog()
-    window.entityMenu = new Dialog()
-    window.receiptMenu = new Dialog()
-    window.selectItemMenu = new Dialog()
-
-    this.createInvMenu()
   }
 
   resize () {
@@ -55,19 +41,6 @@ class ViewModule extends NC.NodiView {
     super.resize(window.canvas.width, window.canvas.height)
   }
 
-  createInvMenu () {
-    // INV MENU
-    if (window.invMenu) {
-      for (let i = 0; i < 8; i++) {
-        for (let j = 0; j < 8; j++) {
-          const newButton = new Button(j * (Settings.buttonSize), i * (Settings.buttonSize), undefined, window.invMenu)
-          window.invMenu.items.push(newButton)
-        }
-      }
-    }
-    this.resize()
-  }
-
   setCamOn (pos) {
     this.setCamPos(
       {
@@ -87,18 +60,10 @@ class ViewModule extends NC.NodiView {
   }
 
   setCamPos (pos) {
-    this.view.tx = pos.x
-    this.view.ty = pos.y
+    this.tx = pos.x
+    this.ty = pos.y
     // console.log(this.camera);
     this.secureBoundaries()
-  }
-
-  screenToWorld (p) {
-    return { x: p.x / this.sx - this.tx, y: p.y / this.sy - this.ty }
-  }
-
-  screenToTile (p) {
-    return worldToTile(this.screenToWorld(p))
   }
 
   onZoom (zoomFactor) {
@@ -112,15 +77,13 @@ class ViewModule extends NC.NodiView {
                 this.camera.y += (mousePos.y / this.camera.zoom) - (mousePos.y / (this.camera.zoom / zoomAmount));
                 this.secureBoundaries();
             } else */
-      {
-        this.setScale(Math.min(this.zoomLimit.max, Math.max(newZoom, this.zoomLimit.min)))
+      this.setScale(Math.min(this.zoomLimit.max, Math.max(newZoom, this.zoomLimit.min)))
       // ws.send(JSON.stringify({cmd: "camera", data: camera}));
     }
   }
 
   // CRAFT MENU
-  updateCraftingMenu ()
-  {
+  updateCraftingMenu () {
     const items = Settings.resDB.player.output
     let pos = 0
     window.craftMenu.items = []
@@ -138,8 +101,7 @@ class ViewModule extends NC.NodiView {
   }
 
   // SELECT ITEM MENU
-  updateSelectItemMenu (ent)
-  {
+  updateSelectItemMenu (ent) {
     const items = Settings.resName[ent.type].output
     window.selectItemMenu.items = []
     let pos = 0
@@ -150,6 +112,7 @@ class ViewModule extends NC.NodiView {
         button.ent.setOutput(button.item.id)
         Settings.selEntity.vis = true
         window.selectItemMenu.vis = false
+        this.updateEntityMenu(Settings.selEntity, true)
       }
       window.selectItemMenu.items.push(newButton)
       pos++
@@ -158,8 +121,7 @@ class ViewModule extends NC.NodiView {
     })
   }
 
-  updateInventoryMenu (inv)
-  {
+  updateInventoryMenu (inv) {
     const pack = inv.stack.INV
 
     if (pack === undefined) return
@@ -193,8 +155,7 @@ class ViewModule extends NC.NodiView {
     }
   }
 
-  updateEntityMenu (inv, forceUpdate = false)
-  {
+  updateEntityMenu (inv, forceUpdate = false) {
     if (inv === undefined) return
     const showStack = inv.stack
 

@@ -117,6 +117,9 @@ class Pipe extends Inventory {
 }
 
 const db = Settings.resDB.pipe
+db.name = 'pipe'
+db.type = 'entity'
+db.lock = 1
 db.playerCanWalkOn = false
 db.rotatable = false
 db.size = [1, 1]

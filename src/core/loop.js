@@ -4,7 +4,7 @@ class TimeLoop {
   // LOOP
   gameLoop () {
     if (Settings.gameState === 0) {
-      setTimeout(this.gameLoop, 20)
+      setTimeout(window.Time.gameLoop, 20)
       return
     }
 
@@ -34,7 +34,7 @@ class TimeLoop {
     for (let ient = 0; ient < Settings.allInvs.length; ient++) {
       const entity = Settings.allInvs[ient]
       if (!entity) continue
-      if (entity?.type === Settings.resDB.belt1.id) {
+      if (entity?.type === Settings.resDB.belt1.id || entity?.type === Settings.resDB.belt2.id || entity?.type === Settings.resDB.belt3.id) {
         entity.done = false
         entity.searching = false
         belts.push(entity)
@@ -44,10 +44,6 @@ class TimeLoop {
         } else entity.draw(window.context)
       }
     }
-
-    // BELTS SYSTEM
-    Settings.decidingMoving = ((Settings.game.tick + 0) % 8 === 0)
-    Settings.movingParts = ((Settings.game.tick + 1) % 8 === 0)
 
     for (let ibelt = 0; ibelt < belts.length;) {
       let belt = belts[ibelt]
@@ -61,7 +57,7 @@ class TimeLoop {
           const nbPos = Settings.dirToVec[belt.dir]
           const nbTile = Settings.game.map[x + nbPos.x][y + nbPos.y]
           const nbEntity = Settings.allInvs[nbTile[Settings.layers.inv]]
-          if (nbEntity?.type === Settings.resDB.belt1.id && // is it a belt?
+          if ((nbEntity?.type === Settings.resDB.belt1.id || nbEntity?.type === Settings.resDB.belt2.id || nbEntity?.type === Settings.resDB.belt3.id) && // is it a belt?
                       nbEntity.done === false && // already processed?
                       (nbEntity.searching === false || nbEntity.searching === undefined) && // circular network?
                       Math.abs(belt.dir - nbEntity.dir) !== 2) { // not heading to current belt
@@ -73,7 +69,7 @@ class TimeLoop {
       }
     }
 
-    setTimeout(this.gameLoop, 20)
+    setTimeout(window.Time.gameLoop, 20)
   }
 }
 

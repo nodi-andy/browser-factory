@@ -38,7 +38,7 @@ class Button {
     ctx.rect(this.screen.x, this.screen.y, this.w, this.h)
     ctx.fill()
     ctx.stroke()
-    if (this.item === undefined && this.inv?.stack) {
+    if (this.item === null && this.inv?.stack && this.inv.stack[this.invKey] && this.inv.stack[this.invKey][this.stackPos]) {
       this.item = this.inv.stack[this.invKey][this.stackPos]
     }
     this.drawItem(ctx)

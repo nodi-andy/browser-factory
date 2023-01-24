@@ -1,29 +1,22 @@
-import { resDB, getInv, dirToVec } from '../../common.js'
+import { Settings } from '../../common.js'
 
-class Inserter {
-  constructor () {
-    resDB.inserter.Mach = this
-  }
+export class Inserter {
 
-  update (map, ent) {
-    const nbPos = dirToVec[ent.dir]
-    const invFrom = getInv(ent.pos.x - nbPos.x, ent.pos.y - nbPos.y)
-    const invThis = getInv(ent.pos.x, ent.pos.y)
-    const invTo = getInv(ent.pos.x + nbPos.x, ent.pos.y + nbPos.y)
-
-    const iOut = invFrom.getOutputPackIndex()
-
-    // PICK
-    if (invThis.packs.length === 0 && invFrom && iOut !== undefined && invFrom.packs.length) {
-      if (invThis.addItem({ id: invFrom.packs[iOut].id, n: 1 })) {
-        invFrom.remItem({ id: invFrom.packs[iOut].id, n: 1, fixed: invFrom.packs[iOut].fixed })
-      }
-    } else if (invThis.packs.length) { // PLACE
-      if (invTo.addItem({ id: invThis.packs[0].id, n: 1 })) {
-        invThis.remItem({ id: invThis.packs[0].id, n: 1 })
-      }
-    }
-  }
 }
 
-export { Inserter }
+const db = Settings.resDB.inserter
+db.name = 'inserter'
+db.lock = 1
+db.size = [1, 1]
+db.type = 'entity'
+if (typeof Image !== 'undefined') {
+  let image = new Image(64, 64)
+  image.src = './src/' + Settings.resDB.inserter.type + '/inserter/inserter_platform.png'
+  Settings.resDB.inserter.platform = image
+  image = new Image(64, 64)
+  image.src = './src/' + Settings.resDB.inserter.type + '/inserter/inserter_hand.png'
+  Settings.resDB.inserter.hand = image
+}
+
+db.mach = Inserter
+db.cost = [{ id: Settings.resDB.iron_plate.id, n: 1 }, { id: Settings.resDB.gear.id, n: 1 }, { id: Settings.resDB.hydraulic_piston.id, n: 1 }]

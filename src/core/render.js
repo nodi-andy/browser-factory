@@ -1,19 +1,19 @@
 import { Settings } from '../common.js'
-import { drawContentMenu, drawSelectItemMenu, drawReceiptMenu } from './menus.js'
+import { Terrain } from '../terrain/terrain.js'
 
 const times = []
 let fps
-
+/*
 function render () {
   const ctx = window.context
   if (ctx === undefined) return
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
   ctx.resetTransform()
-  ctx.scale(window.view.camera.zoom, window.view.camera.zoom)
-  ctx.translate(window.view.camera.x, window.view.camera.y) // console.log(camera);
-  // DRAW TERRAIN
-  ctx.drawImage(window.canvas.offScreenCanvas, 0, 0)
+  ctx.scale(window.view.sx, window.view.sy)
+  ctx.translate(window.view.tx, window.view.ty)
+  console.log(window.view)
 
+  Terrain.prototype.render(ctx)
   if (!Settings.game.map) return
 
   // Mark all entities as "still not drawn"
@@ -47,7 +47,7 @@ function render () {
       ctx.save()
       ctx.translate(ax * Settings.tileSize, ay * Settings.tileSize)
 
-      if (Settings.resName[ent?.type]?.img && ent.drawn === 0) {
+      if (ent?.type && Settings.resName[ent?.type]?.img && ent.drawn === 0) {
         const type = Settings.resName[ent.type]
         if (type && type.size) {
           ctx.translate(type.size[0] / 2 * Settings.tileSize, type.size[1] / 2 * Settings.tileSize)
@@ -59,7 +59,7 @@ function render () {
         else ctx.drawImage(Settings.resName[ent.type].img, 0, 0)
         ent.drawn = 1 // static objects are drawn now
 
-        if (ent.type === Settings.resDB.belt1.id) {
+        if (ent.type === Settings.resDB.belt1.id || ent.type === Settings.resDB.belt2.id || ent.type === Settings.resDB.belt3.id) {
           ent.searching = false // no circular dependency for belts
           beltsToDraw.push(ent)
         } else entsToDraw.push(ent)
@@ -104,7 +104,7 @@ function render () {
         const nbPos = Settings.dirToVec[belt.dir]
         const nbTile = Settings.game.map[x + nbPos.x][y + nbPos.y]
         const nbEntity = Settings.allInvs[nbTile[Settings.layers.inv]]
-        if (nbEntity?.type === Settings.resDB.belt1.id && // is it a belt?
+        if ((nbEntity?.type === Settings.resDB.belt1.id || nbEntity?.type === Settings.resDB.belt2.id || nbEntity?.type === Settings.resDB.belt3.id) && // is it a belt?
                     nbEntity.drawn === 1 && // already processed?
                     (nbEntity.searching === false || nbEntity.searching === undefined) && // circular network?
                     Math.abs(belt.dir - nbEntity.dir) !== 2) { // not heading to current belt
@@ -140,7 +140,7 @@ function render () {
 
       // PLAYERS
       const entity = Settings.player
-      if (entity.tilePos && ax - 2 === entity.tilePos.x && ay === entity.tilePos.y) {
+      if (entity?.tilePos && ax - 2 === entity.tilePos.x && ay === entity.tilePos.y) {
         Settings.player.draw(ctx, entity)
       }
     }
@@ -170,21 +170,9 @@ function render () {
 
   // OVERLAY
   ctx.resetTransform()
-  window.receiptMenu.item = undefined
-
-  // INVENTORY MENU
-  if (window.invMenu.vis) {
-    window.invMenu.items.forEach(b => b.draw(ctx))
-  }
 
   // CRAFTING/ENTITY/SELECT ITEM MENU
   drawSelectItemMenu(ctx)
-
-  // RECEIPT MENU
-  drawReceiptMenu(ctx)
-
-  // CONTENT MENU
-  drawContentMenu(ctx)
 
   // POINTER ITEM
   if (Settings.pointer?.item && Settings.pointer.overlay) {
@@ -220,7 +208,7 @@ function render () {
 
   requestAnimationFrame(render)
 }
-
+*/
 function imgLoaded (imgElement) {
   return imgElement.complete && imgElement.naturalHeight !== 0
 }
@@ -251,4 +239,4 @@ function updateOffscreenMap () {
   }
 }
 
-export { render, updateOffscreenMap, imgLoaded }
+export { updateOffscreenMap, imgLoaded }
