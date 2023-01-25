@@ -13,17 +13,8 @@ function getEventLocation (e) {
 }
 
 class EntityLayer extends NC.NodiGrid {
-  constructor (name, gridSize, tileSize) {
-    super(name, gridSize, tileSize)
-  }
-
   onKeyDown (e) {
-    if (e.code === 'KeyW') Settings.player.dir.y = -1
-    if (e.code === 'KeyS') Settings.player.dir.y = 1
-    if (e.code === 'KeyD') Settings.player.dir.x = 1
-    if (e.code === 'KeyA') Settings.player.dir.x = -1
-    if (e.code === 'KeyF') Settings.player.fetch()
-    if (e.code === 'Enter') Settings.player.enterCar()
+    Settings.player.onKeyDown(e)
     if (e.code === 'Escape') {
       if (Settings.pointer.item) {
         Settings.player.addItem(Settings.pointer.item)
@@ -37,10 +28,7 @@ class EntityLayer extends NC.NodiGrid {
   }
 
   onKeyUp (e) {
-    if (e.code === 'KeyW') Settings.player.dir.y = 0
-    if (e.code === 'KeyS') Settings.player.dir.y = 0
-    if (e.code === 'KeyD') Settings.player.dir.x = 0
-    if (e.code === 'KeyA') Settings.player.dir.x = 0
+    Settings.player.onKeyUp(e)
     if (e.code === 'KeyR') Settings.buildDir = (Settings.buildDir + 1) % 4
     if (e.code === 'KeyE') {
       window.view.updateInventoryMenu(Settings.player)
@@ -141,14 +129,6 @@ class EntityLayer extends NC.NodiGrid {
         let ent
         if (invID !== undefined) {
           ent = Settings.allInvs[invID]
-        }
-
-        // DRAW RESOURCES
-        const type = tile[Settings.layers.res].id
-        const n = tile[Settings.layers.res].n
-
-        if (type && Settings.resName[type].img && n) {
-          ctx.drawImage(Settings.resName[type].img, Math.min(Math.floor(n / 100), 6) * 64, 2, 60, 60, ax * Settings.tileSize, ay * Settings.tileSize, 64, 64)
         }
 
         // ENTITY GROUNDS

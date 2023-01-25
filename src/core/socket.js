@@ -27,7 +27,9 @@ function wssend (msg) {
     if (msg.cmd === 'godmode') {
       Settings.player.stacksize = 50
       Settings.player.addItem({ id: Settings.resDB.chest.id, n: 100 })
-      Settings.player.addItem({ id: Settings.resDB.coal.id, n: 50 })
+      Settings.player.addItem({ id: Settings.resDB.coal.id, n: 100 })
+      Settings.player.addItem({ id: Settings.resDB.copper.id, n: 100 })
+      Settings.player.addItem({ id: Settings.resDB.iron.id, n: 100 })
       Settings.player.addItem({ id: Settings.resDB.iron_plate.id, n: 500 })
       Settings.player.addItem({ id: Settings.resDB.stone.id, n: 50 })
       Settings.player.addItem({ id: Settings.resDB.gear.id, n: 50 })

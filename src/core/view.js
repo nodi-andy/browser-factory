@@ -122,7 +122,7 @@ class ViewModule extends NC.NodiView {
   }
 
   updateInventoryMenu (inv) {
-    const pack = inv.stack.INV
+    const pack = inv?.stack?.INV
 
     if (pack === undefined) return
 

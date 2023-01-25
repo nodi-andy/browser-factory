@@ -7,26 +7,50 @@ class Car extends Player {
     data.pos = pos
     this.setup(undefined, data)
     this.dir = 0
+    this.speed = 0
   }
 
   update (map, ent) {
+    ent.pos.x = ent.pos.x + this.speed * Math.cos(ent.dir)
+    //ent.pos.x = ent.nextPos.x
 
+    ent.pos.y = ent.pos.y + this.speed * Math.sin(ent.dir)
+    //ent.pos.y = ent.nextPos.y
   }
 
-  setup (map, ent) {
+  onKeyDown (e) {
+    if (e.code === 'KeyW') this.speed = 10
+    if (e.code === 'KeyS') this.speed = -10
+    if (e.code === 'KeyD') this.dir += (Math.PI / 8)
+    if (e.code === 'KeyA') this.dir -= (Math.PI / 8)
+    this.dir += (2 * Math.PI)
+    this.dir %= (2 * Math.PI)
+    this.drawDir = (((Math.round(this.dir / (Math.PI / 8))) + 4) % 16)
+    console.log(this.dir + '  ' + this.drawDir)
+  }
+
+  onKeyUp (e) {
+    if (e.code === 'KeyW') this.speed = 0
+    if (e.code === 'KeyS') this.speed = 0
   }
 
   draw (ctx, ent) {
     if (this.pos) {
       ctx.translate(this.pos.x, this.pos.y)
     }
-    ctx.drawImage(Settings.resDB.car.img_anim, 0, 0, 260, 260, -130, -130, 260, 260)
+    if (isNaN(this.dir)) {
+      this.dir = 0
+      this.drawDir = 4
+    }
+
+    ctx.drawImage(db.img_anim, this.drawDir * 260, 0, 260, 260, -130, -130, 260, 260)
   }
 }
 
 const db = Settings.resDB.car
 db.name = 'car'
 db.type = 'entity'
+db.rotatable = false
 db.size = [1, 1]
 db.mach = Car
 db.playerCanWalkOn = false

@@ -30,17 +30,22 @@ class Player extends Inventory {
     if (this.tilePos === undefined) {
       this.tilePos = new NC.Vec2(window.entityLayer.gridSize.x / 2, window.entityLayer.gridSize.y / 2)
     }
-    if (this.pos === undefined) {
+    if (this.pos?.x == null || this.pos?.y == null) {
       this.pos = window.entityLayer.tileToWorld(this.tilePos)
     }
+    if (this.pos?.x == null || this.pos?.y == null) {
+      this.pos = { x: 0, y: 0 }
+    }
+
     this.dir = { x: 0, y: 0 }
     this.live = 100
     this.nextPos = { x: 0, y: 0 }
     this.type = Settings.resDB.player.id
     this.movable = true
+    this.speed = 5
 
     this.ss = { x: 0, y: 0 }
-    if (this.stack?.INV === undefined) this.stack.INV = []
+    if (this.stack && this.stack?.INV === undefined) this.stack.INV = []
     this.stacksize = 1
     this.packsize = {}
     this.packsize.INV = 64
@@ -53,13 +58,14 @@ class Player extends Inventory {
   }
 
   update (map, ent) {
+    if (Settings.game.map === undefined) return
+
     ent.tilePos = this.layer.worldToTile(ent.pos)
     while (this.checkCollision(ent.tilePos)) {
       ent.tilePos.x++
       ent.pos = { x: ent.tilePos.x * Settings.tileSize, y: ent.tilePos.y * Settings.tileSize }
     }
 
-    if (Settings.game.map === undefined) return
     ent.unitdir = toUnitV(ent.dir)
     const entTile = this.layer.worldToTile(ent.pos)
 
@@ -69,11 +75,11 @@ class Player extends Inventory {
       ent.pos.y += Settings.dirToVec[entMap.dir].y * entMap.speed
     }
 
-    ent.nextPos.x = ent.pos.x + 5 * ent.unitdir.x
+    ent.nextPos.x = ent.pos.x + this.speed * ent.unitdir.x
     const nextXTile = this.layer.worldToTileXY(ent.nextPos.x, ent.pos.y)
     if (nextXTile.x > 0 && nextXTile.x < Settings.gridSize.x - 1 && this.checkCollision({ x: nextXTile.x, y: entTile.y }) === false) ent.pos.x = ent.nextPos.x
 
-    ent.nextPos.y = ent.pos.y + 5 * ent.unitdir.y
+    ent.nextPos.y = ent.pos.y + this.speed * ent.unitdir.y
     const nextYTile = this.layer.worldToTileXY(ent.pos.x, ent.nextPos.y)
     if (nextYTile.y > 0 && nextYTile.y < Settings.gridSize.y - 1 && this.checkCollision({ x: entTile.x, y: nextYTile.y }) === false) ent.pos.y = ent.nextPos.y
 
@@ -111,17 +117,43 @@ class Player extends Inventory {
   }
 
   draw (ctx, ent) {
+    if (this.car) return
     ctx.translate(this.pos.x, this.pos.y)
     ctx.drawImage(Settings.resDB.player.img, this.ss.x * 96, this.ss.y * 132, 96, 132, -48, -100, 96, 132)
-    /*
     ctx.beginPath()
+    /*
     ctx.fillStyle = 'red'
     ctx.fillRect(-25, -120, 50, 10)
     ctx.fillStyle = 'green'
     ctx.fillRect(-25, -120, (this.live / 100) * 50, 10)
+    */
     ctx.fillStyle = 'yellow'
     ctx.fillRect(-25, -130, (this.workProgress / 100) * 50, 10)
-    */
+  }
+
+  onKeyDown (e) {
+    if (e.code === 'Enter' || e.code === 'NumpadEnter') this.enterCar()
+
+    if (this.car) {
+      this.car.onKeyDown(e)
+    } else {
+      if (e.code === 'KeyW') this.dir.y = -1
+      if (e.code === 'KeyS') this.dir.y = 1
+      if (e.code === 'KeyD') this.dir.x = 1
+      if (e.code === 'KeyA') this.dir.x = -1
+      if (e.code === 'KeyF') this.fetch()
+    }
+  }
+
+  onKeyUp (e) {
+    if (this.car) {
+      this.car.onKeyUp(e)
+    } else {
+      if (e.code === 'KeyW') this.dir.y = 0
+      if (e.code === 'KeyS') this.dir.y = 0
+      if (e.code === 'KeyD') this.dir.x = 0
+      if (e.code === 'KeyA') this.dir.x = 0
+    }
   }
 
   fetch () {
@@ -148,7 +180,18 @@ class Player extends Inventory {
   }
 
   enterCar () {
+    if (this.car) {
+      this.car.speed = 0
+      this.car = undefined
+      return
+    }
 
+    for (const nbV of Settings.nbVec) {
+      const nb = invfuncs.getInv(this.tilePos.x + nbV.x, this.tilePos.y + nbV.y)
+      if (nb?.type === Settings.resDB.car.id) {
+        this.car = Settings.allInvs[nb.id]
+      }
+    }
   }
 
   setDir (dir) {
@@ -158,14 +201,14 @@ class Player extends Inventory {
   checkCollision (pos) {
     if (Settings.game.map === undefined) return
     const terrain = Settings.game.map[pos.x][pos.y][Settings.layers.terrain][0]
-    const building = Settings.game.map[pos.x][pos.y][Settings.layers.inv]
-    let canWalkOn = true
-    if (building) {
-      canWalkOn = false
-      if (Settings.resName[Settings.allInvs[building]?.type]) canWalkOn = Settings.resName[Settings.allInvs[building].type].playerCanWalkOn
-    }
+    if (Settings.resName[terrain].playerCanWalkOn === false) return true
 
-    return (terrain === Settings.resDB.deepsea || terrain === Settings.resDB.sea || terrain === Settings.resDB.hills || !canWalkOn)
+    const building = Settings.game.map[pos.x][pos.y][Settings.layers.inv]
+    if (building && Settings.allInvs[building]?.type) {
+      const canWalk = Settings.resName[Settings.allInvs[building]?.type].playerCanWalkOn;
+      if (canWalk === false || canWalk == null) return true
+    }
+    return false
   }
 
   startMining (tileCoordinate, ent) {

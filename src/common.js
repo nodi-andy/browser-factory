@@ -85,8 +85,6 @@ for (let i = 0; i < Settings.resID.length; i++) {
 
 const allInvs = []
 
-let selEntity
-
 Settings.isServer = (typeof window === 'undefined')
 Settings.isBrowser = !Settings.isServer
 Settings.resDB = resDB
@@ -94,7 +92,7 @@ Settings.resDBi = resDBi
 Settings.resName = resName
 Settings.game = game
 Settings.allInvs = allInvs
-Settings.selEntity = selEntity
+Settings.selEntity = 0
 Settings.item = item
 Settings.playerID = 0
 Settings.gameState = 0

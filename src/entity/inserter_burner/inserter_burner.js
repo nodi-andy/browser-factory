@@ -9,39 +9,42 @@ class InserterBurner extends Inventory {
   }
 
   setup (map, ent) {
-    this.stack = {}
-    this.stack.INV = []
-    this.stack.FUEL = []
-    this.stacksize = 3
-    this.packsize = {}
-    this.packsize.INV = 1
-    this.packsize.FUEL = 1
-    this.armPos = 0
-    this.energy = 0
+    if (ent.stack == null) ent.stack = {}
+    ent.stacksize = 3
+    if (ent.stack.FUEL == null) ent.stack.FUEL = []
+    if (ent.stack.INPUT == null) ent.stack.INPUT = []
+    if (ent.stack.INV == null) ent.stack.INV = []
+
+    ent.packsize = {}
+    ent.packsize.INV = 1
+    ent.packsize.INPUT = 1
+    ent.packsize.FUEL = 1
+    ent.armPos = 0
+    ent.energy = 0
   }
 
   update (map, ent) {
-    if (this.stack.FUEL === undefined) this.stack.FUEL = []
-    this.done = true
-    if (this.pos) {
-      if (this.stack.FUEL[0]?.n > 0 && this.energy <= 2) {
-        this.energy += Settings.resName[this.stack.FUEL[0].id].E // add time factor
-        this.stack.FUEL[0].n--
+    if (ent.stack.FUEL == null) ent.stack.FUEL = []
+    ent.done = true
+    if (ent.pos) {
+      if (ent.stack.FUEL[0]?.n > 0 && ent.energy <= 2) {
+        ent.energy += Settings.resName[ent.stack.FUEL[0].id].E // add time factor
+        ent.stack.FUEL[0].n--
       }
-      const isHandFull = this.stack?.INV[0]?.n > 0
+      const isHandFull = ent.stack?.INV[0]?.n > 0
 
-      const myDir = Settings.dirToVec[this.dir]
+      const myDir = Settings.dirToVec[ent.dir]
 
-      if ((isHandFull || this.armPos > 0) && this.state === 1) this.armPos = (this.armPos + 1) % 64
+      if ((isHandFull || ent.armPos > 0) && ent.state === 1) ent.armPos = (ent.armPos + 1) % 64
 
       const invFrom = invfuncs.getInv(ent.pos.x - myDir.x, ent.pos.y - myDir.y, true)
       const invTo = invfuncs.getInv(ent.pos.x + myDir.x, ent.pos.y + myDir.y, true)
 
       // LOAD COAL
-      if (this.armPos === 0 && !isHandFull && this.energy <= 0 && invFrom.hasItem(Settings.resDB.coal)) {
-        invFrom.moveItemTo({ id: Settings.resDB.coal.id, n: 1 }, this, 'FUEL')
+      if (ent.armPos === 0 && !isHandFull && ent.energy <= 0 && invFrom.hasItem(Settings.resDB.coal)) {
+        invFrom.moveItemTo({ id: Settings.resDB.coal.id, n: 1 }, ent, 'FUEL')
       // PICK
-      } else if (this.armPos === 0 && !isHandFull && this.energy > 0) {
+      } else if (ent.armPos === 0 && !isHandFull && ent.energy > 0) {
         let item
         if (invFrom.stack.OUTPUT) {
           item = invFrom.getFirstPack('OUTPUT')
@@ -54,21 +57,21 @@ class InserterBurner extends Inventory {
           }
         } else item = invFrom.getFirstPack()
 
-        if (item?.n && invFrom.moveItemTo({ id: item.id, n: 1 }, this)) {
-          this.energy--
-          this.state = 1
-        } else this.state = 0
+        if (item?.n && invFrom.moveItemTo({ id: item.id, n: 1 }, ent)) {
+          ent.energy--
+          ent.state = 1
+        } else ent.state = 0
       // PLACE
-      } else if (this.armPos === 32 && isHandFull) {
+      } else if (ent.armPos === 32 && isHandFull) {
         if (invTo === undefined) {
-          this.state = 0
+          ent.state = 0
           return
         }
         let stackName
 
         // place onto belt
         if (invTo?.type === Settings.resDB.belt1.id) {
-          const relDir = (invTo.dir - this.dir + 3) % 4
+          const relDir = (invTo.dir - ent.dir + 3) % 4
           const dirPref = ['R', 'L', 'R', 'L']
           stackName = dirPref[relDir]
         // place into burner miner
@@ -77,16 +80,16 @@ class InserterBurner extends Inventory {
 
         // place into assembling machine
         } else {
-          stackName = invTo.getStackName(this.stack.INV[0].id)
+          stackName = invTo.getStackName(ent.stack.INV[0].id)
         }
 
-        if (invTo.hasPlaceFor(this.stack.INV[0], stackName)) {
-          this.moveItemTo(this.stack.INV[0], invTo, stackName)
-          this.state = 1
-        } else { this.state = 0 }
+        if (invTo.hasPlaceFor(ent.stack.INV[0], stackName)) {
+          ent.moveItemTo(ent.stack.INV[0], invTo, stackName)
+          ent.state = 1
+        } else { ent.state = 0 }
       // GO TO INITIAL POS
-      } else if (this.armPos !== 0 && !isHandFull) {
-        this.state = 1
+      } else if (ent.armPos !== 0 && !isHandFull) {
+        ent.state = 1
       }
     }
   }

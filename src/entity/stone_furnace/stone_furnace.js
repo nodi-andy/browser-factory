@@ -36,6 +36,7 @@ class StoneFurnace extends Inventory {
   }
 
   update (map, ent) {
+    if (ent == null) return
     this.need = []
     this.preneed = []
 
@@ -74,29 +75,29 @@ class StoneFurnace extends Inventory {
         delete this.stack.INV
       }
     }
-    const inv = invfuncs.getInv(ent.pos.x, ent.pos.y)
-    if (inv?.stack?.FUEL === undefined ||
-            inv.stack.INPUT === undefined ||
-            inv.stack.INPUT[0] === undefined ||
-            inv.stack.INPUT[0].id === undefined ||
-            Settings.resName[inv.stack.INPUT[0].id].smeltedInto === undefined) {
-      inv.state = 0
+    const stack = ent?.stack
+    if (stack?.FUEL === undefined ||
+            stack.INPUT === undefined ||
+            stack.INPUT[0] === undefined ||
+            stack.INPUT[0].id === undefined ||
+            Settings.resName[stack.INPUT[0].id].smeltedInto === undefined) {
+      ent.state = 0
       return
     }
 
-    if (inv?.stack?.FUEL.length && inv.stack.FUEL[0].n && inv.stack.INPUT.length && inv.stack.INPUT[0].n) {
-      if (inv.state === 0) { this.lastTime = performance.now(); inv.state = 1 };
-      if (inv.state === 1) {
+    if (stack?.FUEL.length && stack.FUEL[0].n && stack.INPUT.length && stack.INPUT[0].n) {
+      if (ent.state === 0) { this.lastTime = performance.now(); ent.state = 1 };
+      if (ent.state === 1) {
         const deltaT = performance.now() - this.lastTime
-        const becomesThat = Settings.resName[inv.stack.INPUT[0].id].smeltedInto
+        const becomesThat = Settings.resName[stack.INPUT[0].id].smeltedInto
         if (becomesThat && deltaT > 5000) {
           // if (inv.stack.OUTPUT === undefined || inv.stack.OUTPUT.length === 0) inv.stack.OUTPUT = [Settings.item(undefined, 0)];
-          if (inv.stack.OUTPUT[0] === undefined) inv.stack.OUTPUT[0] = Settings.item(undefined, 0)
-          if (inv.stack.OUTPUT[0].n === undefined) inv.stack.OUTPUT[0].n = 0
-          inv.stack.INPUT[0].n--
-          inv.stack.FUEL[0].n--
-          inv.stack.OUTPUT[0].id = becomesThat
-          inv.stack.OUTPUT[0].n++
+          if (stack.OUTPUT[0] === undefined) stack.OUTPUT[0] = Settings.item(undefined, 0)
+          if (stack.OUTPUT[0].n === undefined) stack.OUTPUT[0].n = 0
+          stack.INPUT[0].n--
+          stack.FUEL[0].n--
+          stack.OUTPUT[0].id = becomesThat
+          stack.OUTPUT[0].n++
           this.lastTime = performance.now()
         }
       }
@@ -105,8 +106,10 @@ class StoneFurnace extends Inventory {
 
   draw (ctx, ent) {
     let img = this.img
+    const mapSize = Settings.resDB.stone_furnace.size
+    const viewSize = Settings.resDB.stone_furnace.viewsize
     if (ent) img = Settings.resDB.stone_furnace.img
-    ctx.drawImage(img, 0, 0, db.size[0] * Settings.tileSize / 2, db.size[1] * Settings.tileSize / 2, 0, 0, db.size[0] * Settings.tileSize, db.size[1] * Settings.tileSize)
+    ctx.drawImage(img, 0, 0, Settings.tileSize, Settings.tileSize, 0, -(viewSize[1] - mapSize[1]) * Settings.tileSize, viewSize[0] * Settings.tileSize, viewSize[1] * Settings.tileSize)
   }
 
   drawItems (ctx) {
