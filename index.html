@@ -36,7 +36,7 @@
     .overlay {
         height: 100%;
         left: 100%;
-        width: 400px;
+        width: 300px;
         position: fixed;
         z-index: 1;
         top: 0;
@@ -224,6 +224,7 @@
     import { EntityLayer } from './src/entity/entityLayer.js'
     import { ResLayer } from './src/res/resLayer.js'
     import { DialogLayer } from './src/dialogs/dialogLayer.js'
+    import { ControlsLayer } from './src/controls/controlsLayer.js'
     import * as NC from 'nodicanvas'
 
     let curGame = window.localStorage.getItem("curGame");
@@ -240,13 +241,17 @@
     let nextGameID = undefined;
     let htmlList = document.getElementById("savedGameList");
 
-    window.terrain = new Terrain("terrain", Settings.gridSize, Settings.tileSize)
-    window.entityLayer = new EntityLayer("entity", Settings.gridSize, Settings.tileSize)
     window.view = new ViewModule (window.canvas);
+
+    window.terrain = new Terrain("terrain", Settings.gridSize, Settings.tileSize)
     window.view.addLayer(window.terrain)
+
     window.view.addLayer(new ResLayer("resource", Settings.gridSize, Settings.tileSize))
+
+    window.entityLayer = new EntityLayer("entity", Settings.gridSize, Settings.tileSize)
     window.view.addLayer(window.entityLayer)
     window.view.addLayer(new DialogLayer("dialog", Settings.gridSize, Settings.tileSize))
+    window.view.addLayer(new ControlsLayer("controls", Settings.gridSize, Settings.tileSize))
 
     function updateNextGameID() {
         let gamesList = Object.values(Object.keys(window.localStorage));
@@ -311,7 +316,7 @@
     }
 
     function openNav() {
-        document.getElementById("myNav").style.left = (window.innerWidth - 400) + "px";
+        document.getElementById("myNav").style.left = (window.innerWidth - 300) + "px";
     }
 
     function closeNav() {
@@ -432,7 +437,7 @@
 
 
     loadGame(curGame);
-    window.addEventListener("load", function() { window.view.resize(); } );
+    window.addEventListener("resize", function() { window.view.resize(); } );
 
     document.getElementById("openNavBtn").onclick = openNav;
     document.getElementById("closeNavBtn").onclick = closeNav;

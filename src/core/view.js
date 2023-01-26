@@ -38,6 +38,7 @@ class ViewModule extends NC.NodiView {
       window.selectItemMenu.rect.w = window.craftMenu.rect.w
       window.selectItemMenu.rect.h = window.craftMenu.rect.h
     }
+    this.size = { x: window.canvas.width, y: window.canvas.height }
     super.resize(window.canvas.width, window.canvas.height)
   }
 

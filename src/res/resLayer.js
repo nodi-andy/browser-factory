@@ -1,7 +1,7 @@
 import { Settings } from '../common.js'
 import * as NC from 'nodicanvas'
 
-class ResLayer extends NC.NodiGrid {
+export class ResLayer extends NC.NodiGrid {
   render (view) {
     const ctx = view.ctx
     // scan all tiles in view
@@ -24,5 +24,3 @@ class ResLayer extends NC.NodiGrid {
     }
   }
 }
-
-export { ResLayer }

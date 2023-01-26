@@ -40,6 +40,7 @@ class EntityLayer extends NC.NodiGrid {
   }
 
   onMouseDown (e, hit) {
+    if (hit) return
     const worldCordinate = window.view.screenToWorld(getEventLocation(e))
     const tileCoordinate = this.worldToTile(worldCordinate)
     if (e.buttons === 1) {

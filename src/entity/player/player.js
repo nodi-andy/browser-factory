@@ -85,14 +85,14 @@ class Player extends Inventory {
 
     if (ent.dir.x < 0) ent.ss.x--; else ent.ss.x++
 
-    if (ent.dir.y === -1 && ent.dir.x === -1) ent.ss.y = 5
-    if (ent.dir.y === -1 && ent.dir.x === 0) ent.ss.y = 0
-    if (ent.dir.y === -1 && ent.dir.x === 1) ent.ss.y = 1
-    if (ent.dir.y === 0 && ent.dir.x === -1) ent.ss.y = 6
-    if (ent.dir.y === 0 && ent.dir.x === 1) ent.ss.y = 2
-    if (ent.dir.y === 1 && ent.dir.x === -1) ent.ss.y = 7
-    if (ent.dir.y === 1 && ent.dir.x === 0) ent.ss.y = 4
-    if (ent.dir.y === 1 && ent.dir.x === 1) ent.ss.y = 3
+    if (ent.dir.y < -0.25 && ent.dir.x < -0.25) ent.ss.y = 5
+    if (ent.dir.y < -0.25 && Math.abs(ent.dir.x) < 0.25) ent.ss.y = 0
+    if (ent.dir.y < -0.25 && ent.dir.x > 0.25) ent.ss.y = 1
+    if (Math.abs(ent.dir.y) < 0.5 && ent.dir.x < 0) ent.ss.y = 6
+    if (Math.abs(ent.dir.y) < 0.5 && ent.dir.x > 0) ent.ss.y = 2
+    if (ent.dir.y > 0.25 && ent.dir.x < -0.25) ent.ss.y = 7
+    if (ent.dir.y > 0.25 && Math.abs(ent.dir.x) < 0.25) ent.ss.y = 4
+    if (ent.dir.y > 0.25 && ent.dir.x > 0.25) ent.ss.y = 3
 
     ent.ss.x += 30
     ent.ss.x %= 30

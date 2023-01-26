@@ -38,6 +38,7 @@ class DialogLayer extends NC.NodiGrid {
     window.receiptMenu.rect.y = e.y
 
     window.mousePos = e
+    window.curResPos = { x: e.gridX, y: e.gridY }
   }
 
   onMouseUp (e, hit) {
@@ -54,6 +55,41 @@ class DialogLayer extends NC.NodiGrid {
 
     const ctx = view.ctx
     ctx.resetTransform()
+    ctx.lineWidth = 1
+    // CONTENT MENU
+    if (window.curResPos?.x && window.curResPos?.y && Settings.game.map) {
+      ctx.save()
+      const inv = invfuncs.getInv(window.curResPos.x, window.curResPos.y)
+      const res = Settings.game.map[window.curResPos.x][window.curResPos.y][Settings.layers.res]
+
+      if (Settings.DEV) {
+        // console.log(JSON.stringify(game.map[curResPos.x][curResPos.y]), inv);
+        ctx.font = '24px Arial'
+        ctx.fillStyle = 'white'
+
+        if (res !== undefined) ctx.fillText(JSON.stringify(res, null, 1), window.mousePos.x, window.mousePos.y + 24)
+        if (inv !== undefined) {
+          ctx.fillText(inv.id + ': ' + window.curResPos.x + ', ' + window.curResPos.y, window.mousePos.x, window.mousePos.y)
+          ctx.fillText(JSON.stringify(inv.stack, null, 1), window.mousePos.x, window.mousePos.y + 48)
+          ctx.fillText(JSON.stringify(inv.nbInputs, null, 1), window.mousePos.x, window.mousePos.y + 72)
+          ctx.fillText(JSON.stringify(inv.nbOutputs, null, 1), window.mousePos.x, window.mousePos.y + 96)
+          ctx.fillText(JSON.stringify(inv.dir, null, 1), window.mousePos.x, window.mousePos.y + 120)
+        }
+        ctx.stroke()
+      }
+
+      if (res?.id) {
+        ctx.beginPath()
+        ctx.fillStyle = 'rgba(150, 150, 190, 0.75)'
+        const menuPos = { x: window.canvas.width - 200, y: window.canvas.height / 2 - 50 }
+        ctx.translate(menuPos.x, menuPos.y)
+        ctx.fillRect(0, 0, 200, 100)
+        ctx.font = '24px Arial'
+        ctx.fillStyle = 'black'
+        ctx.fillText(Settings.resName[res.id].name + ' ' + res.n, 0, 30)
+      }
+      ctx.restore()
+    }
 
     this.drawSelectItemMenu(ctx)
 
