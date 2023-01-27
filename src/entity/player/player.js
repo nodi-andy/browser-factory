@@ -212,16 +212,22 @@ class Player extends Inventory {
   }
 
   startMining (tileCoordinate, ent) {
-    this.workInterval = setInterval(function () {
-      const res = Settings.game.map[tileCoordinate.x][tileCoordinate.y][Settings.layers.res]
-      invfuncs.mineToInv({ source: tileCoordinate, id: res.id, n: 1 })
-    }, 1000)
-    this.miningProgress = setInterval(function () { ent.workProgress += 10; ent.workProgress %= 100 }, 100)
+    ent.stopMining(ent)
+    if (ent.workInterval == null) {
+      ent.workInterval = setInterval(function () {
+        const res = Settings.game.map[tileCoordinate.x][tileCoordinate.y][Settings.layers.res]
+        invfuncs.mineToInv({ source: tileCoordinate, id: res.id, n: 1 })
+      }, 1000)
+    }
+    if (ent.miningProgress === 0) {
+      ent.miningProgress = setInterval(function () { ent.workProgress += 10; ent.workProgress %= 100 }, 100)
+    }
   }
 
   stopMining (ent) {
-    clearInterval(this.workInterval)
-    clearInterval(this.miningProgress)
+    clearInterval(ent.workInterval)
+    clearInterval(ent.miningProgress)
+    ent.miningProgress = 0
     ent.workProgress = 0
   }
 

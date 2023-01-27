@@ -12,6 +12,7 @@ export class ControlsLayer extends NC.NodiGrid {
     this.dir = new NC.Vec2(0, 0)
     this.force = 0
     this.rawPos = new NC.Vec2(0, 0)
+    this.joystickCenter = new NC.Vec2(100, window.view.size.y * 0.90)
   }
 
   // Gets the relevant location from a mouse or single touch event
@@ -28,11 +29,14 @@ export class ControlsLayer extends NC.NodiGrid {
 
   onMouseDown (e, hit) {
     this.getEventLocation(e)
-    this.start.x = 100
-    this.start.y = window.view.size.y * 0.90
-    this.start.started = true
-    this.force = 0
-    return this.rawPos.subtract(this.start).length() < 40
+    this.start = this.joystickCenter.clone()
+
+    if (this.rawPos.subtract(this.start).length() < 40) {
+      this.start.started = true
+      this.force = 0
+      console.log('mouse down: ' + JSON.stringify(this.rawPos) + ' C:' + this.rawPos.subtract(this.start).length() < 40)
+      return true
+    }
   }
 
   onMouseMove (e, hit) {
@@ -57,6 +61,8 @@ export class ControlsLayer extends NC.NodiGrid {
   }
 
   render (view) {
+    this.joystickCenter = new NC.Vec2(100, window.view.size.y * 0.90)
+
     const ctx = view.ctx
     ctx.resetTransform()
     ctx.beginPath()
@@ -70,7 +76,7 @@ export class ControlsLayer extends NC.NodiGrid {
     ctx.beginPath()
     ctx.lineWidth = 5
     ctx.fillStyle = 'rgba(80, 20, 20, 1)'
-    ctx.arc(100 + this.dir.x * this.force, window.view.size.y * 0.90 + this.dir.y * this.force, 20, 0, 2 * Math.PI)
+    ctx.arc(this.joystickCenter.x + this.dir.x * this.force, this.joystickCenter.y + this.dir.y * this.force, 20, 0, 2 * Math.PI)
     ctx.stroke()
     ctx.fill()
     ctx.closePath()

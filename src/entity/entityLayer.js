@@ -79,6 +79,7 @@ class EntityLayer extends NC.NodiGrid {
 
   onMouseUp (e, hit) {
     Settings.player.stopMining(Settings.allInvs[Settings.playerID])
+    if (hit) return
 
     const worldPos = window.view.screenToWorld({ x: e.offsetX, y: e.offsetY })
     const tilePos = this.worldToTile(worldPos)

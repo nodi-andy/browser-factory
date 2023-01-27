@@ -19,6 +19,7 @@ class DialogLayer extends NC.NodiGrid {
   }
 
   onMouseDown (e, hit) {
+    if (hit) return
     let overlayClicked = false
     window.selectItemMenu.items.forEach(b => { if (b.collision(e, b)) { overlayClicked = true } })
     window.invMenu.items.forEach(b => { if (b.collision(e, b)) { overlayClicked = true } })
@@ -28,6 +29,7 @@ class DialogLayer extends NC.NodiGrid {
   }
 
   onMouseMove (e, hit) {
+    if (hit) return
     let isOverlay = false
     window.invMenu.items.forEach(b => { b.hover = b.collision(e); if (b.hover) { isOverlay = true } })
     window.craftMenu.items.forEach(b => { b.hover = b.collision(e); if (b.hover) { isOverlay = true } })
@@ -42,6 +44,7 @@ class DialogLayer extends NC.NodiGrid {
   }
 
   onMouseUp (e, hit) {
+    if (hit) return
     let overlayClicked = false
     window.selectItemMenu.items.forEach(b => { if (b.collision(e) && b.onClick) { b.onClick(e.which, b); overlayClicked = true } })
     window.invMenu.items.forEach(b => { if (b.collision(e) && b.onClick) { b.onClick(e.which, b); overlayClicked = true } })
