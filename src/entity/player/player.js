@@ -50,9 +50,8 @@ class Player extends Inventory {
     this.packsize = {}
     this.packsize.INV = 64
     this.itemsize = 1000
-    this.workInterval = undefined
     this.workProgress = 0
-    this.miningProgress = 0
+    this.miningTimer = 0
 
     window.view.updateInventoryMenu(this)
   }
@@ -213,21 +212,21 @@ class Player extends Inventory {
 
   startMining (tileCoordinate, ent) {
     ent.stopMining(ent)
-    if (ent.workInterval == null) {
-      ent.workInterval = setInterval(function () {
-        const res = Settings.game.map[tileCoordinate.x][tileCoordinate.y][Settings.layers.res]
-        invfuncs.mineToInv({ source: tileCoordinate, id: res.id, n: 1 })
-      }, 1000)
-    }
-    if (ent.miningProgress === 0) {
-      ent.miningProgress = setInterval(function () { ent.workProgress += 10; ent.workProgress %= 100 }, 100)
+    if (ent.miningTimer == null) {
+      ent.miningTimer = setInterval(function () {
+        ent.workProgress += 10
+        if (ent.workProgress >= 100) {
+          ent.workProgress %= 100
+          const res = Settings.game.map[tileCoordinate.x][tileCoordinate.y][Settings.layers.res]
+          invfuncs.mineToInv({ source: tileCoordinate, id: res.id, n: 1 })
+        }
+      }, 100)
     }
   }
 
   stopMining (ent) {
-    clearInterval(ent.workInterval)
-    clearInterval(ent.miningProgress)
-    ent.miningProgress = 0
+    clearInterval(ent.miningTimer)
+    ent.miningTimer = null
     ent.workProgress = 0
   }
 

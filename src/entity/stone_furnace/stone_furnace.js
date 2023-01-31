@@ -40,19 +40,15 @@ class StoneFurnace extends Inventory {
     this.need = []
     this.preneed = []
 
-    if (this.stack.OUTPUT[0]?.id !== undefined) {
+    if (this.stack.OUTPUT[0]?.id == null) {
+      this.preneed.push({ id: Settings.resDB.iron.id, n: 1 })
+      this.preneed.push({ id: Settings.resDB.copper.id, n: 1 })
+      this.preneed.push({ id: Settings.resDB.stone.id, n: 1 })
+      this.preneed.push({ id: Settings.resDB.coal.id, n: 1 })
+      // this.preneed.push({ id: Settings.resDB.wood.id, n: 1 }) TBD: no wood burning
+    } else {
       const outputItem = this.stack.OUTPUT[0].id
       this.preneed = JSON.parse(JSON.stringify(Settings.resName[outputItem].cost))
-    } else {
-      if (this.stack.INPUT === undefined || this.stack.INPUT[0] === undefined || this.stack.INPUT[0].n === 0) {
-        this.preneed.push({ id: Settings.resDB.copper.id, n: 1 })
-        this.preneed.push({ id: Settings.resDB.stone.id, n: 1 })
-        this.preneed.push({ id: Settings.resDB.iron.id, n: 1 })
-      }
-      if (this.stack.FUEL === undefined || this.stack.FUEL[0] === undefined || this.stack.FUEL[0].n === 0) {
-        this.preneed.push({ id: Settings.resDB.coal.id, n: 1 })
-        this.preneed.push({ id: Settings.resDB.wood.id, n: 1 })
-      }
     }
 
     for (let costItemID = 0; costItemID < this.preneed.length; costItemID++) {

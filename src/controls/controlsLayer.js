@@ -13,6 +13,7 @@ export class ControlsLayer extends NC.NodiGrid {
     this.force = 0
     this.rawPos = new NC.Vec2(0, 0)
     this.joystickCenter = new NC.Vec2(100, window.view.size.y * 0.90)
+    this.joystickRadius = window.view.size.y * 0.05
   }
 
   // Gets the relevant location from a mouse or single touch event
@@ -61,14 +62,14 @@ export class ControlsLayer extends NC.NodiGrid {
   }
 
   render (view) {
-    this.joystickCenter = new NC.Vec2(100, window.view.size.y * 0.90)
+    this.joystickCenter = new NC.Vec2(this.joystickRadius * 2, window.view.size.y * 0.90)
 
     const ctx = view.ctx
     ctx.resetTransform()
     ctx.beginPath()
     ctx.lineWidth = 5
     ctx.fillStyle = 'rgba(150, 150, 150, 0.75)'
-    ctx.arc(100, window.view.size.y * 0.90, 40, 0, 2 * Math.PI)
+    ctx.arc(this.joystickCenter.x, this.joystickCenter.y, this.joystickRadius, 0, 2 * Math.PI)
     ctx.stroke()
     ctx.fill()
     ctx.closePath()
@@ -76,7 +77,7 @@ export class ControlsLayer extends NC.NodiGrid {
     ctx.beginPath()
     ctx.lineWidth = 5
     ctx.fillStyle = 'rgba(80, 20, 20, 1)'
-    ctx.arc(this.joystickCenter.x + this.dir.x * this.force, this.joystickCenter.y + this.dir.y * this.force, 20, 0, 2 * Math.PI)
+    ctx.arc(this.joystickCenter.x + this.dir.x * this.force, this.joystickCenter.y + this.dir.y * this.force, this.joystickRadius / 2, 0, 2 * Math.PI)
     ctx.stroke()
     ctx.fill()
     ctx.closePath()

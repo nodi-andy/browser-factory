@@ -14,8 +14,16 @@ class DialogLayer extends NC.NodiGrid {
     window.entityMenu = new Dialog()
     window.receiptMenu = new Dialog()
     window.selectItemMenu = new Dialog()
+    window.viewSwitches = new Dialog()
+    window.viewSwitches.vis = true
 
     this.createInvMenu()
+    this.showInvButton = new Button(window.canvas.width - Settings.buttonSize, window.canvas.height - Settings.buttonSize, undefined, window.viewSwitches)
+    window.viewSwitches.items.push(this.showInvButton)
+    this.showInvButton.onClick = () => {
+      window.invMenu.vis = !window.invMenu.vis
+      window.craftMenu.vis = window.invMenu.vis
+    }
   }
 
   onMouseDown (e, hit) {
@@ -25,6 +33,7 @@ class DialogLayer extends NC.NodiGrid {
     window.invMenu.items.forEach(b => { if (b.collision(e, b)) { overlayClicked = true } })
     window.craftMenu.items.forEach(b => { if (b.collision(e, b)) { overlayClicked = true } })
     window.entityMenu.items.forEach(b => { if (b.collision(e, b)) { overlayClicked = true } })
+    window.viewSwitches.items.forEach(b => { if (b.collision(e, b)) { overlayClicked = true } })
     return overlayClicked
   }
 
@@ -41,6 +50,7 @@ class DialogLayer extends NC.NodiGrid {
 
     window.mousePos = e
     window.curResPos = { x: e.gridX, y: e.gridY }
+    return Settings.pointer.overlay
   }
 
   onMouseUp (e, hit) {
@@ -50,6 +60,7 @@ class DialogLayer extends NC.NodiGrid {
     window.invMenu.items.forEach(b => { if (b.collision(e) && b.onClick) { b.onClick(e.which, b); overlayClicked = true } })
     window.craftMenu.items.forEach(b => { if (b.collision(e) && b.onClick) { b.onClick(e.which, b); overlayClicked = true } })
     window.entityMenu.items.forEach(b => { if (b.collision(e) && b.onClick) { b.onClick(e.which, b); overlayClicked = true } })
+    window.viewSwitches.items.forEach(b => { if (b.collision(e) && b.onClick) { b.onClick(e.which, b); overlayClicked = true } })
     return overlayClicked
   }
 
@@ -84,7 +95,7 @@ class DialogLayer extends NC.NodiGrid {
       if (res?.id) {
         ctx.beginPath()
         ctx.fillStyle = 'rgba(150, 150, 190, 0.75)'
-        const menuPos = { x: window.canvas.width - 200, y: window.canvas.height / 2 - 50 }
+        const menuPos = { x: window.canvas.width - 200, y: window.canvas.height / 4 - 50 }
         ctx.translate(menuPos.x, menuPos.y)
         ctx.fillRect(0, 0, 200, 100)
         ctx.font = '24px Arial'
@@ -103,6 +114,7 @@ class DialogLayer extends NC.NodiGrid {
       window.entityMenu.items.forEach(b => b.draw(ctx))
       window.selectItemMenu.items.forEach(b => b.draw(ctx))
     }
+    this.showInvButton.draw(ctx)
 
     this.drawReceiptMenu(ctx)
 

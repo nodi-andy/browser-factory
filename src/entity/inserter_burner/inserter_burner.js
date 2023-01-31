@@ -15,36 +15,41 @@ class InserterBurner extends Inventory {
     if (ent.stack.INPUT == null) ent.stack.INPUT = []
     if (ent.stack.INV == null) ent.stack.INV = []
 
-    ent.packsize = {}
+    if (ent.packsize == null) ent.packsize = {}
     ent.packsize.INV = 1
     ent.packsize.INPUT = 1
     ent.packsize.FUEL = 1
-    ent.armPos = 0
-    ent.energy = 0
+    if (ent.armPos == null) ent.armPos = 0
+    if (ent.energy == null) ent.energy = 10 // TBD: electricity
+    if (ent.isHandFull == null) ent.isHandFull = false
   }
 
   update (map, ent) {
-    if (ent.stack.FUEL == null) ent.stack.FUEL = []
+    this.setup(map, ent)
     ent.done = true
     if (ent.pos) {
       if (ent.stack.FUEL[0]?.n > 0 && ent.energy <= 2) {
-        ent.energy += Settings.resName[ent.stack.FUEL[0].id].E // add time factor
-        ent.stack.FUEL[0].n--
+        // TBD: don't use coal until electricity is developed
+        // ent.energy += Settings.resName[ent.stack.FUEL[0].id].E // add time factor
+        // ent.stack.FUEL[0].n--
+        ent.energy = 10
       }
-      const isHandFull = ent.stack?.INV[0]?.n > 0
+      ent.isHandFull = false
+      if (ent.stack?.INV && ent.stack?.INV[0]?.n > 0) ent.isHandFull = true
 
       const myDir = Settings.dirToVec[ent.dir]
 
-      if ((isHandFull || ent.armPos > 0) && ent.state === 1) ent.armPos = (ent.armPos + 1) % 64
+      if ((ent.isHandFull || ent.armPos > 0) && ent.state === 1) ent.armPos = (ent.armPos + 1) % 64
 
       const invFrom = invfuncs.getInv(ent.pos.x - myDir.x, ent.pos.y - myDir.y, true)
       const invTo = invfuncs.getInv(ent.pos.x + myDir.x, ent.pos.y + myDir.y, true)
 
       // LOAD COAL
-      if (ent.armPos === 0 && !isHandFull && ent.energy <= 0 && invFrom.hasItem(Settings.resDB.coal)) {
+      /* if (ent.armPos === 0 && !ent.isHandFull && ent.energy <= 0 && invFrom.hasItem(Settings.resDB.coal)) {
         invFrom.moveItemTo({ id: Settings.resDB.coal.id, n: 1 }, ent, 'FUEL')
+      } else */
       // PICK
-      } else if (ent.armPos === 0 && !isHandFull && ent.energy > 0) {
+      if (ent.armPos === 0 && !ent.isHandFull && ent.energy > 0) {
         let item
         if (invFrom.stack.OUTPUT) {
           item = invFrom.getFirstPack('OUTPUT')
@@ -62,7 +67,7 @@ class InserterBurner extends Inventory {
           ent.state = 1
         } else ent.state = 0
       // PLACE
-      } else if (ent.armPos === 32 && isHandFull) {
+      } else if (ent.armPos === 32 && ent.isHandFull) {
         if (invTo === undefined) {
           ent.state = 0
           return
@@ -88,7 +93,7 @@ class InserterBurner extends Inventory {
           ent.state = 1
         } else { ent.state = 0 }
       // GO TO INITIAL POS
-      } else if (ent.armPos !== 0 && !isHandFull) {
+      } else if (ent.armPos !== 0 && !ent.isHandFull) {
         ent.state = 1
       }
     }
@@ -106,7 +111,7 @@ class InserterBurner extends Inventory {
       ctx.translate(Settings.tileSize * 0.5, Settings.tileSize * 0.5)
       ctx.rotate(this.armPos * Math.PI / 32)
       ctx.drawImage(Settings.resDB.inserter_burner.hand, 0, 0, 64, 64, -48, -15, 64, 64)
-      if (this.stack?.INV[0]?.n && this.stack?.INV[0]?.id) {
+      if (this.isHandFull && this.stack?.INV[0]?.id) {
         ctx.scale(0.5, 0.5)
         ctx.drawImage(Settings.resName[this.stack.INV[0].id].img, -96, -24)
         ctx.scale(2, 2)
