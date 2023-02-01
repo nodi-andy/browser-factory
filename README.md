@@ -1,6 +1,6 @@
 # Factorio clone with pure JS
 
-Play the game here: [github.io](https://htmlpreview.github.io/?https://github.com/nodi-andy/browser-factory/blob/main/index.html)
+Play the game here: http://mynodi.com/browser-factory/
 
 # Game content
 
