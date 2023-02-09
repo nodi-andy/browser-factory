@@ -243,7 +243,7 @@ class Inventory {
     ctx.fillStyle = 'rgba(120, 120, 120, 0.9)'
     ctx.rect(this.x, this.y, this.w, this.h)
     ctx.fill()
-    ctx.font = '48px Arial'
+    ctx.font = (Settings.buttonSize.y / 2) + 'px Arial'
     ctx.fillText(this.t, this.x, this.y + 48)
   }
 }
@@ -319,7 +319,7 @@ function createInvOnMap (x, y) {
     inv.id = Settings.allInvs.length - 1
 
     Settings.game.map[x][y][Settings.layers.inv] = inv.id
-    inv.type = 'empty'
+    inv.type = Settings.resDB.empty
     invID = inv.id
   }
   return invID

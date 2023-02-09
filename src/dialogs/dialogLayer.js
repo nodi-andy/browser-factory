@@ -5,7 +5,7 @@ import { invfuncs } from '../core/inventory.js'
 
 import * as NC from 'nodicanvas'
 
-class DialogLayer extends NC.NodiGrid {
+export class DialogLayer extends NC.NodiGrid {
   constructor (layerName, canvas) {
     super(layerName)
 
@@ -18,7 +18,8 @@ class DialogLayer extends NC.NodiGrid {
     window.viewSwitches.vis = true
 
     this.createInvMenu()
-    this.showInvButton = new Button(window.canvas.width - Settings.buttonSize, window.canvas.height - Settings.buttonSize, undefined, window.viewSwitches)
+    this.showInvButton = new Button(window.canvas.width - Settings.buttonSize.x, window.canvas.height - Settings.buttonSize.y, undefined, window.viewSwitches)
+    this.showInvButton.item = Settings.resDB.iron_axe
     window.viewSwitches.items.push(this.showInvButton)
     this.showInvButton.onClick = () => {
       window.invMenu.vis = !window.invMenu.vis
@@ -78,7 +79,7 @@ class DialogLayer extends NC.NodiGrid {
 
       if (Settings.DEV) {
         // console.log(JSON.stringify(game.map[curResPos.x][curResPos.y]), inv);
-        ctx.font = '24px Arial'
+        ctx.font = (Settings.buttonSize.y / 2) + 'px Arial'
         ctx.fillStyle = 'white'
 
         if (res !== undefined) ctx.fillText(JSON.stringify(res, null, 1), window.mousePos.x, window.mousePos.y + 24)
@@ -98,7 +99,7 @@ class DialogLayer extends NC.NodiGrid {
         const menuPos = { x: window.canvas.width - 200, y: window.canvas.height / 4 - 50 }
         ctx.translate(menuPos.x, menuPos.y)
         ctx.fillRect(0, 0, 200, 100)
-        ctx.font = '24px Arial'
+        ctx.font = (Settings.buttonSize.y / 2) + 'px Arial'
         ctx.fillStyle = 'black'
         ctx.fillText(Settings.resName[res.id].name + ' ' + res.n, 0, 30)
       }
@@ -114,6 +115,9 @@ class DialogLayer extends NC.NodiGrid {
       window.entityMenu.items.forEach(b => b.draw(ctx))
       window.selectItemMenu.items.forEach(b => b.draw(ctx))
     }
+
+    this.showInvButton.x = window.view.size.x - this.showInvButton.size.x * 1.5
+    this.showInvButton.y = window.view.size.y - this.showInvButton.size.y * 1.5
     this.showInvButton.draw(ctx)
 
     this.drawReceiptMenu(ctx)
@@ -130,9 +134,9 @@ class DialogLayer extends NC.NodiGrid {
         else {
           ctx.drawImage(Settings.resName[item].img, 0, 0)
           if (Settings.pointer.item.n !== undefined) {
-            ctx.font = '24px Arial'
+            ctx.font = (Settings.buttonSize.y / 2) + 'px Arial'
             ctx.fillStyle = 'white'
-            ctx.fillText(Settings.pointer.item.n, 0, 0 + Settings.buttonSize)
+            ctx.fillText(Settings.pointer.item.n, 0, 0 + Settings.buttonSize.x)
           }
         }
         ctx.restore()
@@ -145,7 +149,7 @@ class DialogLayer extends NC.NodiGrid {
     if (window.invMenu) {
       for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
-          const newButton = new Button(j * (Settings.buttonSize), i * (Settings.buttonSize), undefined, window.invMenu)
+          const newButton = new Button(j * Settings.buttonSize.x, i * Settings.buttonSize.y, undefined, window.invMenu)
           window.invMenu.items.push(newButton)
         }
       }
@@ -159,16 +163,16 @@ class DialogLayer extends NC.NodiGrid {
       context.beginPath()
       context.fillStyle = 'rgba(150, 150, 0, 0.95)'
       context.fillRect(window.receiptMenu.rect.x, window.receiptMenu.rect.y, window.receiptMenu.rect.w, window.receiptMenu.rect.h)
-      context.font = '24px Arial'
+      context.font = (Settings.buttonSize.y / 2) + 'px Arial'
       context.fillStyle = 'black'
       let title = Settings.resName[window.receiptMenu.item.id].name
       if (Settings.resName[window.receiptMenu.item.id].lock) title += ' (developing...)'
-      context.fillText(title, window.receiptMenu.rect.x + 6, window.receiptMenu.rect.y + 24)
+      context.fillText(title, window.receiptMenu.rect.x + 6, window.receiptMenu.rect.y + Settings.buttonSize.y / 2)
       let dy = 0
       if (Settings.resName[window.receiptMenu.item.id].cost) {
         for (const costItem of Settings.resName[window.receiptMenu.item.id].cost) {
-          context.fillRect(window.receiptMenu.rect.x + 6, window.receiptMenu.rect.y + 64 + dy, 32, 32)
-          context.drawImage(Settings.resName[costItem.id].img, window.receiptMenu.rect.x + 6, window.receiptMenu.rect.y + 64 + dy, 32, 32)
+          context.fillRect(window.receiptMenu.rect.x + 6, window.receiptMenu.rect.y + Settings.buttonSize.y + dy, 32, 32)
+          context.drawImage(Settings.resName[costItem.id].img, window.receiptMenu.rect.x + 6, window.receiptMenu.rect.y + Settings.buttonSize.y + dy, 32, 32)
           let missingItems = ''
           if (window.receiptMenu.item.n === 0) {
             const existing = invfuncs.getNumberOfItems(Settings.allInvs[Settings.playerID], costItem.id)
@@ -177,8 +181,8 @@ class DialogLayer extends NC.NodiGrid {
               context.fillStyle = 'red'
             } else context.fillStyle = 'black'
           } else context.fillStyle = 'black'
-          context.fillText(missingItems + costItem.n + 'x ' + Settings.resName[costItem.id].name, window.receiptMenu.rect.x + 46, window.receiptMenu.rect.y + 84 + dy)
-          dy += 64
+          context.fillText(missingItems + costItem.n + 'x ' + Settings.resName[costItem.id].name, window.receiptMenu.rect.x + 46, window.receiptMenu.rect.y + Settings.buttonSize.y * 1.2 + dy)
+          dy += Settings.buttonSize.y
           window.receiptMenu.rect.h = dy + 100
         }
       }
@@ -186,48 +190,48 @@ class DialogLayer extends NC.NodiGrid {
   }
 
   drawSelectItemMenu (context) {
-    // CRAFTING/ENTITY/SELECT ITEM MENU
+    // CRAFTING
     if (window.selectItemMenu.vis) { // SELECT ITEM MENU
       context.beginPath()
       context.fillStyle = 'rgba(150, 150, 150, 0.95)'
       context.fillRect(window.selectItemMenu.rect.x, window.selectItemMenu.rect.y, window.selectItemMenu.rect.w, window.selectItemMenu.rect.h)
       window.selectItemMenu.items.forEach(b => b.draw(context))
+
+      // DRAW ENTITY MENU
     } else if (window.entityMenu.vis) {
-      let dy = 96
+      let dy = Settings.buttonSize.y * 1.5
       context.beginPath()
       context.fillStyle = 'rgba(150, 150, 150, 0.95)'
       context.fillRect(window.entityMenu.rect.x, window.entityMenu.rect.y, window.entityMenu.rect.w, window.entityMenu.rect.h)
-      context.font = '24px Arial'
+      context.font = (Settings.buttonSize.y / 2) + 'px Arial'
       context.fillStyle = 'black'
       let resText = ''
       if (Settings.selEntity.id && Settings.allInvs[Settings.selEntity.id]?.type) resText = Settings.resName[Settings.allInvs[Settings.selEntity.id].type]?.name
-      context.fillText(resText, window.entityMenu.rect.x + 16, window.entityMenu.rect.y + 32)
+      context.fillText(resText, window.entityMenu.rect.x + Settings.buttonSize.x / 4, window.entityMenu.rect.y + Settings.buttonSize.x / 2)
       const selInv = Settings.allInvs[Settings.selEntity.id]
       if (selInv) {
         if (selInv.prod) {
           window.entityMenu.buttons.PROD[0].item = { id: selInv.prod }
-          context.font = '24px Arial'
+          context.font = (Settings.buttonSize.y / 2) + 'px Arial'
           context.fillStyle = 'black'
-          context.fillText('PROD', window.entityMenu.rect.x + 16, window.entityMenu.rect.y + dy)
+          context.fillText('PROD', window.entityMenu.rect.x + Settings.buttonSize.x / 4, window.entityMenu.rect.y + dy)
           window.entityMenu.buttons.PROD[0].draw(context)
-          dy += Settings.buttonSize
+          dy += Settings.buttonSize.y
         }
 
         for (const f in selInv.stack) {
-          context.font = '24px Arial'
+          context.font = (Settings.buttonSize.y / 2) + 'px Arial'
           context.fillStyle = 'black'
           context.fillText(JSON.stringify(f).replaceAll('"', ''), window.entityMenu.rect.x + 16, window.entityMenu.rect.y + dy)
           if (window.entityMenu.buttons[f]) {
             window.entityMenu.buttons[f].forEach(b => { b.draw(context) })
           }
-          dy += Settings.buttonSize
+          dy += Settings.buttonSize.y
         }
-        window.entityMenu.rect.h = dy + 16
+        window.entityMenu.rect.h = dy + Settings.buttonSize.y / 2
       }
     } else if (window.craftMenu.vis) {
       window.craftMenu.items.forEach(b => b.draw(context))
     }
   }
 }
-
-export { DialogLayer }

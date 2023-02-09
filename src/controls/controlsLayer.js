@@ -62,7 +62,9 @@ export class ControlsLayer extends NC.NodiGrid {
   }
 
   render (view) {
-    this.joystickCenter = new NC.Vec2(this.joystickRadius * 2, window.view.size.y * 0.90)
+    this.joystickCenter.x = this.joystickRadius * 2;
+    this.joystickCenter.y = window.view.size.y * 0.90;
+    this.joystickRadius = Settings.buttonSize.x / 2;
 
     const ctx = view.ctx
     ctx.resetTransform()

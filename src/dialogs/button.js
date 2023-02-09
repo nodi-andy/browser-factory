@@ -1,11 +1,10 @@
 import { Settings } from '../common.js'
 
-class Button {
+export class Button {
   constructor (x, y, item, parent, inv) {
     this.x = x
     this.y = y
-    this.h = Settings.buttonSize
-    this.w = Settings.buttonSize
+    this.size = Settings.buttonSize
     this.item = item
     this.inv = inv
     this.invKey = ''
@@ -19,7 +18,7 @@ class Button {
   collision (p) {
     if (this.parent === undefined) return false
     if (this.parent.vis === false || this.screen.x < this.parent.rect.x || this.screen.x > (this.parent.rect.x + this.parent.w)) return false
-    return this.parent.vis && (p.x >= this.screen.x && p.y >= this.screen.y && p.x <= this.screen.x + this.w && p.y <= this.screen.y + this.h)
+    return this.parent.vis && (p.x >= this.screen.x && p.y >= this.screen.y && p.x <= this.screen.x + this.size.x && p.y <= this.screen.y + this.size.y)
   }
 
   draw (ctx) {
@@ -35,7 +34,7 @@ class Button {
 
     if (this.hover) ctx.fillStyle = 'rgba(100, 100, 0, 1)'
     else ctx.fillStyle = 'rgba(60, 60, 60, 0.9)'
-    ctx.rect(this.screen.x, this.screen.y, this.w, this.h)
+    ctx.rect(this.screen.x, this.screen.y, this.size.x, this.size.y)
     ctx.fill()
     ctx.stroke()
     if (this.item === null && this.inv?.stack && this.inv.stack[this.invKey] && this.inv.stack[this.invKey][this.stackPos]) {
@@ -49,20 +48,20 @@ class Button {
       if (this.img) { // special image
         ctx.drawImage(this.img, this.screen.x, this.screen.y)
       } else if (this.item.id && Settings.resName[this.item.id].img) { // standard image
-        ctx.drawImage(Settings.resName[this.item.id].img, this.screen.x + 2, this.screen.y + 2)
+        ctx.drawImage(Settings.resName[this.item.id].img, this.screen.x + 2, this.screen.y + 2, Settings.buttonSize.x, Settings.buttonSize.y)
       }
 
       if (this.item?.id && Settings.resName[this.item.id].lock) {
         ctx.beginPath()
         ctx.fillStyle = 'rgb(200, 100, 100, 0.3)'
-        ctx.rect(this.screen.x, this.screen.y, Settings.buttonSize, Settings.buttonSize)
+        ctx.rect(this.screen.x, this.screen.y, Settings.buttonSize.x, Settings.buttonSize.y)
         ctx.fill()
       }
 
       if (this.item.n !== undefined) {
-        ctx.font = '24px Arial'
+        ctx.font = (Settings.buttonSize.y / 2) + 'px Arial'
         ctx.fillStyle = 'white'
-        ctx.fillText(this.item.n, this.screen.x, this.screen.y + Settings.buttonSize)
+        ctx.fillText(this.item.n, this.screen.x, this.screen.y + Settings.buttonSize.y)
       }
     }
   }
@@ -115,4 +114,3 @@ class Button {
   };
 }
 
-export { Button }

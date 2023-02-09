@@ -20,9 +20,6 @@ class Entity {
   }
 
   draw (ctx) {
-    ctx.font = '8px Arial'
-    ctx.fillStyle = 'black'
-    ctx.fillText(Settings.resDB[Object.keys(Settings.resDB)[this.id]].emo, this.x * Settings.tileSize, this.y * Settings.tileSize + 8)
   }
 
   update (map) {
