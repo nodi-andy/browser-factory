@@ -101,10 +101,9 @@ class StoneFurnace extends Inventory {
   }
 
   draw (ctx, ent) {
-    let img = this.img
     const mapSize = Settings.resDB.stone_furnace.size
     const viewSize = Settings.resDB.stone_furnace.viewsize
-    if (ent) img = Settings.resDB.stone_furnace.img
+    const img = Settings.resDB.stone_furnace.img
     ctx.drawImage(img, 0, 0, Settings.tileSize, Settings.tileSize, 0, -(viewSize[1] - mapSize[1]) * Settings.tileSize, viewSize[0] * Settings.tileSize, viewSize[1] * Settings.tileSize)
   }
 

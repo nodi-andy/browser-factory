@@ -12,7 +12,7 @@ function getEventLocation (e) {
   }
 }
 
-class EntityLayer extends NC.NodiGrid {
+export class EntityLayer extends NC.NodiGrid {
   onKeyDown (e) {
     Settings.player.onKeyDown(e)
     if (e.code === 'Escape') {
@@ -44,6 +44,13 @@ class EntityLayer extends NC.NodiGrid {
     const worldCordinate = window.view.screenToWorld(getEventLocation(e))
     const tileCoordinate = this.worldToTile(worldCordinate)
     if (e.buttons === 1) {
+      if (window.invMenu.vis) {
+        window.invMenu.vis = false
+        window.craftMenu.vis = false
+        if (Settings.pointer?.item?.id) Settings.player.ghostBuilding = Settings.pointer?.item?.id
+        Settings.pointer.item = undefined
+        return
+      }
       window.dragStart = worldCordinate
       const res = Settings.game.map[tileCoordinate.x][tileCoordinate.y][Settings.layers.res]
       const d = dist(Settings.allInvs[Settings.playerID].pos, worldCordinate)
@@ -156,7 +163,7 @@ class EntityLayer extends NC.NodiGrid {
         }
 
         // ITEMS ON GROUND
-        if (invID !== undefined && Settings.allInvs[invID]?.type === 'empty') {
+        if (invID !== undefined && Settings.allInvs[invID]?.type === Settings.resDB.empty.id) {
           const packs = Settings.allInvs[invID].stack.INV
           if (packs) {
             ctx.scale(0.5, 0.5)
@@ -261,5 +268,3 @@ class EntityLayer extends NC.NodiGrid {
     }
   }
 }
-
-export { EntityLayer }

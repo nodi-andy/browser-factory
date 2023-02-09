@@ -128,6 +128,10 @@ class Player extends Inventory {
     */
     ctx.fillStyle = 'yellow'
     ctx.fillRect(-25, -130, (this.workProgress / 100) * 50, 10)
+    // Ghost building
+    if (ent.ghostBuilding) {
+      Settings.resDBi[ent.ghostBuilding].mach.prototype.draw(ctx)
+    }
   }
 
   onKeyDown (e) {
@@ -171,7 +175,7 @@ class Player extends Inventory {
 
   fetchTile (x, y) {
     const e = invfuncs.getInv(x, y)
-    if (e?.type === 'empty' || e?.type === Settings.resDB.belt1.id) {
+    if (e?.type === Settings.resDB.empty.id || e?.type === Settings.resDB.belt1.id) {
       const pickedItem = e.getFirstItem()
       e.moveItemTo(pickedItem, this)
       if (pickedItem?.reserved === true) pickedItem.reserved = false
@@ -203,8 +207,10 @@ class Player extends Inventory {
     if (Settings.resName[terrain].playerCanWalkOn === false) return true
 
     const building = Settings.game.map[pos.x][pos.y][Settings.layers.inv]
-    if (building && Settings.allInvs[building]?.type) {
-      const canWalk = Settings.resName[Settings.allInvs[building]?.type].playerCanWalkOn;
+    if (building == null) return false
+    const buildingType = Settings.allInvs[building]?.type
+    if (buildingType) {
+      const canWalk = Settings.resName[buildingType].playerCanWalkOn
       if (canWalk === false || canWalk == null) return true
     }
     return false

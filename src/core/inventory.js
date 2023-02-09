@@ -319,7 +319,7 @@ function createInvOnMap (x, y) {
     inv.id = Settings.allInvs.length - 1
 
     Settings.game.map[x][y][Settings.layers.inv] = inv.id
-    inv.type = Settings.resDB.empty
+    inv.type = Settings.resDB.empty.id
     invID = inv.id
   }
   return invID
@@ -334,7 +334,7 @@ function createInv (type, newEntity) {
 function addInventory (newEntity, updateDir) {
   if (!newEntity) return
   let inv = getInv(newEntity.pos.x, newEntity.pos.y)
-  if (inv == null || inv?.type === 'empty') {
+  if (inv == null || inv?.type === Settings.resDB.empty.id) {
     if (Settings.pointer.item.n > 0) {
       const invID = createInv(newEntity.type, newEntity)
       inv = Settings.allInvs[invID]
@@ -370,7 +370,7 @@ function addItem (newItem) {
     Settings.allInvs.push(inv)
     inv.id = Settings.allInvs.length - 1
     Settings.game.map[newItem.pos.x][newItem.pos.y][Settings.layers.inv] = inv.id
-    inv.type = 'empty'
+    inv.type = Settings.resDB.belt1.id
   } else inv = inv = Settings.allInvs[invID]
   inv.addItem({ id: newItem.inv.item.id, n: 1 })
   /* s.sendAll(JSON.stringify({msg:"updateInv", data:Settings.allInvs}));

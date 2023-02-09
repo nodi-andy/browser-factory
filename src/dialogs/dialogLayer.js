@@ -92,16 +92,17 @@ export class DialogLayer extends NC.NodiGrid {
         }
         ctx.stroke()
       }
-
+      // Resource content menu
       if (res?.id) {
         ctx.beginPath()
         ctx.fillStyle = 'rgba(150, 150, 190, 0.75)'
-        const menuPos = { x: window.canvas.width - 200, y: window.canvas.height / 4 - 50 }
+        const menuPos = { x: window.canvas.width - Settings.buttonSize.x * 2, y: window.canvas.height / 2 - 2 * Settings.buttonSize.y }
         ctx.translate(menuPos.x, menuPos.y)
-        ctx.fillRect(0, 0, 200, 100)
+        ctx.fillRect(0, 0, Settings.buttonSize.x * 2, Settings.buttonSize.x)
         ctx.font = (Settings.buttonSize.y / 2) + 'px Arial'
         ctx.fillStyle = 'black'
-        ctx.fillText(Settings.resName[res.id].name + ' ' + res.n, 0, 30)
+        ctx.fillText(Settings.resName[res.id].name, 0, Settings.buttonSize.y / 2)
+        ctx.fillText(res.n, 0, Settings.buttonSize.y)
       }
       ctx.restore()
     }

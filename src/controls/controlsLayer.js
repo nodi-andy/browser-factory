@@ -1,6 +1,4 @@
-import { Settings, dist } from '../common.js'
-import { invfuncs } from '../core/inventory.js'
-import { wssend } from '../core/socket.js'
+import { Settings } from '../common.js'
 import * as NC from 'nodicanvas'
 
 export class ControlsLayer extends NC.NodiGrid {
@@ -62,9 +60,9 @@ export class ControlsLayer extends NC.NodiGrid {
   }
 
   render (view) {
-    this.joystickCenter.x = this.joystickRadius * 2;
-    this.joystickCenter.y = window.view.size.y * 0.90;
-    this.joystickRadius = Settings.buttonSize.x / 2;
+    this.joystickCenter.x = this.joystickRadius * 2
+    this.joystickCenter.y = window.view.size.y * 0.90
+    this.joystickRadius = Settings.buttonSize.x / 2
 
     const ctx = view.ctx
     ctx.resetTransform()
