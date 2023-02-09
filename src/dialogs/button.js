@@ -113,4 +113,3 @@ export class Button {
     if (Settings.selEntity) window.view.updateEntityMenu(Settings.selEntity, true)
   };
 }
-

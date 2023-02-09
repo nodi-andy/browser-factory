@@ -35,7 +35,7 @@ export class ViewModule extends NC.NodiView {
       window.entityMenu.rect.x = window.craftMenu.rect.x
       window.entityMenu.rect.y = window.craftMenu.rect.y
       window.entityMenu.rect.w = window.craftMenu.rect.w
-      //window.entityMenu.rect.h = window.craftMenu.rect.h
+      // window.entityMenu.rect.h = window.craftMenu.rect.h
 
       window.receiptMenu.rect.w = window.craftMenu.rect.w / 2
       window.receiptMenu.rect.h = window.craftMenu.rect.h
@@ -95,7 +95,7 @@ export class ViewModule extends NC.NodiView {
 
   // CRAFT MENU
   updateCraftingMenu () {
-    if (!window.craftMenu) return;
+    if (!window.craftMenu) return
     const items = Settings.resDB.player.output
     let pos = 0
     window.craftMenu.items = []
@@ -173,15 +173,14 @@ export class ViewModule extends NC.NodiView {
 
   redrawEntityMenu () {
     if (!window.entityMenu?.buttons) return
-    let dx = Settings.buttonSize.x * 3
-    let dy = Settings.buttonSize.y
-    let v = Object.values(window.entityMenu.buttons);
+    const dx = Settings.buttonSize.x * 3
+    const dy = Settings.buttonSize.y
+    const v = Object.values(window.entityMenu.buttons)
     for (let i = 0; i < v.length; i++) {
-      let button = v[i][0]
-      button.x = dx;
+      const button = v[i][0]
+      button.x = dx
       button.y = dy + Settings.buttonSize.y * i
     }
-
   }
 
   updateEntityMenu (inv, forceUpdate = false) {

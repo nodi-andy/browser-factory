@@ -1,5 +1,3 @@
-import { Settings } from '../common.js'
-
 class Entity {
   constructor (entList, x, y, dir, h, w, type, onClick) {
     this.pos = { x, y }
