@@ -4,6 +4,7 @@
   "description": "",
   "main": "node.js",
   "scripts": {
+    "start" : "node server.js",
     "test": "jest --coverage --collectCoverageFrom='./src/**'",
     "lint": "eslint src"
   },
