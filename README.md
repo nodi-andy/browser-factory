@@ -1,32 +1,37 @@
 # Factorio clone with pure JS
 
-Play the game here: http://mynodi.com/browser-factory/
+Play the game here: http://factory.mynodi.com
 
 # Game content
 
-- iron/copper/coal/stone : done
-- Basic mining tools : done
-- Stone furnace : done
-- Wooden chest : done
-- Burner mining drill: done
-- Electric mining drill : open
-- Burner inserter: done
-- Basic electric inserter : open
-- Basic transport belts: done
-- Pipes : open
-- Boilers : open
-- Steam engine : open
-- Gun/submachine gun : open
-- Assembling machine (1, 2, 3, 4) : 1: done
+Released:
+- iron/copper/coal/stone
+- Basic mining tools
+- Stone furnace
+- Wooden chest
+- Burner mining drill
+- Burner inserter
+- Basic Transport belts
+- Fast/express transport belts
+- Assembling machine (1, 2, 3)
+
+Done:
+- Basic electric inserter
+- Pipes
+- Boilers
+- Steam engine
 - Long handed/Fast/smart inserter : open
-- Fast/express transport belts : open
+- Car
+
+Open
 - Red/green wires that can be used to send signals : open
 - Smart chest - signal transferer : open
+- Gun/submachine gun : open
 - Rails + locomotive (can be used just for personal transportation now) : open
 - Rocket launcher, flame thrower, land mines and piercing bullets for pistol/submachine gun : open
 - Heavy armor : open
 - Laser turret : open
-- Car : open
+- Electric mining drill : open
 - Solar panel : open
 - Steel : open
 - Underground pipe connection : open
