@@ -14,17 +14,6 @@ export class DialogLayer extends NC.NodiGrid {
     window.entityMenu = new Dialog()
     window.receiptMenu = new Dialog()
     window.selectItemMenu = new Dialog()
-    window.viewSwitches = new Dialog()
-    window.viewSwitches.vis = true
-
-    this.createInvMenu()
-    this.showInvButton = new Button(window.canvas.width - Settings.buttonSize.x, window.canvas.height - Settings.buttonSize.y, undefined, window.viewSwitches)
-    this.showInvButton.item = Settings.resDB.iron_axe
-    window.viewSwitches.items.push(this.showInvButton)
-    this.showInvButton.onClick = () => {
-      window.invMenu.vis = !window.invMenu.vis
-      window.craftMenu.vis = window.invMenu.vis
-    }
   }
 
   onMouseDown (e, hit) {
@@ -34,7 +23,6 @@ export class DialogLayer extends NC.NodiGrid {
     window.invMenu.items.forEach(b => { if (b.collision(e, b)) { overlayClicked = true } })
     window.craftMenu.items.forEach(b => { if (b.collision(e, b)) { overlayClicked = true } })
     window.entityMenu.items.forEach(b => { if (b.collision(e, b)) { overlayClicked = true } })
-    window.viewSwitches.items.forEach(b => { if (b.collision(e, b)) { overlayClicked = true } })
     return overlayClicked
   }
 
@@ -50,8 +38,8 @@ export class DialogLayer extends NC.NodiGrid {
     window.receiptMenu.rect.y = e.y
 
     window.mousePos = e
-    window.curResPos = { x: e.gridX, y: e.gridY }
-    return Settings.pointer.overlay
+    Settings.dialogResPos = { x: e.gridX, y: e.gridY }
+    return Settings.pointer?.overlay
   }
 
   onMouseUp (e, hit) {
@@ -61,7 +49,6 @@ export class DialogLayer extends NC.NodiGrid {
     window.invMenu.items.forEach(b => { if (b.collision(e) && b.onClick) { b.onClick(e.which, b); overlayClicked = true } })
     window.craftMenu.items.forEach(b => { if (b.collision(e) && b.onClick) { b.onClick(e.which, b); overlayClicked = true } })
     window.entityMenu.items.forEach(b => { if (b.collision(e) && b.onClick) { b.onClick(e.which, b); overlayClicked = true } })
-    window.viewSwitches.items.forEach(b => { if (b.collision(e) && b.onClick) { b.onClick(e.which, b); overlayClicked = true } })
     return overlayClicked
   }
 
@@ -72,10 +59,10 @@ export class DialogLayer extends NC.NodiGrid {
     ctx.resetTransform()
     ctx.lineWidth = 1
     // CONTENT MENU
-    if (window.curResPos?.x && window.curResPos?.y && Settings.game.map) {
+    if (Settings.dialogResPos?.x && Settings.dialogResPos?.y && Settings.game.map) {
       ctx.save()
-      const inv = invfuncs.getInv(window.curResPos.x, window.curResPos.y)
-      const res = Settings.game.map[window.curResPos.x][window.curResPos.y][Settings.layers.res]
+      const inv = invfuncs.getInv(Settings.dialogResPos.x, Settings.dialogResPos.y)
+      const res = Settings.game.map[Settings.dialogResPos.x][Settings.dialogResPos.y][Settings.layers.res]
 
       if (Settings.DEV) {
         // console.log(JSON.stringify(game.map[curResPos.x][curResPos.y]), inv);
@@ -84,7 +71,7 @@ export class DialogLayer extends NC.NodiGrid {
 
         if (res !== undefined) ctx.fillText(JSON.stringify(res, null, 1), window.mousePos.x, window.mousePos.y + 24)
         if (inv !== undefined) {
-          ctx.fillText(inv.id + ': ' + window.curResPos.x + ', ' + window.curResPos.y, window.mousePos.x, window.mousePos.y)
+          ctx.fillText(inv.id + ': ' + Settings.dialogResPos.x + ', ' + Settings.dialogResPos.y, window.mousePos.x, window.mousePos.y)
           ctx.fillText(JSON.stringify(inv.stack, null, 1), window.mousePos.x, window.mousePos.y + 48)
           ctx.fillText(JSON.stringify(inv.nbInputs, null, 1), window.mousePos.x, window.mousePos.y + 72)
           ctx.fillText(JSON.stringify(inv.nbOutputs, null, 1), window.mousePos.x, window.mousePos.y + 96)
@@ -117,27 +104,23 @@ export class DialogLayer extends NC.NodiGrid {
       window.selectItemMenu.items.forEach(b => b.draw(ctx))
     }
 
-    this.showInvButton.x = window.view.size.x - this.showInvButton.size.x * 1.5
-    this.showInvButton.y = window.view.size.y - this.showInvButton.size.y * 1.5
-    this.showInvButton.draw(ctx)
-
     this.drawReceiptMenu(ctx)
 
     // POINTER ITEM
-    if (Settings.pointer?.item && Settings.pointer.overlay) {
-      const item = Settings.pointer.item?.id
+    if (Settings.pointer?.stack?.INV?.length && Settings.pointer.overlay) {
+      const item = Settings.resName[Settings.pointer.stack.INV[0].id]
       if (item) {
         ctx.save()
         ctx.translate(window.mousePos.x, window.mousePos.y)
         if (item.type === 'entity' && item.rotatable !== false) ctx.rotate(Settings.buildDir * Math.PI / 2)
         ctx.translate(-Settings.tileSize / 2, -Settings.tileSize / 2)
-        if (Settings.resName[item]?.mach?.draw) Settings.resName[item].mach.draw(ctx, Settings.pointer.item)
+        if (item.mach?.draw) item.mach.draw(ctx, Settings.pointer.item)
         else {
-          ctx.drawImage(Settings.resName[item].img, 0, 0)
-          if (Settings.pointer.item.n !== undefined) {
+          ctx.drawImage(item.img, 0, 0)
+          if (Settings.pointer.stack.INV[0].n != null) {
             ctx.font = (Settings.buttonSize.y / 2) + 'px Arial'
             ctx.fillStyle = 'white'
-            ctx.fillText(Settings.pointer.item.n, 0, 0 + Settings.buttonSize.x)
+            ctx.fillText(Settings.pointer.stack.INV[0].n, 0, 0 + Settings.buttonSize.x)
           }
         }
         ctx.restore()
@@ -145,12 +128,12 @@ export class DialogLayer extends NC.NodiGrid {
     }
   }
 
-  createInvMenu () {
+  createInvMenu (invID) {
     // INV MENU
     if (window.invMenu) {
       for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
-          const newButton = new Button(j * Settings.buttonSize.x, i * Settings.buttonSize.y, undefined, window.invMenu)
+          const newButton = new Button(j * Settings.buttonSize.x, i * Settings.buttonSize.y, undefined, window.invMenu, invID)
           window.invMenu.items.push(newButton)
         }
       }

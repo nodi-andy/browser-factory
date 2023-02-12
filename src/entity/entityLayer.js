@@ -16,13 +16,15 @@ export class EntityLayer extends NC.NodiGrid {
   onKeyDown (e) {
     Settings.player.onKeyDown(e)
     if (e.code === 'Escape') {
-      if (Settings.pointer.item) {
-        Settings.player.addItem(Settings.pointer.item)
+      if (Settings.pointer.stack?.INV?.length) {
+        invfuncs.moveStack({ fromInvID: Settings.pointer.id, fromInvKey: 'INV', fromStackPos: 0, toInvID: Settings.player.invID, toInvKey: 'INV'})
       }
-      Settings.pointer.item = undefined
       window.invMenu.vis = false
       window.entityMenu.vis = false
       window.craftMenu.vis = false
+    }
+    if (e.code === 'Enter') {
+      this.setOnMap(NC.Vec2.add(Settings.player.tilePos, Settings.curResPos))
     }
     Settings.player.stopMining(Settings.allInvs[Settings.playerID])
   }
@@ -39,15 +41,27 @@ export class EntityLayer extends NC.NodiGrid {
     Settings.player.stopMining(Settings.allInvs[Settings.playerID])
   }
 
+  setOnMap (tileCoordinate) {
+    Settings.pointer.type = Settings.resName[Settings.pointer?.stack?.INV[0].id].type
+    if (Settings.pointer.type === 'entity') {
+      wssend({ cmd: 'addEntity', data: { pos: { x: tileCoordinate.x, y: tileCoordinate.y }, dir: Settings.buildDir, type: Settings.pointer.stack.INV[0].id } })
+    } else {
+      wssend({ cmd: 'addItem', data: { pos: tileCoordinate, dir: Settings.buildDir, inv: { item: Settings.pointer.item } } })
+    }
+    window.isDragStarted = false
+    window.isBuilding = true
+  }
+
   onMouseDown (e, hit) {
     if (hit) return
     const worldCordinate = window.view.screenToWorld(getEventLocation(e))
     const tileCoordinate = this.worldToTile(worldCordinate)
+    const inv = invfuncs.getInv(tileCoordinate.x, tileCoordinate.y)
+
     if (e.buttons === 1) {
       if (window.invMenu.vis) {
         window.invMenu.vis = false
         window.craftMenu.vis = false
-        if (Settings.pointer?.item?.id) Settings.player.ghostBuilding = Settings.pointer?.item?.id
         Settings.pointer.item = undefined
         return
       }
@@ -55,15 +69,8 @@ export class EntityLayer extends NC.NodiGrid {
       const res = Settings.game.map[tileCoordinate.x][tileCoordinate.y][Settings.layers.res]
       const d = dist(Settings.allInvs[Settings.playerID].pos, worldCordinate)
 
-      if (Settings.pointer?.item?.id) {
-        Settings.pointer.type = Settings.resName[Settings.pointer.item.id].type
-        if (Settings.pointer.type === 'entity') {
-          wssend({ cmd: 'addEntity', data: { pos: { x: tileCoordinate.x, y: tileCoordinate.y }, dir: Settings.buildDir, type: Settings.pointer.item.id } })
-        } else {
-          wssend({ cmd: 'addItem', data: { pos: tileCoordinate, dir: Settings.buildDir, inv: { item: Settings.pointer.item } } })
-        }
-        window.isDragStarted = false
-        window.isBuilding = true
+      if (Settings.pointer?.stack?.INV?.length && inv == null) {
+        this.setOnMap(tileCoordinate)
       } else {
         window.isDragStarted = true
         window.isBuilding = false
@@ -82,6 +89,13 @@ export class EntityLayer extends NC.NodiGrid {
         }
       }
     }
+  }
+
+  onMouseMove (e, hit) {
+    if (hit) return
+    this.extendMouseData(e)
+    Settings.curResPos.x = e.gridX - Settings.player.tilePos.x
+    Settings.curResPos.y = e.gridY - Settings.player.tilePos.y
   }
 
   onMouseUp (e, hit) {
@@ -245,26 +259,38 @@ export class EntityLayer extends NC.NodiGrid {
       }
     }
 
+    this.drawEntityCandidate(ctx)
+  }
+
+  drawEntityCandidate (ctx) {
+    if (Settings.pointer?.stack?.INV == null) return
+    if (Settings.curResPos == null) return
+    if (Settings.pointer.stack.INV.length === 0) return
     // ENTITY CANDIDATE
-    if (Settings.pointer?.item && Settings.pointer.overlay === false) {
-      const item = Settings.resName[Settings.pointer.item.id]
-      if (item) {
-        let size = item.size
-        if (size === undefined) size = [1, 1]
-        ctx.save()
 
-        ctx.translate(window.curResPos.x * Settings.tileSize, window.curResPos.y * Settings.tileSize)
+    const item = Settings.resName[Settings.pointer.stack.INV[0].id]
+    if (item) {
+      let size = item.size
+      if (size === undefined) size = [1, 1]
 
-        ctx.translate(size[0] / 2 * Settings.tileSize, size[1] / 2 * Settings.tileSize)
-        if (item.type === 'entity' && item.rotatable !== false) ctx.rotate(Settings.buildDir * Math.PI / 2)
-        ctx.translate(-size[0] / 2 * Settings.tileSize, -size[1] / 2 * Settings.tileSize)
+      Settings.drawResPos = NC.Vec2.add(Settings.player.tilePos, Settings.curResPos)
+      ctx.save()
 
-        if (item.mach?.prototype?.draw) item.mach.prototype.draw(ctx, Settings.pointer.item)
-        else if (item.mach?.prototype?.drawItems) item.mach.prototype.drawItems(ctx, Settings.pointer.item)
-        else ctx.drawImage(item.img, 0, 0)
+      ctx.translate(Settings.drawResPos.x * Settings.tileSize, Settings.drawResPos.y * Settings.tileSize)
 
-        ctx.restore()
+      ctx.translate(size[0] / 2 * Settings.tileSize, size[1] / 2 * Settings.tileSize)
+      if (item.type === 'entity' && item.rotatable !== false) ctx.rotate(Settings.buildDir * Math.PI / 2)
+      ctx.translate(-size[0] / 2 * Settings.tileSize, -size[1] / 2 * Settings.tileSize)
+
+      if (item.mach?.prototype?.draw) item.mach.prototype.draw(ctx, Settings.pointer.item)
+      else if (item.mach?.prototype?.drawItems) item.mach.prototype.drawItems(ctx, Settings.pointer.item)
+      else ctx.drawImage(item.img, 0, 0)
+      if (Settings.pointer.stack.INV[0].n != null) {
+        ctx.font = (Settings.buttonSize.y / 2) + 'px Arial'
+        ctx.fillStyle = 'white'
+        ctx.fillText(Settings.pointer.stack.INV[0].n, 0, 0 + Settings.buttonSize.x)
       }
+      ctx.restore()
     }
   }
 }

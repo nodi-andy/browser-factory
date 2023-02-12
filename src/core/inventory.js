@@ -1,7 +1,7 @@
 /* eslint-disable no-unmodified-loop-condition */
 import { Settings } from '../common.js'
 
-class Inventory {
+export class Inventory {
   constructor (pos, entData) {
     this.stack = {}
     if (pos) this.pos = { x: pos.x, y: pos.y }
@@ -151,6 +151,11 @@ class Inventory {
       }
     }
     return false
+  }
+
+  movePack (stackName, packPos, toInv, toStackName, toPackPos, toPack) {
+    this.remPack(stackName, packPos)
+    toInv.addPack(toStackName, toPackPos, toPack)
   }
 
   remPack (stackName, packPos) {
@@ -335,7 +340,7 @@ function addInventory (newEntity, updateDir) {
   if (!newEntity) return
   let inv = getInv(newEntity.pos.x, newEntity.pos.y)
   if (inv == null || inv?.type === Settings.resDB.empty.id) {
-    if (Settings.pointer.item.n > 0) {
+    if (Settings.pointer.stack.INV[0].n > 0) {
       const invID = createInv(newEntity.type, newEntity)
       inv = Settings.allInvs[invID]
       inv.id = invID
@@ -345,8 +350,8 @@ function addInventory (newEntity, updateDir) {
       Settings.game.map[newEntity.pos.x][newEntity.pos.y][Settings.layers.inv] = inv.id
       if (inv?.updateNB) inv.updateNB()
       if (typeof window !== 'undefined') window.view.updateInventoryMenu(Settings.player)
-      Settings.pointer.item.n--
-      if (Settings.pointer.item.n === 0) Settings.pointer.item = undefined
+      Settings.pointer.stack.INV[0].n--
+      if (Settings.pointer.stack.INV[0].n === 0) delete Settings.pointer.stack.INV
     }
     if (Settings.isBrowser) {
       if (Settings.resName[newEntity.type].mach && Settings.resName[newEntity.type].mach.setup) Settings.resName[newEntity.type].mach.setup(Settings.game.map, inv)
@@ -379,9 +384,21 @@ function addItem (newItem) {
 
 function moveStack (data) {
   if (data.fromInvID === data.toInvID && data.fromInvKey === data.toInvKey && data.fromStackPos === data.toStackPos) return
-  const from = Settings.allInvs[data.fromInvID].stack[data.fromInvKey][data.fromStackPos]
-  Settings.allInvs[data.toInvID].stack[data.toInvKey][data.toStackPos] = from
-  Settings.allInvs[data.fromInvID].stack[data.fromInvKey][data.fromStackPos] = undefined
+
+  const invFrom = Settings.allInvs[data.fromInvID].stack[data.fromInvKey]
+  const from = invFrom[data.fromStackPos]
+
+  if (data.toStackPos == null) data.toStackPos = Settings.allInvs[data.toInvID].stack[data.toInvKey].length - 1
+
+  const toStack = Settings.allInvs[data.toInvID].stack
+  if (toStack[data.fromStackPos]) {
+    Settings.allInvs[data.toInvID].stack[data.toInvKey][data.toStackPos] = from
+  } else {
+    if (toStack[data.toInvKey] == null) toStack[data.toInvKey] = []
+    toStack[data.toInvKey].push(from)
+  }
+
+  invFrom.splice(data.fromStackPos, 1)
   // s.sendAll(JSON.stringify({msg:"updateInv", data:Settings.allInvs}));
   if (data.fromInvID === 0 || data.toInvID === 0) Settings.player.setInventory(Settings.allInvs[0])
   if (data.fromInvID === Settings.selEntity?.id || data.toInvID === Settings.selEntity?.id) window.view.updateInventoryMenu(Settings.selEntity)
@@ -400,4 +417,4 @@ invfuncs.addInventory = addInventory
 invfuncs.getNumberOfItems = getNumberOfItems
 invfuncs.craftToInv = craftToInv
 
-export { Inventory, invfuncs }
+export { invfuncs }

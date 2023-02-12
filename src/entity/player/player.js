@@ -26,7 +26,6 @@ class Player extends Inventory {
   }
 
   setup (map, inv) {
-    window.view.updateCraftingMenu()
     if (this.tilePos === undefined) {
       this.tilePos = new NC.Vec2(window.entityLayer.gridSize.x / 2, window.entityLayer.gridSize.y / 2)
     }
@@ -52,8 +51,7 @@ class Player extends Inventory {
     this.itemsize = 1000
     this.workProgress = 0
     this.miningTimer = 0
-
-    window.view.updateInventoryMenu(this)
+    this.invID = 0
   }
 
   update (map, ent) {
@@ -128,10 +126,6 @@ class Player extends Inventory {
     */
     ctx.fillStyle = 'yellow'
     ctx.fillRect(-25, -130, (this.workProgress / 100) * 50, 10)
-    // Ghost building
-    if (ent.ghostBuilding) {
-      Settings.resDBi[ent.ghostBuilding].mach.prototype.draw(ctx)
-    }
   }
 
   onKeyDown (e) {
@@ -247,13 +241,12 @@ class Player extends Inventory {
     } else if (newID !== undefined) { this.invID = newID; Settings.allInvs[this.invID].id = newID }
 
     if (Settings.allInvs[this.invID].id === undefined) Settings.allInvs[this.invID].id = currentID
-    this.inv = Settings.allInvs[this.invID]
     window.view.updateInventoryMenu(this.inv)
   }
 
   setInventoryID (newID) {
     this.invID = newID
-    this.inv = Settings.allInvs[this.invID]
+
     window.view.updateInventoryMenu(this.inv)
   }
 }

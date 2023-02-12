@@ -45,7 +45,7 @@ export class ViewModule extends NC.NodiView {
       window.selectItemMenu.rect.w = window.craftMenu.rect.w
       window.selectItemMenu.rect.h = window.craftMenu.rect.h
     }
-    this.updateCraftingMenu()
+    if (Settings.player?.invID !== null) this.updateCraftingMenu()
     this.updateInventoryMenu(Settings.player)
     this.redrawEntityMenu()
     this.size = { x: window.canvas.width, y: window.canvas.height }
@@ -100,7 +100,7 @@ export class ViewModule extends NC.NodiView {
     let pos = 0
     window.craftMenu.items = []
     items.forEach(i => {
-      const newButton = new Button((pos % 8) * (Settings.buttonSize.x), Math.floor(pos / 8) * (Settings.buttonSize.y), { id: i.id, n: 0 }, window.craftMenu)
+      const newButton = new Button((pos % 8) * (Settings.buttonSize.x), Math.floor(pos / 8) * (Settings.buttonSize.y), { id: i.id, n: 0 }, window.craftMenu, Settings.resDB.player.invID)
       newButton.onClick = () => {
         if (Settings.resName[i.id].lock === undefined) invfuncs.craftToInv(Settings.player, [i])
       }
@@ -134,6 +134,8 @@ export class ViewModule extends NC.NodiView {
   }
 
   updateInventoryMenu (inv) {
+    if (inv == null) return
+
     const pack = inv?.stack?.INV
 
     if (pack === undefined) return
@@ -141,7 +143,7 @@ export class ViewModule extends NC.NodiView {
     for (let i = 0; i < pack.length; i++) {
       const item = pack[i]
       window.invMenu.items[i].item = item
-      window.invMenu.items[i].inv = Settings.player
+      window.invMenu.items[i].invID = Settings.player.invID
       window.invMenu.items[i].invKey = 'INV'
       window.invMenu.items[i].stackPos = i
       window.invMenu.items[i].x = (i % 8) * (Settings.buttonSize.x)
@@ -150,7 +152,7 @@ export class ViewModule extends NC.NodiView {
 
     for (let i = pack.length; i < window.invMenu.items.length; i++) {
       window.invMenu.items[i].item = undefined
-      window.invMenu.items[i].inv = Settings.player
+      window.invMenu.items[i].invID = Settings.player.invID
       window.invMenu.items[i].invKey = 'INV'
       window.invMenu.items[i].stackPos = i
       window.invMenu.items[i].x = (i % 8) * (Settings.buttonSize.x)
@@ -202,7 +204,7 @@ export class ViewModule extends NC.NodiView {
       let button
       if (refresh) {
         window.entityMenu.buttons.PROD = []
-        button = new Button(dx, dy, undefined, window.entityMenu, Settings.selEntity)
+        button = new Button(dx, dy, undefined, window.entityMenu, Settings.selEntity.id)
         button.onClick = () => {
           window.view.updateSelectItemMenu(Settings.selEntity)
           window.selectItemMenu.vis = true
@@ -223,7 +225,7 @@ export class ViewModule extends NC.NodiView {
       for (let stackPos = 0; stackPos < inv.packsize[s]; stackPos++) {
         const item = showStack[s][stackPos]
         let button
-        if (refresh) button = new Button(dx, dy, item, window.entityMenu, Settings.selEntity)
+        if (refresh) button = new Button(dx, dy, item, window.entityMenu, Settings.selEntity.id)
         else button = window.entityMenu.buttons[s][stackPos]
         dx += Settings.buttonSize.x
         button.invKey = s

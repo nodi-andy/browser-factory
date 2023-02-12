@@ -1,4 +1,5 @@
 import { Settings } from '../common.js'
+import { Button } from '../dialogs/button.js'
 import * as NC from 'nodicanvas'
 
 export class ControlsLayer extends NC.NodiGrid {
@@ -12,6 +13,22 @@ export class ControlsLayer extends NC.NodiGrid {
     this.rawPos = new NC.Vec2(0, 0)
     this.joystickCenter = new NC.Vec2(100, window.view.size.y * 0.90)
     this.joystickRadius = window.view.size.y * 0.05
+
+    this.showInvButton = new Button()
+    const image = new Image(Settings.tileSize, Settings.tileSize)
+    image.src = './src/controls/tools.png'
+    this.showInvButton.img = image
+
+    this.showInvButton.onClick = () => {
+      window.invMenu.vis = !window.invMenu.vis
+      window.craftMenu.vis = window.invMenu.vis
+    }
+
+    this.buildButton = new Button()
+    this.buildButton.item = Settings.resDB.iron_axe
+    this.buildButton.onClick = () => {
+      window.entityLayer.onKeyDown({ code: 'Enter' })
+    }
   }
 
   // Gets the relevant location from a mouse or single touch event
@@ -27,6 +44,8 @@ export class ControlsLayer extends NC.NodiGrid {
   }
 
   onMouseDown (e, hit) {
+    let overlayClicked = false
+
     this.getEventLocation(e)
     this.start = this.joystickCenter.clone()
 
@@ -34,29 +53,43 @@ export class ControlsLayer extends NC.NodiGrid {
       this.start.started = true
       this.force = 0
       console.log('mouse down: ' + JSON.stringify(this.rawPos) + ' C:' + this.rawPos.subtract(this.start).length() < 40)
-      return true
+      overlayClicked = true
     }
+    if (this.showInvButton.collision(e, this.showInvButton)) { overlayClicked = true }
+    if (this.buildButton.collision(e, this.buildButton)) { overlayClicked = true }
+    return overlayClicked
   }
 
   onMouseMove (e, hit) {
     this.getEventLocation(e)
+    let isOverlay = false
     if (this.start.started && this.rawPos) {
       this.to = this.rawPos.clone()
       this.to.subtract(this.start).divide(2)
       this.dir = this.to.clone().normalize()
       this.force = Math.min(20, this.to.clone().length())
       Settings.player.dir = this.dir
+      isOverlay = true
     }
     console.log(JSON.stringify(this.dir) + ' f: ' + this.force)
-    return false
+
+    if (this.showInvButton.collision(e)) { this.showInvButton.hover = true; isOverlay = true }
+    if (this.buildButton.collision(e)) { this.buildButton.hover = true; isOverlay = true }
+    return isOverlay
   }
 
   onMouseUp (e, hit) {
+    if (hit) return
+    let overlayClicked = false
+
     this.start.started = false
     this.dir.x = 0
     this.dir.y = 0
     this.force = 0
-    return false
+
+    if (this.showInvButton.collision(e) && this.showInvButton.onClick) { this.showInvButton.onClick(e.which, this.showInvButton); overlayClicked = true }
+    if (this.buildButton.collision(e) && this.buildButton.onClick) { this.buildButton.onClick(e.which, this.buildButton); overlayClicked = true }
+    return overlayClicked
   }
 
   render (view) {
@@ -81,5 +114,13 @@ export class ControlsLayer extends NC.NodiGrid {
     ctx.stroke()
     ctx.fill()
     ctx.closePath()
+
+    this.showInvButton.x = window.view.size.x - this.showInvButton.size.x * 1.5
+    this.showInvButton.y = window.view.size.y - this.showInvButton.size.y * 1.5
+    this.showInvButton.draw(ctx)
+
+    this.buildButton.x = this.showInvButton.x
+    this.buildButton.y = this.showInvButton.y - 1.1 * Settings.buttonSize.y
+    this.buildButton.draw(ctx)
   }
 }

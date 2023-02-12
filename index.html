@@ -138,7 +138,6 @@
 <script type="module" src ="src/terrain/grassland/grassland.js"></script>
 
 <script type="module" src ="src/core/inventory.js"></script>
-<script type="module" src ="src/server/localserver.js"></script>
 <script type="module" src ="src/core/loop.js"></script>
 
 <script type="module" src ="src/core/input.js"></script>
@@ -251,7 +250,9 @@
 
     window.entityLayer = new EntityLayer("entity", Settings.gridSize, Settings.tileSize)
     window.view.addLayer(window.entityLayer)
-    window.view.addLayer(new DialogLayer("dialog", Settings.gridSize, Settings.tileSize))
+
+    window.dialogLayer = new DialogLayer("dialog", Settings.gridSize, Settings.tileSize)
+    window.view.addLayer(window.dialogLayer)
     window.view.addLayer(new ControlsLayer("controls", Settings.gridSize, Settings.tileSize))
 
     function updateNextGameID() {
@@ -367,11 +368,12 @@
                 } else {
                     Settings.allInvs.push(new Inventory(ent.pos, ent));
                 }
-
             } else {
                 Settings.allInvs.push(null);
             }
         }
+
+
         Settings.allInvs.forEach(ent => {
             if (ent?.updateNB) ent.updateNB();
         })
@@ -383,12 +385,12 @@
         Settings.allInvs[Settings.playerID] = Settings.player;
         Settings.player.id = Settings.playerID;
         Settings.allInvs[Settings.player.id].type = Settings.resDB.player.id;
+        Settings.pointer = Settings.allInvs[1]
+        Settings.pointer.id = 1
 
-
-        Settings.pointer = {};
-
+        window.dialogLayer.createInvMenu(Settings.playerID)
+        window.view.updateInventoryMenu(Settings.allInvs[Settings.playerID])
         updateGameMenu();
-
         updateOffscreenMap(Settings.game.map);
         window.Time.gameLoop();
     }
@@ -397,6 +399,7 @@
         if (name === undefined || name === null) name = "unnamed_0"
         Settings.playerID = 0;
         Settings.allInvs.push(new Player());
+        Settings.allInvs.push(new Inventory()); // Settings.pointer
         curGame = name;
         Settings.game = window.terrain.createWorld(Settings.gridSize)
         saveGame();

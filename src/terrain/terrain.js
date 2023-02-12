@@ -66,11 +66,6 @@ export class Terrain extends NC.NodiGrid {
     return nCity
   }
 
-  onMouseMove (e) {
-    this.extendMouseData(e)
-    window.curResPos = { x: e.gridX, y: e.gridY }
-  }
-
   render (view) {
     const ctx = view.ctx
     // DRAW TERRAIN

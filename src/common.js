@@ -106,6 +106,7 @@ Settings.dirToVec = [{ x: 1, y: 0 },{ x: 0, y: 1 },{ x: -1, y: 0 },{ x: 0, y: -1
 Settings.dirToAng = [0, 90, 180, 270]
 Settings.nbVec = [{ x: 1, y: 0 }, { x: 1, y: -1 }, { x: 0, y: -1 }, { x: -1, y: -1 }, { x: -1, y: 0 }, { x: -1, y: 1 }, { x: 0, y: 1 } , { x: 1, y: 1 }]
 Settings.layers = { terrain: 0, res: 1, inv: 2, vis: 3 }
+Settings.curResPos = new NC.Vec2(0, 0)
 
 function item (type, n) { return { id: type, n } }
 

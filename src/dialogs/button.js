@@ -1,12 +1,13 @@
 import { Settings } from '../common.js'
+import { invfuncs } from '../core/inventory.js'
 
 export class Button {
-  constructor (x, y, item, parent, inv) {
+  constructor (x, y, item, parent, invID) {
     this.x = x
     this.y = y
     this.size = Settings.buttonSize
     this.item = item
-    this.inv = inv
+    this.invID = invID
     this.invKey = ''
     this.stackPos = 0
     this.parent = parent
@@ -16,15 +17,17 @@ export class Button {
   }
 
   collision (p) {
-    if (this.parent === undefined) return false
-    if (this.parent.vis === false || this.screen.x < this.parent.rect.x || this.screen.x > (this.parent.rect.x + this.parent.w)) return false
-    return this.parent.vis && (p.x >= this.screen.x && p.y >= this.screen.y && p.x <= this.screen.x + this.size.x && p.y <= this.screen.y + this.size.y)
+    if (this.parent) {
+      if (this.parent?.vis === false || this.screen.x < this.parent.rect.x || this.screen.x > (this.parent.rect.x + this.parent.w)) return false
+    }
+    return (p.x >= this.screen.x && p.y >= this.screen.y && p.x <= this.screen.x + this.size.x && p.y <= this.screen.y + this.size.y)
   }
 
   draw (ctx) {
-    if (this.parent.vis === false) return
+    if (this.parent?.vis === false) return
+
     if (this.parent) this.screen = { x: this.parent.rect.x + this.x, y: this.parent.rect.y + this.y }
-    else this.screen = { x: 0, y: 0 }
+    else this.screen = { x: this.x, y: this.y }
     ctx.beginPath()
 
     if (this.hover) {
@@ -44,69 +47,55 @@ export class Button {
   }
 
   drawItem (ctx) {
-    if (this.item !== undefined) {
-      if (this.img) { // special image
-        ctx.drawImage(this.img, this.screen.x, this.screen.y)
-      } else if (this.item.id && Settings.resName[this.item.id].img) { // standard image
-        ctx.drawImage(Settings.resName[this.item.id].img, this.screen.x + 2, this.screen.y + 2, Settings.buttonSize.x, Settings.buttonSize.y)
-      }
+    if (this.img) { // special image
+      ctx.drawImage(this.img, this.screen.x, this.screen.y, Settings.buttonSize.x, Settings.buttonSize.y)
+    }
 
-      if (this.item?.id && Settings.resName[this.item.id].lock) {
-        ctx.beginPath()
-        ctx.fillStyle = 'rgb(200, 100, 100, 0.3)'
-        ctx.rect(this.screen.x, this.screen.y, Settings.buttonSize.x, Settings.buttonSize.y)
-        ctx.fill()
-      }
+    if (this.item == null) return
 
-      if (this.item.n !== undefined) {
-        ctx.font = (Settings.buttonSize.y / 2) + 'px Arial'
-        ctx.fillStyle = 'white'
-        ctx.fillText(this.item.n, this.screen.x, this.screen.y + Settings.buttonSize.y)
-      }
+    if (this.item?.id && Settings.resName[this.item.id].img) { // standard image
+      ctx.drawImage(Settings.resName[this.item.id].img, this.screen.x + 2, this.screen.y + 2, Settings.buttonSize.x, Settings.buttonSize.y)
+    }
+
+    if (this.item?.id && Settings.resName[this.item.id].lock) {
+      ctx.beginPath()
+      ctx.fillStyle = 'rgb(200, 100, 100, 0.3)'
+      ctx.rect(this.screen.x, this.screen.y, Settings.buttonSize.x, Settings.buttonSize.y)
+      ctx.fill()
+    }
+
+    if (this.item?.n !== undefined) {
+      ctx.font = (Settings.buttonSize.y / 2) + 'px Arial'
+      ctx.fillStyle = 'white'
+      ctx.fillText(this.item.n, this.screen.x, this.screen.y + Settings.buttonSize.y)
     }
   }
 
   onClick (button) {
     if (this.item?.id && Settings.resName[this.item?.id].lock === 1) return
     if (button === 1) {
-      if (Settings.pointer?.item) {
-        let tempItem
-        if (this.item?.id === Settings.pointer.item?.id) {
-          this.item.n += Settings.pointer.item.n
-        } else {
-          if (this.item?.id) {
-            tempItem = this.item
-            this.inv.remPack(this.invKey, this.stackPos)
-          }
-          if (Settings.pointer.item) {
-            this.inv.addPack(this.invKey, this.stackPos, Settings.pointer.item)
-          }
-        }
-        if (tempItem?.n) Settings.pointer.item = tempItem
-        else Settings.pointer.item = undefined
+      if (Settings.pointer?.stack?.INV?.length) {
+        invfuncs.moveStack({ fromInvID: Settings.pointer.id, fromInvKey: 'INV', fromStackPos: 0, toInvID: this.invID, toInvKey: this.invKey })
       } else {
-        if (this.item?.id && this.item?.n) {
-          Settings.pointer.inv = this.inv
-          Settings.pointer.invKey = this.invKey
-          Settings.pointer.item = { id: this.item?.id, n: this.item?.n }
-          if (this.inv) this.inv.remPack(this.invKey, this.stackPos)
-        }
+        invfuncs.moveStack({ fromInvID: this.invID, fromInvKey: this.invKey, fromStackPos: this.stackPos, toInvID: Settings.pointer.id, toInvKey: 'INV', toStackPos: 0 })
+        Settings.curResPos.x = 0
+        Settings.curResPos.y = -2
       }
     } else if (button === 3) {
       Settings.pointer.button = this
-      if (Settings.pointer.item) {
-        const transfer = Math.round(Settings.pointer.item.n / 2)
-        Settings.pointer.item.n -= transfer
+      if (Settings.pointer) {
+        const transfer = Math.round(Settings.pointer.n / 2)
+        Settings.pointer.n -= transfer
         if (Settings.pointer.button?.item?.n) {
           Settings.pointer.button.item.n += transfer
         } else {
-          const item = { id: Settings.pointer.item.id, n: transfer }
+          const item = { id: Settings.pointer.id, n: transfer }
           Settings.pointer.inv.addItem(item)
         }
       } else if (this.item) {
-        Settings.pointer.item = { id: this.item.id, n: this.item.n }
-        Settings.pointer.item.n = Math.round(Settings.pointer.item.n / 2)
-        this.item.n = this.item.n - Settings.pointer.item.n
+        Settings.pointer = { id: this.item.id, n: this.item.n }
+        Settings.pointer.n = Math.round(Settings.pointer.n / 2)
+        this.item.n = this.item.n - Settings.pointer.n
       }
     }
     window.view.updateInventoryMenu(Settings.player)
