@@ -95,11 +95,12 @@ export class StoneFurnace extends Inventory {
           stack.OUTPUT[0].id = becomesThat
           stack.OUTPUT[0].n++
           this.lastTime = performance.now()
+          window.view.updateEntityMenu(Settings.selEntity, true)
         }
       }
     }
-    if (stack.INPUT[0].n === 0) stack.INPUT = []
-    if (stack.FUEL[0].n === 0) stack.FUEL = []
+    if (stack.INPUT[0]?.n === 0) stack.INPUT = []
+    if (stack.FUEL[0]?.n === 0) stack.FUEL = []
   }
 
   draw (ctx, ent) {
