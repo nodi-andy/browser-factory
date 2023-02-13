@@ -6,8 +6,8 @@ import { invfuncs } from '../core/inventory.js'
 import * as NC from 'nodicanvas'
 
 export class DialogLayer extends NC.NodiGrid {
-  constructor (layerName, canvas) {
-    super(layerName)
+  constructor (layerName, canvas, tileSize) {
+    super(layerName, canvas, tileSize)
 
     window.invMenu = new Dialog()
     window.craftMenu = new Dialog()
@@ -28,6 +28,7 @@ export class DialogLayer extends NC.NodiGrid {
 
   onMouseMove (e, hit) {
     if (hit) return
+    this.extendMouseData(e)
     let isOverlay = false
     window.invMenu.items.forEach(b => { b.hover = b.collision(e); if (b.hover) { isOverlay = true } })
     window.craftMenu.items.forEach(b => { b.hover = b.collision(e); if (b.hover) { isOverlay = true } })
