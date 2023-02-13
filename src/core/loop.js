@@ -69,6 +69,7 @@ class TimeLoop {
       }
     }
 
+    if (Settings.selEntity) window.view.updateEntityMenu(Settings.selEntity, true)
     setTimeout(window.Time.gameLoop, 20)
   }
 }

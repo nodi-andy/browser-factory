@@ -189,7 +189,6 @@ export class ViewModule extends NC.NodiView {
     const showStack = inv.stack
     if (showStack == null) return
 
-    window.entityMenu.vis = true
     const init = window.entityMenu.invID !== inv.id
     const refresh = init || forceUpdate
     window.entityMenu.invID = inv.id

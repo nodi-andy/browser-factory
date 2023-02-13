@@ -40,6 +40,9 @@ export class StoneFurnace extends Inventory {
     this.need = []
     this.preneed = []
 
+    if (this.stack.INPUT[0] == null || this.stack.INPUT[0]?.n === 0) this.stack.INPUT = []
+    if (this.stack.FUEL[0] == null || this.stack.FUEL[0]?.n === 0) this.stack.FUEL = []
+
     if (this.stack.OUTPUT[0]?.id == null) {
       this.preneed.push({ id: Settings.resDB.iron.id, n: 1 })
       this.preneed.push({ id: Settings.resDB.copper.id, n: 1 })
@@ -95,12 +98,9 @@ export class StoneFurnace extends Inventory {
           stack.OUTPUT[0].id = becomesThat
           stack.OUTPUT[0].n++
           this.lastTime = performance.now()
-          window.view.updateEntityMenu(Settings.selEntity, true)
         }
       }
     }
-    if (stack.INPUT[0]?.n === 0) stack.INPUT = []
-    if (stack.FUEL[0]?.n === 0) stack.FUEL = []
   }
 
   draw (ctx, ent) {
