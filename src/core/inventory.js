@@ -270,10 +270,14 @@ function getNumberOfItems (ent, type) {
 }
 
 function mineToInv (minedItem) {
-  const newItem = {}
-  newItem.id = Settings.resName[minedItem.id].becomes
-  newItem.n = 1
-  Settings.game.map[minedItem.source.x][minedItem.source.y][Settings.layers.res].n--
+  const newItem = { id: Settings.resName[minedItem.id].becomes, n: 1 }
+  const res = Settings.game.map[minedItem.source.x][minedItem.source.y][Settings.layers.res]
+  res.n--
+
+  if (res.n <= 0) {
+    delete Settings.game.map[minedItem.source.x][minedItem.source.y][Settings.layers.res].id
+    Settings.player.stopMining(Settings.allInvs[Settings.playerID])
+  }
   Settings.allInvs[Settings.playerID].addItem(newItem)
   window.view.updateInventoryMenu(Settings.player)
 }
