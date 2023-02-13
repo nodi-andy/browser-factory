@@ -395,7 +395,15 @@ function moveStack (data) {
     Settings.allInvs[data.toInvID].stack[data.toInvKey][data.toStackPos] = from
   } else {
     if (toStack[data.toInvKey] == null) toStack[data.toInvKey] = []
-    toStack[data.toInvKey].push(from)
+
+    // add items into stack
+    if (toStack[data.toInvKey][data.toStackPos]?.id === from.id) {
+      toStack[data.toInvKey][data.toStackPos].n += from.n
+
+    // add new stack
+    } else {
+      toStack[data.toInvKey].push(from)
+    }
   }
 
   invFrom.splice(data.fromStackPos, 1)

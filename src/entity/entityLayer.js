@@ -17,7 +17,7 @@ export class EntityLayer extends NC.NodiGrid {
     Settings.player.onKeyDown(e)
     if (e.code === 'Escape') {
       if (Settings.pointer.stack?.INV?.length) {
-        invfuncs.moveStack({ fromInvID: Settings.pointer.id, fromInvKey: 'INV', fromStackPos: 0, toInvID: Settings.player.invID, toInvKey: 'INV'})
+        invfuncs.moveStack({ fromInvID: Settings.pointer.id, fromInvKey: 'INV', fromStackPos: 0, toInvID: Settings.player.invID, toInvKey: 'INV' })
       }
       window.invMenu.vis = false
       window.entityMenu.vis = false
@@ -42,6 +42,8 @@ export class EntityLayer extends NC.NodiGrid {
   }
 
   setOnMap (tileCoordinate) {
+    if (Settings.pointer?.stack?.INV == null) return
+    if (Settings.pointer?.stack?.INV[0] == null) return
     Settings.pointer.type = Settings.resName[Settings.pointer?.stack?.INV[0].id].type
     if (Settings.pointer.type === 'entity') {
       wssend({ cmd: 'addEntity', data: { pos: { x: tileCoordinate.x, y: tileCoordinate.y }, dir: Settings.buildDir, type: Settings.pointer.stack.INV[0].id } })
@@ -74,19 +76,23 @@ export class EntityLayer extends NC.NodiGrid {
       } else {
         window.isDragStarted = true
         window.isBuilding = false
-        if (res?.id && d < 5 * Settings.tileSize) Settings.player.startMining(tileCoordinate, Settings.allInvs[Settings.playerID])
+        if ((res?.id || inv?.id) && d < 5 * Settings.tileSize) Settings.player.startMining(tileCoordinate, Settings.allInvs[Settings.playerID])
       }
     } else if (e.buttons === 2) {
-      const inv = Settings.game.map[tileCoordinate.x][tileCoordinate.y][Settings.layers.inv]
-      if (inv) {
-        Settings.allInvs[Settings.playerID].addItem({ id: Settings.allInvs[inv].type, n: 1 })
-        Settings.allInvs[inv] = undefined
-        Settings.game.map[tileCoordinate.x][tileCoordinate.y][Settings.layers.inv] = null
-        // Update Neighbours
-        for (const nbV of Settings.nbVec) {
-          const nb = invfuncs.getInv(tileCoordinate.x + nbV.x, tileCoordinate.y + nbV.y)
-          if (nb?.updateNB) nb.updateNB()
-        }
+      this.removeEntity(tileCoordinate)
+    }
+  }
+
+  removeEntity (tileCoordinate) {
+    const inv = Settings.game.map[tileCoordinate.x][tileCoordinate.y][Settings.layers.inv]
+    if (inv) {
+      Settings.allInvs[Settings.playerID].addItem({ id: Settings.allInvs[inv].type, n: 1 })
+      Settings.allInvs[inv] = undefined
+      Settings.game.map[tileCoordinate.x][tileCoordinate.y][Settings.layers.inv] = null
+      // Update Neighbours
+      for (const nbV of Settings.nbVec) {
+        const nb = invfuncs.getInv(tileCoordinate.x + nbV.x, tileCoordinate.y + nbV.y)
+        if (nb?.updateNB) nb.updateNB()
       }
     }
   }

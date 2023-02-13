@@ -1,7 +1,7 @@
 import { Settings } from '../../common.js'
 import { Inventory, invfuncs } from '../../core/inventory.js'
 
-class StoneFurnace extends Inventory {
+export class StoneFurnace extends Inventory {
   constructor (pos, data) {
     if (data === undefined) {
       data = {
@@ -98,6 +98,8 @@ class StoneFurnace extends Inventory {
         }
       }
     }
+    if (stack.INPUT[0].n === 0) stack.INPUT = []
+    if (stack.FUEL[0].n === 0) stack.FUEL = []
   }
 
   draw (ctx, ent) {
@@ -133,5 +135,3 @@ db.viewsize = [2, 2.5]
 db.cost = [{ id: Settings.resDB.stone.id, n: 5 }]
 db.rotatable = false
 db.mach = StoneFurnace
-
-export { StoneFurnace }

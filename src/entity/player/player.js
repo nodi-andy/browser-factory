@@ -91,6 +91,9 @@ class Player extends Inventory {
     if (ent.dir.y > 0.25 && Math.abs(ent.dir.x) < 0.25) ent.ss.y = 4
     if (ent.dir.y > 0.25 && ent.dir.x > 0.25) ent.ss.y = 3
 
+    if (ent.dir.x !== 0) Settings.curResPos.x = 0
+    if (ent.dir.y !== 0) Settings.curResPos.y = 0
+
     ent.ss.x += 30
     ent.ss.x %= 30
     if (ent.dir.x === 0 && ent.dir.y === 0) ent.ss.x = 5
@@ -217,8 +220,15 @@ class Player extends Inventory {
         ent.workProgress += 10
         if (ent.workProgress >= 100) {
           ent.workProgress %= 100
+          const inv = invfuncs.getInv(tileCoordinate.x, tileCoordinate.y)
           const res = Settings.game.map[tileCoordinate.x][tileCoordinate.y][Settings.layers.res]
-          invfuncs.mineToInv({ source: tileCoordinate, id: res.id, n: 1 })
+          if (inv) {
+            Settings.player.destructBuilding(tileCoordinate)
+            Settings.player.stopMining(Settings.player)
+            Settings.allInvs[Settings.playerID].addItem({id: inv.id, n: 1})
+          } else if (res) {
+            invfuncs.mineToInv({ source: tileCoordinate, id: res.id, n: 1 })
+          }
         }
       }, 100)
     }
@@ -228,6 +238,10 @@ class Player extends Inventory {
     clearInterval(ent.miningTimer)
     ent.miningTimer = null
     ent.workProgress = 0
+  }
+
+  destructBuilding (tileCoordinate) {
+    window.entityLayer.removeEntity(tileCoordinate)
   }
 
   setInventory (newInv, newID) {

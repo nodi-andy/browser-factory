@@ -75,7 +75,11 @@ export class Button {
     if (this.item?.id && Settings.resName[this.item?.id].lock === 1) return
     if (button === 1) {
       if (Settings.pointer?.stack?.INV?.length) {
-        invfuncs.moveStack({ fromInvID: Settings.pointer.id, fromInvKey: 'INV', fromStackPos: 0, toInvID: this.invID, toInvKey: this.invKey })
+        if (Settings.pointer?.stack?.INV[0].id === Settings.allInvs[this.invID].stack[this.invKey][this.stackPos]?.id) {
+          invfuncs.moveStack({ fromInvID: Settings.pointer.id, fromInvKey: 'INV', fromStackPos: 0, toInvID: this.invID, toInvKey: this.invKey, toStackPos: this.stackPos })
+        } else {
+          invfuncs.moveStack({ fromInvID: Settings.pointer.id, fromInvKey: 'INV', fromStackPos: 0, toInvID: this.invID, toInvKey: this.invKey })
+        }
       } else {
         invfuncs.moveStack({ fromInvID: this.invID, fromInvKey: this.invKey, fromStackPos: this.stackPos, toInvID: Settings.pointer.id, toInvKey: 'INV', toStackPos: 0 })
         Settings.curResPos.x = 0

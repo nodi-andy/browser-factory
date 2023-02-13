@@ -27,6 +27,7 @@ class BurnerMiner extends Inventory {
 
   update (map, ent) {
     if (this.stack.FUEL === undefined) this.stack.FUEL = []
+    if (this.stack.FUEL[0]?.n === 0) this.stack.FUEL.splice(0, 1)
 
     if (Settings.game.tick % 100 === 0) {
       this.power = 0

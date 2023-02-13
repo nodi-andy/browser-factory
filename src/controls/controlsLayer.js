@@ -20,14 +20,21 @@ export class ControlsLayer extends NC.NodiGrid {
     this.showInvButton.img = image
 
     this.showInvButton.onClick = () => {
-      window.invMenu.vis = !window.invMenu.vis
-      window.craftMenu.vis = window.invMenu.vis
+      window.entityLayer.onKeyUp({ code: 'KeyE' })
     }
 
     this.buildButton = new Button()
     this.buildButton.item = Settings.resDB.iron_axe
     this.buildButton.onClick = () => {
       window.entityLayer.onKeyDown({ code: 'Enter' })
+    }
+
+    this.rotateButton = new Button()
+    const imageRotateButton = new Image(Settings.tileSize, Settings.tileSize)
+    imageRotateButton.src = './src/controls/rotate.png'
+    this.rotateButton.img = imageRotateButton
+    this.rotateButton.onClick = () => {
+      window.entityLayer.onKeyUp({ code: 'KeyR' })
     }
   }
 
@@ -57,6 +64,7 @@ export class ControlsLayer extends NC.NodiGrid {
     }
     if (this.showInvButton.collision(e, this.showInvButton)) { overlayClicked = true }
     if (this.buildButton.collision(e, this.buildButton)) { overlayClicked = true }
+    if (this.rotateButton.collision(e, this.rotateButton)) { overlayClicked = true }
     return overlayClicked
   }
 
@@ -75,6 +83,7 @@ export class ControlsLayer extends NC.NodiGrid {
 
     if (this.showInvButton.collision(e)) { this.showInvButton.hover = true; isOverlay = true }
     if (this.buildButton.collision(e)) { this.buildButton.hover = true; isOverlay = true }
+    if (this.rotateButton.collision(e)) { this.rotateButton.hover = true; isOverlay = true }
     return isOverlay
   }
 
@@ -89,6 +98,7 @@ export class ControlsLayer extends NC.NodiGrid {
 
     if (this.showInvButton.collision(e) && this.showInvButton.onClick) { this.showInvButton.onClick(e.which, this.showInvButton); overlayClicked = true }
     if (this.buildButton.collision(e) && this.buildButton.onClick) { this.buildButton.onClick(e.which, this.buildButton); overlayClicked = true }
+    if (this.rotateButton.collision(e) && this.rotateButton.onClick) { this.rotateButton.onClick(e.which, this.rotateButton); overlayClicked = true }
     return overlayClicked
   }
 
@@ -122,5 +132,9 @@ export class ControlsLayer extends NC.NodiGrid {
     this.buildButton.x = this.showInvButton.x
     this.buildButton.y = this.showInvButton.y - 1.1 * Settings.buttonSize.y
     this.buildButton.draw(ctx)
+
+    this.rotateButton.x = this.buildButton.x
+    this.rotateButton.y = this.buildButton.y - 1.1 * Settings.buttonSize.y
+    this.rotateButton.draw(ctx)
   }
 }
