@@ -85,7 +85,7 @@ export class EntityLayer extends NC.NodiGrid {
         if ((res?.id || inv?.id) && d < 5 * Settings.tileSize) Settings.player.startMining(tileCoordinate, window.game.allInvs[window.game.playerID])
       }
 
-      if (Settings.pointer?.stack?.INV?.length === 0) Settings.pointer.type = undefined
+      if (Settings.pointer?.stack?.INV?.length == null || Settings.pointer?.stack?.INV?.length === 0) Settings.pointer.type = undefined
     } else if (e.buttons === 2) {
       this.removeEntity(tileCoordinate)
     }
