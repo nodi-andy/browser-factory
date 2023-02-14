@@ -13,6 +13,11 @@ function getEventLocation (e) {
 }
 
 export class EntityLayer extends NC.NodiGrid {
+  constructor (name, gridSize, tileSize) {
+    super(name, gridSize, tileSize)
+    this.map = Array(this.gridSize.x).fill(0).map(() => Array(this.gridSize.y).fill(0).map(() => (undefined)))
+  }
+
   onKeyDown (e) {
     Settings.player.onKeyDown(e)
     if (e.code === 'Escape') {
@@ -68,7 +73,7 @@ export class EntityLayer extends NC.NodiGrid {
         return
       }
       window.dragStart = worldCordinate
-      const res = Settings.game.map[tileCoordinate.x][tileCoordinate.y][Settings.layers.res]
+      const res = window.res.map[tileCoordinate.x][tileCoordinate.y]
       const d = dist(Settings.allInvs[Settings.playerID].pos, worldCordinate)
 
       if (Settings.pointer?.stack?.INV?.length && inv == null) {
@@ -84,11 +89,11 @@ export class EntityLayer extends NC.NodiGrid {
   }
 
   removeEntity (tileCoordinate) {
-    const inv = Settings.game.map[tileCoordinate.x][tileCoordinate.y][Settings.layers.inv]
+    const inv = this.map[tileCoordinate.x][tileCoordinate.y]
     if (inv) {
       Settings.allInvs[Settings.playerID].addItem({ id: Settings.allInvs[inv].type, n: 1 })
       Settings.allInvs[inv] = undefined
-      Settings.game.map[tileCoordinate.x][tileCoordinate.y][Settings.layers.inv] = null
+      this.map[tileCoordinate.x][tileCoordinate.y] = null
       // Update Neighbours
       for (const nbV of Settings.nbVec) {
         const nb = invfuncs.getInv(tileCoordinate.x + nbV.x, tileCoordinate.y + nbV.y)
@@ -152,9 +157,7 @@ export class EntityLayer extends NC.NodiGrid {
       for (let ax = minTile.x - 3; ax < Math.min(maxTile.x + 2, Settings.gridSize.x); ax++) {
         if (ax < 0 || ay < 0) continue
         // GET TILE
-        const tile = Settings.game.map[ax][ay]
-
-        const invID = tile[Settings.layers.inv]
+        const invID = this.map[ax][ay]
         let ent
         if (invID !== undefined) {
           ent = Settings.allInvs[invID]
@@ -219,8 +222,8 @@ export class EntityLayer extends NC.NodiGrid {
           const y = belt.pos.y
 
           const nbPos = Settings.dirToVec[belt.dir]
-          const nbTile = Settings.game.map[x + nbPos.x][y + nbPos.y]
-          const nbEntity = Settings.allInvs[nbTile[Settings.layers.inv]]
+          const nbTile = this.map[x + nbPos.x][y + nbPos.y]
+          const nbEntity = Settings.allInvs[nbTile]
           if ((nbEntity?.type === Settings.resDB.belt1.id || nbEntity?.type === Settings.resDB.belt2.id || nbEntity?.type === Settings.resDB.belt3.id) && // is it a belt?
                     nbEntity.drawn === 1 && // already processed?
                     (nbEntity.searching === false || nbEntity.searching === undefined) && // circular network?
@@ -238,7 +241,7 @@ export class EntityLayer extends NC.NodiGrid {
     for (let ay = minTile.y - 3; ay < Math.min(maxTile.y + 5, Settings.gridSize.y); ay++) {
       for (let ax = minTile.x - 3; ax < Math.min(maxTile.x + 2, Settings.gridSize.x); ax++) {
         if (ax < 0 || ay < 0) continue
-        const entID = Settings.game.map[ax][ay][Settings.layers.inv]
+        const entID = this.map[ax][ay]
         let ent
         if (entID) ent = Settings.allInvs[entID]
         if (ent && ent.drawn < 2 && ent.type !== Settings.resDB.belt1.id) {
@@ -257,7 +260,7 @@ export class EntityLayer extends NC.NodiGrid {
 
         // PLAYERS
         const entity = Settings.player
-        if (entity?.tilePos && ax - 2 === entity.tilePos.x && ay === entity.tilePos.y) {
+        if (ax - 2 === entity?.tilePos.x && ay === entity.tilePos.y) {
           ctx.save()
           Settings.player.draw(ctx, entity)
           ctx.restore()

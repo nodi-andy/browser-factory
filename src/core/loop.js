@@ -3,26 +3,16 @@ import { Settings } from '../common.js'
 class TimeLoop {
   // LOOP
   gameLoop () {
-    if (Settings.gameState === 0) {
+    if (Settings.game.state === 0) {
       setTimeout(window.Time.gameLoop, 20)
       return
     }
 
-    if (Settings.gameState === 2) {
+    if (Settings.game.state === 2) {
       Settings.game.stopped()
       return
     }
 
-    // SETUP
-    /*
-      if (Settings.game.tick === 0) {
-          for(let ient = 0; ient < Settings.allInvs.length; ient++) {
-              let entity = Settings.allInvs[ient];
-              if (entity?.setup) entity.setup(Settings.game.map, entity);
-              else Settings.resName[entity?.type]?.mach?.setup(Settings.game.map, entity);
-          }
-      }
-      */
     // Game tick increment
     Settings.game.tick++
 
@@ -40,7 +30,7 @@ class TimeLoop {
         belts.push(entity)
       } else {
         if (entity.update) {
-          entity.update(Settings.game.map, entity)
+          entity.update(window.entityLayer.map, entity)
         } else entity.draw(window.context)
       }
     }
@@ -55,8 +45,8 @@ class TimeLoop {
           const y = belt.pos.y
 
           const nbPos = Settings.dirToVec[belt.dir]
-          const nbTile = Settings.game.map[x + nbPos.x][y + nbPos.y]
-          const nbEntity = Settings.allInvs[nbTile[Settings.layers.inv]]
+          const nbTile = window.entityLayer.map[x + nbPos.x][y + nbPos.y]
+          const nbEntity = Settings.allInvs[nbTile]
           if ((nbEntity?.type === Settings.resDB.belt1.id || nbEntity?.type === Settings.resDB.belt2.id || nbEntity?.type === Settings.resDB.belt3.id) && // is it a belt?
                       nbEntity.done === false && // already processed?
                       (nbEntity.searching === false || nbEntity.searching === undefined) && // circular network?
@@ -65,7 +55,7 @@ class TimeLoop {
             belt = nbEntity
           } else break
         }
-        belt.update(Settings.game.map, belt)
+        belt.update(window.entityLayer.map, belt)
       }
     }
 
@@ -74,6 +64,4 @@ class TimeLoop {
   }
 }
 
-const Time = new TimeLoop()
-
-export { Time }
+export const Time = new TimeLoop()

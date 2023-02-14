@@ -271,11 +271,11 @@ function getNumberOfItems (ent, type) {
 
 function mineToInv (minedItem) {
   const newItem = { id: Settings.resName[minedItem.id].becomes, n: 1 }
-  const res = Settings.game.map[minedItem.source.x][minedItem.source.y][Settings.layers.res]
+  const res = window.res.map[minedItem.source.x][minedItem.source.y]
   res.n--
 
   if (res.n <= 0) {
-    delete Settings.game.map[minedItem.source.x][minedItem.source.y][Settings.layers.res].id
+    delete window.res.map[minedItem.source.x][minedItem.source.y].id
     Settings.player.stopMining(Settings.allInvs[Settings.playerID])
   }
   Settings.allInvs[Settings.playerID].addItem(newItem)
@@ -304,30 +304,24 @@ function getInv (x, y, create = false) {
   if (x < 0) return
   if (y < 0) return
 
-  const tile = Settings.game.map[x][y]
-  if (tile[Settings.layers.inv] === null && create) createInvOnMap(x, y)
-  return Settings.allInvs[tile[Settings.layers.inv]]
+  const tile = window.entityLayer.map[x][y]
+  if (tile === null && create) createInvOnMap(x, y)
+  return Settings.allInvs[tile]
 }
 
 function setInv (x, y, invID) {
-  const tile = Settings.game.map[x][y]
-  tile[Settings.layers.inv] = invID
-}
-
-function setEnt (x, y, invID) {
-  const tile = Settings.game.map[x][y]
-  tile[Settings.layers.buildings] = invID
+  window.entityLayer.map[x][y] = invID
 }
 
 function createInvOnMap (x, y) {
-  let invID = Settings.game.map[x][y][Settings.layers.inv]
+  let invID = window.entityLayer.map[x][y]
   if (invID === null) {
     const inv = new Inventory({ x, y })
 
     Settings.allInvs.push(inv)
     inv.id = Settings.allInvs.length - 1
 
-    Settings.game.map[x][y][Settings.layers.inv] = inv.id
+    window.entityLayer.map[x][y] = inv.id
     inv.type = Settings.resDB.empty.id
     invID = inv.id
   }
@@ -351,14 +345,14 @@ function addInventory (newEntity, updateDir) {
       inv.pos = { x: newEntity.pos.x, y: newEntity.pos.y }
       inv.dir = newEntity.dir
       inv.type = newEntity.type
-      Settings.game.map[newEntity.pos.x][newEntity.pos.y][Settings.layers.inv] = inv.id
+      window.entityLayer.map[newEntity.pos.x][newEntity.pos.y] = inv.id
       if (inv?.updateNB) inv.updateNB()
       if (typeof window !== 'undefined') window.view.updateInventoryMenu(Settings.player)
       Settings.pointer.stack.INV[0].n--
       if (Settings.pointer.stack.INV[0].n === 0) delete Settings.pointer.stack.INV
     }
     if (Settings.isBrowser) {
-      if (Settings.resName[newEntity.type].mach && Settings.resName[newEntity.type].mach.setup) Settings.resName[newEntity.type].mach.setup(Settings.game.map, inv)
+      if (Settings.resName[newEntity.type].mach && Settings.resName[newEntity.type].mach.setup) Settings.resName[newEntity.type].mach.setup(window.entityLayer.map, inv)
     }
   }
 
@@ -373,17 +367,15 @@ function addInventory (newEntity, updateDir) {
 
 function addItem (newItem) {
   let inv
-  const invID = Settings.game.map[newItem.pos.x][newItem.pos.y][Settings.layers.inv]
+  const invID = window.entityLayer.map[newItem.pos.x][newItem.pos.y]
   if (invID == null) {
     inv = new Inventory(newItem.pos)
     Settings.allInvs.push(inv)
     inv.id = Settings.allInvs.length - 1
-    Settings.game.map[newItem.pos.x][newItem.pos.y][Settings.layers.inv] = inv.id
+    window.entityLayer.map[newItem.pos.x][newItem.pos.y] = inv.id
     inv.type = Settings.resDB.belt1.id
   } else inv = inv = Settings.allInvs[invID]
   inv.addItem({ id: newItem.inv.item.id, n: 1 })
-  /* s.sendAll(JSON.stringify({msg:"updateInv", data:Settings.allInvs}));
-  s.sendAll(JSON.stringify({msg: "updateMapData", data:Settings.game.map})); */
 }
 
 function moveStack (data) {
@@ -420,7 +412,6 @@ const invfuncs = {}
 invfuncs.Inventory = Inventory
 invfuncs.getInv = getInv
 invfuncs.setInv = setInv
-invfuncs.setEnt = setEnt
 invfuncs.createInv = createInv
 invfuncs.mineToInv = mineToInv
 invfuncs.moveStack = moveStack

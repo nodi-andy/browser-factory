@@ -33,15 +33,15 @@ class BurnerMiner extends Inventory {
       this.power = 0
       if (this.stack.FUEL === undefined || this.stack.FUEL.length === 0) this.stack.FUEL = [Settings.item(undefined, 0)]
       let output
-      let tile = map[ent.pos.x][ent.pos.y]
-      if (tile[Settings.layers.res]?.n === 0) tile = map[ent.pos.x + 1][ent.pos.y]
+      let tile = window.res.map[ent.pos.x][ent.pos.y]
+      if (tile?.n === 0) tile = map[ent.pos.x + 1][ent.pos.y]
 
       let invTo
       if (this.dir === 0) invTo = invfuncs.getInv(ent.pos.x + 2, ent.pos.y, true)
       if (this.dir === 1) invTo = invfuncs.getInv(ent.pos.x + 1, ent.pos.y + 2, true)
       if (this.dir === 2) invTo = invfuncs.getInv(ent.pos.x - 1, ent.pos.y + 1, true)
       if (this.dir === 3) invTo = invfuncs.getInv(ent.pos.x, ent.pos.y - 1, true)
-      if (tile[Settings.layers.res]?.n) output = Settings.resName[Settings.resName[tile[Settings.layers.res].id].becomes]
+      if (tile?.n) output = Settings.resName[Settings.resName[tile.id].becomes]
       // Shift output on next tile
       let stackName
       // place into assembling machine
@@ -54,12 +54,12 @@ class BurnerMiner extends Inventory {
       }
 
       const hasPlace = invTo.hasPlaceFor({ id: output, n: 1 }, stackName)
-      const neededEnergy = Settings.resName[tile[Settings.layers.res].id].W
+      const neededEnergy = Settings.resName[tile.id].W
       if (this.stack.FUEL[0]?.n > 0 && hasPlace && this.energy <= neededEnergy) {
         this.energy += Settings.resName[this.stack.FUEL[0].id].E // add time factor
         this.power = 100
         this.stack.FUEL[0].n--
-        tile[Settings.layers.res].n--
+        tile.n--
       }
 
       if (output && hasPlace && this.energy > neededEnergy) {

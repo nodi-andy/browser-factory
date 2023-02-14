@@ -1,9 +1,15 @@
 import { Settings } from '../common.js'
 import { noise } from './perlin.js'
-import { invfuncs } from '../core/inventory.js'
 import * as NC from 'nodicanvas'
 
 export class Terrain extends NC.NodiGrid {
+  constructor (name, gridSize, tileSize) {
+    super(name, gridSize, tileSize)
+    this.map = Array(this.gridSize.x).fill(0).map(() => Array(this.gridSize.y).fill(0).map(() => [undefined, 0]))
+    this.createWorld(gridSize.x, gridSize.y)
+    this.offscreenCanvas = document.createElement('canvas')
+  }
+
   // GENERATE TERRAIN
   generateTerrain (w, h) {
     const map = Array(w * h).fill(0)
@@ -17,58 +23,52 @@ export class Terrain extends NC.NodiGrid {
   }
 
   createWorld (x, y) {
-    const nCity = {
-      id: 0,
-      name: '',
-      map: Array(this.gridSize.x).fill(0).map(() => Array(this.gridSize.y).fill(0).map(() => [[undefined, 0], { id: undefined, n: 0 }, undefined, 0])),
-      res: [0, 100, 0, 0, 0, 0, 100, 0, 0, 0, 0],
-      nb: [],
-      w: [],
-      dist: [],
-      tick: 0
-    }
-
-    let terrainmap = this.generateTerrain(this.gridSize.x, this.gridSize.y)
+    this.perlinmap = this.generateTerrain(this.gridSize.x, this.gridSize.y)
     // discrete perlin
-    for (let ax = 0; ax < nCity.map.length; ax++) {
-      for (let ay = 0; ay < nCity.map[ax].length; ay++) {
-        const perlinVal = terrainmap[ax * this.gridSize.y + ay]
+    for (let ax = 0; ax < this.map.length; ax++) {
+      for (let ay = 0; ay < this.map[ax].length; ay++) {
+        const perlinVal = this.perlinmap[ax * this.gridSize.y + ay]
         let resVal = 0
         if (perlinVal < 1) resVal = [Settings.resDB.deepsea.id, 0]
         else if (perlinVal < 2) resVal = [Settings.resDB.sea.id, 0]
         else if (perlinVal < 8) resVal = [Settings.resDB.grassland.id, Math.round(Math.random() * 3)]
         else resVal = [Settings.resDB.hills.id, Math.round(Math.random() * 3)]
 
-        nCity.map[ax][ay][Settings.layers.terrain] = resVal
-        nCity.map[ax][ay][Settings.layers.vis] = 0
+        this.map[ax][ay] = resVal
       }
     }
+  }
 
-    Object.keys(Settings.resDB).forEach(name => {
-      const res = Settings.resDB[name]
-      if (res.type === 'res' && res.id !== Settings.resDB.water.id) {
-        terrainmap = this.generateTerrain(this.gridSize.x, this.gridSize.y)
-        for (let ax = 0; ax < nCity.map.length; ax++) {
-          for (let ay = 0; ay < nCity.map[ax].length; ay++) {
-            const perlinVal = terrainmap[ax * this.gridSize.y + ay]
-            const tile = nCity.map[ax][ay];
-            if (perlinVal > 8 &&
-                          tile[Settings.layers.res].id === undefined &&
-                          tile[Settings.layers.terrain][0] === Settings.resDB.grassland.id) {
-              tile[Settings.layers.res].id = res.id
-              tile[Settings.layers.res].n = Math.round((perlinVal - 8) * 200)
-            }
-          }
-        }
+  loopScreenMap (terrainLayer, offScreencontext) {
+    for (let ax = 0; ax < Settings.gridSize.x; ax++) {
+      for (let ay = 0; ay < Settings.gridSize.y; ay++) {
+        const tile = terrainLayer.map[ax][ay]
+
+        // MAP
+        const type = tile[0]
+        const variant = tile[1]
+        if (Settings.resName[type]?.img?.complete === false) return false
+
+        offScreencontext.drawImage(Settings.resName[type].img, variant * 64, 0, Settings.tileSize, Settings.tileSize, ax * Settings.tileSize, ay * Settings.tileSize, Settings.tileSize, Settings.tileSize)
       }
-    })
+    }
+    return true
+  }
 
-    return nCity
+  updateOffscreenMap (terrainLayer) {
+    if (window.terrain.map === undefined) return
+    terrainLayer.offscreenCanvas.width = Settings.gridSize.x * Settings.tileSize
+    terrainLayer.offscreenCanvas.height = Settings.gridSize.y * Settings.tileSize
+    const offScreencontext = terrainLayer.offscreenCanvas.getContext('2d')
+    const loopDone = terrainLayer.loopScreenMap(terrainLayer, offScreencontext)
+    if (!loopDone) {
+      setTimeout(terrainLayer.updateOffscreenMap, 500, terrainLayer)
+    }
   }
 
   render (view) {
     const ctx = view.ctx
     // DRAW TERRAIN
-    ctx.drawImage(window.canvas.offScreenCanvas, 0, 0)
+    ctx.drawImage(this.offscreenCanvas, 0, 0)
   }
 }

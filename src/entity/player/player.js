@@ -14,11 +14,7 @@ class Player extends Inventory {
 
     super(data.tilePos, data)
 
-    if (pos) {
-      this.tilePos = pos
-    } else {
-      this.tilePos = data.tilePos
-    }
+    this.tilePos = data.tilePos
     this.layer = window.entityLayer
     this.pos = data.pos
     this.stack = data.stack
@@ -55,8 +51,6 @@ class Player extends Inventory {
   }
 
   update (map, ent) {
-    if (Settings.game.map === undefined) return
-
     ent.tilePos = this.layer.worldToTile(ent.pos)
     while (this.checkCollision(ent.tilePos)) {
       ent.tilePos.x++
@@ -199,11 +193,11 @@ class Player extends Inventory {
   }
 
   checkCollision (pos) {
-    if (Settings.game.map === undefined) return
-    const terrain = Settings.game.map[pos.x][pos.y][Settings.layers.terrain][0]
+    if (window.terrain.map === undefined) return
+    const terrain = window.terrain.map[pos.x][pos.y][0]
     if (Settings.resName[terrain].playerCanWalkOn === false) return true
 
-    const building = Settings.game.map[pos.x][pos.y][Settings.layers.inv]
+    const building = window.entityLayer.map[pos.x][pos.y]
     if (building == null) return false
     const buildingType = Settings.allInvs[building]?.type
     if (buildingType) {
@@ -221,7 +215,7 @@ class Player extends Inventory {
         if (ent.workProgress >= 100) {
           ent.workProgress %= 100
           const inv = invfuncs.getInv(tileCoordinate.x, tileCoordinate.y)
-          const res = Settings.game.map[tileCoordinate.x][tileCoordinate.y][Settings.layers.res]
+          const res = window.res.map[tileCoordinate.x][tileCoordinate.y]
           if (inv) {
             Settings.player.destructBuilding(tileCoordinate)
             Settings.player.stopMining(Settings.player)

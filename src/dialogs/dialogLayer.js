@@ -60,10 +60,10 @@ export class DialogLayer extends NC.NodiGrid {
     ctx.resetTransform()
     ctx.lineWidth = 1
     // CONTENT MENU
-    if (Settings.dialogResPos?.x && Settings.dialogResPos?.y && Settings.game.map) {
+    if (Settings.dialogResPos?.x && Settings.dialogResPos?.y) {
       ctx.save()
       const inv = invfuncs.getInv(Settings.dialogResPos.x, Settings.dialogResPos.y)
-      const res = Settings.game.map[Settings.dialogResPos.x][Settings.dialogResPos.y][Settings.layers.res]
+      const res = window.res.map[Settings.dialogResPos.x][Settings.dialogResPos.y]
 
       if (Settings.DEV) {
         // console.log(JSON.stringify(game.map[curResPos.x][curResPos.y]), inv);

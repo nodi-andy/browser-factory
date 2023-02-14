@@ -141,7 +141,6 @@
 <script type="module" src ="src/core/loop.js"></script>
 
 <script type="module" src ="src/core/input.js"></script>
-<script type="module" src ="src/core/render.js"></script>
 <script type="module" src ="src/core/view.js"></script>
 <script type="module" src ="src/entity/player/player.js"></script>
 
@@ -214,11 +213,9 @@
 <script type="module">
 
     import { ViewModule } from './src/core/view.js'
-    //import { InputModule } from './src/core/input.js' 
     import { Settings } from './src/common.js'
     import { Time } from './src/core/loop.js'
     import { Inventory, invfuncs } from './src/core/inventory.js'
-    import { updateOffscreenMap } from './src/core/render.js'
     import { Terrain } from './src/terrain/terrain.js'
     import { Player } from './src/entity/player/player.js'
     import { EntityLayer } from './src/entity/entityLayer.js'
@@ -234,33 +231,20 @@
     window.context = canvas.getContext("2d");
     window.canvas.width  = window.innerWidth;
     window.canvas.height = window.innerHeight;
-    window.canvas.offScreenCanvas = document.createElement('canvas');
     window.canvas.oncontextmenu = function (e) {e.preventDefault();};
     window.Time = Time;
-
-    let nextGameID = undefined;
-    let htmlList = document.getElementById("savedGameList");
-
+    window.nextGameID = undefined;
+    window.htmlList = document.getElementById("savedGameList");
     window.view = new ViewModule (window.canvas);
+    Settings.game = window.view
 
-    window.terrain = new Terrain("terrain", Settings.gridSize, Settings.tileSize)
-    window.view.addLayer(window.terrain)
-
-    window.view.addLayer(new ResLayer("resource", Settings.gridSize, Settings.tileSize))
-
-    window.entityLayer = new EntityLayer("entity", Settings.gridSize, Settings.tileSize)
-    window.view.addLayer(window.entityLayer)
-
-    window.dialogLayer = new DialogLayer("dialog", Settings.gridSize, Settings.tileSize)
-    window.view.addLayer(window.dialogLayer)
-    window.view.addLayer(new ControlsLayer("controls", Settings.gridSize, Settings.tileSize))
 
     function updateNextGameID() {
         let gamesList = Object.values(Object.keys(window.localStorage));
-        nextGameID = 0;
+        window.nextGameID = 0;
         for(let i = 0; i < gamesList.length; i++) {
             if (gamesList.includes("unnamed_" + i) === false) {
-                nextGameID = i;
+                window.nextGameID = i;
                 break;
             }
         }
@@ -268,7 +252,7 @@
 
     function updateGameMenu() {
         let gamesList = Object.values(Object.keys(window.localStorage));
-        htmlList.innerHTML = "";
+        window.htmlList.innerHTML = "";
         for(let gameID in gamesList) {
             if (gamesList[gameID] === "curGame") continue;
             let gameDiv = document.createElement("div");
@@ -308,7 +292,7 @@
 
             gameDiv.appendChild(remGameDiv);
 
-            htmlList.appendChild(gameDiv);
+            window.htmlList.appendChild(gameDiv);
         }
     }
 
@@ -326,38 +310,43 @@
     }
 
     function loadGame(name) {
+        Settings.game = {
+            x: Settings.gridSize.x, 
+            y: Settings.gridSize.y, 
+            tick : 0
+        };
+
+        window.terrain = new Terrain("terrain", Settings.gridSize, Settings.tileSize)
+        window.view.addLayer(window.terrain)
+
+        window.res = new ResLayer("resource", Settings.gridSize, Settings.tileSize)
+        window.view.addLayer(window.res)
+
+        window.entityLayer = new EntityLayer("entity", Settings.gridSize, Settings.tileSize)
+        window.view.addLayer(window.entityLayer)
+
+        window.dialogLayer = new DialogLayer("dialog", Settings.gridSize, Settings.tileSize)
+        window.view.addLayer(window.dialogLayer)
+        window.view.addLayer(new ControlsLayer("controls", Settings.gridSize, Settings.tileSize))
 
         updateNextGameID();
-        if (name === undefined || name === null) name = "unnamed_" + nextGameID;
+        if (name === undefined || name === null) name = "unnamed_" + window.nextGameID;
 
-        if (Settings.gameState === 1) {
-            Settings.gameState = 2;
+        if (Settings.game.state === 1) {
+            Settings.game.state = 2;
             Settings.game.stopped = () => {loadGame(name)};
             return;
         }
 
         curGame = name;
         Settings.allInvs = [];
-        Settings.game.tick = 0;
-        Settings.gameState = 1;
+        Settings.game.state = 1;
         
         let savedData = JSON.parse(window.localStorage.getItem(name));
         if(!savedData) newGame(name);
 
         // try again, after creation
-        Settings.allInvs = [];
         savedData = JSON.parse(window.localStorage.getItem(name)); 
-
-        Settings.game = {
-            id: 0, name: "", 
-            x: Math.floor(Settings.gridSize.x/10)*10, 
-            y: Math.floor(Settings.gridSize.y/10)*10, 
-            map: savedData.map, 
-            camera: {x: 0, y:0, zoom:4}, 
-            w: [],
-            dist: [],
-            tick : 0
-        };
 
         for (let i = 0; i < savedData.ents.length; i++) {
             let ent = savedData.ents[i];
@@ -378,9 +367,6 @@
             if (ent?.updateNB) ent.updateNB();
         })
 
-        Settings.playerID = 0;
-        if (savedData.player?.id) Settings.player.id = savedData.player?.id;
-
         Settings.player = Settings.allInvs[Settings.playerID];
         Settings.allInvs[Settings.playerID] = Settings.player;
         Settings.player.id = Settings.playerID;
@@ -391,7 +377,8 @@
         window.dialogLayer.createInvMenu(Settings.playerID)
         window.view.updateInventoryMenu(Settings.allInvs[Settings.playerID])
         updateGameMenu();
-        updateOffscreenMap(Settings.game.map);
+        window.terrain.updateOffscreenMap(window.terrain);
+        window.res.updateOffscreenMap(window.res);
         window.Time.gameLoop();
     }
 
@@ -401,31 +388,22 @@
         Settings.allInvs.push(new Player());
         Settings.allInvs.push(new Inventory()); // Settings.pointer
         curGame = name;
-        Settings.game = window.terrain.createWorld(Settings.gridSize)
-        saveGame();
+        window.terrain.createWorld(Settings.gridSize)
+        saveGame(Settings.game);
     }
 
 
-    function saveGame() {
-        /*if (ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({cmd: "updateEntity", data: {id: invID, ent: Settings.allInvs[invID]}}));
-            ws.send(JSON.stringify({cmd: "updateMapData", data: Settings.game.map}));
-        } else {*/
-           /* for(const [key, value] of Object.entries(window.view.layers)) {
-                delete value.view;
-            }*/
-
-            Settings.allInvs = Settings.allInvs.filter(function( element ) {
-                return element !== undefined;
-            });
-            for(const [key, value] of Object.entries(Settings.allInvs)) {
-                if (value?.layer) value.layer = value.layer.name;
-            }
-            window.localStorage.setItem(curGame, JSON.stringify({map: Settings.game.map, ents: Settings.allInvs, playerID: Settings.playerID}));
-            for(const [key, value] of Object.entries(Settings.allInvs)) {
-                if (value.layer) value.layer = window.view.layers[value.layer];
-            }
-        //}
+    function saveGame(game) {
+        Settings.allInvs = Settings.allInvs.filter(function( element ) {
+            return element !== undefined;
+        });
+        for(const [key, value] of Object.entries(Settings.allInvs)) {
+            if (value?.layer) value.layer = value.layer.name;
+        }
+        window.localStorage.setItem(curGame, JSON.stringify({terrain: window.terrain.map, res: window.res.map, entity: window.entityLayer.map, ents: Settings.allInvs, playerID: Settings.playerID}));
+        for(const [key, value] of Object.entries(Settings.allInvs)) {
+            if (value.layer) value.layer = window.view.layers[value.layer];
+        }
     }
  
     window.saveGame = saveGame;
@@ -438,8 +416,6 @@
         }
     )  
     
-
-
     loadGame(curGame);
     window.addEventListener("resize", function() { window.view.resize(); } );
 

@@ -1,10 +1,8 @@
 import { Settings } from '../common.js'
-import { Inventory, invfuncs } from './inventory.js'
-import { Time } from './loop.js'
-import { updateOffscreenMap } from './render.js'
+import { invfuncs } from './inventory.js'
 
 // const ws        = new WebSocket('wss:/www.mynodi.com:4000');
-//const ws = new WebSocket('ws://localhost:4000')
+// const ws = new WebSocket('ws://localhost:4000')
 
 function wssend (msg) {
   if (Settings.isBrowser) {
@@ -20,9 +18,9 @@ function wssend (msg) {
       invfuncs.moveStack(msg.data)
       updateInv = true
     } else {
-      /*if (ws.readyState === WebSocket.OPEN) {
+      /* if (ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify(msg))
-      }*/
+      } */
     }
     if (msg.cmd === 'godmode') {
       Settings.player.stacksize = 50
@@ -51,20 +49,15 @@ function wssend (msg) {
     }
 
     if (updateInv) {
-      /*if (ws.readyState === WebSocket.OPEN) {
+      /* if (ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify({ cmd: 'updateInventories', data: Settings.allInvs }))
-      }*/
+      } */
     }
     // ws.send(JSON.stringify(msg));
   }
 }
 
 window.ws = wssend
-
-function updateMapData (data) {
-  Settings.game.map = data
-  updateOffscreenMap()
-}
 
 /*
 ws.onerror = function (e) {
@@ -113,6 +106,6 @@ ws.onmessage = function (e) {
   if (socketMsg.msg === 'startGame') Time.gameLoop()
   if (socketMsg.msg === 'setPlayerID') Settings.playerID = socketMsg.data
   if (socketMsg.msg === 'id') console.log("Received: '" + socketMsg.data + "'")
-}*/
+} */
 
 export { wssend }
