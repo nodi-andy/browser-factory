@@ -18,7 +18,7 @@ export class Belt3 extends Belt {
 
   draw (ctx, ent) {
     if (this.speed == null) this.speed = 4
-    const beltPos = Math.round(Settings.game.tick * this.speed) % 32
+    const beltPos = Math.round(window.game.tick * this.speed) % 32
     ctx.drawImage(Settings.resDB.belt3.anim, 32 - beltPos, 0, 64, 64, 0, 0, 64, 64)
   }
 }

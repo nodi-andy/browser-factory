@@ -3,26 +3,26 @@ import { Settings } from '../common.js'
 class TimeLoop {
   // LOOP
   gameLoop () {
-    if (Settings.game.state === 0) {
+    if (window.game.state === 0) {
       setTimeout(window.Time.gameLoop, 20)
       return
     }
 
-    if (Settings.game.state === 2) {
-      Settings.game.stopped()
+    if (window.game.state === 2) {
+      window.game.stopped()
       return
     }
 
     // Game tick increment
-    Settings.game.tick++
+    window.game.tick++
 
     // Autosave
-    if (Settings.game.tick % 1000 === 0) window.saveGame()
+    if (window.game.tick % 1000 === 0) window.saveGame()
 
     // belts excluded
     const belts = []
-    for (let ient = 0; ient < Settings.allInvs.length; ient++) {
-      const entity = Settings.allInvs[ient]
+    for (let ient = 0; ient < window.game.allInvs.length; ient++) {
+      const entity = window.game.allInvs[ient]
       if (!entity) continue
       if (entity?.type === Settings.resDB.belt1.id || entity?.type === Settings.resDB.belt2.id || entity?.type === Settings.resDB.belt3.id) {
         entity.done = false
@@ -46,10 +46,10 @@ class TimeLoop {
 
           const nbPos = Settings.dirToVec[belt.dir]
           const nbTile = window.entityLayer.map[x + nbPos.x][y + nbPos.y]
-          const nbEntity = Settings.allInvs[nbTile]
+          const nbEntity = window.game.allInvs[nbTile]
           if ((nbEntity?.type === Settings.resDB.belt1.id || nbEntity?.type === Settings.resDB.belt2.id || nbEntity?.type === Settings.resDB.belt3.id) && // is it a belt?
                       nbEntity.done === false && // already processed?
-                      (nbEntity.searching === false || nbEntity.searching === undefined) && // circular network?
+                      (nbEntity.searching === false || nbEntity.searching == null) && // circular network?
                       Math.abs(belt.dir - nbEntity.dir) !== 2) { // not heading to current belt
             belt.searching = true
             belt = nbEntity
@@ -59,7 +59,7 @@ class TimeLoop {
       }
     }
 
-    if (Settings.selEntity) window.view.updateEntityMenu(Settings.selEntity, true)
+    if (Settings.selEntity) window.game.updateEntityMenu(Settings.selEntity, true)
     setTimeout(window.Time.gameLoop, 20)
   }
 }

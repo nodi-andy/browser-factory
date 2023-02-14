@@ -4,7 +4,7 @@ import * as NC from 'nodicanvas'
 
 class Player extends Inventory {
   constructor (pos, data) {
-    if (data === undefined) {
+    if (data == null) {
       data = {
         tilePos: new NC.Vec2(window.entityLayer.gridSize.x / 2, window.entityLayer.gridSize.y / 2),
         stack: {}
@@ -22,7 +22,7 @@ class Player extends Inventory {
   }
 
   setup (map, inv) {
-    if (this.tilePos === undefined) {
+    if (this.tilePos == null) {
       this.tilePos = new NC.Vec2(window.entityLayer.gridSize.x / 2, window.entityLayer.gridSize.y / 2)
     }
     if (this.pos?.x == null || this.pos?.y == null) {
@@ -40,7 +40,7 @@ class Player extends Inventory {
     this.speed = 5
 
     this.ss = { x: 0, y: 0 }
-    if (this.stack && this.stack?.INV === undefined) this.stack.INV = []
+    if (this.stack && this.stack?.INV == null) this.stack.INV = []
     this.stacksize = 1
     this.packsize = {}
     this.packsize.INV = 64
@@ -92,19 +92,19 @@ class Player extends Inventory {
     ent.ss.x %= 30
     if (ent.dir.x === 0 && ent.dir.y === 0) ent.ss.x = 5
 
-    if (ent.pos && ent.id === Settings.playerID) {
+    if (ent.pos && ent.id === window.game.playerID) {
       const myMid = {}
       myMid.x = ent.pos.x
       myMid.y = ent.pos.y - 66
-      window.view.setCenter(myMid.x, myMid.y)
-      window.view.focusOn()
+      window.game.setCenter(myMid.x, myMid.y)
+      window.game.focusOn()
       if (ent.dir.x !== 0 || ent.dir.y !== 0) {
         ent.needUpdate = true
       } else {
-        // wssend(JSON.stringify({ cmd: 'updateEntity', data: { id: Settings.playerID, ent: Settings.allInvs[Settings.playerID] } }))
+        // wssend(JSON.stringify({ cmd: 'updateEntity', data: { id: window.game.playerID, ent: window.game.allInvs[window.game.playerID] } }))
         ent.needUpdate = false
       }
-      // if (ent.needUpdate) wssend(JSON.stringify({ cmd: 'updateEntity', data: { id: Settings.playerID, ent: Settings.allInvs[Settings.playerID] } }))
+      // if (ent.needUpdate) wssend(JSON.stringify({ cmd: 'updateEntity', data: { id: window.game.playerID, ent: window.game.allInvs[window.game.playerID] } }))
     }
 
     // console.log(ent.pos, entTile);
@@ -183,23 +183,23 @@ class Player extends Inventory {
     for (const nbV of Settings.nbVec) {
       const nb = invfuncs.getInv(this.tilePos.x + nbV.x, this.tilePos.y + nbV.y)
       if (nb?.type === Settings.resDB.car.id) {
-        this.car = Settings.allInvs[nb.id]
+        this.car = window.game.allInvs[nb.id]
       }
     }
   }
 
   setDir (dir) {
-    if (dir.y) Settings.allInvs[Settings.playerID].dir.y = dir.y
+    if (dir.y) window.game.allInvs[window.game.playerID].dir.y = dir.y
   }
 
   checkCollision (pos) {
-    if (window.terrain.map === undefined) return
+    if (window.terrain.map == null) return
     const terrain = window.terrain.map[pos.x][pos.y][0]
     if (Settings.resName[terrain].playerCanWalkOn === false) return true
 
     const building = window.entityLayer.map[pos.x][pos.y]
     if (building == null) return false
-    const buildingType = Settings.allInvs[building]?.type
+    const buildingType = window.game.allInvs[building]?.type
     if (buildingType) {
       const canWalk = Settings.resName[buildingType].playerCanWalkOn
       if (canWalk === false || canWalk == null) return true
@@ -219,7 +219,7 @@ class Player extends Inventory {
           if (inv) {
             Settings.player.destructBuilding(tileCoordinate)
             Settings.player.stopMining(Settings.player)
-            Settings.allInvs[Settings.playerID].addItem({id: inv.id, n: 1})
+            window.game.allInvs[window.game.playerID].addItem({id: inv.id, n: 1})
           } else if (res) {
             invfuncs.mineToInv({ source: tileCoordinate, id: res.id, n: 1 })
           }
@@ -239,23 +239,23 @@ class Player extends Inventory {
   }
 
   setInventory (newInv, newID) {
-    Settings.allInvs[this.invID].stack = JSON.parse(JSON.stringify(newInv.stack))
-    Settings.allInvs[this.invID].packsize = newInv.packsize
-    Settings.allInvs[this.invID].itemsize = newInv.itemsize
+    window.game.allInvs[this.invID].stack = JSON.parse(JSON.stringify(newInv.stack))
+    window.game.allInvs[this.invID].packsize = newInv.packsize
+    window.game.allInvs[this.invID].itemsize = newInv.itemsize
 
-    const currentID = Settings.allInvs[this.invID].id
+    const currentID = window.game.allInvs[this.invID].id
     if (newInv.id !== undefined) {
-      this.invID = newInv.id; Settings.allInvs[this.invID].id = newID
-    } else if (newID !== undefined) { this.invID = newID; Settings.allInvs[this.invID].id = newID }
+      this.invID = newInv.id; window.game.allInvs[this.invID].id = newID
+    } else if (newID !== undefined) { this.invID = newID; window.game.allInvs[this.invID].id = newID }
 
-    if (Settings.allInvs[this.invID].id === undefined) Settings.allInvs[this.invID].id = currentID
-    window.view.updateInventoryMenu(this.inv)
+    if (window.game.allInvs[this.invID].id == null) window.game.allInvs[this.invID].id = currentID
+    window.game.updateInventoryMenu(this.inv)
   }
 
   setInventoryID (newID) {
     this.invID = newID
 
-    window.view.updateInventoryMenu(this.inv)
+    window.game.updateInventoryMenu(this.inv)
   }
 }
 

@@ -50,7 +50,7 @@ export class AssemblingMachine1 extends Inventory {
 
   setup (map, inv) {
     this.prod = inv.prod
-    if (this.prod === undefined) this.prod = Settings.resDB.gear.id
+    if (this.prod == null) this.prod = Settings.resDB.gear.id
 
     invfuncs.setInv(inv.pos.x + 0, inv.pos.y + 1, inv.id)
     invfuncs.setInv(inv.pos.x + 0, inv.pos.y + 2, inv.id)
@@ -83,16 +83,16 @@ export class AssemblingMachine1 extends Inventory {
     }
 
     const cost = Settings.resName[this.prod].cost
-    if (this.stack === undefined && this.inv.stack) this.stack = this.inv.stack
-    if (this.stack === undefined) this.stack = {}
+    if (this.stack == null && this.inv.stack) this.stack = this.inv.stack
+    if (this.stack == null) this.stack = {}
     this.packsize = {}
-    if (this.stack.OUTPUT === undefined) this.stack.OUTPUT = []
+    if (this.stack.OUTPUT == null) this.stack.OUTPUT = []
     this.stack.OUTPUT.itemsize = 50
     this.packsize.OUTPUT = 1
     for (let icost = 0; icost < cost.length; icost++) {
       const item = cost[icost]
       const name = Settings.resName[item.id].name
-      if (this.stack[name] === undefined) this.stack[name] = []
+      if (this.stack[name] == null) this.stack[name] = []
       this.packsize[name] = 1
     }
   }
@@ -105,7 +105,7 @@ export class AssemblingMachine1 extends Inventory {
     this.need = []
     for (let costItemID = 0; costItemID < this.preneed.length; costItemID++) {
       const costItem = this.preneed[costItemID]
-      const existing = invfuncs.getNumberOfItems(Settings.allInvs[this.id], costItem.id)
+      const existing = invfuncs.getNumberOfItems(window.game.allInvs[this.id], costItem.id)
       if (existing < costItem.n) {
         this.need.push(costItem)
       }
@@ -121,8 +121,8 @@ export class AssemblingMachine1 extends Inventory {
       if (invThis.state === 1) {
         if (invThis.prod) {
           if (!invThis.stack.OUTPUT?.length) invThis.stack.OUTPUT = [Settings.item(invThis.prod, 0)]
-          if (invThis.stack.OUTPUT[0] === undefined) invThis.stack.OUTPUT[0] = Settings.item(invThis.prod, 0)
-          if (invThis.stack.OUTPUT[0].n === undefined) invThis.stack.OUTPUT[0].n = 0
+          if (invThis.stack.OUTPUT[0] == null) invThis.stack.OUTPUT[0] = Settings.item(invThis.prod, 0)
+          if (invThis.stack.OUTPUT[0].n == null) invThis.stack.OUTPUT[0].n = 0
           if (this.stack.OUTPUT[0].n < this.itemsize) {
             invThis.stack.OUTPUT[0].n++
             invThis.remItems(Settings.resName[invThis.prod].cost)

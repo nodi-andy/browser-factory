@@ -12,7 +12,7 @@ class Pump extends Inventory {
   }
 
   setup (map, ent) {
-    if (this.stack === undefined) this.stack = {}
+    if (this.stack == null) this.stack = {}
     this.packsize = {}
     this.packsize.OUTPUT = 1
     /* this.mapsize = {x: Settings.resDB.generator.size[0], y: Settings.resDB.generator.size[1]};
@@ -25,14 +25,14 @@ class Pump extends Inventory {
   }
 
   update (map, ent) {
-    if (this.stack.OUTPUT === undefined) this.stack.OUTPUT = [{ id: Settings.resDB.water.id, n: 0 }]
+    if (this.stack.OUTPUT == null) this.stack.OUTPUT = [{ id: Settings.resDB.water.id, n: 0 }]
     const output = this.stack.OUTPUT[0]
-    if (Settings.game.tick % 10 === 0 && output?.n < 100) {
+    if (window.game.tick % 10 === 0 && output?.n < 100) {
       output.n += 1
     }
 
     if (this.nbPipes.length === 0) return
-    if (this.nbPipes[0].stack.INV[0].id === undefined) this.nbPipes[0].stack.INV[0].id = output.id
+    if (this.nbPipes[0].stack.INV[0].id == null) this.nbPipes[0].stack.INV[0].id = output.id
     if (this.nbPipes[0].stack.INV[0].id === output.id) {
       const total = output.n + this.nbPipes[0].stack.INV[0].n
       const medVal = Math.floor(total / 2)

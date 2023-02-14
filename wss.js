@@ -63,7 +63,7 @@ c.game = getCityById(0);
 
 
 function addCity(nID, x, y, t) {
-  if (nID === 0) parentID = 0; else parentID = Settings.game.id;
+  if (nID === 0) parentID = 0; else parentID = window.game.id;
   let nCity = {
     id: nID, name: "", 
     type: t, 
@@ -103,7 +103,7 @@ function addCity(nID, x, y, t) {
             let type = nCity.map[ax][ay][c.layers.terrain][0];
             let perlinVal = resmap[ax * Settings.gridSize.x + ay];
             if (perlinVal > 8 && 
-                nCity.map[ax][ay][c.layers.res].id === undefined &&
+                nCity.map[ax][ay][c.layers.res].id == null &&
                 nCity.map[ax][ay][c.layers.terrain][0] === Settings.resDB.grassland.id)
             {
               nCity.map[ax][ay][c.layers.res].id = res.id;
@@ -135,12 +135,12 @@ function remFromInv(remItems) {
 }
 
 function remStack(rem) {
-  delete Settings.allInvs[rem.invID].stack[rem.invKey];
+  delete window.game.allInvs[rem.invID].stack[rem.invKey];
   s.sendAll(JSON.stringify({msg:"updateInv", data:c.allInvs}));
 }
 
 function addStack(add) {
-  Settings.allInvs[add.invID].stack[add.invKey] = add.item;
+  window.game.allInvs[add.invID].stack[add.invKey] = add.item;
   s.sendAll(JSON.stringify({msg:"updateInv", data:c.allInvs}));
 }
 
@@ -148,7 +148,7 @@ function addToInv(newItem) {
   for(let i = 0; i < Settings.player.packs.length && newItem; i++) {
     let invObj = Settings.player.packs[i];
     if (newItem.res && invObj.id === newItem.id) {
-      if (newItem.n === undefined) newItem.n = 1;
+      if (newItem.n == null) newItem.n = 1;
       invObj.n += newItem.n;
       newItem = null;
     }
@@ -184,15 +184,15 @@ function protocoll(ws, req) {
       playerID = key;
     }
   }
-  if (playerID === undefined) {
+  if (playerID == null) {
     let playerEnt = {};
     Settings.player.setup(undefined, playerEnt);
 
-    Settings.allInvs.push(playerEnt);
-    playerEnt.id = Settings.allInvs.length - 1;
+    window.game.allInvs.push(playerEnt);
+    playerEnt.id = window.game.allInvs.length - 1;
 
     Settings.allMovableEnts.push(playerEnt.id);
-    playerID = Settings.allInvs.length - 1;
+    playerID = window.game.allInvs.length - 1;
   }
 
   ws.playerID = playerID;
@@ -203,16 +203,16 @@ function protocoll(ws, req) {
     let msg = JSON.parse(message);
     if (msg.cmd === "addCity") addCity(cityID++, msg.data.x, msg.data.y, msg.data.type);
     if (msg.cmd === "updateInventories") {
-      Settings.allInvs = JSON.parse(JSON.stringify(msg.data));
+      window.game.allInvs = JSON.parse(JSON.stringify(msg.data));
     }
     if (msg.cmd === "updateMapData") {
-      Settings.game.map = JSON.parse(JSON.stringify(msg.data));
-      s.sendAll(JSON.stringify({msg:  "updateMapData", data: Settings.game.map}), ws.playerID);
+      window.game.map = JSON.parse(JSON.stringify(msg.data));
+      s.sendAll(JSON.stringify({msg:  "updateMapData", data: window.game.map}), ws.playerID);
     }
     if (msg.cmd === "updateEntity") {
       if (msg.data.ent) {
-        Settings.allInvs[msg.data.id] = JSON.parse(JSON.stringify(msg.data.ent));
-        s.sendAll(JSON.stringify({msg:  "updateEntity", data: {id: msg.data.id, ent: Settings.allInvs[msg.data.id]}}), ws.playerID);
+        window.game.allInvs[msg.data.id] = JSON.parse(JSON.stringify(msg.data.ent));
+        s.sendAll(JSON.stringify({msg:  "updateEntity", data: {id: msg.data.id, ent: window.game.allInvs[msg.data.id]}}), ws.playerID);
         console.log(msg.data);
       }
     } 
@@ -228,7 +228,7 @@ function protocoll(ws, req) {
   ws.send(JSON.stringify({msg: "updateInventories", data:c.allInvs}));
   s.sendAll(JSON.stringify({
      msg: "updateEntity",
-     data: {id: playerID, ent: Settings.allInvs[playerID] }
+     data: {id: playerID, ent: window.game.allInvs[playerID] }
   }));
   ws.send(JSON.stringify({msg: "setPlayerID", data: playerID}));
   ws.send(JSON.stringify({msg: "startGame"}));
@@ -242,7 +242,7 @@ function move(x, y) {
 
   let gp = Settings.worldToTile({x:x, y:y});
 //  console.log(rmap[gp.x][gp.y]);
-  if (Settings.game.map[gp.x][gp.y][0] !== 1) {
+  if (window.game.map[gp.x][gp.y][0] !== 1) {
     Settings.player.pos.x = x;
     Settings.player.pos.y = y;
 
@@ -268,8 +268,8 @@ function updatePlayer() {
 
 function discover(x,y) {
   if (x < 0 || y < 0) return;
-  if (Settings.game.map[x][y] !== Settings.game.map[x][y]) {
-    Settings.game.map[x][y] = Settings.game.map[x][y];
+  if (window.game.map[x][y] !== window.game.map[x][y]) {
+    window.game.map[x][y] = window.game.map[x][y];
     return true;
   }
   return false;
@@ -277,7 +277,7 @@ function discover(x,y) {
 
 update();
 function update(){ 
-  Settings.game.tick++;
+  window.game.tick++;
    /*
   // machines,  belts and player excluded
   for(let ient = 0; ient < Settings.allEnts.length; ient++) {
@@ -286,7 +286,7 @@ function update(){
     if(entity.type === Settings.resDB.belt1.id) continue;
     if(entity.type === Settings.resDB.player.id) continue;
     if(Settings.resName[entity.type].mach) {
-      Settings.resName[entity.type].mach.update(Settings.game.map, entity);
+      Settings.resName[entity.type].mach.update(window.game.map, entity);
     }
   }
 
@@ -308,12 +308,12 @@ function update(){
         let y = belt.pos.y;
 
         let nbPos = Settings.dirToVec[belt.dir];
-        let nbTile = Settings.game.map[x + nbPos.x][y + nbPos.y];
+        let nbTile = window.game.map[x + nbPos.x][y + nbPos.y];
         let nbEntity = Settings.allEnts[nbTile[c.layers.buildings]];
         if (nbEntity && nbEntity.type === Settings.resDB.belt1.id && nbEntity.done === false) belt = nbEntity;
         else break;
       }
-      Settings.resDB.belt1.mach.update(Settings.game.map, belt);
+      Settings.resDB.belt1.mach.update(window.game.map, belt);
     }
   }
 

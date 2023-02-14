@@ -12,13 +12,13 @@ export class UPipe extends Inventory {
     this.packsize = {}
     this.packsize.INV = 1
 
-    if (this.stack.INV === undefined) this.stack.INV = [{ n: 0 }]
+    if (this.stack.INV == null) this.stack.INV = [{ n: 0 }]
     this.mapsize = { x: Settings.resDB.pipe.size[0], y: Settings.resDB.pipe.size[1] }
     this.nbInputs = []
   }
 
   update (map, ent) {
-    if (Settings.game.tick % 100) return
+    if (window.game.tick % 100) return
 
     if (this.nbInputs.length === 0 || this.stack.INV[0].n === 0) return
 
@@ -26,9 +26,9 @@ export class UPipe extends Inventory {
     let total = 0
     let nSameType = 0
     for (const nbID of this.nbInputs) {
-      const n = Settings.allInvs[nbID]
-      if (n === undefined) continue
-      if (n.stack.INV[0].id === undefined) n.stack.INV[0].id = this.stack.INV[0].id
+      const n = window.game.allInvs[nbID]
+      if (n == null) continue
+      if (n.stack.INV[0].id == null) n.stack.INV[0].id = this.stack.INV[0].id
       if (n.stack.INV[0].id === this.stack.INV[0].id) {
         total += n.stack.INV[0].n
         nSameType++
@@ -42,8 +42,8 @@ export class UPipe extends Inventory {
 
     // OUTPUT
     for (const nbID of this.nbInputs) {
-      const n = Settings.allInvs[nbID]
-      if (n === undefined) continue
+      const n = window.game.allInvs[nbID]
+      if (n == null) continue
       if (n.stack.INV[0].id === this.stack.INV[0].id) {
         n.stack.INV[0].n = medVal
       }
@@ -88,10 +88,10 @@ export class UPipe extends Inventory {
 
         break
       case 3:
-        if (nbd === undefined) this.img = Settings.resDB.pipe.tup
-        else if (nbu === undefined) this.img = Settings.resDB.pipe.tdown
-        else if (nbl === undefined) this.img = Settings.resDB.pipe.tright
-        else if (nbr === undefined) this.img = Settings.resDB.pipe.tleft
+        if (nbd == null) this.img = Settings.resDB.pipe.tup
+        else if (nbu == null) this.img = Settings.resDB.pipe.tdown
+        else if (nbl == null) this.img = Settings.resDB.pipe.tright
+        else if (nbr == null) this.img = Settings.resDB.pipe.tleft
         break
       case 4: this.img = Settings.resDB.pipe.cross
         break

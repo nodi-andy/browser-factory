@@ -65,7 +65,7 @@ export class ViewModule extends NC.NodiView {
   secureBoundaries () {
     /* if (this.tx > 0) this.tx = 0
     if (this.ty > 0) this.ty = 0
-    const boundary = window.view.screenToWorld({ x: this.size.x, y: this.size.y })
+    const boundary = window.game.screenToWorld({ x: this.size.x, y: this.size.y })
     if (boundary.x > Settings.gridSize.x * Settings.tileSize) this.tx = this.width / this.sx - (Settings.gridSize.x * Settings.tileSize)
     if (boundary.y > Settings.gridSize.y * Settings.tileSize) this.ty = this.height / this.sy - (Settings.gridSize.y * Settings.tileSize) */
   }
@@ -102,7 +102,7 @@ export class ViewModule extends NC.NodiView {
     items.forEach(i => {
       const newButton = new Button((pos % 8) * (Settings.buttonSize.x), Math.floor(pos / 8) * (Settings.buttonSize.y), { id: i.id, n: 0 }, window.craftMenu, Settings.resDB.player.invID)
       newButton.onClick = () => {
-        if (Settings.resName[i.id].lock === undefined) invfuncs.craftToInv(Settings.player, [i])
+        if (Settings.resName[i.id].lock == null) invfuncs.craftToInv(Settings.player, [i])
       }
       newButton.type = 'craft'
       window.craftMenu.items.push(newButton)
@@ -134,11 +134,11 @@ export class ViewModule extends NC.NodiView {
   }
 
   updateInventoryMenu (inv) {
-    if (inv == null) return
+    if (inv == null || window.invMenu == null) return
 
     const pack = inv?.stack?.INV
 
-    if (pack === undefined) return
+    if (pack == null) return
 
     for (let i = 0; i < pack.length; i++) {
       const item = pack[i]
@@ -207,7 +207,7 @@ export class ViewModule extends NC.NodiView {
         window.entityMenu.buttons.PROD = []
         button = new Button(dx, dy, undefined, window.entityMenu, Settings.selEntity.id)
         button.onClick = () => {
-          window.view.updateSelectItemMenu(Settings.selEntity)
+          window.game.updateSelectItemMenu(Settings.selEntity)
           window.selectItemMenu.vis = true
         }
         dy += Settings.buttonSize.y

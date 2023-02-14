@@ -3,11 +3,14 @@ import { noise } from './perlin.js'
 import * as NC from 'nodicanvas'
 
 export class Terrain extends NC.NodiGrid {
-  constructor (name, gridSize, tileSize) {
+  constructor (name, gridSize, tileSize, map) {
     super(name, gridSize, tileSize)
-    this.map = Array(this.gridSize.x).fill(0).map(() => Array(this.gridSize.y).fill(0).map(() => [undefined, 0]))
-    this.createWorld(gridSize.x, gridSize.y)
     this.offscreenCanvas = document.createElement('canvas')
+    this.map = map
+    if (this.map == null) {
+      this.map = Array(this.gridSize.x).fill(0).map(() => Array(this.gridSize.y).fill(0).map(() => [undefined, 0]))
+      this.createWorld(gridSize.x, gridSize.y)
+    }
   }
 
   // GENERATE TERRAIN
@@ -56,7 +59,7 @@ export class Terrain extends NC.NodiGrid {
   }
 
   updateOffscreenMap (terrainLayer) {
-    if (window.terrain.map === undefined) return
+    if (window.terrain.map == null) return
     terrainLayer.offscreenCanvas.width = Settings.gridSize.x * Settings.tileSize
     terrainLayer.offscreenCanvas.height = Settings.gridSize.y * Settings.tileSize
     const offScreencontext = terrainLayer.offscreenCanvas.getContext('2d')

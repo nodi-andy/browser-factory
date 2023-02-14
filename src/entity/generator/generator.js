@@ -13,8 +13,8 @@ class Generator extends Inventory {
     this.packsize.INV = 1
     this.packsize.OUTPUT = 1
 
-    if (this.stack.INV === undefined) this.stack.INV = [{ id: Settings.resDB.steam.id, n: 0 }]
-    if (this.stack.OUTPUT === undefined) this.stack.OUTPUT = [{ id: Settings.resDB.coulomb.id, n: 0 }]
+    if (this.stack.INV == null) this.stack.INV = [{ id: Settings.resDB.steam.id, n: 0 }]
+    if (this.stack.OUTPUT == null) this.stack.OUTPUT = [{ id: Settings.resDB.coulomb.id, n: 0 }]
     this.mapsize = { x: Settings.resDB.generator.size[0], y: Settings.resDB.generator.size[1] }
     if (this.dir === 1 || this.dir === 3) this.mapsize = { x: Settings.resDB.generator.size[1], y: Settings.resDB.generator.size[0] }
     for (let i = 0; i < this.mapsize.x; i++) {
@@ -25,15 +25,15 @@ class Generator extends Inventory {
   }
 
   update (map, ent) {
-    if (Settings.game.tick % 100) return
+    if (window.game.tick % 100) return
 
     // INPUT
     let total = 0
     let nSameType = 1
     for (const nbID of this.nbInputs) {
-      const n = Settings.allInvs[nbID]
-      if (n === undefined) continue
-      if (n.stack.INV[0].id === undefined) n.stack.INV[0].id = this.stack.INV[0].id
+      const n = window.game.allInvs[nbID]
+      if (n == null) continue
+      if (n.stack.INV[0].id == null) n.stack.INV[0].id = this.stack.INV[0].id
       if (n.stack.INV[0].id === this.stack.INV[0].id) {
         total += n.stack.INV[0].n
         nSameType++
@@ -44,8 +44,8 @@ class Generator extends Inventory {
     let medVal = Math.floor(total / nSameType)
 
     for (const nbID of this.nbInputs) {
-      const n = Settings.allInvs[nbID]
-      if (n === undefined) continue
+      const n = window.game.allInvs[nbID]
+      if (n == null) continue
       if (n.stack.INV[0].id === this.stack.INV[0].id) {
         n.stack.INV[0].n = medVal
       }
@@ -64,9 +64,9 @@ class Generator extends Inventory {
     total = 0
     nSameType = 0
     for (const nbID of this.nbOutputs) {
-      const n = Settings.allInvs[nbID]
-      if (n === undefined) continue
-      if (n.stack.INV[0].id === undefined) n.stack.INV[0].id = this.stack.OUTPUT[0].id
+      const n = window.game.allInvs[nbID]
+      if (n == null) continue
+      if (n.stack.INV[0].id == null) n.stack.INV[0].id = this.stack.OUTPUT[0].id
       if (n.stack.INV[0].id === this.stack.OUTPUT[0].id) {
         total += n.stack.INV[0].n
         nSameType++
@@ -78,8 +78,8 @@ class Generator extends Inventory {
     medVal = Math.floor(total / nSameType)
 
     for (const nbID of this.nbOutputs) {
-      const n = Settings.allInvs[nbID]
-      if (n === undefined) continue
+      const n = window.game.allInvs[nbID]
+      if (n == null) continue
       if (n.stack.INV[0].id === this.stack.OUTPUT[0].id) {
         n.stack.INV[0].n = medVal
       }

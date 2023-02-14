@@ -54,7 +54,10 @@ export class Button {
     if (this.item == null) return
 
     if (this.item?.id && Settings.resName[this.item.id].img) { // standard image
-      ctx.drawImage(Settings.resName[this.item.id].img, this.screen.x + 2, this.screen.y + 2, Settings.buttonSize.x, Settings.buttonSize.y)
+      try {
+        ctx.drawImage(Settings.resName[this.item.id].img, this.screen.x + 2, this.screen.y + 2, Settings.buttonSize.x, Settings.buttonSize.y)
+      } catch {
+      }
     }
 
     if (this.item?.id && Settings.resName[this.item.id].lock) {
@@ -75,7 +78,7 @@ export class Button {
     if (this.item?.id && Settings.resName[this.item?.id].lock === 1) return
     if (button === 1) {
       if (Settings.pointer?.stack?.INV?.length) {
-        if (Settings.pointer?.stack?.INV[0].id === Settings.allInvs[this.invID].stack[this.invKey][this.stackPos]?.id) {
+        if (Settings.pointer?.stack?.INV[0].id === window.game.allInvs[this.invID].stack[this.invKey][this.stackPos]?.id) {
           invfuncs.moveStack({ fromInvID: Settings.pointer.id, fromInvKey: 'INV', fromStackPos: 0, toInvID: this.invID, toInvKey: this.invKey, toStackPos: this.stackPos })
         } else {
           invfuncs.moveStack({ fromInvID: Settings.pointer.id, fromInvKey: 'INV', fromStackPos: 0, toInvID: this.invID, toInvKey: this.invKey })
@@ -102,7 +105,7 @@ export class Button {
         this.item.n = this.item.n - Settings.pointer.n
       }
     }
-    window.view.updateInventoryMenu(Settings.player)
-    if (Settings.selEntity) window.view.updateEntityMenu(Settings.selEntity, true)
+    window.game.updateInventoryMenu(Settings.player)
+    if (Settings.selEntity) window.game.updateEntityMenu(Settings.selEntity, true)
   };
 }

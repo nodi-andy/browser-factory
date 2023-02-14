@@ -11,8 +11,8 @@ export class ControlsLayer extends NC.NodiGrid {
     this.dir = new NC.Vec2(0, 0)
     this.force = 0
     this.rawPos = new NC.Vec2(0, 0)
-    this.joystickCenter = new NC.Vec2(100, window.view.size.y * 0.90)
-    this.joystickRadius = window.view.size.y * 0.05
+    this.joystickCenter = new NC.Vec2(100, window.game.size.y * 0.90)
+    this.joystickRadius = window.game.size.y * 0.05
 
     this.showInvButton = new Button()
     const image = new Image(Settings.tileSize, Settings.tileSize)
@@ -104,7 +104,7 @@ export class ControlsLayer extends NC.NodiGrid {
 
   render (view) {
     this.joystickCenter.x = this.joystickRadius * 2
-    this.joystickCenter.y = window.view.size.y * 0.90
+    this.joystickCenter.y = window.game.size.y * 0.90
     this.joystickRadius = Settings.buttonSize.x / 2
 
     const ctx = view.ctx
@@ -125,8 +125,8 @@ export class ControlsLayer extends NC.NodiGrid {
     ctx.fill()
     ctx.closePath()
 
-    this.showInvButton.x = window.view.size.x - this.showInvButton.size.x * 1.5
-    this.showInvButton.y = window.view.size.y - this.showInvButton.size.y * 1.5
+    this.showInvButton.x = window.game.size.x - this.showInvButton.size.x * 1.5
+    this.showInvButton.y = window.game.size.y - this.showInvButton.size.y * 1.5
     this.showInvButton.draw(ctx)
 
     this.buildButton.x = this.showInvButton.x

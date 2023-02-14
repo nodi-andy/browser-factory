@@ -17,32 +17,32 @@ class Belt extends Inventory {
     this.packsize.R = 1
     this.speed = 2
 
-    if (this.stack.INV === undefined) this.stack.INV = { n: 1 }
-    if (this.stack.L === undefined) this.stack.L = { n: 1 }
-    if (this.stack.R === undefined) this.stack.R = { n: 1 }
-    if (this.stack.LA === undefined) this.stack.LA = { n: 1 }
-    if (this.stack.LB === undefined) this.stack.LB = { n: 1 }
-    if (this.stack.LC === undefined) this.stack.LC = { n: 1 }
-    if (this.stack.LD === undefined) this.stack.LD = { n: 1 }
-    if (this.stack.RA === undefined) this.stack.RA = { n: 1 }
-    if (this.stack.RB === undefined) this.stack.RB = { n: 1 }
-    if (this.stack.RC === undefined) this.stack.RC = { n: 1 }
-    if (this.stack.RD === undefined) this.stack.RD = { n: 1 }
+    if (this.stack.INV == null) this.stack.INV = { n: 1 }
+    if (this.stack.L == null) this.stack.L = { n: 1 }
+    if (this.stack.R == null) this.stack.R = { n: 1 }
+    if (this.stack.LA == null) this.stack.LA = { n: 1 }
+    if (this.stack.LB == null) this.stack.LB = { n: 1 }
+    if (this.stack.LC == null) this.stack.LC = { n: 1 }
+    if (this.stack.LD == null) this.stack.LD = { n: 1 }
+    if (this.stack.RA == null) this.stack.RA = { n: 1 }
+    if (this.stack.RB == null) this.stack.RB = { n: 1 }
+    if (this.stack.RC == null) this.stack.RC = { n: 1 }
+    if (this.stack.RD == null) this.stack.RD = { n: 1 }
     this.setupDone = true
     this.decidingMoving = false
     this.movingParts = false
   }
 
   shift (from, itfrom, to, itto, deciding) {
-    // if (from.stack[itfrom] === undefined) return;
-    if (from.stack[itfrom]?.id === undefined) {
+    // if (from.stack[itfrom] == null) return;
+    if (from.stack[itfrom]?.id == null) {
       if (from.stack[itfrom]) {
         from.stack[itfrom].moving = false
         from.stack[itfrom].reserved = false
       }
       return
     }
-    if (to.stack[itto]?.reserved === false || to.stack[itto]?.reserved === undefined || deciding === false) {
+    if (to.stack[itto]?.reserved === false || to.stack[itto]?.reserved == null || deciding === false) {
       if (deciding) {
         from.stack[itfrom].moving = true
         if (to.stack[itto]) to.stack[itto].reserved = true
@@ -68,8 +68,8 @@ class Belt extends Inventory {
     if (!this.setupDone) this.setup()
 
     // BELTS SYSTEM
-    this.decidingMoving = ((Settings.game.tick + 0) % (16 / this.speed) === 0)
-    this.movingParts = ((Settings.game.tick + 1) % (16 / this.speed) === 0)
+    this.decidingMoving = ((window.game.tick + 0) % (16 / this.speed) === 0)
+    this.movingParts = ((window.game.tick + 1) % (16 / this.speed) === 0)
 
     // Do not update twice
     ent.done = true
@@ -118,7 +118,7 @@ class Belt extends Inventory {
     // TO
     let beltTo = invfuncs.getInv(ent.pos.x + nbPos.x, ent.pos.y + nbPos.y)
     if (beltTo) this.beltToID = beltTo.id
-    if (this.stack.INV?.id && this.stack.L?.id === undefined) {
+    if (this.stack.INV?.id && this.stack.L?.id == null) {
       this.stack.L = { id: this.stack.INV.id }
       this.stack.INV.id = undefined
     }
@@ -139,13 +139,13 @@ class Belt extends Inventory {
     }
 
     if (this.stack.L?.id) {
-      if (this.stack.LA?.id === undefined && this.stack.LA?.reserved === false) {
+      if (this.stack.LA?.id == null && this.stack.LA?.reserved === false) {
         this.stack.LA.id = this.stack.L.id
-      } else if (this.stack.LB?.id === undefined && this.stack.LB?.reserved === false) {
+      } else if (this.stack.LB?.id == null && this.stack.LB?.reserved === false) {
         this.stack.LB.id = this.stack.L.id
-      } else if (this.stack.LC?.id === undefined && this.stack.LC?.reserved === false) {
+      } else if (this.stack.LC?.id == null && this.stack.LC?.reserved === false) {
         this.stack.LC.id = this.stack.L.id
-      } else if (this.stack.LD?.id === undefined && this.stack.LD?.reserved === false) {
+      } else if (this.stack.LD?.id == null && this.stack.LD?.reserved === false) {
         this.stack.LD.id = this.stack.L.id
       } else {
         this.stack.LD = { id: this.stack.L.id, n: 1 }
@@ -154,13 +154,13 @@ class Belt extends Inventory {
     }
 
     if (this.stack.R?.id) {
-      if (this.stack.RA?.id === undefined && this.stack.RA?.reserved === false) {
+      if (this.stack.RA?.id == null && this.stack.RA?.reserved === false) {
         this.stack.RA.id = this.stack.R.id
-      } else if (this.stack.RB?.id === undefined && this.stack.RB?.reserved === false) {
+      } else if (this.stack.RB?.id == null && this.stack.RB?.reserved === false) {
         this.stack.RB.id = this.stack.R.id
-      } else if (this.stack.RC?.id === undefined && this.stack.RC?.reserved === false) {
+      } else if (this.stack.RC?.id == null && this.stack.RC?.reserved === false) {
         this.stack.RC.id = this.stack.R.id
-      } else if (this.stack.RD?.id === undefined && this.stack.RD?.reserved === false) {
+      } else if (this.stack.RD?.id == null && this.stack.RD?.reserved === false) {
         this.stack.RD.id = this.stack.R.id
       } else {
         this.stack.RD = { id: this.stack.R.id, n: 1 }
@@ -208,7 +208,7 @@ class Belt extends Inventory {
   }
 
   drawItems (ctx) {
-    const beltPos = (Math.round(Settings.game.tick) * this.speed / 2) % 8
+    const beltPos = (Math.round(window.game.tick) * this.speed / 2) % 8
     if (this.pos && this.stack) {
       window.context.save()
       window.context.translate((this.pos.x + 0.5) * Settings.tileSize, (this.pos.y + 0.5) * Settings.tileSize)
@@ -350,9 +350,9 @@ class Belt extends Inventory {
       }
       window.context.restore()
       this.drawn = 2 // set draw layer
-      const beltFrom = Settings.allInvs[this.beltFromID]
-      const beltFromLeft = Settings.allInvs[this.beltFromLeftID]
-      const beltFromRight = Settings.allInvs[this.beltFromRightID]
+      const beltFrom = window.game.allInvs[this.beltFromID]
+      const beltFromLeft = window.game.allInvs[this.beltFromLeftID]
+      const beltFromRight = window.game.allInvs[this.beltFromRightID]
       if (beltFrom && beltFrom.drawItems && beltFrom.drawn < 2) beltFrom.drawItems(ctx)
       if (beltFromLeft && beltFromLeft.drawItems && beltFromLeft.drawn < 2) beltFromLeft.drawItems(ctx)
       if (beltFromRight && beltFromRight.drawItems && beltFromRight.drawn < 2) beltFromRight.drawItems(ctx)

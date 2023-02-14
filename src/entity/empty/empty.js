@@ -13,8 +13,8 @@ class Empty extends Inventory {
   }
 
   setup (map, ent) {
-    if (this.stack === undefined) this.stack = {}
-    if (this.stack.INV === undefined) this.stack.INV = []
+    if (this.stack == null) this.stack = {}
+    if (this.stack.INV == null) this.stack.INV = []
     this.stack.INV.size = 4
     this.itemsize = 1
   }

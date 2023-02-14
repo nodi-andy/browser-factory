@@ -13,9 +13,10 @@ function getEventLocation (e) {
 }
 
 export class EntityLayer extends NC.NodiGrid {
-  constructor (name, gridSize, tileSize) {
+  constructor (name, gridSize, tileSize, map) {
     super(name, gridSize, tileSize)
-    this.map = Array(this.gridSize.x).fill(0).map(() => Array(this.gridSize.y).fill(0).map(() => (undefined)))
+    this.map = map
+    if (this.map == null) this.map = Array(this.gridSize.x).fill(0).map(() => Array(this.gridSize.y).fill(0).map(() => (undefined)))
   }
 
   onKeyDown (e) {
@@ -31,19 +32,19 @@ export class EntityLayer extends NC.NodiGrid {
     if (e.code === 'Enter') {
       this.setOnMap(NC.Vec2.add(Settings.player.tilePos, Settings.curResPos))
     }
-    Settings.player.stopMining(Settings.allInvs[Settings.playerID])
+    Settings.player.stopMining(window.game.allInvs[window.game.playerID])
   }
 
   onKeyUp (e) {
     Settings.player.onKeyUp(e)
     if (e.code === 'KeyR') Settings.buildDir = (Settings.buildDir + 1) % 4
     if (e.code === 'KeyE') {
-      window.view.updateInventoryMenu(Settings.player)
+      window.game.updateInventoryMenu(Settings.player)
       window.invMenu.vis = !window.invMenu.vis
       window.craftMenu.vis = window.invMenu.vis
       if (window.invMenu.vis === false) window.entityMenu.vis = false
     }
-    Settings.player.stopMining(Settings.allInvs[Settings.playerID])
+    Settings.player.stopMining(window.game.allInvs[window.game.playerID])
   }
 
   setOnMap (tileCoordinate) {
@@ -61,7 +62,7 @@ export class EntityLayer extends NC.NodiGrid {
 
   onMouseDown (e, hit) {
     if (hit) return
-    const worldCordinate = window.view.screenToWorld(getEventLocation(e))
+    const worldCordinate = window.game.screenToWorld(getEventLocation(e))
     const tileCoordinate = this.worldToTile(worldCordinate)
     const inv = invfuncs.getInv(tileCoordinate.x, tileCoordinate.y)
 
@@ -74,14 +75,14 @@ export class EntityLayer extends NC.NodiGrid {
       }
       window.dragStart = worldCordinate
       const res = window.res.map[tileCoordinate.x][tileCoordinate.y]
-      const d = dist(Settings.allInvs[Settings.playerID].pos, worldCordinate)
+      const d = dist(window.game.allInvs[window.game.playerID].pos, worldCordinate)
 
       if (Settings.pointer?.stack?.INV?.length && (inv == null || inv.type === Settings.resDB.empty.id)) {
         this.setOnMap(tileCoordinate)
       } else {
         window.isDragStarted = true
         window.isBuilding = false
-        if ((res?.id || inv?.id) && d < 5 * Settings.tileSize) Settings.player.startMining(tileCoordinate, Settings.allInvs[Settings.playerID])
+        if ((res?.id || inv?.id) && d < 5 * Settings.tileSize) Settings.player.startMining(tileCoordinate, window.game.allInvs[window.game.playerID])
       }
 
       if (Settings.pointer?.stack?.INV?.length === 0) Settings.pointer.type = undefined
@@ -93,9 +94,14 @@ export class EntityLayer extends NC.NodiGrid {
   removeEntity (tileCoordinate) {
     const inv = this.map[tileCoordinate.x][tileCoordinate.y]
     if (inv) {
-      Settings.allInvs[Settings.playerID].addItem({ id: Settings.allInvs[inv].type, n: 1 })
-      Settings.allInvs[inv] = undefined
-      this.map[tileCoordinate.x][tileCoordinate.y] = null
+      window.game.allInvs[window.game.playerID].addItem({ id: window.game.allInvs[inv].type, n: 1 })
+      window.game.allInvs[inv] = undefined
+
+      for (let ix = 0; ix < this.map.length; ix++) {
+        for (let iy = 0; iy < this.map[ix].length; iy++) {
+          if (this.map[ix][iy] === inv) this.map[ix][iy] = undefined
+        }
+      }
       // Update Neighbours
       for (const nbV of Settings.nbVec) {
         const nb = invfuncs.getInv(tileCoordinate.x + nbV.x, tileCoordinate.y + nbV.y)
@@ -112,21 +118,21 @@ export class EntityLayer extends NC.NodiGrid {
   }
 
   onMouseUp (e, hit) {
-    Settings.player.stopMining(Settings.allInvs[Settings.playerID])
+    Settings.player.stopMining(window.game.allInvs[window.game.playerID])
     if (hit) return
 
-    const worldPos = window.view.screenToWorld({ x: e.offsetX, y: e.offsetY })
+    const worldPos = window.game.screenToWorld({ x: e.offsetX, y: e.offsetY })
     const tilePos = this.worldToTile(worldPos)
     const inv = invfuncs.getInv(tilePos.x, tilePos.y)
 
     if (hit === false) {
       if (e.which === 1) {
         // SHOW ENTITY
-        if (Settings.pointer?.type === undefined && inv) {
+        if (Settings.pointer?.type == null && inv) {
           const invID = invfuncs.getInv(tilePos.x, tilePos.y).id
-          Settings.selEntity = Settings.allInvs[invID]
+          Settings.selEntity = window.game.allInvs[invID]
 
-          window.view.updateEntityMenu(Settings.selEntity, true)
+          window.game.updateEntityMenu(Settings.selEntity, true)
 
           if (inv) {
             window.entityMenu.vis = window.invMenu.vis = true; window.craftMenu.vis = false
@@ -135,7 +141,7 @@ export class EntityLayer extends NC.NodiGrid {
           }
         }
 
-        if (inv === undefined) window.entityMenu.vis = false
+        if (inv == null) window.entityMenu.vis = false
 
         window.isDragging = false
         window.dragStart = undefined
@@ -150,7 +156,7 @@ export class EntityLayer extends NC.NodiGrid {
     const maxTile = this.screenToTile({ x: ctx.canvas.width, y: ctx.canvas.height })
 
     // Mark all entities as "still not drawn"
-    Settings.allInvs.forEach(e => { if (e) e.drawn = 0 })
+    window.game.allInvs.forEach(e => { if (e) e.drawn = 0 })
     const beltsToDraw = [] // list of belts to draw the items in second stage of drawing
     const entsToDraw = [] // all other items
 
@@ -162,7 +168,7 @@ export class EntityLayer extends NC.NodiGrid {
         const invID = this.map[ax][ay]
         let ent
         if (invID !== undefined) {
-          ent = Settings.allInvs[invID]
+          ent = window.game.allInvs[invID]
         }
 
         // ENTITY GROUNDS
@@ -188,8 +194,8 @@ export class EntityLayer extends NC.NodiGrid {
         }
 
         // ITEMS ON GROUND
-        if (invID !== undefined && Settings.allInvs[invID]?.type === Settings.resDB.empty.id) {
-          const packs = Settings.allInvs[invID].stack.INV
+        if (invID !== undefined && window.game.allInvs[invID]?.type === Settings.resDB.empty.id) {
+          const packs = window.game.allInvs[invID].stack.INV
           if (packs) {
             ctx.scale(0.5, 0.5)
 
@@ -225,10 +231,10 @@ export class EntityLayer extends NC.NodiGrid {
 
           const nbPos = Settings.dirToVec[belt.dir]
           const nbTile = this.map[x + nbPos.x][y + nbPos.y]
-          const nbEntity = Settings.allInvs[nbTile]
+          const nbEntity = window.game.allInvs[nbTile]
           if ((nbEntity?.type === Settings.resDB.belt1.id || nbEntity?.type === Settings.resDB.belt2.id || nbEntity?.type === Settings.resDB.belt3.id) && // is it a belt?
                     nbEntity.drawn === 1 && // already processed?
-                    (nbEntity.searching === false || nbEntity.searching === undefined) && // circular network?
+                    (nbEntity.searching === false || nbEntity.searching == null) && // circular network?
                     Math.abs(belt.dir - nbEntity.dir) !== 2) { // not heading to current belt
             belt.searching = true
             belt = nbEntity
@@ -245,7 +251,7 @@ export class EntityLayer extends NC.NodiGrid {
         if (ax < 0 || ay < 0) continue
         const entID = this.map[ax][ay]
         let ent
-        if (entID) ent = Settings.allInvs[entID]
+        if (entID) ent = window.game.allInvs[entID]
         if (ent && ent.drawn < 2 && ent.type !== Settings.resDB.belt1.id) {
           ctx.save()
           ctx.translate(ax * Settings.tileSize, ay * Settings.tileSize)
@@ -282,7 +288,7 @@ export class EntityLayer extends NC.NodiGrid {
     const item = Settings.resName[Settings.pointer.stack.INV[0].id]
     if (item) {
       let size = item.size
-      if (size === undefined) size = [1, 1]
+      if (size == null) size = [1, 1]
 
       Settings.drawResPos = NC.Vec2.add(Settings.player.tilePos, Settings.curResPos)
       ctx.save()

@@ -160,7 +160,7 @@ export class DialogLayer extends NC.NodiGrid {
           context.drawImage(Settings.resName[costItem.id].img, window.receiptMenu.rect.x + 6, window.receiptMenu.rect.y + Settings.buttonSize.y + dy, 32, 32)
           let missingItems = ''
           if (window.receiptMenu.item.n === 0) {
-            const existing = invfuncs.getNumberOfItems(Settings.allInvs[Settings.playerID], costItem.id)
+            const existing = invfuncs.getNumberOfItems(window.game.allInvs[window.game.playerID], costItem.id)
             if (existing < costItem.n) {
               missingItems = existing + ' / '
               context.fillStyle = 'red'
@@ -191,9 +191,9 @@ export class DialogLayer extends NC.NodiGrid {
       context.font = (Settings.buttonSize.y / 2) + 'px Arial'
       context.fillStyle = 'black'
       let resText = ''
-      if (Settings.selEntity.id && Settings.allInvs[Settings.selEntity.id]?.type) resText = Settings.resName[Settings.allInvs[Settings.selEntity.id].type]?.name
+      if (Settings.selEntity.id && window.game.allInvs[Settings.selEntity.id]?.type) resText = Settings.resName[window.game.allInvs[Settings.selEntity.id].type]?.name
       context.fillText(resText, window.entityMenu.rect.x + Settings.buttonSize.x / 4, window.entityMenu.rect.y + Settings.buttonSize.x / 2)
-      const selInv = Settings.allInvs[Settings.selEntity.id]
+      const selInv = window.game.allInvs[Settings.selEntity.id]
       if (selInv) {
         if (selInv.prod) {
           window.entityMenu.buttons.PROD[0].item = { id: selInv.prod }

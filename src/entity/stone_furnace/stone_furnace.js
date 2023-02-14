@@ -3,7 +3,7 @@ import { Inventory, invfuncs } from '../../core/inventory.js'
 
 export class StoneFurnace extends Inventory {
   constructor (pos, data) {
-    if (data === undefined) {
+    if (data == null) {
       data = {
         tilePos: { x: Settings.gridSize.x / 2, y: Settings.gridSize.y / 2 },
         pos,
@@ -21,9 +21,9 @@ export class StoneFurnace extends Inventory {
 
     this.packsize = 1
     this.itemsize = 50
-    if (this.stack.FUEL === undefined) this.stack.FUEL = []
-    if (this.stack.INPUT === undefined) this.stack.INPUT = []
-    if (this.stack.OUTPUT === undefined) this.stack.OUTPUT = []
+    if (this.stack.FUEL == null) this.stack.FUEL = []
+    if (this.stack.INPUT == null) this.stack.INPUT = []
+    if (this.stack.OUTPUT == null) this.stack.OUTPUT = []
     this.stacksize = 4
     this.packsize = {}
     this.packsize.FUEL = 1
@@ -56,7 +56,7 @@ export class StoneFurnace extends Inventory {
 
     for (let costItemID = 0; costItemID < this.preneed.length; costItemID++) {
       const costItem = this.preneed[costItemID]
-      const existing = invfuncs.getNumberOfItems(Settings.allInvs[this.id], costItem.id)
+      const existing = invfuncs.getNumberOfItems(window.game.allInvs[this.id], costItem.id)
       if (existing >= costItem.n) {
         this.need.push(costItem)
       } else {
@@ -65,7 +65,7 @@ export class StoneFurnace extends Inventory {
     }
 
     if (this.stack.INV) {
-      if (this.stack.INPUT === undefined) this.stack.INPUT = this.stack.INV[0]
+      if (this.stack.INPUT == null) this.stack.INPUT = this.stack.INV[0]
       else {
         const inItem = this.stack.INV[0]
         let targetSlot = 'INPUT'
@@ -75,11 +75,11 @@ export class StoneFurnace extends Inventory {
       }
     }
     const stack = ent?.stack
-    if (stack?.FUEL === undefined ||
-            stack.INPUT === undefined ||
-            stack.INPUT[0] === undefined ||
-            stack.INPUT[0].id === undefined ||
-            Settings.resName[stack.INPUT[0].id].smeltedInto === undefined) {
+    if (stack?.FUEL == null ||
+            stack.INPUT == null ||
+            stack.INPUT[0] == null ||
+            stack.INPUT[0].id == null ||
+            Settings.resName[stack.INPUT[0].id].smeltedInto == null) {
       ent.state = 0
       return
     }
@@ -90,9 +90,9 @@ export class StoneFurnace extends Inventory {
         const deltaT = performance.now() - this.lastTime
         const becomesThat = Settings.resName[stack.INPUT[0].id].smeltedInto
         if (becomesThat && deltaT > 5000) {
-          // if (inv.stack.OUTPUT === undefined || inv.stack.OUTPUT.length === 0) inv.stack.OUTPUT = [Settings.item(undefined, 0)];
-          if (stack.OUTPUT[0] === undefined) stack.OUTPUT[0] = Settings.item(undefined, 0)
-          if (stack.OUTPUT[0].n === undefined) stack.OUTPUT[0].n = 0
+          // if (inv.stack.OUTPUT == null || inv.stack.OUTPUT.length === 0) inv.stack.OUTPUT = [Settings.item(undefined, 0)];
+          if (stack.OUTPUT[0] == null) stack.OUTPUT[0] = Settings.item(undefined, 0)
+          if (stack.OUTPUT[0].n == null) stack.OUTPUT[0].n = 0
           stack.INPUT[0].n--
           stack.FUEL[0].n--
           stack.OUTPUT[0].id = becomesThat

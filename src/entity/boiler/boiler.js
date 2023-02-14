@@ -15,16 +15,16 @@ class Boiler extends Inventory {
     this.packsize.OUTPUT = 1
     this.energy = 0
 
-    if (this.stack.FUEL === undefined) this.stack.FUEL = []
-    if (this.stack.INV === undefined) this.stack.INV = [{ id: Settings.resDB.water.id, n: 0 }]
-    if (this.stack.OUTPUT === undefined) this.stack.OUTPUT = [{ id: Settings.resDB.steam.id, n: 0 }]
+    if (this.stack.FUEL == null) this.stack.FUEL = []
+    if (this.stack.INV == null) this.stack.INV = [{ id: Settings.resDB.water.id, n: 0 }]
+    if (this.stack.OUTPUT == null) this.stack.OUTPUT = [{ id: Settings.resDB.steam.id, n: 0 }]
 
     this.nbInputs = []
     this.nbOutputs = []
   }
 
   update (map, ent) {
-    if (Settings.game.tick % 100) return
+    if (window.game.tick % 100) return
 
     if (this.stack.INV[0].n === 0) return
 
@@ -37,9 +37,9 @@ class Boiler extends Inventory {
     let total = 0
     let nSameType = 1
     for (const nbID of this.nbInputs) {
-      const n = Settings.allInvs[nbID]
-      if (n === undefined) continue
-      if (n.stack.INV[0].id === undefined) n.stack.INV[0].id = this.stack.INV[0].id
+      const n = window.game.allInvs[nbID]
+      if (n == null) continue
+      if (n.stack.INV[0].id == null) n.stack.INV[0].id = this.stack.INV[0].id
       if (n.stack.INV[0].id === this.stack.INV[0].id) {
         total += n.stack.INV[0].n
         nSameType++
@@ -50,8 +50,8 @@ class Boiler extends Inventory {
     let medVal = Math.floor(total / nSameType)
 
     for (const nbID of this.nbInputs) {
-      const n = Settings.allInvs[nbID]
-      if (n === undefined) continue
+      const n = window.game.allInvs[nbID]
+      if (n == null) continue
       if (n.stack.INV[0].id === this.stack.INV[0].id) {
         n.stack.INV[0].n = medVal
       }
@@ -71,9 +71,9 @@ class Boiler extends Inventory {
     total = 0
     nSameType = 0
     for (const nbID of this.nbOutputs) {
-      const n = Settings.allInvs[nbID]
-      if (n === undefined) continue
-      if (n.stack.INV[0].id === undefined) n.stack.INV[0].id = this.stack.OUTPUT[0].id
+      const n = window.game.allInvs[nbID]
+      if (n == null) continue
+      if (n.stack.INV[0].id == null) n.stack.INV[0].id = this.stack.OUTPUT[0].id
       if (n.stack.INV[0].id === this.stack.OUTPUT[0].id) {
         total += n.stack.INV[0].n
         nSameType++
@@ -85,8 +85,8 @@ class Boiler extends Inventory {
     medVal = Math.floor(total / nSameType)
 
     for (const nbID of this.nbOutputs) {
-      const n = Settings.allInvs[nbID]
-      if (n === undefined) continue
+      const n = window.game.allInvs[nbID]
+      if (n == null) continue
       if (n.stack.INV[0].id === this.stack.OUTPUT[0].id) {
         n.stack.INV[0].n = medVal
       }

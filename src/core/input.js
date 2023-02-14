@@ -14,7 +14,7 @@ class InputModule {
 
   onPointerMove (e) {
     const pointer = window.getEventLocation(e)
-    if (pointer === undefined) return
+    if (pointer == undefined) return
     window.mousePos.x = pointer.x
     window.mousePos.y = pointer.y
 
@@ -25,7 +25,7 @@ class InputModule {
     if (Settings.pointer) Settings.pointer.overlay = isOverlay
 
     if (isOverlay === false) {
-      const tileCoordinate = window.view.screenToTile(window.mousePos)
+      const tileCoordinate = window.game.screenToTile(window.mousePos)
       Settings.curResPos.x = tileCoordinate.x
       Settings.curResPos.y = tileCoordinate.y
 

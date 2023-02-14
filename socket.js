@@ -50,7 +50,7 @@ export function wssend (msg) {
 
     if (updateInv) {
       /* if (ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({ cmd: 'updateInventories', data: Settings.allInvs }))
+        ws.send(JSON.stringify({ cmd: 'updateInventories', data: window.game.allInvs }))
       } */
     }
     // ws.send(JSON.stringify(msg));
@@ -74,36 +74,36 @@ ws.onmessage = function (e) {
 
   if (socketMsg.msg === 'updateInventories') {
     const rawInvs = JSON.parse(JSON.stringify(socketMsg.data))
-    Settings.allInvs = []
+    window.game.allInvs = []
     for (const inv of rawInvs) {
-      Settings.allInvs.push(Object.assign(new Inventory(), inv))
+      window.game.allInvs.push(Object.assign(new Inventory(), inv))
     }
     Settings.player.setInventoryID(0)
     if (Settings.selEntity) {
       const inv = socketMsg.data[Settings.selEntity.id]
-      window.view.updateInventoryMenu(inv)
+      window.game.updateInventoryMenu(inv)
     }
   }
 
   if (socketMsg.msg === 'serverTick') {
-    // Settings.game.tick = socketMsg.data;
+    // window.game.tick = socketMsg.data;
     // console.log("server tick:", Settings.serverTick);
   }
 
   if (socketMsg.msg === 'updateEntities') {
-    Settings.allInvs = JSON.parse(JSON.stringify(socketMsg.data))
+    window.game.allInvs = JSON.parse(JSON.stringify(socketMsg.data))
   }
 
   if (socketMsg.msg === 'updateEntity') {
-    Settings.allInvs[socketMsg.data.id] = socketMsg.data.ent
+    window.game.allInvs[socketMsg.data.id] = socketMsg.data.ent
     // Settings.player.setInventory(socketMsg.data.inv, socketMsg.data.invID);
   }
   if (socketMsg.msg === 'remEntity') {
-    delete Settings.allInvs[socketMsg.data]
+    delete window.game.allInvs[socketMsg.data]
     // Settings.player.setInventory(socketMsg.data.inv, socketMsg.data.invID);
   }
   if (socketMsg.msg === 'updateMapData') updateMapData(socketMsg.data)
   if (socketMsg.msg === 'startGame') Time.gameLoop()
-  if (socketMsg.msg === 'setPlayerID') Settings.playerID = socketMsg.data
+  if (socketMsg.msg === 'setPlayerID') window.game.playerID = socketMsg.data
   if (socketMsg.msg === 'id') console.log("Received: '" + socketMsg.data + "'")
 } */

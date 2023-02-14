@@ -68,7 +68,7 @@ class InserterBurner extends Inventory {
         } else ent.state = 0
       // PLACE
       } else if (ent.armPos === 32 && ent.isHandFull) {
-        if (invTo === undefined) {
+        if (invTo == null) {
           ent.state = 0
           return
         }

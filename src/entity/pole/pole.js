@@ -12,13 +12,13 @@ class Pole extends Inventory {
     this.packsize = {}
     this.packsize.INV = 1
 
-    if (this.stack.INV === undefined) this.stack.INV = [{ n: 0 }]
+    if (this.stack.INV == null) this.stack.INV = [{ n: 0 }]
     this.mapsize = { x: Settings.resDB.pole.size[0], y: Settings.resDB.pole.size[1] }
     this.nbInputs = []
   }
 
   update (map, ent) {
-    if (Settings.game.tick % 100) return
+    if (window.game.tick % 100) return
 
     if (this.nbInputs.length === 0 || this.stack.INV[0].n === 0) return
 
@@ -26,12 +26,12 @@ class Pole extends Inventory {
     let total = 0
     let nSameType = 0
     for (const nbID of this.nbInputs) {
-      const n = Settings.allInvs[nbID]
-      if (n === undefined) continue
+      const n = window.game.allInvs[nbID]
+      if (n == null) continue
       let target
       if (n.stack.INV) target = n.stack.INV
       else if (n.stack.FUEL) target = n.stack.FUEL
-      if (target[0].id === undefined) target[0].id = this.stack.INV[0].id
+      if (target[0].id == null) target[0].id = this.stack.INV[0].id
       if (target[0].id === this.stack.INV[0].id) {
         total += target[0].n
         nSameType++
@@ -45,8 +45,8 @@ class Pole extends Inventory {
 
     // OUTPUT
     for (const nbID of this.nbInputs) {
-      const n = Settings.allInvs[nbID]
-      if (n === undefined) continue
+      const n = window.game.allInvs[nbID]
+      if (n == null) continue
       let target
       if (n.stack.INV) target = n.stack.INV
       else if (n.stack.FUEL) target = n.stack.FUEL
