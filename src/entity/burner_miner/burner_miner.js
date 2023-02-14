@@ -41,6 +41,8 @@ class BurnerMiner extends Inventory {
       if (this.dir === 1) invTo = invfuncs.getInv(ent.pos.x + 1, ent.pos.y + 2, true)
       if (this.dir === 2) invTo = invfuncs.getInv(ent.pos.x - 1, ent.pos.y + 1, true)
       if (this.dir === 3) invTo = invfuncs.getInv(ent.pos.x, ent.pos.y - 1, true)
+      if (invTo == null) return
+
       if (tile?.n) output = Settings.resName[Settings.resName[tile.id].becomes]
       // Shift output on next tile
       let stackName

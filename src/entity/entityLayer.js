@@ -76,13 +76,15 @@ export class EntityLayer extends NC.NodiGrid {
       const res = window.res.map[tileCoordinate.x][tileCoordinate.y]
       const d = dist(Settings.allInvs[Settings.playerID].pos, worldCordinate)
 
-      if (Settings.pointer?.stack?.INV?.length && inv == null) {
+      if (Settings.pointer?.stack?.INV?.length && (inv == null || inv.type === Settings.resDB.empty.id)) {
         this.setOnMap(tileCoordinate)
       } else {
         window.isDragStarted = true
         window.isBuilding = false
         if ((res?.id || inv?.id) && d < 5 * Settings.tileSize) Settings.player.startMining(tileCoordinate, Settings.allInvs[Settings.playerID])
       }
+
+      if (Settings.pointer?.stack?.INV?.length === 0) Settings.pointer.type = undefined
     } else if (e.buttons === 2) {
       this.removeEntity(tileCoordinate)
     }
@@ -120,7 +122,7 @@ export class EntityLayer extends NC.NodiGrid {
     if (hit === false) {
       if (e.which === 1) {
         // SHOW ENTITY
-        if (Settings.pointer?.item?.id === undefined && inv) {
+        if (Settings.pointer?.type === undefined && inv) {
           const invID = invfuncs.getInv(tilePos.x, tilePos.y).id
           Settings.selEntity = Settings.allInvs[invID]
 

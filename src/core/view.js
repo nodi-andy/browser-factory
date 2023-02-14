@@ -180,8 +180,10 @@ export class ViewModule extends NC.NodiView {
     const v = Object.values(window.entityMenu.buttons)
     for (let i = 0; i < v.length; i++) {
       const button = v[i][0]
-      button.x = dx
-      button.y = dy + Settings.buttonSize.y * i
+      if (button) {
+        button.x = dx
+        button.y = dy + Settings.buttonSize.y * i
+      }
     }
   }
 
