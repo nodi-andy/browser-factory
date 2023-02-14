@@ -20,7 +20,7 @@ class InserterBurner extends Inventory {
     ent.packsize.INPUT = 1
     ent.packsize.FUEL = 1
     if (ent.armPos == null) ent.armPos = 0
-    if (ent.energy == null) ent.energy = 10 // TBD: electricity
+    ent.energy = 10 // TBD: electricity
     if (ent.isHandFull == null) ent.isHandFull = false
   }
 

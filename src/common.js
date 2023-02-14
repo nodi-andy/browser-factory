@@ -3,11 +3,10 @@
 
 import * as NC from 'nodicanvas'
 
-const game  = {}
 const resDB = {}
 const resDBi = {}
 const resName = {}
-const Settings = {}
+export const Settings = {}
 
 Settings.resID = [
   'hills',
@@ -83,18 +82,15 @@ for (let i = 0; i < Settings.resID.length; i++) {
   resName[i] = resDB[Settings.resID[i]]
 }
 
-const allInvs = []
-
 Settings.isServer = (typeof window === 'undefined')
 Settings.isBrowser = !Settings.isServer
 Settings.resDB = resDB
 Settings.resDBi = resDBi
 Settings.resName = resName
-window.game = game
-window.game.allInvs = allInvs
+
 Settings.selEntity = 0
 Settings.item = item
-window.game.playerID = 0
+
 Settings.buttonSize = { x: 68, y: 68 }
 Settings.tileSize = 64
 Settings.gridSize = new NC.Vec2(160, 90)
@@ -103,22 +99,22 @@ Settings.buildDir = 0
 Settings.dirToVec = [{ x: 1, y: 0 },{ x: 0, y: 1 },{ x: -1, y: 0 },{ x: 0, y: -1 }]
 Settings.dirToAng = [0, 90, 180, 270]
 Settings.nbVec = [{ x: 1, y: 0 }, { x: 1, y: -1 }, { x: 0, y: -1 }, { x: -1, y: -1 }, { x: -1, y: 0 }, { x: -1, y: 1 }, { x: 0, y: 1 } , { x: 1, y: 1 }]
-Settings.layers = { terrain: 0, res: 1, inv: 2, vis: 3 }
+
 Settings.curResPos = new NC.Vec2(0, 0)
 
 function item (type, n) { return { id: type, n } }
 
-function dist (a, b) { return Math.hypot(a.x - b.x, a.y - b.y) }
+export function dist (a, b) { return Math.hypot(a.x - b.x, a.y - b.y) }
 
-function distV (a, b) { return { x: a.x - b.x, y: a.y - b.y } }
+export function distV (a, b) { return { x: a.x - b.x, y: a.y - b.y } }
 
-function toUnitV (v) {
+export function toUnitV (v) {
   if (v.x === 0 && v.y === 0) return { x: 0, y: 0 }
   const len = Math.hypot(v.x, v.y)
   return { x: v.x / len, y: v.y / len }
 }
 
-function getNbOccur (arr, val) {
+export function getNbOccur (arr, val) {
   let occurs = 0
 
   for (let i = 0; i < arr.length; i++) {
@@ -127,5 +123,3 @@ function getNbOccur (arr, val) {
 
   return occurs
 }
-
-export { Settings, toUnitV, dist, distV, getNbOccur }

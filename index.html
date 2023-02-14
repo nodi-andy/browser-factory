@@ -304,7 +304,7 @@
     }
 
     function loadGame(name) {
-
+        window.game = new ViewModule (window.canvas);
         updateNextGameID();
         if (name == null) name = "unnamed_" + window.nextGameID;
 
@@ -316,14 +316,11 @@
 
         window.game.state = 1;
         
-
         let savedData = JSON.parse(window.localStorage.getItem(name));
         if(!savedData) newGame(name);
         // try again, after creation
         savedData = JSON.parse(window.localStorage.getItem(name)); 
 
-
-        window.game = new ViewModule (window.canvas);
         window.game.name = name
         window.game.x = Settings.gridSize.x
         window.game.y = Settings.gridSize.y 
@@ -350,7 +347,6 @@
         for (let i = 0; i < savedData.ents.length; i++) {
             let ent = savedData.ents[i];
             if (ent) {
-                ent.layer = window.entityLayer
                 if (Settings.resName[ent.type]?.mach?.constructor) {
                     window.game.allInvs.push(new Settings.resName[ent.type].mach(ent.pos, ent));
                 } else {

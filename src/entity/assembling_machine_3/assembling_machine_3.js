@@ -1,8 +1,7 @@
 import { Settings } from '../../common.js'
-import { Inventory, invfuncs } from '../../core/inventory.js'
 import { AssemblingMachine1 } from '../assembling_machine_1/assembling_machine_1.js'
 
-Settings.resDB.assembling_machine_3.name = 'assembling machine 2'
+Settings.resDB.assembling_machine_3.name = 'assembling machine 3'
 Settings.resDB.assembling_machine_3.type = 'entity'
 Settings.resDB.assembling_machine_3.cost = [
   { id: Settings.resDB.circuit.id, n: 3 },

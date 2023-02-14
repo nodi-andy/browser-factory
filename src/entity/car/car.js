@@ -56,11 +56,9 @@ db.mach = Car
 db.playerCanWalkOn = false
 db.size = [1, 1]
 db.cost = [
-  { id: Settings.resDB.iron_plate.id, n: 50 },
-  { id: Settings.resDB.iron_stick.id, n: 50 },
-  { id: Settings.resDB.gear.id, n: 50 },
-  { id: Settings.resDB.copper_cable.id, n: 50 },
-  { id: Settings.resDB.circuit.id, n: 50 }
+  { id: Settings.resDB.inserter_burner.id, n: 100 },
+  { id: Settings.resDB.belt2.id, n: 100 },
+  { id: Settings.resDB.assembling_machine_2.id, n: 100 }
 ]
 if (typeof Image !== 'undefined') {
   const image = new Image(64, 64)

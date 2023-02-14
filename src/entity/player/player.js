@@ -15,7 +15,6 @@ class Player extends Inventory {
     super(data.tilePos, data)
 
     this.tilePos = data.tilePos
-    this.layer = window.entityLayer
     this.pos = data.pos
     this.stack = data.stack
     this.setup()
@@ -51,14 +50,14 @@ class Player extends Inventory {
   }
 
   update (map, ent) {
-    ent.tilePos = this.layer.worldToTile(ent.pos)
+    ent.tilePos = window.entityLayer.worldToTile(ent.pos)
     while (this.checkCollision(ent.tilePos)) {
       ent.tilePos.x++
       ent.pos = { x: ent.tilePos.x * Settings.tileSize, y: ent.tilePos.y * Settings.tileSize }
     }
 
     ent.unitdir = toUnitV(ent.dir)
-    const entTile = this.layer.worldToTile(ent.pos)
+    const entTile = window.entityLayer.worldToTile(ent.pos)
 
     const entMap = invfuncs.getInv(entTile.x, entTile.y)
     if (entMap?.type === Settings.resDB.belt1.id || entMap?.type === Settings.resDB.belt2.id || entMap?.type === Settings.resDB.belt3.id) {
@@ -67,11 +66,11 @@ class Player extends Inventory {
     }
 
     ent.nextPos.x = ent.pos.x + this.speed * ent.unitdir.x
-    const nextXTile = this.layer.worldToTileXY(ent.nextPos.x, ent.pos.y)
+    const nextXTile = window.entityLayer.worldToTileXY(ent.nextPos.x, ent.pos.y)
     if (nextXTile.x > 0 && nextXTile.x < Settings.gridSize.x - 1 && this.checkCollision({ x: nextXTile.x, y: entTile.y }) === false) ent.pos.x = ent.nextPos.x
 
     ent.nextPos.y = ent.pos.y + this.speed * ent.unitdir.y
-    const nextYTile = this.layer.worldToTileXY(ent.pos.x, ent.nextPos.y)
+    const nextYTile = window.entityLayer.worldToTileXY(ent.pos.x, ent.nextPos.y)
     if (nextYTile.y > 0 && nextYTile.y < Settings.gridSize.y - 1 && this.checkCollision({ x: entTile.x, y: nextYTile.y }) === false) ent.pos.y = ent.nextPos.y
 
     if (ent.dir.x < 0) ent.ss.x--; else ent.ss.x++
