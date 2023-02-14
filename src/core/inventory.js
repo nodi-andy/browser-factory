@@ -304,8 +304,8 @@ function getInv (x, y, create = false) {
   if (x < 0) return
   if (y < 0) return
 
-  const tile = window.entityLayer.map[x][y]
-  if (tile === null && create) createInvOnMap(x, y)
+  let tile = window.entityLayer.map[x][y]
+  if (tile == null && create) tile = createInvOnMap(x, y)
   return Settings.allInvs[tile]
 }
 
@@ -315,7 +315,7 @@ function setInv (x, y, invID) {
 
 function createInvOnMap (x, y) {
   let invID = window.entityLayer.map[x][y]
-  if (invID === null) {
+  if (invID == null) {
     const inv = new Inventory({ x, y })
 
     Settings.allInvs.push(inv)

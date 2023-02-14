@@ -40,7 +40,7 @@ export class Button {
     ctx.rect(this.screen.x, this.screen.y, this.size.x, this.size.y)
     ctx.fill()
     ctx.stroke()
-    if (this.item === null && this.inv?.stack && this.inv.stack[this.invKey] && this.inv.stack[this.invKey][this.stackPos]) {
+    if (this.item == null && this.inv?.stack && this.inv.stack[this.invKey] && this.inv.stack[this.invKey][this.stackPos]) {
       this.item = this.inv.stack[this.invKey][this.stackPos]
     }
     this.drawItem(ctx)
