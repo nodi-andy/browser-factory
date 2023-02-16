@@ -1,4 +1,4 @@
-This project is fan-made and not associated to Wube Software or Factorio. The assets in this repo are from the Factorio version "Factorio-prealpha9-campaigns1RE", which have been used with permission. Wube Software retains all rights to their assets.
+Please note that this project is a fan creation and is not affiliated with Wube Software or Factorio. The assets contained in this repository have been sourced from the pre-alpha version of Factorio titled 'Factorio-prealpha9-campaigns1RE', with permission. It is important to understand that all rights to these assets remain with Wube Software
 
 You shall definitely try the last version of Factorio here: https://www.factorio.com/download
 
