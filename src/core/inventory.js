@@ -187,6 +187,16 @@ export class Inventory {
     delete this.stack[stackKey]
   }
 
+  hasPack (stackName, searchItem) {
+    if (searchItem?.n == null) return
+
+    const stack = this.stack[stackName]
+    for (let iPack = 0; iPack < stack.length; iPack++) {
+      const pack = stack[iPack]
+      if (pack?.id === searchItem.id && pack.n >= searchItem.n) return iPack
+    }
+  }
+
   hasItem (searchItem) {
     const keys = Object.keys(this.stack)
     for (let iStack = 0; iStack < keys.length && searchItem; iStack++) {
@@ -194,7 +204,7 @@ export class Inventory {
       if (Array.isArray(this.stack[key])) {
         for (let iPack = 0; iPack < this.stack[key].length && searchItem; iPack++) {
           const pack = this.stack[key][iPack]
-          if (pack && pack.id === searchItem.id) { // Find the pack
+          if (pack?.id === searchItem.id) { // Find the pack
             return (pack.n >= searchItem.n || searchItem.n == null)
           }
         }
@@ -222,9 +232,9 @@ export class Inventory {
   }
 
   getFirstPack (pref) {
-    let key
-    let selectedKey
-    if (pref && this.stack[pref]) selectedKey = pref
+    let key, selectedKey
+    if (pref && this.stack[pref]) 
+      selectedKey = pref
     else {
       const keys = Object.keys(this.stack)
       if (keys.length) {
@@ -271,7 +281,7 @@ function getNumberOfItems (ent, type) {
 
 function mineToInv (minedItem) {
   const newItem = { id: Settings.resName[minedItem.id].becomes, n: 1 }
-  const res = window.res.map[minedItem.source.x][minedItem.source.y]
+  const res = window.res.getResource(minedItem.source)
   res.n--
 
   if (res.n <= 0) {
@@ -300,9 +310,15 @@ function craftToInv (inv, items) {
   })
 }
 
+function getInvP (p, create = false) {
+  return getInv(p.x, p.y, create)
+}
+
 function getInv (x, y, create = false) {
   if (x < 0) return
   if (y < 0) return
+  if (x > window.entityLayer.map.length) return
+  if (y > window.entityLayer.map[0].length) return
 
   let tile = window.entityLayer.map[x][y]
   if (tile == null && create) tile = createInvOnMap(x, y)
@@ -408,9 +424,9 @@ function moveStack (data) {
   if (data.fromInvID === Settings.selEntity?.id || data.toInvID === Settings.selEntity?.id) window.game.updateInventoryMenu(Settings.selEntity)
 }
 
-const invfuncs = {}
-invfuncs.Inventory = Inventory
+export const invfuncs = {}
 invfuncs.getInv = getInv
+invfuncs.getInvP = getInvP
 invfuncs.setInv = setInv
 invfuncs.createInv = createInv
 invfuncs.mineToInv = mineToInv
@@ -419,5 +435,3 @@ invfuncs.addItem = addItem
 invfuncs.addInventory = addInventory
 invfuncs.getNumberOfItems = getNumberOfItems
 invfuncs.craftToInv = craftToInv
-
-export { invfuncs }

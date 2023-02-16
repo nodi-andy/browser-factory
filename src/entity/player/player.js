@@ -214,7 +214,7 @@ class Player extends Inventory {
         if (ent.workProgress >= 100) {
           ent.workProgress %= 100
           const inv = invfuncs.getInv(tileCoordinate.x, tileCoordinate.y)
-          const res = window.res.map[tileCoordinate.x][tileCoordinate.y]
+          const res = window.res.getResource(tileCoordinate)
           if (inv) {
             Settings.player.destructBuilding(tileCoordinate)
             Settings.player.stopMining(Settings.player)

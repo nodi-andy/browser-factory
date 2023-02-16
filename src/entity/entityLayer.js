@@ -37,7 +37,15 @@ export class EntityLayer extends NC.NodiGrid {
 
   onKeyUp (e) {
     Settings.player.onKeyUp(e)
-    if (e.code === 'KeyR') Settings.buildDir = (Settings.buildDir + 1) % 4
+    if (e.code === 'KeyQ') {
+      const searchPack = { id: invfuncs.getInvP(Settings.curTilePos).type, n: 1 }
+      const playerInv = window.game.allInvs[Settings.player.invID]
+      const pack = playerInv.hasPack('INV', searchPack)
+      if (pack) invfuncs.moveStack({ fromInvID: Settings.player.invID, fromInvKey: 'INV', fromStackPos: pack, toInvID: Settings.pointer.id, toInvKey: 'INV', toStackPos: 0 })
+    }
+    if (e.code === 'KeyR') {
+      Settings.buildDir = (Settings.buildDir + 1) % 4
+    }
     if (e.code === 'KeyE') {
       window.game.updateInventoryMenu(Settings.player)
       window.invMenu.vis = !window.invMenu.vis
@@ -64,7 +72,7 @@ export class EntityLayer extends NC.NodiGrid {
     if (hit) return
     const worldCordinate = window.game.screenToWorld(getEventLocation(e))
     const tileCoordinate = this.worldToTile(worldCordinate)
-    const inv = invfuncs.getInv(tileCoordinate.x, tileCoordinate.y)
+    const inv = invfuncs.getInvP(tileCoordinate)
 
     if (e.buttons === 1) {
       if (window.invMenu.vis) {
@@ -74,7 +82,7 @@ export class EntityLayer extends NC.NodiGrid {
         return
       }
       window.dragStart = worldCordinate
-      const res = window.res.map[tileCoordinate.x][tileCoordinate.y]
+      const res = window.res.getResource(tileCoordinate)
       const d = dist(window.game.allInvs[window.game.playerID].pos, worldCordinate)
 
       if (Settings.pointer?.stack?.INV?.length && (inv == null || inv.type === Settings.resDB.empty.id)) {
@@ -113,6 +121,7 @@ export class EntityLayer extends NC.NodiGrid {
   onMouseMove (e, hit) {
     if (hit) return
     this.extendMouseData(e)
+    Settings.curTilePos = { x: e.gridX, y: e.gridY }
     Settings.curResPos.x = e.gridX - Settings.player.tilePos.x
     Settings.curResPos.y = e.gridY - Settings.player.tilePos.y
   }
@@ -123,13 +132,13 @@ export class EntityLayer extends NC.NodiGrid {
 
     const worldPos = window.game.screenToWorld({ x: e.offsetX, y: e.offsetY })
     const tilePos = this.worldToTile(worldPos)
-    const inv = invfuncs.getInv(tilePos.x, tilePos.y)
+    const inv = invfuncs.getInvP(tilePos)
 
     if (hit === false) {
       if (e.which === 1) {
         // SHOW ENTITY
         if (Settings.pointer?.type == null && inv) {
-          const invID = invfuncs.getInv(tilePos.x, tilePos.y).id
+          const invID = invfuncs.getInvP(tilePos).id
           Settings.selEntity = window.game.allInvs[invID]
 
           window.game.updateEntityMenu(Settings.selEntity, true)

@@ -63,7 +63,7 @@ export class DialogLayer extends NC.NodiGrid {
     if (Settings.dialogResPos?.x && Settings.dialogResPos?.y) {
       ctx.save()
       const inv = invfuncs.getInv(Settings.dialogResPos.x, Settings.dialogResPos.y)
-      const res = window.res.map[Settings.dialogResPos.x][Settings.dialogResPos.y]
+      const res = window.res.getResource(Settings.dialogResPos)
 
       if (Settings.DEV) {
         // console.log(JSON.stringify(game.map[curResPos.x][curResPos.y]), inv);
