@@ -1,4 +1,8 @@
-# Factorio clone with pure JS
+Please note that this project is a fan creation and is not affiliated with Wube Software or Factorio. The assets contained in this repository have been sourced from the pre-alpha version of Factorio titled 'Factorio-prealpha9-campaigns1RE', with permission. It is important to understand that all rights to these assets remain with Wube Software
+
+You shall definitely try the last version of Factorio here: https://www.factorio.com/download
+
+# Factorio Browser Clone
 
 Play the game here: http://factory.mynodi.com
 
