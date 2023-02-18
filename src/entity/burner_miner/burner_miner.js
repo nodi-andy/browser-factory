@@ -97,12 +97,12 @@ db.type = 'entity'
 db.cost = [{ id: Settings.resDB.stone_furnace.id, n: 1 }, { id: Settings.resDB.iron_plate.id, n: 3 }, { id: Settings.resDB.gear.id, n: 2 }]
 if (typeof Image !== 'undefined') {
   const image = new Image(512, 32)
-  image.src = './src/' + db.type + '/burner_miner/platform.png'
+  image.src = './' + db.type + '/burner_miner/platform.png'
   db.anim1 = image
 }
 if (typeof Image !== 'undefined') {
   const image = new Image(512, 32)
-  image.src = './src/' + db.type + '/burner_miner/drill.png'
+  image.src = './' + db.type + '/burner_miner/drill.png'
   db.anim2 = image
 }
 db.size = [2, 2]

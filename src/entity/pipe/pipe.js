@@ -129,63 +129,63 @@ db.cost = [
 
 if (typeof Image !== 'undefined') {
   let image = new Image(32, 32)
-  image.src = './src/' + Settings.resDB.pipe.type + '/pipe/pipe-straight-horizontal.png'
+  image.src = './' + Settings.resDB.pipe.type + '/pipe/pipe-straight-horizontal.png'
   Settings.resDB.pipe.sh = image
 
   image = new Image(32, 32)
-  image.src = './src/' + Settings.resDB.pipe.type + '/pipe/pipe-straight-vertical.png'
+  image.src = './' + Settings.resDB.pipe.type + '/pipe/pipe-straight-vertical.png'
   Settings.resDB.pipe.sv = image
 
   image = new Image(32, 32)
-  image.src = './src/' + Settings.resDB.pipe.type + '/pipe/pipe-cross.png'
+  image.src = './' + Settings.resDB.pipe.type + '/pipe/pipe-cross.png'
   Settings.resDB.pipe.cross = image
 
   image = new Image(32, 32)
-  image.src = './src/' + Settings.resDB.pipe.type + '/pipe/pipe-ending-up.png'
+  image.src = './' + Settings.resDB.pipe.type + '/pipe/pipe-ending-up.png'
   Settings.resDB.pipe.endup = image
 
   image = new Image(32, 32)
-  image.src = './src/' + Settings.resDB.pipe.type + '/pipe/pipe-ending-down.png'
+  image.src = './' + Settings.resDB.pipe.type + '/pipe/pipe-ending-down.png'
   Settings.resDB.pipe.enddown = image
 
   image = new Image(32, 32)
-  image.src = './src/' + Settings.resDB.pipe.type + '/pipe/pipe-ending-left.png'
+  image.src = './' + Settings.resDB.pipe.type + '/pipe/pipe-ending-left.png'
   Settings.resDB.pipe.endleft = image
 
   image = new Image(32, 32)
-  image.src = './src/' + Settings.resDB.pipe.type + '/pipe/pipe-ending-right.png'
+  image.src = './' + Settings.resDB.pipe.type + '/pipe/pipe-ending-right.png'
   Settings.resDB.pipe.endright = image
 
   image = new Image(32, 32)
-  image.src = './src/' + Settings.resDB.pipe.type + '/pipe/pipe-t-right.png'
+  image.src = './' + Settings.resDB.pipe.type + '/pipe/pipe-t-right.png'
   Settings.resDB.pipe.tright = image
 
   image = new Image(32, 32)
-  image.src = './src/' + Settings.resDB.pipe.type + '/pipe/pipe-t-left.png'
+  image.src = './' + Settings.resDB.pipe.type + '/pipe/pipe-t-left.png'
   Settings.resDB.pipe.tleft = image
 
   image = new Image(32, 32)
-  image.src = './src/' + Settings.resDB.pipe.type + '/pipe/pipe-t-up.png'
+  image.src = './' + Settings.resDB.pipe.type + '/pipe/pipe-t-up.png'
   Settings.resDB.pipe.tup = image
 
   image = new Image(32, 32)
-  image.src = './src/' + Settings.resDB.pipe.type + '/pipe/pipe-t-down.png'
+  image.src = './' + Settings.resDB.pipe.type + '/pipe/pipe-t-down.png'
   Settings.resDB.pipe.tdown = image
 
   image = new Image(32, 32)
-  image.src = './src/' + Settings.resDB.pipe.type + '/pipe/pipe-corner-left-down.png'
+  image.src = './' + Settings.resDB.pipe.type + '/pipe/pipe-corner-left-down.png'
   Settings.resDB.pipe.cld = image
 
   image = new Image(32, 32)
-  image.src = './src/' + Settings.resDB.pipe.type + '/pipe/pipe-corner-left-up.png'
+  image.src = './' + Settings.resDB.pipe.type + '/pipe/pipe-corner-left-up.png'
   Settings.resDB.pipe.clu = image
 
   image = new Image(32, 32)
-  image.src = './src/' + Settings.resDB.pipe.type + '/pipe/pipe-corner-right-down.png'
+  image.src = './' + Settings.resDB.pipe.type + '/pipe/pipe-corner-right-down.png'
   Settings.resDB.pipe.crd = image
 
   image = new Image(32, 32)
-  image.src = './src/' + Settings.resDB.pipe.type + '/pipe/pipe-corner-right-up.png'
+  image.src = './' + Settings.resDB.pipe.type + '/pipe/pipe-corner-right-up.png'
   Settings.resDB.pipe.cru = image
 }
 

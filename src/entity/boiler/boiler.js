@@ -142,7 +142,7 @@ db.cost = [
 
 if (typeof Image !== 'undefined') {
   const image = new Image(512, 32)
-  image.src = './src/' + Settings.resDB.boiler.type + '/boiler/boiler.png'
+  image.src = './' + Settings.resDB.boiler.type + '/boiler/boiler.png'
   Settings.resDB.boiler.img = image
 }
 

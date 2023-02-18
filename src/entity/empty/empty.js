@@ -36,6 +36,6 @@ db.cost = []
 
 if (typeof Image !== 'undefined') {
   const image = new Image(512, 32)
-  image.src = './src/' + db.type + '/empty/empty.png'
+  image.src = './' + db.type + '/empty/empty.png'
   db.img = image
 }

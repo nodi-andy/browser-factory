@@ -127,7 +127,7 @@ db.cost = [
 
 if (typeof Image !== 'undefined') {
   const image = new Image(32, 32)
-  image.src = './src/' + Settings.resDB.u_pipe.type + '/u_pipe/u_pipe.png'
+  image.src = './' + Settings.resDB.u_pipe.type + '/u_pipe/u_pipe.png'
   Settings.resDB.u_pipe.img = image
 }
 

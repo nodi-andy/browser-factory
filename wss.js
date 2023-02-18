@@ -20,7 +20,7 @@ if (mode === 'server') {
 console.log('Listening to: ' + port)
 
 // LOAD CORE LIBS
-const c = require('./src/common.js')
+const c = require('./common.js')
 const s = require('./socket')
 
 function protocoll (ws, req) {

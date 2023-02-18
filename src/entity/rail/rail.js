@@ -36,6 +36,6 @@ db.cost = [{ id: Settings.resDB.wood.id, n: 4 }]
 
 if (typeof Image !== 'undefined') {
   const image = new Image(512, 32)
-  image.src = './src/' + db.type + '/rail/rail.png'
+  image.src = './' + db.type + '/rail/rail.png'
   db.img = image
 }

@@ -11,7 +11,7 @@ Settings.resDB.assembling_machine_3.cost = [
 
 if (typeof Image !== 'undefined') {
   const image = new Image(512, 32)
-  image.src = './src/' + Settings.resDB.assembling_machine_3.type + '/assembling_machine_3/platform.png'
+  image.src = './' + Settings.resDB.assembling_machine_3.type + '/assembling_machine_3/platform.png'
   Settings.resDB.assembling_machine_3.anim = image
 }
 

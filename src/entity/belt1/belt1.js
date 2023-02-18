@@ -34,13 +34,13 @@ db.cost = [
 ]
 if (typeof Image !== 'undefined') {
   const image = new Image(64, 96)
-  image.src = './src/' + Settings.resDB.belt1.type + '/belt1/belt1_anim.png'
+  image.src = './' + Settings.resDB.belt1.type + '/belt1/belt1_anim.png'
   Settings.resDB.belt1.anim = image
 }
 
 if (typeof Image !== 'undefined') {
   const image = new Image(64, 64)
-  image.src = './src/' + Settings.resDB.belt1.type + '/belt1/belt1.png'
+  image.src = './' + Settings.resDB.belt1.type + '/belt1/belt1.png'
   Settings.resDB.belt1.img = image
 }
 db.mach = Belt1

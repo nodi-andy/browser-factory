@@ -16,7 +16,7 @@ export class ControlsLayer extends NC.NodiGrid {
 
     this.showInvButton = new Button()
     const image = new Image(Settings.tileSize, Settings.tileSize)
-    image.src = './src/controls/tools.png'
+    image.src = './controls/tools.png'
     this.showInvButton.img = image
 
     this.showInvButton.onClick = () => {
@@ -31,7 +31,7 @@ export class ControlsLayer extends NC.NodiGrid {
 
     this.rotateButton = new Button()
     const imageRotateButton = new Image(Settings.tileSize, Settings.tileSize)
-    imageRotateButton.src = './src/controls/rotate.png'
+    imageRotateButton.src = './controls/rotate.png'
     this.rotateButton.img = imageRotateButton
     this.rotateButton.onClick = () => {
       window.entityLayer.onKeyUp({ code: 'KeyR' })

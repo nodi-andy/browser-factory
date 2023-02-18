@@ -124,7 +124,7 @@ db.cost = [
 
 if (typeof Image !== 'undefined') {
   const image = new Image(960, 1120)
-  image.src = './src/' + Settings.resDB.generator.type + '/generator/steam_generator_horizontal.png'
+  image.src = './' + Settings.resDB.generator.type + '/generator/steam_generator_horizontal.png'
   Settings.resDB.generator.img = image
 }
 

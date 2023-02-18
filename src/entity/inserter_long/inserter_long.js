@@ -16,10 +16,10 @@ db.size = [1, 1]
 db.type = 'entity'
 if (typeof Image !== 'undefined') {
   let image = new Image(64, 64)
-  image.src = './src/' + Settings.resDB.inserter_burner.type + '/inserter_burner/inserter_platform.png'
+  image.src = './' + Settings.resDB.inserter_burner.type + '/inserter_burner/inserter_platform.png'
   Settings.resDB.inserter_long.platform = image
   image = new Image(64, 64)
-  image.src = './src/' + Settings.resDB.inserter_burner.type + '/inserter_burner/inserter_burner_hand.png'
+  image.src = './' + Settings.resDB.inserter_burner.type + '/inserter_burner/inserter_burner_hand.png'
   Settings.resDB.inserter_long.hand = image
 }
 db.mach = InserterLong

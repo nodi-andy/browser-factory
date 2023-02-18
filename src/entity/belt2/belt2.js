@@ -34,7 +34,7 @@ db.cost = [
 ]
 if (typeof Image !== 'undefined') {
   const image = new Image(512, 32)
-  image.src = './src/' + Settings.resDB.belt2.type + '/belt2/belt2_anim.png'
+  image.src = './' + Settings.resDB.belt2.type + '/belt2/belt2_anim.png'
   Settings.resDB.belt2.anim = image
 }
 db.mach = Belt2

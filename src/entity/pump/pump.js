@@ -63,7 +63,7 @@ db.lock = 1
 db.cost = [{ id: Settings.resDB.iron_plate.id, n: 3 }]
 if (typeof Image !== 'undefined') {
   const image = new Image(512, 32)
-  image.src = './src/' + db.type + '/pump/pump.png'
+  image.src = './' + db.type + '/pump/pump.png'
   db.anim1 = image
 }
 db.size = [1, 2]

@@ -62,10 +62,10 @@ db.cost = [
 ]
 if (typeof Image !== 'undefined') {
   const image = new Image(64, 64)
-  image.src = './src/' + db.type + '/car/car.png'
+  image.src = './' + db.type + '/car/car.png'
   db.img = image
 
   const imageAnim = new Image(2340, 260)
-  imageAnim.src = './src/' + db.type + '/car/car_anim.png'
+  imageAnim.src = './' + db.type + '/car/car_anim.png'
   db.img_anim = imageAnim
 }

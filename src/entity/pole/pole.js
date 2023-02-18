@@ -88,7 +88,7 @@ db.cost = [
 
 if (typeof Image !== 'undefined') {
   const image = new Image(512, 32)
-  image.src = './src/' + db.type + '/pole/pole.png'
+  image.src = './' + db.type + '/pole/pole.png'
   db.img = image
 }
 

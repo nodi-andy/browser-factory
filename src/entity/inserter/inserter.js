@@ -11,10 +11,10 @@ db.size = [1, 1]
 db.type = 'entity'
 if (typeof Image !== 'undefined') {
   let image = new Image(64, 64)
-  image.src = './src/' + Settings.resDB.inserter.type + '/inserter/inserter_platform.png'
+  image.src = './' + Settings.resDB.inserter.type + '/inserter/inserter_platform.png'
   Settings.resDB.inserter.platform = image
   image = new Image(64, 64)
-  image.src = './src/' + Settings.resDB.inserter.type + '/inserter/inserter_hand.png'
+  image.src = './' + Settings.resDB.inserter.type + '/inserter/inserter_hand.png'
   Settings.resDB.inserter.hand = image
 }
 

@@ -36,6 +36,6 @@ db.cost = [{ id: Settings.resDB.wood.id, n: 4 }]
 
 if (typeof Image !== 'undefined') {
   const image = new Image(512, 32)
-  image.src = './src/' + db.type + '/laser_turret/laser_turret.png'
+  image.src = './' + db.type + '/laser_turret/laser_turret.png'
   db.img = image
 }
