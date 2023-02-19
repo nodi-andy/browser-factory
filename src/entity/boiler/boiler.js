@@ -1,7 +1,7 @@
 import { Settings } from '../../common.js'
 import { Inventory, invfuncs } from '../../core/inventory.js'
 
-class Boiler extends Inventory {
+export class Boiler extends Inventory {
   constructor (pos, data) {
     super(pos, data)
     this.setup(undefined, data)

@@ -1,5 +1,5 @@
-import { ViewModule } from './core/view.js'
 import { Settings } from './common.js'
+import { ViewModule } from './core/view.js'
 import { Time } from './core/loop.js'
 import { Inventory } from './core/inventory.js'
 import { Terrain } from './terrain/terrain.js'
@@ -8,7 +8,25 @@ import { ResLayer } from './res/resLayer.js'
 import { DialogLayer } from './dialogs/dialogLayer.js'
 import { ControlsLayer } from './controls/controlsLayer.js'
 
-import  elements from './imports.js'
+import elements from './imports.js'
+
+window.classDB = {}
+Settings.resID = []
+
+elements.forEach((el) => {
+  let key = Object.keys(el)[0]
+
+  Settings.resID.push(key)
+  let i = Settings.resID.length - 1
+
+  window.classDB[key] = el[key]
+  if (window.classDB[key]) window.classDB[key].id = i
+
+  Settings.resDB[Settings.resID[i]] = {}
+  Settings.resDB[Settings.resID[i]].id = i
+  Settings.resName[i] = window.classDB[key]
+})
+
 
 window.canvas = document.getElementById('myCanvas')
 window.context = window.canvas.getContext('2d')
@@ -131,14 +149,10 @@ function loadGame (name) {
 
   for (let i = 0; i < savedData.ents.length; i++) {
     const ent = savedData.ents[i]
-    if (ent) {
-      if (Settings.resName[ent.type]?.mach?.constructor) {
-        window.game.allInvs.push(new Settings.resName[ent.type].mach(ent.pos, ent))
-      } else {
-        window.game.allInvs.push(new Inventory(ent.pos, ent))
-      }
+    if (ent.name == "Inventory") {
+      window.game.allInvs.push(new Inventory(ent.pos, ent))
     } else {
-      window.game.allInvs.push(null)
+        window.game.allInvs.push(new window.classDB[ent.name](ent.pos, ent))
     }
   }
 
@@ -146,10 +160,9 @@ function loadGame (name) {
     if (ent?.updateNB) ent.updateNB()
   })
 
-  Settings.player = window.game.allInvs[window.game.playerID]
-  window.game.allInvs[window.game.playerID] = Settings.player
-  Settings.player.id = window.game.playerID
-  window.game.allInvs[Settings.player.id].type = Settings.resDB.player.id
+  window.player = window.game.allInvs[window.game.playerID]
+  window.player.id = window.game.playerID
+  window.game.allInvs[window.player.id].type = Settings.resDB.Player.id
   Settings.pointer = window.game.allInvs[1]
   Settings.pointer.id = 1
 
@@ -184,7 +197,9 @@ function newGame (name) {
   window.game.addLayer(window.dialogLayer)
   window.game.addLayer(new ControlsLayer('controls', Settings.gridSize, Settings.tileSize))
 
-  window.game.allInvs.push(new Player())
+  window.player = new window.classDB.Player()
+  window.game.allInvs.push(window.player)
+  window.player.invID = window.game.allInvs.length - 1
   window.game.allInvs.push(new Inventory())
 
   saveGame(window.game)
@@ -201,11 +216,19 @@ function saveGame (game) {
 }
 
 // LOAD IMAGES
-Object.keys(Settings.resDB).forEach(key => {
-  const image = new Image(Settings.tileSize, Settings.tileSize)
-  image.src = './' + Settings.resDB[key].type + '/' + key + '/' + key + '.png'
-  Settings.resDB[key].img = image
-}
+Object.keys(window.classDB).forEach(key => {
+    if (window.classDB[key] == null) return
+    if (window.classDB[key].type == null) return
+
+    let costs = window.classDB[key].cost
+    if (costs) costs.forEach(cost => {cost.id = window.classDB[cost.id].id})
+
+    const image = new Image(Settings.tileSize, Settings.tileSize)
+    let imgName = window.classDB[key].imgName
+    if (imgName == null) imgName = key.toLowerCase()
+    image.src = './' + window.classDB[key].type + '/' + imgName + '/' +  imgName + '.png'
+    window.classDB[key].img = image
+  }
 )
 
 window.saveGame = saveGame

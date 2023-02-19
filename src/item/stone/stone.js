@@ -1,4 +1,6 @@
-import { Settings } from '../../common.js'
-Settings.resDB.stone.name = 'stone'
-Settings.resDB.stone.type = 'item'
-Settings.resDB.stone_axe.cost = [{ id: Settings.resDB.wooden_stick.id, n: 2 }, { id: Settings.resDB.sharp_stone.id, n: 2 }]
+export class Stone {
+    static type = 'item'
+    static E = 1000
+    static cost = [{ id: "StoneOre", n: 1 }]
+    static imgName = 'stone'
+}

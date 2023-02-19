@@ -115,7 +115,7 @@ export class DialogLayer extends NC.NodiGrid {
         ctx.translate(window.mousePos.x, window.mousePos.y)
         if (item.type === 'entity' && item.rotatable !== false) ctx.rotate(Settings.buildDir * Math.PI / 2)
         ctx.translate(-Settings.tileSize / 2, -Settings.tileSize / 2)
-        if (item.mach?.draw) item.mach.draw(ctx, Settings.pointer.item)
+        if (item?.draw) item.draw(ctx, Settings.pointer.item)
         else {
           ctx.drawImage(item.img, 0, 0)
           if (Settings.pointer.stack.INV[0].n != null) {

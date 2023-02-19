@@ -1,4 +1,7 @@
-import { Settings } from '../../common.js'
-Settings.resDB.wood.name = 'wood'
-Settings.resDB.wood.type = 'item'
-Settings.resDB.wood.cost = [{ id: Settings.resDB.raw_wood.id, n: 1 }]
+export class Wood {
+    static type = 'item'
+    static playerCanWalkOn = false
+    static E = 1000
+    static cost = [{ id: "Tree", n: 1 }]
+    static imgName = 'wood'
+}

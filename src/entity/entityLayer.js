@@ -20,39 +20,39 @@ export class EntityLayer extends NC.NodiGrid {
   }
 
   onKeyDown (e) {
-    Settings.player.onKeyDown(e)
+    window.player.onKeyDown(e)
     if (e.code === 'Escape') {
       if (Settings.pointer.stack?.INV?.length) {
-        invfuncs.moveStack({ fromInvID: Settings.pointer.id, fromInvKey: 'INV', fromStackPos: 0, toInvID: Settings.player.invID, toInvKey: 'INV' })
+        invfuncs.moveStack({ fromInvID: Settings.pointer.id, fromInvKey: 'INV', fromStackPos: 0, toInvID: window.player.invID, toInvKey: 'INV' })
       }
       window.invMenu.vis = false
       window.entityMenu.vis = false
       window.craftMenu.vis = false
     }
     if (e.code === 'Enter') {
-      this.setOnMap(NC.Vec2.add(Settings.player.tilePos, Settings.curResPos))
+      this.setOnMap(NC.Vec2.add(window.player.tilePos, Settings.curResPos))
     }
-    Settings.player.stopMining(window.game.allInvs[window.game.playerID])
+    window.player.stopMining(window.game.allInvs[window.game.playerID])
   }
 
   onKeyUp (e) {
-    Settings.player.onKeyUp(e)
+    window.player.onKeyUp(e)
     if (e.code === 'KeyQ') {
       const searchPack = { id: invfuncs.getInvP(Settings.curTilePos).type, n: 1 }
-      const playerInv = window.game.allInvs[Settings.player.invID]
+      const playerInv = window.game.allInvs[window.player.invID]
       const pack = playerInv.hasPack('INV', searchPack)
-      if (pack) invfuncs.moveStack({ fromInvID: Settings.player.invID, fromInvKey: 'INV', fromStackPos: pack, toInvID: Settings.pointer.id, toInvKey: 'INV', toStackPos: 0 })
+      if (pack) invfuncs.moveStack({ fromInvID: window.player.invID, fromInvKey: 'INV', fromStackPos: pack, toInvID: Settings.pointer.id, toInvKey: 'INV', toStackPos: 0 })
     }
     if (e.code === 'KeyR') {
       Settings.buildDir = (Settings.buildDir + 1) % 4
     }
     if (e.code === 'KeyE') {
-      window.game.updateInventoryMenu(Settings.player)
+      window.game.updateInventoryMenu(window.player)
       window.invMenu.vis = !window.invMenu.vis
       window.craftMenu.vis = window.invMenu.vis
       if (window.invMenu.vis === false) window.entityMenu.vis = false
     }
-    Settings.player.stopMining(window.game.allInvs[window.game.playerID])
+    window.player.stopMining(window.game.allInvs[window.game.playerID])
   }
 
   setOnMap (tileCoordinate) {
@@ -85,12 +85,12 @@ export class EntityLayer extends NC.NodiGrid {
       const res = window.res.getResource(tileCoordinate)
       const d = dist(window.game.allInvs[window.game.playerID].pos, worldCordinate)
 
-      if (Settings.pointer?.stack?.INV?.length && (inv == null || inv.type === Settings.resDB.empty.id)) {
+      if (Settings.pointer?.stack?.INV?.length && (inv == null || inv.type === Settings.resDB.Empty.id)) {
         this.setOnMap(tileCoordinate)
       } else {
         window.isDragStarted = true
         window.isBuilding = false
-        if ((res?.id || inv?.id) && d < 5 * Settings.tileSize) Settings.player.startMining(tileCoordinate, window.game.allInvs[window.game.playerID])
+        if ((res?.id || inv?.id) && d < 5 * Settings.tileSize) window.player.startMining(tileCoordinate, window.game.allInvs[window.game.playerID])
       }
 
       if (Settings.pointer?.stack?.INV?.length == null || Settings.pointer?.stack?.INV?.length === 0) Settings.pointer.type = undefined
@@ -122,12 +122,12 @@ export class EntityLayer extends NC.NodiGrid {
     if (hit) return
     this.extendMouseData(e)
     Settings.curTilePos = { x: e.gridX, y: e.gridY }
-    Settings.curResPos.x = e.gridX - Settings.player.tilePos.x
-    Settings.curResPos.y = e.gridY - Settings.player.tilePos.y
+    Settings.curResPos.x = e.gridX - window.player.tilePos.x
+    Settings.curResPos.y = e.gridY - window.player.tilePos.y
   }
 
   onMouseUp (e, hit) {
-    Settings.player.stopMining(window.game.allInvs[window.game.playerID])
+    window.player.stopMining(window.game.allInvs[window.game.playerID])
     if (hit) return
 
     const worldPos = window.game.screenToWorld({ x: e.offsetX, y: e.offsetY })
@@ -196,14 +196,14 @@ export class EntityLayer extends NC.NodiGrid {
           else ctx.drawImage(Settings.resName[ent.type].img, 0, 0)
           ent.drawn = 1 // static objects are drawn now
 
-          if (ent.type === Settings.resDB.belt1.id || ent.type === Settings.resDB.belt2.id || ent.type === Settings.resDB.belt3.id) {
+          if (ent.belt) {
             ent.searching = false // no circular dependency for belts
             beltsToDraw.push(ent)
           } else entsToDraw.push(ent)
         }
 
         // ITEMS ON GROUND
-        if (invID !== undefined && window.game.allInvs[invID]?.type === Settings.resDB.empty.id) {
+        if (invID !== undefined && window.game.allInvs[invID]?.type === Settings.resDB.Empty.id) {
           const packs = window.game.allInvs[invID].stack.INV
           if (packs) {
             ctx.scale(0.5, 0.5)
@@ -228,7 +228,7 @@ export class EntityLayer extends NC.NodiGrid {
     }
 
     // BELTS
-    // TBD: Thats is copypasted from loop update
+    // TBD: This is copypasted from loop update
     for (let ibelt = 0; ibelt < beltsToDraw.length;) {
       let belt = beltsToDraw[ibelt]
       if (belt.drawn > 1) ibelt++
@@ -241,7 +241,7 @@ export class EntityLayer extends NC.NodiGrid {
           const nbPos = Settings.dirToVec[belt.dir]
           const nbTile = this.map[x + nbPos.x][y + nbPos.y]
           const nbEntity = window.game.allInvs[nbTile]
-          if ((nbEntity?.type === Settings.resDB.belt1.id || nbEntity?.type === Settings.resDB.belt2.id || nbEntity?.type === Settings.resDB.belt3.id) && // is it a belt?
+          if (nbEntity?.belt && // is it a belt?
                     nbEntity.drawn === 1 && // already processed?
                     (nbEntity.searching === false || nbEntity.searching == null) && // circular network?
                     Math.abs(belt.dir - nbEntity.dir) !== 2) { // not heading to current belt
@@ -261,11 +261,11 @@ export class EntityLayer extends NC.NodiGrid {
         const entID = this.map[ax][ay]
         let ent
         if (entID) ent = window.game.allInvs[entID]
-        if (ent && ent.drawn < 2 && ent.type !== Settings.resDB.belt1.id) {
+        if (ent?.drawn < 2 && !ent.belt) {
           ctx.save()
           ctx.translate(ax * Settings.tileSize, ay * Settings.tileSize)
           const type = Settings.resName[ent.type]
-          if (type && type.size) {
+          if (type?.size) {
             ctx.translate(type.size[0] / 2 * Settings.tileSize, type.size[1] / 2 * Settings.tileSize)
             if (Settings.resName[ent.type].rotatable !== false) ctx.rotate(ent.dir * Math.PI / 2)
             ctx.translate(-type.size[0] / 2 * Settings.tileSize, -type.size[1] / 2 * Settings.tileSize)
@@ -276,10 +276,9 @@ export class EntityLayer extends NC.NodiGrid {
         }
 
         // PLAYERS
-        const entity = Settings.player
-        if (ax - 2 === entity?.tilePos.x && ay === entity.tilePos.y) {
+        if (ax - 2 === window.player?.tilePos.x && ay === window.player?.tilePos.y) {
           ctx.save()
-          Settings.player.draw(ctx, entity)
+          window.player.draw(ctx)
           ctx.restore()
         }
       }
@@ -299,7 +298,7 @@ export class EntityLayer extends NC.NodiGrid {
       let size = item.size
       if (size == null) size = [1, 1]
 
-      Settings.drawResPos = NC.Vec2.add(Settings.player.tilePos, Settings.curResPos)
+      Settings.drawResPos = NC.Vec2.add(window.player.tilePos, Settings.curResPos)
       ctx.save()
 
       ctx.translate(Settings.drawResPos.x * Settings.tileSize, Settings.drawResPos.y * Settings.tileSize)
@@ -308,8 +307,8 @@ export class EntityLayer extends NC.NodiGrid {
       if (item.type === 'entity' && item.rotatable !== false) ctx.rotate(Settings.buildDir * Math.PI / 2)
       ctx.translate(-size[0] / 2 * Settings.tileSize, -size[1] / 2 * Settings.tileSize)
 
-      if (item.mach?.prototype?.draw) item.mach.prototype.draw(ctx, Settings.pointer.item)
-      else if (item.mach?.prototype?.drawItems) item.mach.prototype.drawItems(ctx, Settings.pointer.item)
+      if (item?.draw) item.draw(ctx, Settings.pointer.item)
+      else if (item?.drawItems) item.drawItems(ctx, Settings.pointer.item)
       else ctx.drawImage(item.img, 0, 0)
       if (Settings.pointer.stack.INV[0].n != null) {
         ctx.font = (Settings.buttonSize.y / 2) + 'px Arial'

@@ -31,7 +31,7 @@ export class Button {
     ctx.beginPath()
 
     if (this.hover) {
-      if (this.type === 'craft') window.receiptMenu.item = this.item
+      if (this.parent == window.craftMenu) window.receiptMenu.item = this.item
       else window.receiptMenu.item = undefined
     }
 
@@ -105,7 +105,7 @@ export class Button {
         this.item.n = this.item.n - Settings.pointer.n
       }
     }
-    window.game.updateInventoryMenu(Settings.player)
+    window.game.updateInventoryMenu(window.player)
     if (Settings.selEntity) window.game.updateEntityMenu(Settings.selEntity, true)
   };
 }

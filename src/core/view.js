@@ -45,8 +45,8 @@ export class ViewModule extends NC.NodiView {
       window.selectItemMenu.rect.w = window.craftMenu.rect.w
       window.selectItemMenu.rect.h = window.craftMenu.rect.h
     }
-    if (Settings.player?.invID !== null) this.updateCraftingMenu()
-    this.updateInventoryMenu(Settings.player)
+    if (window.player?.invID !== null) this.updateCraftingMenu()
+    this.updateInventoryMenu(window.player)
     this.redrawEntityMenu()
     this.size = { x: window.canvas.width, y: window.canvas.height }
     super.resize(window.canvas.width, window.canvas.height)
@@ -96,15 +96,18 @@ export class ViewModule extends NC.NodiView {
   // CRAFT MENU
   updateCraftingMenu () {
     if (!window.craftMenu) return
-    const items = Settings.resDB.player.output
+    if (!window.player) return
+
+    const items = window.player.output
     let pos = 0
     window.craftMenu.items = []
-    items.forEach(i => {
-      const newButton = new Button((pos % 8) * (Settings.buttonSize.x), Math.floor(pos / 8) * (Settings.buttonSize.y), { id: i.id, n: 0 }, window.craftMenu, Settings.resDB.player.invID)
+    items.forEach(item => {
+      let i = window.classDB[item]
+      if (i == null) return
+      const newButton = new Button((pos % 8) * (Settings.buttonSize.x), Math.floor(pos / 8) * (Settings.buttonSize.y), { id: i.id, n: 0 }, window.craftMenu, window.player.invID)
       newButton.onClick = () => {
-        if (Settings.resName[i.id].lock == null) invfuncs.craftToInv(Settings.player, [i])
+        if (Settings.resName[i.id].lock == null) invfuncs.craftToInv(window.player, [i])
       }
-      newButton.type = 'craft'
       window.craftMenu.items.push(newButton)
       pos++
       if (newButton.x + newButton.size.x > window.craftMenu.rect.w) window.craftMenu.rect.w = newButton.x + newButton.size.x
@@ -135,6 +138,7 @@ export class ViewModule extends NC.NodiView {
 
   updateInventoryMenu (inv) {
     if (inv == null || window.invMenu == null) return
+    if(window.player == null) return
 
     const pack = inv?.stack?.INV
 
@@ -143,7 +147,7 @@ export class ViewModule extends NC.NodiView {
     for (let i = 0; i < pack.length; i++) {
       const item = pack[i]
       window.invMenu.items[i].item = item
-      window.invMenu.items[i].invID = Settings.player.invID
+      window.invMenu.items[i].invID = window.player.invID
       window.invMenu.items[i].invKey = 'INV'
       window.invMenu.items[i].stackPos = i
       window.invMenu.items[i].x = (i % 8) * (Settings.buttonSize.x)
@@ -152,7 +156,7 @@ export class ViewModule extends NC.NodiView {
 
     for (let i = pack.length; i < window.invMenu.items.length; i++) {
       window.invMenu.items[i].item = undefined
-      window.invMenu.items[i].invID = Settings.player.invID
+      window.invMenu.items[i].invID = window.player.invID
       window.invMenu.items[i].invKey = 'INV'
       window.invMenu.items[i].stackPos = i
       window.invMenu.items[i].x = (i % 8) * (Settings.buttonSize.x)

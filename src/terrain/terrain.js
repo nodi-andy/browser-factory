@@ -1,5 +1,5 @@
 import { Settings } from '../common.js'
-import { noise } from './perlin.js'
+import { noise } from '../core/perlin.js'
 import * as NC from 'nodicanvas'
 
 export class Terrain extends NC.NodiGrid {
@@ -32,10 +32,10 @@ export class Terrain extends NC.NodiGrid {
       for (let ay = 0; ay < this.map[ax].length; ay++) {
         const perlinVal = this.perlinmap[ax * this.gridSize.y + ay]
         let resVal = 0
-        if (perlinVal < 1) resVal = [Settings.resDB.deepsea.id, 0]
-        else if (perlinVal < 2) resVal = [Settings.resDB.sea.id, 0]
-        else if (perlinVal < 8) resVal = [Settings.resDB.grassland.id, Math.round(Math.random() * 3)]
-        else resVal = [Settings.resDB.hills.id, Math.round(Math.random() * 3)]
+        if (perlinVal < 1) resVal = [Settings.resDB.Deepsea.id, 0]
+        else if (perlinVal < 2) resVal = [Settings.resDB.Sea.id, 0]
+        else if (perlinVal < 8) resVal = [Settings.resDB.Grassland.id, Math.round(Math.random() * 3)]
+        else resVal = [Settings.resDB.Hills.id, Math.round(Math.random() * 3)]
 
         this.map[ax][ay] = resVal
       }

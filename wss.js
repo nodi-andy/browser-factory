@@ -32,7 +32,7 @@ function protocoll (ws, req) {
   }
   if (playerID == null) {
     const playerEnt = {}
-    Settings.player.setup(undefined, playerEnt)
+    window.player.setup(undefined, playerEnt)
 
     window.game.allInvs.push(playerEnt)
     playerEnt.id = window.game.allInvs.length - 1

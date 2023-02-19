@@ -7,16 +7,16 @@ const app = express()
 var layers = ["terrain", "res", "entity", "item"]
 var els = []
 layers.forEach((layer) => {
-    console.log(layer)
+    //console.log(layer)
     let files =glob.sync("./src/" + layer + "/**/*.js")
     files.forEach((file) => {
-        console.log(file)
+        //console.log(file)
         els.push({filename:"." + file.substring(5), name:path.parse(path.basename(file)).name})
     })
 })
 
 app.use(express.static('src'));
-app.get('/imports.js', function (req, res) {
+/*app.get('/imports.js', function (req, res) {
     res.setHeader('content-type', 'text/javascript');
     var importFile = ''
     els.forEach((element) => { 
@@ -26,12 +26,11 @@ app.get('/imports.js', function (req, res) {
     els.forEach((element) => { 
         importFile += element.name  + ', '
     })
-    importFile.substring(0, importFile.length - 2);
     importFile += ']\r\n'
     importFile += 'export default elements'
-    console.log(importFile)
+    //console.log(importFile)
     res.send(importFile)
-  })
+  })*/
   
 
 app.listen(8080)

@@ -24,7 +24,7 @@ class TimeLoop {
     for (let ient = 0; ient < window.game.allInvs.length; ient++) {
       const entity = window.game.allInvs[ient]
       if (!entity) continue
-      if (entity?.type === Settings.resDB.belt1.id || entity?.type === Settings.resDB.belt2.id || entity?.type === Settings.resDB.belt3.id) {
+      if (entity?.belt) {
         entity.done = false
         entity.searching = false
         belts.push(entity)

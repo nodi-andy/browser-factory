@@ -1,4 +1,6 @@
-import { Settings } from '../../common.js'
-Settings.resDB.coal.name = 'coal'
-Settings.resDB.coal.type = 'item'
-Settings.resDB.coal.E = 1000
+export class Coal {
+    static type = 'item'
+    static playerCanWalkOn = false
+    static E = 1000
+}
+

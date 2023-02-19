@@ -1,5 +1,6 @@
-import { Settings } from '../../common.js'
-Settings.resDB.stone_ore.name = 'stone ore'
-Settings.resDB.stone_ore.type = 'res'
-Settings.resDB.stone_ore.W = 50
-Settings.resDB.stone_ore.becomes = Settings.resDB.stone.id
+export class StoneOre {
+    static type = 'res'
+    static W = 50
+    static becomes = 'Stone'
+    static imgName = 'stone_ore'
+}

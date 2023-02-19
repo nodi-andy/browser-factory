@@ -2,6 +2,13 @@ import { Settings } from '../../common.js'
 import { Inventory, invfuncs } from '../../core/inventory.js'
 
 export class StoneFurnace extends Inventory {
+  static type = 'entity'
+  static size = [2, 2]
+  static viewsize = [2, 2.5]
+  static cost = [{ id: "Stone", n: 5 }]
+  static rotatable = false
+  static imgName = 'stone_furnace'
+
   constructor (pos, data) {
     if (data == null) {
       data = {
@@ -15,6 +22,7 @@ export class StoneFurnace extends Inventory {
   }
 
   setup (map, inv) {
+    this.name = "StoneFurnace"
     invfuncs.setInv(this.pos.x + 1, this.pos.y + 0, this.id)
     invfuncs.setInv(this.pos.x + 1, this.pos.y + 1, this.id)
     invfuncs.setInv(this.pos.x + 0, this.pos.y + 1, this.id)
@@ -32,7 +40,6 @@ export class StoneFurnace extends Inventory {
     this.packsize.INV = 8
     this.state = 0
     this.lastTime = performance.now()
-    this.img = Settings.resDB.stone_furnace.img
   }
 
   update (map, ent) {
@@ -44,10 +51,10 @@ export class StoneFurnace extends Inventory {
     if (this.stack.FUEL[0] == null || this.stack.FUEL[0]?.n === 0) this.stack.FUEL = []
 
     if (this.stack.OUTPUT[0]?.id == null) {
-      this.preneed.push({ id: Settings.resDB.iron.id, n: 1 })
-      this.preneed.push({ id: Settings.resDB.copper.id, n: 1 })
-      this.preneed.push({ id: Settings.resDB.stone.id, n: 1 })
-      this.preneed.push({ id: Settings.resDB.coal.id, n: 1 })
+      this.preneed.push({ id: window.classDB.Iron.id, n: 1 })
+      this.preneed.push({ id: window.classDB.Copper.id, n: 1 })
+      this.preneed.push({ id: window.classDB.Stone.id, n: 1 })
+      this.preneed.push({ id: window.classDB.Coal.id, n: 1 })
       // this.preneed.push({ id: Settings.resDB.wood.id, n: 1 }) TBD: no wood burning
     } else {
       const outputItem = this.stack.OUTPUT[0].id
@@ -103,36 +110,13 @@ export class StoneFurnace extends Inventory {
     }
   }
 
-  draw (ctx, ent) {
-    const mapSize = Settings.resDB.stone_furnace.size
-    const viewSize = Settings.resDB.stone_furnace.viewsize
-    const img = Settings.resDB.stone_furnace.img
-    ctx.drawImage(img, 0, 0, Settings.tileSize, Settings.tileSize, 0, -(viewSize[1] - mapSize[1]) * Settings.tileSize, viewSize[0] * Settings.tileSize, viewSize[1] * Settings.tileSize)
-  }
-
-  drawItems (ctx) {
-    const mapSize = Settings.resDB.stone_furnace.size
-    const viewSize = Settings.resDB.stone_furnace.viewsize
-    if (this.img) {
-      ctx.drawImage(this.img, 0, 0, Settings.tileSize, Settings.tileSize, 0, -(viewSize[1] - mapSize[1]) * Settings.tileSize, viewSize[0] * Settings.tileSize, viewSize[1] * Settings.tileSize)
-    }
+  drawItems (ctx, ent) {
+    const mapSize = StoneFurnace.size
+    const viewSize = StoneFurnace.viewsize
+    ctx.drawImage(StoneFurnace.img, 0, 0, Settings.tileSize, Settings.tileSize, 0, -(viewSize[1] - mapSize[1]) * Settings.tileSize, viewSize[0] * Settings.tileSize, viewSize[1] * Settings.tileSize)
   }
 
   getStackName (type) {
     if (type === Settings.resDB.coal.id) return 'FUEL'
   }
 }
-
-const db = Settings.resDB.stone_furnace
-db.name = 'stone furnace'
-db.type = 'entity'
-if (typeof Image !== 'undefined') {
-  const image = new Image(512, 32)
-  image.src = './' + db.type + '/stone_furnace/stone_furnace_64.png'
-  db.img = image
-}
-db.size = [2, 2]
-db.viewsize = [2, 2.5]
-db.cost = [{ id: Settings.resDB.stone.id, n: 5 }]
-db.rotatable = false
-db.mach = StoneFurnace

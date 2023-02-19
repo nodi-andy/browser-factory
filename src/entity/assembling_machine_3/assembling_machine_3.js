@@ -53,4 +53,3 @@ class AssemblingMachine3 extends AssemblingMachine1 {
   }
 }
 
-Settings.resDB.assembling_machine_3.mach = AssemblingMachine3

@@ -1,4 +1,6 @@
-import { Settings } from '../../common.js'
-Settings.resDB.circuit.name = 'circuit'
-Settings.resDB.circuit.type = 'item'
-Settings.resDB.circuit.cost = [{ id: Settings.resDB.iron_plate.id, n: 1 }, { id: Settings.resDB.copper_cable.id, n: 3 }]
+export class Circuit {
+    static type = 'item'
+    static E = 1000
+    static cost = [{ id: "IronPlate", n: 1 }, { id: "CopperCable", n: 3 }]
+}
+

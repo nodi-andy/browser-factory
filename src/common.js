@@ -2,90 +2,14 @@
 /* eslint-disable no-multi-spaces */
 
 import * as NC from 'nodicanvas'
-
-const resDB = {}
-const resDBi = {}
-const resName = {}
 export const Settings = {}
+const resDB = {}
+const resName = {}
 
-Settings.resID = [
-  'hills',
-  'deepsea',
-  'sea',
-  'grassland',
-  'iron_plate',
-  'copper_plate',
-  'coal',
-  'stone',
-  'iron',
-  'copper',
-  'raw_wood',
-  'iron_ore',
-  'stone_ore',
-  'tree',
-  'copper_ore',
-  'coal_ore',
-  'empty',
-  'water',
-  'steam',
-  'coulomb',
-  'copper_cable',
-  'wood',
-  'wooden_stick',
-  'sharp_stone',
-  'iron_stick',
-  'stone_furnace',
-  'weak_armor',
-  'strong_armor',
-  'iron_chest',
-  'chest',
-  'gear',
-  'hydraulic_piston',
-  'circuit',
-  'stone_axe',
-  'iron_axe',
-  'gun',
-  'rocket_launcher',
-  'bullet',
-  'rocket',
-  'burner_miner',
-  'e_miner',
-  'belt1',
-  'belt2',
-  'belt3',
-  'inserter_burner',
-  'inserter',
-  'inserter_long',
-  'inserter_smart',
-  'assembling_machine_1',
-  'assembling_machine_2',
-  'assembling_machine_3',
-  'pump',
-  'pipe',
-  'u_pipe',
-  'boiler',
-  'generator',
-  'pole',
-  'locomotive',
-  'rail',
-  'rail_curved',
-  'turret',
-  'laser_turret',
-  'car',
-  'player'
-]
-
-for (let i = 0; i < Settings.resID.length; i++) {
-  resDB[Settings.resID[i]] = {}
-  resDB[Settings.resID[i]].id = i
-  resDBi[i] = resDB[Settings.resID[i]]
-  resName[i] = resDB[Settings.resID[i]]
-}
 
 Settings.isServer = (typeof window === 'undefined')
 Settings.isBrowser = !Settings.isServer
 Settings.resDB = resDB
-Settings.resDBi = resDBi
 Settings.resName = resName
 
 Settings.selEntity = 0

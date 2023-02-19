@@ -1,49 +1,17 @@
 import { Settings } from '../../common.js'
 import { Inventory, invfuncs } from '../../core/inventory.js'
 
-Settings.resDB.assembling_machine_2.name = 'assembling machine 2'
-Settings.resDB.assembling_machine_2.type = 'entity'
-Settings.resDB.assembling_machine_2.cost = [
-  { id: Settings.resDB.circuit.id, n: 3 },
-  { id: Settings.resDB.gear.id, n: 5 },
-  { id: Settings.resDB.iron_plate.id, n: 9 }
-]
-
-if (typeof Image !== 'undefined') {
-  const image = new Image(512, 32)
-  image.src = './' + Settings.resDB.assembling_machine_2.type + '/assembling_machine_2/platform.png'
-  Settings.resDB.assembling_machine_2.anim = image
-}
-
-Settings.resDB.assembling_machine_2.size = [3, 3]
-Settings.resDB.assembling_machine_2.output = [
-  Settings.resDB.wooden_stick.id,
-  Settings.resDB.sharp_stone.id,
-  Settings.resDB.iron_stick.id,
-  Settings.resDB.gear.id,
-  Settings.resDB.hydraulic_piston.id,
-  Settings.resDB.copper_cable.id,
-  Settings.resDB.circuit.id,
-  Settings.resDB.stone_axe.id,
-  Settings.resDB.iron_axe.id,
-  Settings.resDB.gun.id,
-  Settings.resDB.rocket_launcher.id,
-  Settings.resDB.bullet.id,
-  Settings.resDB.rocket.id,
-  Settings.resDB.weak_armor.id,
-  Settings.resDB.strong_armor.id,
-  Settings.resDB.chest.id,
-  Settings.resDB.iron_chest.id,
-  Settings.resDB.stone_furnace.id,
-  Settings.resDB.burner_miner.id,
-  Settings.resDB.e_miner.id,
-  Settings.resDB.belt1.id,
-  Settings.resDB.belt2.id,
-  Settings.resDB.belt3.id,
-  Settings.resDB.inserter_burner.id
-]
-
 class AssemblingMachine2 extends Inventory {
+  static type = 'entity'
+  static cost = [
+    { id: 'Circuit', n: 3 },
+    { id: 'Gear', n: 5 },
+    { id: 'IronPlate', n: 9 }
+  ]
+  
+  static size = [3, 3]
+  static output = ['WoodenStick', 'SharpStone', 'IronStick']
+
   constructor (pos, data) {
     super(data.pos, data)
     data.pos = pos
@@ -78,8 +46,8 @@ class AssemblingMachine2 extends Inventory {
     if (this.stack && transferInputToPlayer) {
       for (const s of Object.keys(this.stack)) {
         if (s.id === 'PROD') continue
-        if (this.stack[s]?.id) Settings.player?.addItem(this.stack[s])
-        if (this.stack[s][0]?.id) Settings.player?.addItems(this.stack[s])
+        if (this.stack[s]?.id) window.player?.addItem(this.stack[s])
+        if (this.stack[s][0]?.id) window.player?.addItems(this.stack[s])
         delete this.stack[s]
       }
     }
@@ -148,4 +116,8 @@ class AssemblingMachine2 extends Inventory {
   }
 }
 
-Settings.resDB.assembling_machine_2.mach = AssemblingMachine2
+if (typeof Image !== 'undefined') {
+  const image = new Image(512, 32)
+  image.src = './' + AssemblingMachine2.type + '/assembling_machine_2/platform.png'
+  AssemblingMachine2.anim = image
+}

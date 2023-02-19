@@ -76,7 +76,7 @@ export class ControlsLayer extends NC.NodiGrid {
       this.to.subtract(this.start).divide(2)
       this.dir = this.to.clone().normalize()
       this.force = Math.min(20, this.to.clone().length())
-      Settings.player.dir = this.dir
+      window.player.dir = this.dir
       isOverlay = true
     }
     console.log(JSON.stringify(this.dir) + ' f: ' + this.force)

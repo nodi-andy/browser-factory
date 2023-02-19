@@ -1,4 +1,6 @@
-import { Settings } from '../../common.js'
-Settings.resDB.iron_plate.name = 'iron plate'
-Settings.resDB.iron_plate.type = 'item'
-Settings.resDB.iron_plate.cost = [{ id: Settings.resDB.coal.id, n: 1 }, { id: Settings.resDB.iron.id, n: 1 }]
+export class IronPlate {
+    static type = 'item'
+    static E = 1000
+    static cost =  [{ id: "Coal", n: 1 }, { id: "Iron", n: 1 }]
+}
+

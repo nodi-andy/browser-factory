@@ -8,16 +8,16 @@ export class ResLayer extends NC.NodiGrid {
     this.map = map
     if (this.map == null) {
       this.map = Array(this.gridSize.x).fill(0).map(() => Array(this.gridSize.y).fill(0).map(() => ({ type: undefined, id: undefined })))
-      Object.keys(Settings.resDB).forEach(name => {
+      Object.keys(window.classDB).forEach(name => {
         const perlinmap = window.terrain.generateTerrain(this.gridSize.x, this.gridSize.y)
-        const res = Settings.resDB[name]
-        if (res.type === 'res' && res.id !== Settings.resDB.water.id) {
+        const res = window.classDB[name]
+        if (res?.type === 'res') {
           for (let ax = 0; ax < this.map.length; ax++) {
             for (let ay = 0; ay < this.map[ax].length; ay++) {
               const perlinVal = perlinmap[ax * this.gridSize.y + ay]
               const tile = this.map[ax][ay]
               const terrainTile = window.terrain.map[ax][ay]
-              if (perlinVal > 8 && tile.id == null && terrainTile[0] === Settings.resDB.grassland.id) {
+              if (perlinVal > 8 && tile.id == null && terrainTile[0] === Settings.resDB.Grassland.id) {
                 tile.id = res.id
                 tile.n = Math.round((perlinVal - 8) * 200)
               }
