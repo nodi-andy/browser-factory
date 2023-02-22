@@ -33,7 +33,7 @@ class BurnerMiner extends Inventory {
       this.power = 0
       if (this.stack.FUEL == null || this.stack.FUEL.length === 0) this.stack.FUEL = [Settings.item(undefined, 0)]
       let output
-      let tile = window.res.map[ent.pos.x][ent.pos.y]
+      let tile = window.game.res.map[ent.pos.x][ent.pos.y]
       if (tile?.n === 0) tile = map[ent.pos.x + 1][ent.pos.y]
       if (tile?.n == null) return
 
@@ -75,7 +75,7 @@ class BurnerMiner extends Inventory {
 
   draw (ctx, ent) {
     const db = Settings.resDB.burner_miner
-    window.context.save() // what is the diff between ctx?
+    ctx.save() // what is the diff between ctx?
     ctx.drawImage(db.anim1, 0, 0, db.size[0] * Settings.tileSize, db.size[1] * Settings.tileSize, 0, 0, db.size[0] * Settings.tileSize, db.size[1] * Settings.tileSize)
     ctx.fillStyle = 'black'
     ctx.fillRect(Settings.tileSize * 1.75, Settings.tileSize * 0.5, Settings.tileSize / 4, Settings.tileSize / 4)
@@ -86,7 +86,7 @@ class BurnerMiner extends Inventory {
     }
     ctx.translate(-Settings.tileSize, -Settings.tileSize)
     ctx.drawImage(db.anim2, 0, 0, db.size[0] * Settings.tileSize, db.size[1] * Settings.tileSize, 0, 0, db.size[0] * Settings.tileSize, db.size[1] * Settings.tileSize)
-    window.context.restore()
+    ctx.restore()
   }
 }
 

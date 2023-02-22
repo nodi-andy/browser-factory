@@ -21,6 +21,16 @@
         cursor: pointer;
         background-color:rgb(172, 164, 164);
     }
+
+    .switchView {
+        display: inline;
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        padding: 2px;
+        cursor: pointer;
+        background-color:rgb(172, 164, 164);
+    }
    
     .gameEntry {
         display: flex !important;
@@ -107,15 +117,14 @@
 <script type="importmap">
     {
       "imports": { 
-        "nodicanvas": "https://cdn.jsdelivr.net/gh/nodi-andy/nodi.canvas@v0.2/build/nodicanvas.module.js",
-        "nodicanvasl": "http://localhost:8080/build/nodicanvas.module.js" 
-       }
+        "nodicanvasl": "https://nodi-andy-turbo-chainsaw-wrpwwjpq6q62964v-8080.preview.app.github.dev/build/nodicanvas.module.js",
+        "nodicanvas": "https://cdn.jsdelivr.net/gh/nodi-andy/nodi.canvas@master/build/nodicanvas.module.js"
+      }
     }
 </script>
 
 <html>
     <body>
-    <canvas id="myCanvas" style = "display:block;border:none; margin:0"></canvas>
     <div id="myNav" class="overlay">
         <div id = "closeNavBtn" class="closebtn" >&times;</div>
         <div class="overlay-content">

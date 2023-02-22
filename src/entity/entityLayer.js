@@ -82,7 +82,7 @@ export class EntityLayer extends NC.NodiGrid {
         return
       }
       window.dragStart = worldCordinate
-      const res = window.res.getResource(tileCoordinate)
+      const res = window.game.res.getResource(tileCoordinate)
       const d = dist(window.game.allInvs[window.game.playerID].pos, worldCordinate)
 
       if (Settings.pointer?.stack?.INV?.length && (inv == null || inv.type === Settings.resDB.Empty.id)) {
@@ -124,6 +124,8 @@ export class EntityLayer extends NC.NodiGrid {
     Settings.curTilePos = { x: e.gridX, y: e.gridY }
     Settings.curResPos.x = e.gridX - window.player.tilePos.x
     Settings.curResPos.y = e.gridY - window.player.tilePos.y
+
+    console.log(this.map[Settings.curTilePos.x][Settings.curTilePos.y])
   }
 
   onMouseUp (e, hit) {
@@ -294,28 +296,30 @@ export class EntityLayer extends NC.NodiGrid {
     // ENTITY CANDIDATE
 
     const item = Settings.resName[Settings.pointer.stack.INV[0].id]
-    if (item) {
-      let size = item.size
-      if (size == null) size = [1, 1]
+    if (item == null) return
+    let size = item.size
+    if (size == null) size = [1, 1]
 
-      Settings.drawResPos = NC.Vec2.add(window.player.tilePos, Settings.curResPos)
-      ctx.save()
+    Settings.drawResPos = NC.Vec2.add(window.player.tilePos, Settings.curResPos)
+    ctx.save()
 
-      ctx.translate(Settings.drawResPos.x * Settings.tileSize, Settings.drawResPos.y * Settings.tileSize)
+    ctx.translate(Settings.drawResPos.x * Settings.tileSize, Settings.drawResPos.y * Settings.tileSize)
 
-      ctx.translate(size[0] / 2 * Settings.tileSize, size[1] / 2 * Settings.tileSize)
-      if (item.type === 'entity' && item.rotatable !== false) ctx.rotate(Settings.buildDir * Math.PI / 2)
-      ctx.translate(-size[0] / 2 * Settings.tileSize, -size[1] / 2 * Settings.tileSize)
+    ctx.translate(size[0] / 2 * Settings.tileSize, size[1] / 2 * Settings.tileSize)
+    if (item.type === 'entity' && item.rotatable !== false) ctx.rotate(Settings.buildDir * Math.PI / 2)
+    ctx.translate(-size[0] / 2 * Settings.tileSize, -size[1] / 2 * Settings.tileSize)
 
-      if (item?.draw) item.draw(ctx, Settings.pointer.item)
-      else if (item?.drawItems) item.drawItems(ctx, Settings.pointer.item)
-      else ctx.drawImage(item.img, 0, 0)
-      if (Settings.pointer.stack.INV[0].n != null) {
-        ctx.font = (Settings.buttonSize.y / 2) + 'px Arial'
-        ctx.fillStyle = 'white'
-        ctx.fillText(Settings.pointer.stack.INV[0].n, 0, 0 + Settings.buttonSize.x)
-      }
-      ctx.restore()
+    if (item.draw) item.draw(ctx, Settings.pointer.item)
+    else if (item.drawItems) item.drawItems(ctx, Settings.pointer.item)
+    else if (item.prototype.draw) item.prototype.draw(ctx, Settings.pointer.item)
+    else if (item.prototype.drawItems) item.prototype.drawItems(ctx, Settings.pointer.item)
+    else ctx.drawImage(item.img, 0, 0)
+
+    if (Settings.pointer.stack.INV[0].n != null) {
+      ctx.font = (Settings.buttonSize.y / 2) + 'px Arial'
+      ctx.fillStyle = 'white'
+      ctx.fillText(Settings.pointer.stack.INV[0].n, 0, 0 + Settings.buttonSize.x)
     }
+    ctx.restore()
   }
 }

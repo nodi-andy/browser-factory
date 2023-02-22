@@ -1,28 +1,29 @@
 import { Settings } from '../common.js'
 
-class TimeLoop {
+export class TimeLoop {
+  constructor(game) {
+    this.game = game
+    this.gameLoop()
+  }
   // LOOP
   gameLoop () {
-    if (window.game.state === 0) {
+    if (this.game.state === 0) {
       setTimeout(window.Time.gameLoop, 20)
       return
     }
 
-    if (window.game.state === 2) {
-      window.game.stopped()
+    if (this.game.state === 2) {
+      this.game.stopped()
       return
     }
 
     // Game tick increment
-    window.game.tick++
-
-    // Autosave
-    if (window.game.tick % 1000 === 0) window.saveGame()
+    this.game.tick++
 
     // belts excluded
     const belts = []
-    for (let ient = 0; ient < window.game.allInvs.length; ient++) {
-      const entity = window.game.allInvs[ient]
+    for (let ient = 0; ient < this.game.allInvs.length; ient++) {
+      const entity = this.game.allInvs[ient]
       if (!entity) continue
       if (entity?.belt) {
         entity.done = false
@@ -30,8 +31,8 @@ class TimeLoop {
         belts.push(entity)
       } else {
         if (entity.update) {
-          entity.update(window.entityLayer.map, entity)
-        } else entity.draw(window.context)
+          entity.update(this.game.entityLayer.map, entity)
+        } else entity.draw(this.game.canvas?.getContext('2d'))
       }
     }
 
@@ -45,8 +46,8 @@ class TimeLoop {
           const y = belt.pos.y
 
           const nbPos = Settings.dirToVec[belt.dir]
-          const nbTile = window.entityLayer.map[x + nbPos.x][y + nbPos.y]
-          const nbEntity = window.game.allInvs[nbTile]
+          const nbTile = this.game.entityLayer.map[x + nbPos.x][y + nbPos.y]
+          const nbEntity = this.game.allInvs[nbTile]
           if ((nbEntity?.type === Settings.resDB.belt1.id || nbEntity?.type === Settings.resDB.belt2.id || nbEntity?.type === Settings.resDB.belt3.id) && // is it a belt?
                       nbEntity.done === false && // already processed?
                       (nbEntity.searching === false || nbEntity.searching == null) && // circular network?
@@ -55,13 +56,11 @@ class TimeLoop {
             belt = nbEntity
           } else break
         }
-        belt.update(window.entityLayer.map, belt)
+        belt.update(this.game.entityLayer.map, belt)
       }
     }
 
-    if (Settings.selEntity) window.game.updateEntityMenu(Settings.selEntity, true)
-    setTimeout(window.Time.gameLoop, 20)
+    if (Settings.selEntity) this.game.updateEntityMenu(Settings.selEntity, true)
+    setTimeout(this.gameLoop.bind(this), 20)
   }
 }
-
-export const Time = new TimeLoop()

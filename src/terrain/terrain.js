@@ -14,7 +14,7 @@ export class Terrain extends NC.NodiGrid {
   }
 
   // GENERATE TERRAIN
-  generateTerrain (w, h) {
+  static generateTerrain (w, h) {
     const map = Array(w * h).fill(0)
     noise.seed(Math.random())
     for (let x = 0; x < w; x++) {
@@ -26,7 +26,7 @@ export class Terrain extends NC.NodiGrid {
   }
 
   createWorld (x, y) {
-    this.perlinmap = this.generateTerrain(this.gridSize.x, this.gridSize.y)
+    this.perlinmap = Terrain.generateTerrain(this.gridSize.x, this.gridSize.y)
     // discrete perlin
     for (let ax = 0; ax < this.map.length; ax++) {
       for (let ay = 0; ay < this.map[ax].length; ay++) {
@@ -59,7 +59,7 @@ export class Terrain extends NC.NodiGrid {
   }
 
   updateOffscreenMap (terrainLayer) {
-    if (window.terrain.map == null) return
+    if (window.game.terrain.map == null) return
     terrainLayer.offscreenCanvas.width = Settings.gridSize.x * Settings.tileSize
     terrainLayer.offscreenCanvas.height = Settings.gridSize.y * Settings.tileSize
     const offScreencontext = terrainLayer.offscreenCanvas.getContext('2d')

@@ -1,14 +1,15 @@
-/* eslint-disable comma-spacing */
-/* eslint-disable no-multi-spaces */
-
 import * as NC from 'nodicanvas'
 export const Settings = {}
 const resDB = {}
 const resName = {}
 
+export const provinces = {
+  "single" : {
+      name: "Main",
+      gridSize: {x: 80, y: 60 }
+  }
+}
 
-Settings.isServer = (typeof window === 'undefined')
-Settings.isBrowser = !Settings.isServer
 Settings.resDB = resDB
 Settings.resName = resName
 

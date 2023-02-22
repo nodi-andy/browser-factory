@@ -5,7 +5,6 @@ import { invfuncs } from './inventory.js'
 // const ws = new WebSocket('ws://localhost:4000')
 
 export function wssend (msg) {
-  if (Settings.isBrowser) {
     let updateInv = false
     if (msg.cmd === 'addEntity') {
       invfuncs.addInventory(msg.data, false)
@@ -54,7 +53,6 @@ export function wssend (msg) {
       } */
     }
     // ws.send(JSON.stringify(msg));
-  }
 }
 
 window.ws = wssend

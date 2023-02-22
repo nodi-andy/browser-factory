@@ -95,7 +95,7 @@ export class StoneFurnace extends Inventory {
       if (ent.state === 0) { this.lastTime = performance.now(); ent.state = 1 };
       if (ent.state === 1) {
         const deltaT = performance.now() - this.lastTime
-        const becomesThat = Settings.resName[stack.INPUT[0].id].smeltedInto
+        const becomesThat = Settings.resDB[Settings.resName[stack.INPUT[0].id].smeltedInto].id
         if (becomesThat && deltaT > 5000) {
           // if (inv.stack.OUTPUT == null || inv.stack.OUTPUT.length === 0) inv.stack.OUTPUT = [Settings.item(undefined, 0)];
           if (stack.OUTPUT[0] == null) stack.OUTPUT[0] = Settings.item(undefined, 0)
@@ -110,7 +110,7 @@ export class StoneFurnace extends Inventory {
     }
   }
 
-  drawItems (ctx, ent) {
+  draw (ctx, ent) {
     const mapSize = StoneFurnace.size
     const viewSize = StoneFurnace.viewsize
     ctx.drawImage(StoneFurnace.img, 0, 0, Settings.tileSize, Settings.tileSize, 0, -(viewSize[1] - mapSize[1]) * Settings.tileSize, viewSize[0] * Settings.tileSize, viewSize[1] * Settings.tileSize)

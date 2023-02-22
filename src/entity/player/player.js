@@ -8,10 +8,10 @@ export class Player extends Inventory {
   constructor (pos, data) {
     if (data == null) {
       data = {
-        tilePos: new NC.Vec2(window.entityLayer.gridSize.x / 2, window.entityLayer.gridSize.y / 2),
+        tilePos: new NC.Vec2(window.game.entityLayer.gridSize.x / 2, window.game.entityLayer.gridSize.y / 2),
         stack: {}
       }
-      data.pos = window.entityLayer.tileToWorld(data.tilePos)
+      data.pos = window.game.entityLayer.tileToWorld(data.tilePos)
     }
 
     super(data.tilePos, data)
@@ -24,10 +24,10 @@ export class Player extends Inventory {
 
   setup (map, inv) {
     if (this.tilePos == null) {
-      this.tilePos = new NC.Vec2(window.entityLayer.gridSize.x / 2, window.entityLayer.gridSize.y / 2)
+      this.tilePos = new NC.Vec2(window.game.entityLayer.gridSize.x / 2, window.game.entityLayer.gridSize.y / 2)
     }
     if (this.pos?.x == null || this.pos?.y == null) {
-      this.pos = window.entityLayer.tileToWorld(this.tilePos)
+      this.pos = window.game.entityLayer.tileToWorld(this.tilePos)
     }
     if (this.pos?.x == null || this.pos?.y == null) {
       this.pos = { x: 0, y: 0 }
@@ -53,14 +53,14 @@ export class Player extends Inventory {
   }
 
   update (map, ent) {
-    this.tilePos = window.entityLayer.worldToTile(this.pos)
+    this.tilePos = window.game.entityLayer.worldToTile(this.pos)
     while (this.checkCollision(this.tilePos)) {
       this.tilePos.x++
       this.pos = { x: this.tilePos.x * Settings.tileSize, y: this.tilePos.y * Settings.tileSize }
     }
 
     this.unitdir = toUnitV(this.dir)
-    const entTile = window.entityLayer.worldToTile(this.pos)
+    const entTile = window.game.entityLayer.worldToTile(this.pos)
 
     const entMap = invfuncs.getInv(entTile.x, entTile.y)
     if (entMap?.belt) {
@@ -69,11 +69,11 @@ export class Player extends Inventory {
     }
 
     this.nextPos.x = this.pos.x + this.speed * this.unitdir.x
-    const nextXTile = window.entityLayer.worldToTileXY(this.nextPos.x, this.pos.y)
+    const nextXTile = window.game.entityLayer.worldToTileXY(this.nextPos.x, this.pos.y)
     if (nextXTile.x > 0 && nextXTile.x < Settings.gridSize.x - 1 && this.checkCollision({ x: nextXTile.x, y: entTile.y }) === false) this.pos.x = this.nextPos.x
 
     this.nextPos.y = this.pos.y + this.speed * this.unitdir.y
-    const nextYTile = window.entityLayer.worldToTileXY(this.pos.x, this.nextPos.y)
+    const nextYTile = window.game.entityLayer.worldToTileXY(this.pos.x, this.nextPos.y)
     if (nextYTile.y > 0 && nextYTile.y < Settings.gridSize.y - 1 && this.checkCollision({ x: entTile.x, y: nextYTile.y }) === false) this.pos.y = this.nextPos.y
 
     if (this.dir.x < 0) this.ss.x--; else this.ss.x++
@@ -196,11 +196,11 @@ export class Player extends Inventory {
   }
 
   checkCollision (pos) {
-    if (window.terrain.map == null) return
-    const terrain = Settings.resID[window.terrain.map[pos.x][pos.y][0]]
+    if (window.game.terrain.map == null) return
+    const terrain = Settings.resID[window.game.terrain.map[pos.x][pos.y][0]]
     if (window.classDB[terrain].playerCanWalkOn === false) return true
 
-    const building = window.entityLayer.map[pos.x][pos.y]
+    const building = window.game.entityLayer.map[pos.x][pos.y]
     if (building == null) return false
     const buildingType = window.game.allInvs[building]?.type
     if (buildingType) {
@@ -218,7 +218,7 @@ export class Player extends Inventory {
         if (ent.workProgress >= 100) {
           ent.workProgress %= 100
           const inv = invfuncs.getInv(tileCoordinate.x, tileCoordinate.y)
-          const res = window.res.getResource(tileCoordinate)
+          const res = window.game.res.getResource(tileCoordinate)
           if (inv) {
             window.player.destructBuilding(tileCoordinate)
             window.player.stopMining(window.player)
@@ -238,7 +238,7 @@ export class Player extends Inventory {
   }
 
   destructBuilding (tileCoordinate) {
-    window.entityLayer.removeEntity(tileCoordinate)
+    window.game.entityLayer.removeEntity(tileCoordinate)
   }
 
   setInventory (newInv, newID) {

@@ -63,7 +63,7 @@ export class DialogLayer extends NC.NodiGrid {
     if (Settings.dialogResPos?.x && Settings.dialogResPos?.y) {
       ctx.save()
       const inv = invfuncs.getInv(Settings.dialogResPos.x, Settings.dialogResPos.y)
-      const res = window.res.getResource(Settings.dialogResPos)
+      const res = window.game.res.getResource(Settings.dialogResPos)
 
       if (Settings.DEV) {
         // console.log(JSON.stringify(game.map[curResPos.x][curResPos.y]), inv);
@@ -84,7 +84,7 @@ export class DialogLayer extends NC.NodiGrid {
       if (res?.id) {
         ctx.beginPath()
         ctx.fillStyle = 'rgba(150, 150, 190, 0.75)'
-        const menuPos = { x: window.canvas.width - Settings.buttonSize.x * 2, y: window.canvas.height / 2 - 2 * Settings.buttonSize.y }
+        const menuPos = { x: view.canvas.width - Settings.buttonSize.x * 2, y: view.canvas.height / 2 - 2 * Settings.buttonSize.y }
         ctx.translate(menuPos.x, menuPos.y)
         ctx.fillRect(0, 0, Settings.buttonSize.x * 2, Settings.buttonSize.x)
         ctx.font = (Settings.buttonSize.y / 2) + 'px Arial'

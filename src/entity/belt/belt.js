@@ -210,10 +210,10 @@ class Belt extends Inventory {
   drawItems (ctx) {
     const beltPos = (Math.round(window.game.tick) * this.speed / 2) % 8
     if (this.pos && this.stack) {
-      window.context.save()
-      window.context.translate((this.pos.x + 0.5) * Settings.tileSize, (this.pos.y + 0.5) * Settings.tileSize)
-      window.context.rotate(this.dir * Math.PI / 2)
-      window.context.translate(-Settings.tileSize / 2, -Settings.tileSize / 2)
+      ctx.save()
+      ctx.translate((this.pos.x + 0.5) * Settings.tileSize, (this.pos.y + 0.5) * Settings.tileSize)
+      ctx.rotate(this.dir * Math.PI / 2)
+      ctx.translate(-Settings.tileSize / 2, -Settings.tileSize / 2)
 
       let pos = 0
       let xpos = 0.6
@@ -348,7 +348,7 @@ class Belt extends Inventory {
           32
         )
       }
-      window.context.restore()
+      ctx.restore()
       this.drawn = 2 // set draw layer
       const beltFrom = window.game.allInvs[this.beltFromID]
       const beltFromLeft = window.game.allInvs[this.beltFromLeftID]

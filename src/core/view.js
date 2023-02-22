@@ -6,29 +6,41 @@ import * as NC from 'nodicanvas'
 export class ViewModule extends NC.NodiView {
   constructor (canvas) {
     super(canvas)
-    this.size = { x: window.canvas.width, y: window.canvas.height }
     this.scrollFactor = 0.0005
     this.zoomLimit = { min: 0.5, max: 2 }
+    this.tick = 0
+    this.savedCanvas = this.canvas
+  }
+
+  stop() {
+    this.setCanvas(null)
+    this.ctx = null
+  }
+
+  start() {
+    this.setCanvas(this.savedCanvas)
+    this.ctx = this.canvas.getContext('2d')
   }
 
   resize () {
-    window.canvas.width = window.innerWidth
-    window.canvas.height = window.innerHeight
-    if (window.canvas.width / 2 < window.canvas.height) {
-      Settings.buttonSize.x = window.canvas.width / 20
-      Settings.buttonSize.y = window.canvas.width / 20
+    if (this.canvas == null) return
+    this.canvas.width = window.innerWidth
+    this.canvas.height = window.innerHeight
+    if (this.canvas.width / 2 < this.canvas.height) {
+      Settings.buttonSize.x = this.canvas.width / 20
+      Settings.buttonSize.y = this.canvas.width / 20
     } else {
-      Settings.buttonSize.x = window.canvas.height / 10
-      Settings.buttonSize.y = window.canvas.height / 10
+      Settings.buttonSize.x = this.canvas.height / 10
+      Settings.buttonSize.y = this.canvas.height / 10
     }
     if (window.invMenu) {
-      window.invMenu.rect.x = window.canvas.width / 2 - Settings.buttonSize.x * 8.5
-      window.invMenu.rect.y = window.canvas.height / 2 - Settings.buttonSize.y * 4
+      window.invMenu.rect.x = this.canvas.width / 2 - Settings.buttonSize.x * 8.5
+      window.invMenu.rect.y = this.canvas.height / 2 - Settings.buttonSize.y * 4
     }
 
     if (window.craftMenu && window.selectItemMenu) {
-      window.craftMenu.rect.x = window.canvas.width / 2 + Settings.buttonSize.x * 0.5
-      window.craftMenu.rect.y = window.canvas.height / 2 - Settings.buttonSize.y * 4
+      window.craftMenu.rect.x = this.canvas.width / 2 + Settings.buttonSize.x * 0.5
+      window.craftMenu.rect.y = this.canvas.height / 2 - Settings.buttonSize.y * 4
       window.craftMenu.rect.w = 8 * Settings.buttonSize.x
       window.craftMenu.rect.h = 8 * Settings.buttonSize.y
 
@@ -48,15 +60,15 @@ export class ViewModule extends NC.NodiView {
     if (window.player?.invID !== null) this.updateCraftingMenu()
     this.updateInventoryMenu(window.player)
     this.redrawEntityMenu()
-    this.size = { x: window.canvas.width, y: window.canvas.height }
-    super.resize(window.canvas.width, window.canvas.height)
+    this.canvasSize = { x: this.canvas.width, y: this.canvas.height }
+
   }
 
   setCamOn (pos) {
     this.setCamPos(
       {
-        x: ((this.size.x / 2) /* / this.sx */) - pos.x,
-        y: ((this.size.y / 2) /* / this.sy */) - pos.y
+        x: ((this.canvasSize.x / 2) /* / this.sx */) - pos.x,
+        y: ((this.canvasSize.y / 2) /* / this.sy */) - pos.y
       }
     )
     console.log(pos)

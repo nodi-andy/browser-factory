@@ -1,12 +1,15 @@
-import { Settings } from './common.js'
+import { Settings, provinces } from './common.js'
 import { ViewModule } from './core/view.js'
-import { Time } from './core/loop.js'
+import { TimeLoop } from './core/loop.js'
 import { Inventory } from './core/inventory.js'
 import { Terrain } from './terrain/terrain.js'
 import { EntityLayer } from './entity/entityLayer.js'
+import { World } from './world/world.js'
 import { ResLayer } from './res/resLayer.js'
 import { DialogLayer } from './dialogs/dialogLayer.js'
 import { ControlsLayer } from './controls/controlsLayer.js'
+//import { provinces } from './world/germany.js'
+import * as NC from 'nodicanvas'
 
 import elements from './imports.js'
 
@@ -28,15 +31,6 @@ elements.forEach((el) => {
 })
 
 
-window.canvas = document.getElementById('myCanvas')
-window.context = window.canvas.getContext('2d')
-window.canvas.width = window.innerWidth
-window.canvas.height = window.innerHeight
-window.canvas.oncontextmenu = function (e) { e.preventDefault() }
-window.Time = Time
-window.nextGameID = undefined
-window.htmlList = document.getElementById('savedGameList')
-
 function updateNextGameID () {
   const gamesList = Object.values(Object.keys(window.localStorage))
   window.nextGameID = 0
@@ -49,6 +43,7 @@ function updateNextGameID () {
 }
 
 function updateGameMenu () {
+  window.htmlList = document.getElementById('savedGameList')
   const gamesList = Object.values(Object.keys(window.localStorage))
   window.htmlList.innerHTML = ''
   for (const gameID in gamesList) {
@@ -56,7 +51,7 @@ function updateGameMenu () {
     const gameDiv = document.createElement('div')
     gameDiv.id = gamesList[gameID]
     gameDiv.classList.add('gameEntry')
-    if (gamesList[gameID] === window.game.name) gameDiv.classList.add('gameEntrySelected')
+    if (gamesList[gameID] === window.gameName) gameDiv.classList.add('gameEntrySelected')
     const gameNameDiv = document.createElement('div')
     gameNameDiv.onclick = function () { loadGame(this.parentElement.id) }
     gameNameDiv.innerHTML = gamesList[gameID]
@@ -74,7 +69,7 @@ function updateGameMenu () {
           event.preventDefault()
           this.contentEditable = false
           this.classList.remove('editable')
-          window.canvas.focus()
+          window.game.canvas.focus()
           window.localStorage.setItem(this.innerHTML, window.localStorage.getItem(this.parentElement.id))
           window.localStorage.removeItem(this.parentElement.id)
         }
@@ -108,112 +103,196 @@ function closeNav () {
 }
 
 function loadGame (name) {
-  window.game = new ViewModule(window.canvas)
   updateNextGameID()
+
   if (name == null) name = 'unnamed_' + window.nextGameID
 
-  if (window.game.state === 1) {
-    window.game.state = 2
-    window.game.stopped = () => { loadGame(name) }
-    return
-  }
-
-  window.game.state = 1
-
   let savedData = JSON.parse(window.localStorage.getItem(name))
-  if (!savedData) newGame(name)
+  
+  if (!savedData) createGame(name)
+
   // try again, after creation
   savedData = JSON.parse(window.localStorage.getItem(name))
 
-  window.game.name = name
-  window.game.x = Settings.gridSize.x
-  window.game.y = Settings.gridSize.y
-  window.game.playerID = 0
-  window.game.tick = 0
-  window.game.allInvs = []
+  window.gameName = name
 
-  window.terrain = new Terrain('terrain', Settings.gridSize, Settings.tileSize, savedData.terrain)
-  window.game.addLayer(window.terrain)
-
-  window.res = new ResLayer('resource', Settings.gridSize, Settings.tileSize, savedData.res)
-  window.game.addLayer(window.res)
-
-  window.entityLayer = new EntityLayer('entity', Settings.gridSize, Settings.tileSize, savedData.entity)
-  window.game.addLayer(window.entityLayer)
-
-  window.dialogLayer = new DialogLayer('dialog', Settings.gridSize, Settings.tileSize)
-  window.game.addLayer(window.dialogLayer)
-
-  window.controlLayer = new ControlsLayer('controls', Settings.gridSize, Settings.tileSize)
-  window.game.addLayer(window.controlLayer)
-
-  for (let i = 0; i < savedData.ents.length; i++) {
-    const ent = savedData.ents[i]
-    if (ent.name == "Inventory") {
-      window.game.allInvs.push(new Inventory(ent.pos, ent))
-    } else {
-        window.game.allInvs.push(new window.classDB[ent.name](ent.pos, ent))
+  if (provinces.single == null) {
+    let showWorldButton = document.createElement('div')
+    showWorldButton.id = 'switchView'
+    showWorldButton.class = 'switchView'
+    showWorldButton.style = 'font-size:30px;cursor:pointer'
+    showWorldButton.innerHtml = 'World'
+    showWorldButton.onclick = function(){
+      window.uni.start()
+      window.uni.canvas.style.display = "block"
+  
+      if (window.game.canvas) window.game.canvas.style.display = "none"
+      window.game.stop()
     }
+    document.body.appendChild(showWorldButton);
+
+    window.uni = new ViewModule(document.createElement('canvas'))
+    window.uni.canvas.style = "display:block; border:none; margin:0"
+    window.uni.canvas.id = 'myCanvasWorld'
+    window.uni.canvas.width = window.innerWidth
+    window.uni.canvas.height = window.innerHeight
+    window.uni.canvas.oncontextmenu = function (e) { e.preventDefault() }
+    document.body.appendChild(window.canvas); // adds the canvas to the body element
+    window.uni.worldLayer = new World('world', new NC.Vec2(100,100), new NC.Vec2(10,10), provinces)
+    window.uni.addLayer(window.uni.worldLayer)
+    window.uni.canvas.style.display = "block"
+    window.uni.worldLayer.updateOffscreenMap(window.uni.worldLayer)
+    window.uni.name = name
+    window.uni.state = 1
+
+    window.uni.setCenter(600, 600)
+    window.uni.focusOn()
+    window.uni.start()
   }
 
-  window.game.allInvs.forEach(ent => {
-    if (ent?.updateNB) ent.updateNB()
+  window.games = {}
+  Object.keys(savedData).forEach(provinceName => {
+    let savedProvinceData = savedData[provinceName]
+    let newProvince = new ViewModule(document.createElement('canvas'))
+    newProvince.canvas.id = 'myCanvas'+ provinceName
+    newProvince.canvas.style = "display:none; border:none; margin:0"
+    newProvince.canvas.width = window.innerWidth
+    newProvince.canvas.height = window.innerHeight
+    newProvince.canvas.oncontextmenu = function (e) { e.preventDefault() }
+    newProvince.name = provinceName
+    newProvince.playerID = 0
+    newProvince.allInvs = []
+
+    document.body.appendChild(newProvince.canvas); // adds the canvas to the body element
+    //newProvince.stop();
+
+    window.game = newProvince
+
+    newProvince.terrain = new Terrain('terrain', Settings.gridSize, Settings.tileSize, savedProvinceData.terrain)
+    newProvince.addLayer(newProvince.terrain)
+
+    newProvince.res = new ResLayer('resource', Settings.gridSize, Settings.tileSize, savedProvinceData.res)
+    newProvince.addLayer(newProvince.res)
+
+    newProvince.entityLayer = new EntityLayer('entity', Settings.gridSize, Settings.tileSize, savedProvinceData.entity)
+    newProvince.addLayer(newProvince.entityLayer)
+
+    newProvince.dialogLayer = new DialogLayer('dialog', Settings.gridSize, Settings.tileSize)
+    newProvince.addLayer(newProvince.dialogLayer)
+
+    newProvince.controlLayer = new ControlsLayer('controls', Settings.gridSize, Settings.tileSize)
+    newProvince.addLayer(newProvince.controlLayer)
+
+    let provinceData = savedData[provinceName]
+    for (let i = 0; i < provinceData.ents.length; i++) {
+      const ent = provinceData.ents[i]
+      if (ent.name == "Inventory") {
+        newProvince.allInvs.push(new Inventory(ent.pos, ent))
+      } else {
+        newProvince.allInvs.push(new window.classDB[ent.name](ent.pos, ent))
+      }
+    }
+
+    newProvince.allInvs.forEach(ent => {
+      if (ent?.updateNB) ent.updateNB()
+    })
+
+    newProvince.player = newProvince.allInvs[newProvince.playerID]
+    Settings.pointer = newProvince.allInvs[1]
+    Settings.pointer.id = 1
+
+    newProvince.dialogLayer.createInvMenu(newProvince.playerID)
+    newProvince.updateInventoryMenu(newProvince.allInvs[newProvince.playerID])
+    
+    newProvince.terrain.updateOffscreenMap(window.game.terrain)
+    newProvince.res.updateOffscreenMap(window.game.res)
+
+    // start game loop
+    newProvince.time = new TimeLoop(newProvince)
+
+    // add the province in province list
+    window.games[newProvince.name] = newProvince
   })
 
   window.player = window.game.allInvs[window.game.playerID]
   window.player.id = window.game.playerID
-  window.game.allInvs[window.player.id].type = Settings.resDB.Player.id
-  Settings.pointer = window.game.allInvs[1]
-  Settings.pointer.id = 1
 
-  window.dialogLayer.createInvMenu(window.game.playerID)
-  window.game.updateInventoryMenu(window.game.allInvs[window.game.playerID])
+  if (window.game.canvas) {
+    // Multiple maps?
+    if (provinces.single == null) {
+      window.game.canvas.style.display = "none"
+      window.game.stop()
+    }  else {
+      window.game.canvas.style.display = "block"
+      window.game.resize() // just for redraw
+    }
+  }
+
   updateGameMenu()
-  window.terrain.updateOffscreenMap(window.terrain)
-  window.res.updateOffscreenMap(window.res)
-  window.Time.gameLoop()
 }
 
-function newGame (name) {
+function createGame (name) {
   if (name == null) name = 'unnamed_0'
-  window.game = new ViewModule(window.canvas)
-  window.game.name = name
-  window.game.x = Settings.gridSize.x
-  window.game.y = Settings.gridSize.y
-  window.game.playerID = 0
-  window.game.allInvs = []
-  window.game.tick = 0
+  window.gameName = name
+  window.games = {}
 
-  window.terrain = new Terrain('terrain', Settings.gridSize, Settings.tileSize)
-  window.game.addLayer(window.terrain)
+  Object.keys(provinces).forEach(key => {
+    window.games[key] = new ViewModule()
+    window.game = window.games[key]
 
-  window.res = new ResLayer('resource', Settings.gridSize, Settings.tileSize)
-  window.game.addLayer(window.res)
+    window.games[key].playerID = 0
+    window.games[key].allInvs = []
 
-  window.entityLayer = new EntityLayer('entity', Settings.gridSize, Settings.tileSize)
-  window.game.addLayer(window.entityLayer)
+    window.games[key].terrain = new Terrain('terrain', Settings.gridSize, Settings.tileSize)
+    window.games[key].addLayer(window.game.terrain)
 
-  window.dialogLayer = new DialogLayer('dialog', Settings.gridSize, Settings.tileSize)
-  window.game.addLayer(window.dialogLayer)
-  window.game.addLayer(new ControlsLayer('controls', Settings.gridSize, Settings.tileSize))
+    window.games[key].res = new ResLayer('resource', Settings.gridSize, Settings.tileSize)
+    window.games[key].addLayer(window.game.res)
 
-  window.player = new window.classDB.Player()
-  window.game.allInvs.push(window.player)
-  window.player.invID = window.game.allInvs.length - 1
-  window.game.allInvs.push(new Inventory())
+    window.games[key].entityLayer = new EntityLayer('entity', Settings.gridSize, Settings.tileSize)
+    window.games[key].addLayer(window.game.entityLayer)
 
-  saveGame(window.game)
+    window.games[key].dialogLayer = new DialogLayer('dialog', Settings.gridSize, Settings.tileSize)
+    window.games[key].addLayer(window.game.dialogLayer)
+
+    window.games[key].addLayer(new ControlsLayer('controls', Settings.gridSize, Settings.tileSize))
+
+    window.games[key].player = new window.classDB.Player()
+    window.games[key].allInvs.push(window.games[key].player)
+    window.games[key].invID = window.games[key].allInvs.length - 1
+    window.games[key].allInvs.push(new Inventory())
+  })
+  window.player = window.game.player
+  saveGame()
 }
 
-function saveGame (game) {
-  for (const [key, value] of Object.entries(window.game.allInvs)) {
-    if (value?.layer) value.layer = value.layer.name
-  }
-  window.localStorage.setItem(window.game.name, JSON.stringify({ terrain: window.terrain.map, res: window.res.map, entity: window.entityLayer.map, ents: window.game.allInvs, playerID: window.game.playerID }))
-  for (const [key, value] of Object.entries(window.game.allInvs)) {
-    if (value?.layer) value.layer = window.game.layers[value.layer]
-  }
+function saveGame () {
+  let provinceList = Object.keys(provinces)
+  provinceList.forEach(provinceName => {
+    let province = window.games[provinceName]
+    for (const [key, value] of Object.entries(province.allInvs)) {
+      if (value?.layer) value.layer = value.layer.name
+    }  
+  })
+
+  let gameContent = {}
+  provinceList.forEach(provinceName => {
+    let province = window.games[provinceName]
+    gameContent[provinceName]  = {terrain: province.terrain.map, res: province.res.map, entity: province.entityLayer.map, ents: province.allInvs, playerID: province.playerID }
+  })
+
+  window.localStorage.setItem(window.gameName, JSON.stringify(gameContent))
+
+  provinceList.forEach(provinceName => {
+    let province = window.games[provinceName]
+    for (const [key, value] of Object.entries(province.allInvs)) {
+      if (value?.layer) value.layer = window.game.layers[value.layer]
+    }
+  })
 }
+
+// Save Game Loop
+setInterval(function () {saveGame}, 10000);
 
 // LOAD IMAGES
 Object.keys(window.classDB).forEach(key => {
@@ -237,12 +316,29 @@ if (curGame == null) {
   window.localStorage.setItem('curGame', 'unnamed_0')
   curGame = 'unnamed_0'
 }
-loadGame(curGame)
+
+
 
 window.addEventListener('resize', function () { window.game.resize() })
+
+window.selectProvince = (province) => {
+  window.uni.worldLayer.selectedProvince = province
+  document.getElementById('switchView').innerHTML = province.name
+}
+
+window.setProvince = (province) => {
+  window.game = window.games[province]
+  window.game.start()
+  window.game.canvas.style.display = "block"
+
+  window.uni.canvas.style.display = "none"
+  window.uni.stop()
+}
 
 document.getElementById('openNavBtn').onclick = openNav
 document.getElementById('closeNavBtn').onclick = closeNav
 document.getElementById('saveGameBtn').onclick = saveGame
-document.getElementById('newGameBtn').onclick = newGame
-// requestAnimationFrame( render );
+document.getElementById('newGameBtn').onclick = createGame
+
+
+loadGame(curGame)

@@ -33,7 +33,7 @@ class ElectricalMiner extends Inventory {
       this.power = 0
       if (this.stack.FUEL == null || this.stack.FUEL.length === 0) this.stack.FUEL = [Settings.item(undefined, 0)]
       let output
-      let tile = window.res.map[ent.pos.x][ent.pos.y]
+      let tile = wiwindow.gamendow.res.map[ent.pos.x][ent.pos.y]
       if (tile?.n === 0) tile = map[ent.pos.x + 1][ent.pos.y]
 
       let invTo

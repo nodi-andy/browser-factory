@@ -3,38 +3,38 @@ import { Button } from '../dialogs/button.js'
 import * as NC from 'nodicanvas'
 
 export class ControlsLayer extends NC.NodiGrid {
-  constructor (name) {
-    super(name)
+  constructor (name, gridSize, tileSize) {
+    super(name, gridSize, tileSize)
     this.start = new NC.Vec2(0, 0)
     this.start.started = false
     this.to = new NC.Vec2(0, 0)
     this.dir = new NC.Vec2(0, 0)
     this.force = 0
     this.rawPos = new NC.Vec2(0, 0)
-    this.joystickCenter = new NC.Vec2(100, window.game.size.y * 0.90)
-    this.joystickRadius = window.game.size.y * 0.05
+    this.joystickCenter = new NC.Vec2()
+    this.joystickRadius = new NC.Vec2()
 
     this.showInvButton = new Button()
-    const image = new Image(Settings.tileSize, Settings.tileSize)
+    const image = new Image(this.tileSize, this.tileSize)
     image.src = './controls/tools.png'
     this.showInvButton.img = image
 
     this.showInvButton.onClick = () => {
-      window.entityLayer.onKeyUp({ code: 'KeyE' })
+      window.game.entityLayer.onKeyUp({ code: 'KeyE' })
     }
 
     this.buildButton = new Button()
     this.buildButton.item = Settings.resDB.iron_axe
     this.buildButton.onClick = () => {
-      window.entityLayer.onKeyDown({ code: 'Enter' })
+      window.game.entityLayer.onKeyDown({ code: 'Enter' })
     }
 
     this.rotateButton = new Button()
-    const imageRotateButton = new Image(Settings.tileSize, Settings.tileSize)
+    const imageRotateButton = new Image(this.tileSize, this.tileSize)
     imageRotateButton.src = './controls/rotate.png'
     this.rotateButton.img = imageRotateButton
     this.rotateButton.onClick = () => {
-      window.entityLayer.onKeyUp({ code: 'KeyR' })
+      window.game.entityLayer.onKeyUp({ code: 'KeyR' })
     }
   }
 
@@ -79,7 +79,7 @@ export class ControlsLayer extends NC.NodiGrid {
       window.player.dir = this.dir
       isOverlay = true
     }
-    console.log(JSON.stringify(this.dir) + ' f: ' + this.force)
+    //console.log(JSON.stringify(this.dir) + ' f: ' + this.force)
 
     if (this.showInvButton.collision(e)) { this.showInvButton.hover = true; isOverlay = true }
     if (this.buildButton.collision(e)) { this.buildButton.hover = true; isOverlay = true }
@@ -104,7 +104,7 @@ export class ControlsLayer extends NC.NodiGrid {
 
   render (view) {
     this.joystickCenter.x = this.joystickRadius * 2
-    this.joystickCenter.y = window.game.size.y * 0.90
+    this.joystickCenter.y = this.view.canvasSize.y * 0.90
     this.joystickRadius = Settings.buttonSize.x / 2
 
     const ctx = view.ctx
@@ -125,8 +125,8 @@ export class ControlsLayer extends NC.NodiGrid {
     ctx.fill()
     ctx.closePath()
 
-    this.showInvButton.x = window.game.size.x - this.showInvButton.size.x * 1.5
-    this.showInvButton.y = window.game.size.y - this.showInvButton.size.y * 1.5
+    this.showInvButton.x = this.view.canvasSize.x - this.showInvButton.size.x * 1.5
+    this.showInvButton.y = this.view.canvasSize.y - this.showInvButton.size.y * 1.5
     this.showInvButton.draw(ctx)
 
     this.buildButton.x = this.showInvButton.x
