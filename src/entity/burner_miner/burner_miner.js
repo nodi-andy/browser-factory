@@ -1,7 +1,14 @@
 import { Settings } from '../../common.js'
 import { Inventory, invfuncs } from '../../core/inventory.js'
 
-class BurnerMiner extends Inventory {
+export class BurnerMiner extends Inventory {
+  static type = 'entity'
+  static size = [2, 2]
+  static viewsize = [2, 2.5]
+  static cost = [{ id: "StoneFurnace", n: 1 }, { id: "IronPlate", n: 3 }, { id: "Gear", n: 2 }]
+  static rotatable = true
+  static imgName = 'burner_miner'
+
   constructor (pos, data) {
     super(pos, data)
     data.pos = pos
@@ -15,7 +22,7 @@ class BurnerMiner extends Inventory {
     if (this.stack.FUEL == null) this.stack.FUEL = []
     this.packsize = {}
     this.packsize.FUEL = 1
-    const size = Settings.resDB.burner_miner.size
+    const size = BurnerMiner.size
     for (let i = 0; i < size[0]; i++) {
       for (let j = 0; j < size[1]; j++) {
         invfuncs.setInv(ent.pos.x + i, ent.pos.y + j, this.id)
@@ -44,13 +51,13 @@ class BurnerMiner extends Inventory {
       if (this.dir === 3) invTo = invfuncs.getInv(ent.pos.x, ent.pos.y - 1, true)
       if (invTo == null) return
 
-      if (tile?.n) output = Settings.resName[Settings.resName[tile.id].becomes]
+      if (tile?.n) output = Settings.resDB[Settings.resName[tile.id].becomes]
       // Shift output on next tile
       let stackName
       // place into assembling machine
-      if (invTo?.type === Settings.resDB.assembling_machine_1.id) stackName = Settings.resName[this.stack.INV[0].id].name
+      if (invTo?.type === Settings.resDB.AssemblingMachine1?.id) stackName = Settings.resName[this.stack.INV[0].id].name
       // place onto belt
-      else if (invTo?.type === Settings.resDB.belt1.id) {
+      else if (invTo?.type === Settings.resDB.Belt1?.id) {
         const relDir = (invTo.dir - this.dir + 3) % 4
         const dirPref = ['L', 'R', 'L', 'R']
         stackName = dirPref[relDir]
@@ -74,9 +81,8 @@ class BurnerMiner extends Inventory {
   }
 
   draw (ctx, ent) {
-    const db = Settings.resDB.burner_miner
-    ctx.save() // what is the diff between ctx?
-    ctx.drawImage(db.anim1, 0, 0, db.size[0] * Settings.tileSize, db.size[1] * Settings.tileSize, 0, 0, db.size[0] * Settings.tileSize, db.size[1] * Settings.tileSize)
+    ctx.save()
+    ctx.drawImage(BurnerMiner.anim1, 0, 0, BurnerMiner.size[0] * Settings.tileSize, BurnerMiner.size[1] * Settings.tileSize, 0, 0, BurnerMiner.size[0] * Settings.tileSize, BurnerMiner.size[1] * Settings.tileSize)
     ctx.fillStyle = 'black'
     ctx.fillRect(Settings.tileSize * 1.75, Settings.tileSize * 0.5, Settings.tileSize / 4, Settings.tileSize / 4)
     ctx.translate(Settings.tileSize, Settings.tileSize)
@@ -85,25 +91,19 @@ class BurnerMiner extends Inventory {
       if (this.power) ctx.rotate((window.game.tick / 100) % (2 * Math.PI))
     }
     ctx.translate(-Settings.tileSize, -Settings.tileSize)
-    ctx.drawImage(db.anim2, 0, 0, db.size[0] * Settings.tileSize, db.size[1] * Settings.tileSize, 0, 0, db.size[0] * Settings.tileSize, db.size[1] * Settings.tileSize)
+    ctx.drawImage(BurnerMiner.anim2, 0, 0, BurnerMiner.size[0] * Settings.tileSize, BurnerMiner.size[1] * Settings.tileSize, 0, 0, BurnerMiner.size[0] * Settings.tileSize, BurnerMiner.size[1] * Settings.tileSize)
     ctx.restore()
   }
 }
 
-const db = Settings.resDB.burner_miner
-db.mach = BurnerMiner
-db.name = 'burner miner'
-db.type = 'entity'
-db.cost = [{ id: Settings.resDB.stone_furnace.id, n: 1 }, { id: Settings.resDB.iron_plate.id, n: 3 }, { id: Settings.resDB.gear.id, n: 2 }]
 if (typeof Image !== 'undefined') {
   const image = new Image(512, 32)
-  image.src = './' + db.type + '/burner_miner/platform.png'
-  db.anim1 = image
+  image.src = './' + BurnerMiner.type + '/burner_miner/platform.png'
+  BurnerMiner.anim1 = image
 }
+
 if (typeof Image !== 'undefined') {
   const image = new Image(512, 32)
-  image.src = './' + db.type + '/burner_miner/drill.png'
-  db.anim2 = image
+  image.src = './' + BurnerMiner.type + '/burner_miner/drill.png'
+  BurnerMiner.anim2 = image
 }
-db.size = [2, 2]
-export { BurnerMiner }

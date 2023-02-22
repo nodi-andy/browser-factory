@@ -25,6 +25,10 @@ import * as stone_furnace from "./entity/stone_furnace/stone_furnace.js"
 import * as iron_plate from "./item/iron_plate/iron_plate.js"
 import * as copper_plate from "./item/copper_plate/copper_plate.js"
 import * as copper_cable from "./item/copper_cable/copper_cable.js"
+import * as burner_miner from "./entity/burner_miner/burner_miner.js"
+import * as iron_stick from "./item/iron_stick/iron_stick.js"
+import * as chest from "./entity/chest/chest.js"
 var elements = [deepsea, grassland, hills, sea, terrain, coal_ore, copper_ore, iron_ore, resLayer, stone_ore, tree, assembling_machine_1, 
-    assembling_machine_2, player, empty, coal, wood, wooden_stick, stone_furnace, stone, circuit, gear, iron_plate, iron, copper, copper_plate, copper_cable ]
+    assembling_machine_2, player, empty, coal, wood, wooden_stick, stone_furnace, stone, circuit, gear, iron_plate, iron, copper, copper_plate, 
+    copper_cable, burner_miner, iron_stick, chest ]
 export default elements

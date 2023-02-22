@@ -170,7 +170,7 @@ export class EntityLayer extends NC.NodiGrid {
     window.game.allInvs.forEach(e => { if (e) e.drawn = 0 })
     const beltsToDraw = [] // list of belts to draw the items in second stage of drawing
     const entsToDraw = [] // all other items
-
+/*
     // scan all tiles in view
     for (let ay = minTile.y - 3; ay < Math.min(maxTile.y + 5, Settings.gridSize.y); ay++) {
       for (let ax = minTile.x - 3; ax < Math.min(maxTile.x + 2, Settings.gridSize.x); ax++) {
@@ -180,8 +180,13 @@ export class EntityLayer extends NC.NodiGrid {
         let ent
         if (invID !== undefined) {
           ent = window.game.allInvs[invID]
-        }
-
+        }*/
+    window.game.allInvs.forEach(ent => {
+        if (ent.name == "Player") return
+        if (ent.name == "Inventory") return
+        let ax = ent.pos.x
+        let ay = ent.pos.y
+        const invID = this.map[ax][ay]
         // ENTITY GROUNDS
         ctx.save()
         ctx.translate(ax * Settings.tileSize, ay * Settings.tileSize)
@@ -227,8 +232,8 @@ export class EntityLayer extends NC.NodiGrid {
 
         ctx.restore()
       }
-    }
-
+    //}
+    )
     // BELTS
     // TBD: This is copypasted from loop update
     for (let ibelt = 0; ibelt < beltsToDraw.length;) {
@@ -257,12 +262,16 @@ export class EntityLayer extends NC.NodiGrid {
     }
 
     // ITEMS
-    for (let ay = minTile.y - 3; ay < Math.min(maxTile.y + 5, Settings.gridSize.y); ay++) {
-      for (let ax = minTile.x - 3; ax < Math.min(maxTile.x + 2, Settings.gridSize.x); ax++) {
-        if (ax < 0 || ay < 0) continue
-        const entID = this.map[ax][ay]
-        let ent
-        if (entID) ent = window.game.allInvs[entID]
+    window.game.allInvs.forEach(ent => {
+      if (ent.type !== "item" && ent.name !== "Player") return
+      let ax, ay
+      if (ent.name == "Player") {
+        ax = ent.tilePos.x
+        ay = ent.tilePos.y
+      } else {
+        ax = ent.pos.x
+        ay = ent.pos.y
+      }
         if (ent?.drawn < 2 && !ent.belt) {
           ctx.save()
           ctx.translate(ax * Settings.tileSize, ay * Settings.tileSize)
@@ -278,13 +287,11 @@ export class EntityLayer extends NC.NodiGrid {
         }
 
         // PLAYERS
-        if (ax - 2 === window.player?.tilePos.x && ay === window.player?.tilePos.y) {
-          ctx.save()
-          window.player.draw(ctx)
-          ctx.restore()
-        }
+        ctx.save()
+        window.player.draw(ctx)
+        ctx.restore()
       }
-    }
+    )
 
     this.drawEntityCandidate(ctx)
   }

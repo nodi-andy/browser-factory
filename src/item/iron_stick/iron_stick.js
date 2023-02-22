@@ -1,4 +1,6 @@
-import { Settings } from '../../common.js'
-Settings.resDB.iron_stick.name = 'iron stick'
-Settings.resDB.iron_stick.type = 'item'
-Settings.resDB.iron_stick.cost = [{ id: Settings.resDB.iron_plate.id, n: 1 }]
+export class IronStick {
+    static type = 'item'
+    static E = 25
+    static cost = [{ id: "IronPlate", n: 1 }]
+    static imgName = 'iron_stick'
+}
