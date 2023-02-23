@@ -127,7 +127,6 @@ export class Inventory {
       window.game.allInvs.push(inv)
       inv.id = window.game.allInvs.length - 1
       window.game.entityLayer.map[newItem.pos.x][newItem.pos.y] = inv.id
-      inv.type = classDB.Belt1.id
     } else inv = inv = window.game.allInvs[invID]
     inv.addItem({ id: newItem.inv.item.id, n: 1 })
   }

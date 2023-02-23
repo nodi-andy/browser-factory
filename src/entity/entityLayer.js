@@ -173,57 +173,55 @@ export class EntityLayer extends NC.NodiGrid {
 
     window.game.allInvs.forEach(ent => {
       if (ent?.pos == null) return
-      if (ent?.name == "Player" || ent.name == "Inventory") return
-        let ax = ent.pos.x
-        let ay = ent.pos.y
-        const invID = this.map[ax][ay]
-        // ENTITY GROUNDS
-        ctx.save()
-        ctx.translate(ax * Settings.tileSize, ay * Settings.tileSize)
+      if (ent?.name == "Player" || ent?.name == "Inventory") return
+      let ax = ent.pos.x
+      let ay = ent.pos.y
+      const invID = this.map[ax][ay]
+      // ENTITY GROUNDS
+      ctx.save()
+      ctx.translate(ax * Settings.tileSize, ay * Settings.tileSize)
 
-        if (Settings.resName[ent?.type]?.img && ent.drawn === 0) {
-          const type = Settings.resName[ent.type]
-          if (type && type.size) {
-            ctx.translate(type.size[0] / 2 * Settings.tileSize, type.size[1] / 2 * Settings.tileSize)
-            if (window.classDB[ent.name].rotatable !== false) ctx.rotate(ent.dir * Math.PI / 2)
-            ctx.translate(-type.size[0] / 2 * Settings.tileSize, -type.size[1] / 2 * Settings.tileSize)
-          }
-
-          if (ent?.draw) ent.draw(ctx)
-          else ctx.drawImage(Settings.resName[ent.type].img, 0, 0)
-          ent.drawn = 1 // static objects are drawn now
-
-          if (ent.belt) {
-            ent.searching = false // no circular dependency for belts
-            beltsToDraw.push(ent)
-          } else entsToDraw.push(ent)
+      if (Settings.resName[ent?.type]?.img && ent.drawn === 0) {
+        const type = Settings.resName[ent.type]
+        if (type && type.size) {
+          ctx.translate(type.size[0] / 2 * Settings.tileSize, type.size[1] / 2 * Settings.tileSize)
+          if (window.classDB[ent.name].rotatable !== false) ctx.rotate(ent.dir * Math.PI / 2)
+          ctx.translate(-type.size[0] / 2 * Settings.tileSize, -type.size[1] / 2 * Settings.tileSize)
         }
 
-        // ITEMS ON GROUND
-        if (invID !== undefined && window.game.allInvs[invID]?.type === Settings.resDB.Empty.id) {
-          const packs = window.game.allInvs[invID].stack.INV
-          if (packs) {
-            ctx.scale(0.5, 0.5)
+        if (ent?.draw) ent.draw(ctx)
+        else ctx.drawImage(Settings.resName[ent.type].img, 0, 0)
+        ent.drawn = 1 // static objects are drawn now
 
-            for (let iitem = 0; iitem < packs.length; iitem++) {
-              const item = packs[iitem]
-              if (item.id !== undefined) {
-                ctx.drawImage(Settings.resName[item.id].img, 0, 0)
-                if (iitem !== 1) {
-                  ctx.translate(1.0 * Settings.tileSize, 0.0 * Settings.tileSize)
-                } else {
-                  ctx.translate(-1.0 * Settings.tileSize, 1 * Settings.tileSize)
-                }
+        if (ent.isBelt) {
+          ent.searching = false // no circular dependency for belts
+          beltsToDraw.push(ent)
+        } else entsToDraw.push(ent)
+      }
+
+      // ITEMS ON GROUND
+      if (invID !== undefined && window.game.allInvs[invID]?.type === Settings.resDB.Empty.id) {
+        const packs = window.game.allInvs[invID].stack.INV
+        if (packs) {
+          ctx.scale(0.5, 0.5)
+
+          for (let iitem = 0; iitem < packs.length; iitem++) {
+            const item = packs[iitem]
+            if (item.id !== undefined) {
+              ctx.drawImage(Settings.resName[item.id].img, 0, 0)
+              if (iitem !== 1) {
+                ctx.translate(1.0 * Settings.tileSize, 0.0 * Settings.tileSize)
+              } else {
+                ctx.translate(-1.0 * Settings.tileSize, 1 * Settings.tileSize)
               }
             }
-            ctx.scale(2, 2)
           }
+          ctx.scale(2, 2)
         }
-
-        ctx.restore()
       }
-    //}
-    )
+
+      ctx.restore()
+    })
     // BELTS
     // TBD: This is copypasted from loop update
     for (let ibelt = 0; ibelt < beltsToDraw.length;) {
@@ -246,7 +244,6 @@ export class EntityLayer extends NC.NodiGrid {
             belt = nbEntity
           } else break
         }
-
         belt.drawItems(ctx)
       }
     }
@@ -254,12 +251,12 @@ export class EntityLayer extends NC.NodiGrid {
     // ITEMS
     window.game.allInvs.forEach(ent => {
       if (ent?.pos == null) return
-      if (ent.name == "Inventory") return
+      if (ent?.name == "Inventory") return
       let ax, ay
       if (ent.name == "Player") return
       ax = ent.pos.x
       ay = ent.pos.y
-      if (ent?.drawn < 2 && !ent.belt && ent?.drawItems) {
+      if (ent?.drawn < 2 && !ent.isBelt && ent?.drawItems) {
         ctx.save()
         ctx.translate(ax * Settings.tileSize, ay * Settings.tileSize)
         const type = Settings.resName[ent.type]

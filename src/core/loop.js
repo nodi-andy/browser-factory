@@ -25,7 +25,7 @@ export class TimeLoop {
     for (let ient = 0; ient < this.game.allInvs.length; ient++) {
       const entity = this.game.allInvs[ient]
       if (!entity) continue
-      if (entity?.belt) {
+      if (entity?.isBelt) {
         entity.done = false
         entity.searching = false
         belts.push(entity)

@@ -186,7 +186,8 @@ function loadGame (name) {
     let provinceData = savedData[provinceName]
     for (let i = 0; i < provinceData.ents.length; i++) {
       const ent = provinceData.ents[i]
-      if (ent.name == "Inventory") {
+      if (ent == null) continue
+      if (ent?.name == "Inventory") {
         newProvince.allInvs.push(new Inventory(ent.pos, ent))
       } else {
         newProvince.allInvs.push(new window.classDB[ent.name](ent.pos, ent))
