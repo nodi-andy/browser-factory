@@ -48,10 +48,10 @@ export class TimeLoop {
           const nbPos = Settings.dirToVec[belt.dir]
           const nbTile = this.game.entityLayer.map[x + nbPos.x][y + nbPos.y]
           const nbEntity = this.game.allInvs[nbTile]
-          if ((nbEntity?.type === Settings.resDB.belt1.id || nbEntity?.type === Settings.resDB.belt2.id || nbEntity?.type === Settings.resDB.belt3.id) && // is it a belt?
-                      nbEntity.done === false && // already processed?
-                      (nbEntity.searching === false || nbEntity.searching == null) && // circular network?
-                      Math.abs(belt.dir - nbEntity.dir) !== 2) { // not heading to current belt
+          if (( nbEntity?.isBelt) && // is it a belt?
+                nbEntity.done === false && // already processed?
+                (nbEntity.searching === false || nbEntity.searching == null) && // circular network?
+                Math.abs(belt.dir - nbEntity.dir) !== 2) { // not heading to current belt
             belt.searching = true
             belt = nbEntity
           } else break

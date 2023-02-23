@@ -75,7 +75,7 @@ class InserterBurner extends Inventory {
         let stackName
 
         // place onto belt
-        if (invTo?.type === Settings.resDB.belt1.id) {
+        if (invTo?.type === classDB.Belt1.id) {
           const relDir = (invTo.dir - ent.dir + 3) % 4
           const dirPref = ['R', 'L', 'R', 'L']
           stackName = dirPref[relDir]

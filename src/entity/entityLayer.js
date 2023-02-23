@@ -23,7 +23,7 @@ export class EntityLayer extends NC.NodiGrid {
     window.player.onKeyDown(e)
     if (e.code === 'Escape') {
       if (Settings.pointer.stack?.INV?.length) {
-        InventorymoveStack({ fromInvID: Settings.pointer.id, fromInvKey: 'INV', fromStackPos: 0, toInvID: window.player.invID, toInvKey: 'INV' })
+        Inventory.moveStack({ fromInvID: Settings.pointer.id, fromInvKey: 'INV', fromStackPos: 0, toInvID: window.player.invID, toInvKey: 'INV' })
       }
       window.invMenu.vis = false
       window.entityMenu.vis = false
@@ -41,7 +41,7 @@ export class EntityLayer extends NC.NodiGrid {
       const searchPack = { id: Inventory.getInvP(Settings.curTilePos).type, n: 1 }
       const playerInv = window.game.allInvs[window.player.invID]
       const pack = playerInv.hasPack('INV', searchPack)
-      if (pack) InventorymoveStack({ fromInvID: window.player.invID, fromInvKey: 'INV', fromStackPos: pack, toInvID: Settings.pointer.id, toInvKey: 'INV', toStackPos: 0 })
+      if (pack) Inventory.moveStack({ fromInvID: window.player.invID, fromInvKey: 'INV', fromStackPos: pack, toInvID: Settings.pointer.id, toInvKey: 'INV', toStackPos: 0 })
     }
     if (e.code === 'KeyR') {
       Settings.buildDir = (Settings.buildDir + 1) % 4
@@ -173,7 +173,7 @@ export class EntityLayer extends NC.NodiGrid {
 
     window.game.allInvs.forEach(ent => {
       if (ent?.pos == null) return
-      if (ent?.name == "Player") return
+      if (ent?.name == "Player" || ent.name == "Inventory") return
         let ax = ent.pos.x
         let ay = ent.pos.y
         const invID = this.map[ax][ay]
@@ -185,7 +185,7 @@ export class EntityLayer extends NC.NodiGrid {
           const type = Settings.resName[ent.type]
           if (type && type.size) {
             ctx.translate(type.size[0] / 2 * Settings.tileSize, type.size[1] / 2 * Settings.tileSize)
-            if (Settings.resName[ent.type].rotatable !== false) ctx.rotate(ent.dir * Math.PI / 2)
+            if (window.classDB[ent.name].rotatable !== false) ctx.rotate(ent.dir * Math.PI / 2)
             ctx.translate(-type.size[0] / 2 * Settings.tileSize, -type.size[1] / 2 * Settings.tileSize)
           }
 
@@ -238,7 +238,7 @@ export class EntityLayer extends NC.NodiGrid {
           const nbPos = Settings.dirToVec[belt.dir]
           const nbTile = this.map[x + nbPos.x][y + nbPos.y]
           const nbEntity = window.game.allInvs[nbTile]
-          if (nbEntity?.belt && // is it a belt?
+          if (nbEntity?.isBelt && // is it a belt?
                     nbEntity.drawn === 1 && // already processed?
                     (nbEntity.searching === false || nbEntity.searching == null) && // circular network?
                     Math.abs(belt.dir - nbEntity.dir) !== 2) { // not heading to current belt
@@ -254,35 +254,29 @@ export class EntityLayer extends NC.NodiGrid {
     // ITEMS
     window.game.allInvs.forEach(ent => {
       if (ent?.pos == null) return
-      if (ent?.type !== "item" && ent.name !== "Player") return
+      if (ent.name == "Inventory") return
       let ax, ay
-      if (ent.name == "Player") {
-        ax = ent.tilePos.x
-        ay = ent.tilePos.y
-      } else {
-        ax = ent.pos.x
-        ay = ent.pos.y
-      }
-        if (ent?.drawn < 2 && !ent.belt) {
-          ctx.save()
-          ctx.translate(ax * Settings.tileSize, ay * Settings.tileSize)
-          const type = Settings.resName[ent.type]
-          if (type?.size) {
-            ctx.translate(type.size[0] / 2 * Settings.tileSize, type.size[1] / 2 * Settings.tileSize)
-            if (Settings.resName[ent.type].rotatable !== false) ctx.rotate(ent.dir * Math.PI / 2)
-            ctx.translate(-type.size[0] / 2 * Settings.tileSize, -type.size[1] / 2 * Settings.tileSize)
-          }
-          if (ent?.drawItems) ent.drawItems(ctx)
-          ent.drawn = 2
-          ctx.restore()
-        }
-
-        // PLAYERS
+      if (ent.name == "Player") return
+      ax = ent.pos.x
+      ay = ent.pos.y
+      if (ent?.drawn < 2 && !ent.belt && ent?.drawItems) {
         ctx.save()
-        window.player.draw(ctx)
+        ctx.translate(ax * Settings.tileSize, ay * Settings.tileSize)
+        const type = Settings.resName[ent.type]
+        if (type?.size) {
+          ctx.translate(type.size[0] / 2 * Settings.tileSize, type.size[1] / 2 * Settings.tileSize)
+          if (Settings.resName[ent.type].rotatable !== false) ctx.rotate(ent.dir * Math.PI / 2)
+          ctx.translate(-type.size[0] / 2 * Settings.tileSize, -type.size[1] / 2 * Settings.tileSize)
+        }
+        ent.drawItems(ctx)
+        ent.drawn = 2
         ctx.restore()
       }
-    )
+    })
+    // PLAYERS
+    ctx.save()
+    window.player.draw(ctx)
+    ctx.restore()
 
     this.drawEntityCandidate(ctx)
   }

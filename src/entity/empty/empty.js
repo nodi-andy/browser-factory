@@ -12,6 +12,7 @@ export class Empty extends Inventory {
     super(pos, data)
     data.pos = pos
     this.setup(undefined, data)
+    this.name = "Empty"
   }
 
   update (map, ent) {

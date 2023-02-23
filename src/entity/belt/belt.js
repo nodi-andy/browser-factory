@@ -1,7 +1,9 @@
 import { Settings } from '../../common.js'
 import { Inventory } from '../../core/inventory.js'
 
-class Belt extends Inventory {
+export class Belt extends Inventory {
+  static rotatable = true
+  static speed = 2
   constructor (pos, data) {
     super(pos, data)
     this.setup(undefined, data)
@@ -15,7 +17,8 @@ class Belt extends Inventory {
     this.packsize.RD = 1
     this.packsize.L = 1
     this.packsize.R = 1
-    this.speed = 2
+
+    this.isBelt = true
 
     if (this.stack.INV == null) this.stack.INV = { n: 1 }
     if (this.stack.L == null) this.stack.L = { n: 1 }
@@ -59,17 +62,13 @@ class Belt extends Inventory {
     }
   }
 
-  isBelt (id) {
-    return (id === Settings.resDB.belt1.id || Settings.resDB.belt2.id || Settings.resDB.belt3.id)
-  }
-
   update (map, ent) {
     // sanity
     if (!this.setupDone) this.setup()
 
     // BELTS SYSTEM
-    this.decidingMoving = ((window.game.tick + 0) % (16 / this.speed) === 0)
-    this.movingParts = ((window.game.tick + 1) % (16 / this.speed) === 0)
+    this.decidingMoving = ((window.game.tick + 0) % (16 / window.classDB[this.name].speed) === 0)
+    this.movingParts = ((window.game.tick + 1) % (16 / window.classDB[this.name].speed) === 0)
 
     // Do not update twice
     ent.done = true
@@ -90,7 +89,7 @@ class Belt extends Inventory {
     // DIRECT
     const nbPos = Settings.dirToVec[ent.dir]
     let beltFrom = Inventory.getInv(ent.pos.x - nbPos.x, ent.pos.y - nbPos.y)
-    if (beltFrom && (Math.abs(this.dir - beltFrom.dir) === 2 || this.isBelt(beltFrom.type) === false)) beltFrom = undefined
+    if (beltFrom && (Math.abs(this.dir - beltFrom.dir) === 2 || beltFrom.isBelt === false)) beltFrom = undefined
     if (beltFrom) this.beltFromID = beltFrom.id
 
     // LEFT
@@ -99,7 +98,7 @@ class Belt extends Inventory {
       ent.pos.x - nbLeft.x,
       ent.pos.y - nbLeft.y
     )
-    if (beltFromLeft && ((beltFromLeft.dir - ent.dir + 4) % 4 !== 1 || this.isBelt(beltFromLeft.type) === false)) {
+    if (beltFromLeft && ((beltFromLeft.dir - ent.dir + 4) % 4 !== 1 || beltFromLeft.isBelt === false)) {
       beltFromLeft = undefined
     }
     if (beltFromLeft) this.beltFromLeftID = beltFromLeft.id
@@ -110,7 +109,7 @@ class Belt extends Inventory {
       ent.pos.x - nbRight.x,
       ent.pos.y - nbRight.y
     )
-    if (beltFromRight && ((beltFromRight.dir - ent.dir + 4) % 4 !== 3 || this.isBelt(beltFromRight.type) === false)) {
+    if (beltFromRight && ((beltFromRight.dir - ent.dir + 4) % 4 !== 3 || beltFromRight.isBelt === false)) {
       beltFromRight = undefined
     }
     if (beltFromRight) this.beltFromRightID = beltFromRight.id
@@ -169,7 +168,7 @@ class Belt extends Inventory {
     }
 
     // SHIFT INTO NEXT BELT
-    if (beltTo && this.isBelt(beltTo.type) === false) beltTo = undefined
+    if (beltTo && beltTo.isBelt === false) beltTo = undefined
     if (beltTo) {
       let dAng = Settings.dirToAng[beltTo.dir] - Settings.dirToAng[this.dir]
       if (beltTo.direct === false) dAng = 0
@@ -208,156 +207,153 @@ class Belt extends Inventory {
   }
 
   drawItems (ctx) {
-    const beltPos = (Math.round(window.game.tick) * this.speed / 2) % 8
-    if (this.pos && this.stack) {
-      ctx.save()
-      ctx.translate((this.pos.x + 0.5) * Settings.tileSize, (this.pos.y + 0.5) * Settings.tileSize)
-      ctx.rotate(this.dir * Math.PI / 2)
-      ctx.translate(-Settings.tileSize / 2, -Settings.tileSize / 2)
+    const beltPos = (Math.round(window.game.tick) * window.classDB[this.name].speed / 2) % 8
+    if (this.pos == null && this.stack == null) return
+    /*ctx.save()
+    ctx.translate((this.pos.x + 0.5) * Settings.tileSize, (this.pos.y + 0.5) * Settings.tileSize)
+    ctx.rotate(this.dir * Math.PI / 2)
+    ctx.translate(-Settings.tileSize / 2, -Settings.tileSize / 2)*/
 
-      let pos = 0
-      let xpos = 0.6
-      const dx = -0.25
-      if (this.stack.LA?.id) {
-        if (this.stack.LA.moving) pos = beltPos
-        else pos = 0
-        ctx.drawImage(
-          Settings.resName[this.stack.LA.id].img,
-          0,
-          0,
-          64,
-          64,
-          pos * 2 + xpos * Settings.tileSize,
-          0.1 * Settings.tileSize,
-          32,
-          32
-        )
-      }
-
-      if (this.stack.RA?.id) {
-        if (this.stack.RA.moving) pos = beltPos
-        else pos = 0
-        ctx.drawImage(
-          Settings.resName[this.stack.RA.id].img,
-          0,
-          0,
-          64,
-          64,
-          pos * 2 + xpos * Settings.tileSize,
-          0.4 * Settings.tileSize,
-          32,
-          32
-        )
-      }
-
-      xpos += dx
-      if (this.stack.LB?.id) {
-        if (this.stack.LB.moving) pos = beltPos
-        else pos = 0
-        ctx.drawImage(
-          Settings.resName[this.stack.LB.id].img,
-          0,
-          0,
-          64,
-          64,
-          pos * 2 + xpos * Settings.tileSize,
-          0.1 * Settings.tileSize,
-          32,
-          32
-        )
-      }
-
-      if (this.stack.RB?.id) {
-        if (this.stack.RB.moving) pos = beltPos
-        else pos = 0
-        ctx.drawImage(
-          Settings.resName[this.stack.RB.id].img,
-          0,
-          0,
-          64,
-          64,
-          pos * 2 + xpos * Settings.tileSize,
-          0.4 * Settings.tileSize,
-          32,
-          32
-        )
-      }
-
-      xpos += dx
-      if (this.stack.LC?.id) {
-        if (this.stack.LC.moving) pos = beltPos
-        else pos = 0
-        ctx.drawImage(
-          Settings.resName[this.stack.LC.id].img,
-          0,
-          0,
-          64,
-          64,
-          pos * 2 + xpos * Settings.tileSize,
-          0.1 * Settings.tileSize,
-          32,
-          32
-        )
-      }
-
-      if (this.stack.RC?.id) {
-        if (this.stack.RC.moving) pos = beltPos
-        else pos = 0
-        ctx.drawImage(
-          Settings.resName[this.stack.RC.id].img,
-          0,
-          0,
-          64,
-          64,
-          pos * 2 + xpos * Settings.tileSize,
-          0.4 * Settings.tileSize,
-          32,
-          32
-        )
-      }
-
-      xpos += dx
-      if (this.stack.LD?.id) {
-        if (this.stack.LD.moving) pos = beltPos
-        else pos = 0
-        ctx.drawImage(
-          Settings.resName[this.stack.LD.id].img,
-          0,
-          0,
-          64,
-          64,
-          pos * 2 + xpos * Settings.tileSize,
-          0.1 * Settings.tileSize,
-          32,
-          32
-        )
-      }
-
-      if (this.stack.RD?.id) {
-        if (this.stack.RD.moving) pos = beltPos
-        else pos = 0
-        ctx.drawImage(
-          Settings.resName[this.stack.RD.id].img,
-          0,
-          0,
-          64,
-          64,
-          pos * 2 + xpos * Settings.tileSize,
-          0.4 * Settings.tileSize,
-          32,
-          32
-        )
-      }
-      ctx.restore()
-      this.drawn = 2 // set draw layer
-      const beltFrom = window.game.allInvs[this.beltFromID]
-      const beltFromLeft = window.game.allInvs[this.beltFromLeftID]
-      const beltFromRight = window.game.allInvs[this.beltFromRightID]
-      if (beltFrom && beltFrom.drawItems && beltFrom.drawn < 2) beltFrom.drawItems(ctx)
-      if (beltFromLeft && beltFromLeft.drawItems && beltFromLeft.drawn < 2) beltFromLeft.drawItems(ctx)
-      if (beltFromRight && beltFromRight.drawItems && beltFromRight.drawn < 2) beltFromRight.drawItems(ctx)
+    let pos = 0
+    let xpos = 0.6
+    const dx = -0.25
+    if (this.stack.LA?.id) {
+      if (this.stack.LA.moving) pos = beltPos
+      else pos = 0
+      ctx.drawImage(
+        Settings.resName[this.stack.LA.id].img,
+        0,
+        0,
+        64,
+        64,
+        pos * 2 + xpos * Settings.tileSize,
+        0.1 * Settings.tileSize,
+        32,
+        32
+      )
     }
+
+    if (this.stack.RA?.id) {
+      if (this.stack.RA.moving) pos = beltPos
+      else pos = 0
+      ctx.drawImage(
+        Settings.resName[this.stack.RA.id].img,
+        0,
+        0,
+        64,
+        64,
+        pos * 2 + xpos * Settings.tileSize,
+        0.4 * Settings.tileSize,
+        32,
+        32
+      )
+    }
+
+    xpos += dx
+    if (this.stack.LB?.id) {
+      if (this.stack.LB.moving) pos = beltPos
+      else pos = 0
+      ctx.drawImage(
+        Settings.resName[this.stack.LB.id].img,
+        0,
+        0,
+        64,
+        64,
+        pos * 2 + xpos * Settings.tileSize,
+        0.1 * Settings.tileSize,
+        32,
+        32
+      )
+    }
+
+    if (this.stack.RB?.id) {
+      if (this.stack.RB.moving) pos = beltPos
+      else pos = 0
+      ctx.drawImage(
+        Settings.resName[this.stack.RB.id].img,
+        0,
+        0,
+        64,
+        64,
+        pos * 2 + xpos * Settings.tileSize,
+        0.4 * Settings.tileSize,
+        32,
+        32
+      )
+    }
+
+    xpos += dx
+    if (this.stack.LC?.id) {
+      if (this.stack.LC.moving) pos = beltPos
+      else pos = 0
+      ctx.drawImage(
+        Settings.resName[this.stack.LC.id].img,
+        0,
+        0,
+        64,
+        64,
+        pos * 2 + xpos * Settings.tileSize,
+        0.1 * Settings.tileSize,
+        32,
+        32
+      )
+    }
+
+    if (this.stack.RC?.id) {
+      if (this.stack.RC.moving) pos = beltPos
+      else pos = 0
+      ctx.drawImage(
+        Settings.resName[this.stack.RC.id].img,
+        0,
+        0,
+        64,
+        64,
+        pos * 2 + xpos * Settings.tileSize,
+        0.4 * Settings.tileSize,
+        32,
+        32
+      )
+    }
+
+    xpos += dx
+    if (this.stack.LD?.id) {
+      if (this.stack.LD.moving) pos = beltPos
+      else pos = 0
+      ctx.drawImage(
+        Settings.resName[this.stack.LD.id].img,
+        0,
+        0,
+        64,
+        64,
+        pos * 2 + xpos * Settings.tileSize,
+        0.1 * Settings.tileSize,
+        32,
+        32
+      )
+    }
+
+    if (this.stack.RD?.id) {
+      if (this.stack.RD.moving) pos = beltPos
+      else pos = 0
+      ctx.drawImage(
+        Settings.resName[this.stack.RD.id].img,
+        0,
+        0,
+        64,
+        64,
+        pos * 2 + xpos * Settings.tileSize,
+        0.4 * Settings.tileSize,
+        32,
+        32
+      )
+    }
+   //awwwwww ctx.restore()
+    this.drawn = 2 // set draw layer
+    const beltFrom = window.game.allInvs[this.beltFromID]
+    const beltFromLeft = window.game.allInvs[this.beltFromLeftID]
+    const beltFromRight = window.game.allInvs[this.beltFromRightID]
+    if (beltFrom && beltFrom.drawItems && beltFrom.drawn < 2) beltFrom.drawItems(ctx)
+    if (beltFromLeft && beltFromLeft.drawItems && beltFromLeft.drawn < 2) beltFromLeft.drawItems(ctx)
+    if (beltFromRight && beltFromRight.drawItems && beltFromRight.drawn < 2) beltFromRight.drawItems(ctx)
   }
 }
-
-export { Belt }

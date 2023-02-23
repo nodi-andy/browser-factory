@@ -83,12 +83,12 @@ export class Button {
     if (button === 1) {
       if (Settings.pointer?.stack?.INV?.length) {
         if (Settings.pointer?.stack?.INV[0].id === window.game.allInvs[this.invID].stack[this.invKey][this.stackPos]?.id) {
-          InventorymoveStack({ fromInvID: Settings.pointer.id, fromInvKey: 'INV', fromStackPos: 0, toInvID: this.invID, toInvKey: this.invKey, toStackPos: this.stackPos })
+          Inventory.moveStack({ fromInvID: Settings.pointer.id, fromInvKey: 'INV', fromStackPos: 0, toInvID: this.invID, toInvKey: this.invKey, toStackPos: this.stackPos })
         } else {
-          InventorymoveStack({ fromInvID: Settings.pointer.id, fromInvKey: 'INV', fromStackPos: 0, toInvID: this.invID, toInvKey: this.invKey })
+          Inventory.moveStack({ fromInvID: Settings.pointer.id, fromInvKey: 'INV', fromStackPos: 0, toInvID: this.invID, toInvKey: this.invKey })
         }
       } else {
-        InventorymoveStack({ fromInvID: this.invID, fromInvKey: this.invKey, fromStackPos: this.stackPos, toInvID: Settings.pointer.id, toInvKey: 'INV', toStackPos: 0 })
+        Inventory.moveStack({ fromInvID: this.invID, fromInvKey: this.invKey, fromStackPos: this.stackPos, toInvID: Settings.pointer.id, toInvKey: 'INV', toStackPos: 0 })
         Settings.curResPos.x = 0
         Settings.curResPos.y = -2
       }

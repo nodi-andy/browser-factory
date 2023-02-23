@@ -37,7 +37,7 @@ Settings.resDB.assembling_machine_3.output = [
   Settings.resDB.stone_furnace.id,
   Settings.resDB.burner_miner.id,
   Settings.resDB.e_miner.id,
-  Settings.resDB.belt1.id,
+  classDB.Belt1.id,
   Settings.resDB.inserter_burner.id,
   Settings.resDB.car.id
 ]

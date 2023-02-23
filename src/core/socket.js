@@ -7,14 +7,14 @@ import { Inventory } from './inventory.js'
 function wssend (msg) {
     let updateInv = false
     if (msg.cmd === 'addEntity') {
-      InventoryaddInventory(msg.data, false)
+      Inventory.addInventory(msg.data, false)
       updateInv = true
     }
     if (msg.cmd === 'addItem') {
-      InventoryaddItem(msg.data, false)
+      Inventory.addItem(msg.data, false)
       updateInv = true
     } else if (msg.cmd === 'moveStack') {
-      InventorymoveStack(msg.data)
+      Inventory.moveStack(msg.data)
       updateInv = true
     } else {
       /* if (ws.readyState === WebSocket.OPEN) {
@@ -23,19 +23,20 @@ function wssend (msg) {
     }
     if (msg.cmd === 'godmode') {
       window.player.stacksize = 50
-      window.player.addItem({ id: Settings.resDB.Chest.id, n: 100 })
-      window.player.addItem({ id: Settings.resDB.Coal.id, n: 100 })
-      window.player.addItem({ id: Settings.resDB.Copper.id, n: 100 })
-      window.player.addItem({ id: Settings.resDB.Iron.id, n: 100 })
-      window.player.addItem({ id: Settings.resDB.IronPlate.id, n: 500 })
-      window.player.addItem({ id: Settings.resDB.Stone.id, n: 50 })
-      window.player.addItem({ id: Settings.resDB.Gear.id, n: 50 })
-      window.player.addItem({ id: Settings.resDB.IronStick.id, n: 50 })
+      window.player.addItem({ id: window.classDB.Chest.id, n: 100 })
+      window.player.addItem({ id: window.classDB.Coal.id, n: 100 })
+      window.player.addItem({ id: window.classDB.Copper.id, n: 100 })
+      window.player.addItem({ id: window.classDB.Iron.id, n: 100 })
+      window.player.addItem({ id: window.classDB.IronPlate.id, n: 500 })
+      window.player.addItem({ id: window.classDB.Stone.id, n: 50 })
+      window.player.addItem({ id: window.classDB.Gear.id, n: 50 })
+      window.player.addItem({ id: window.classDB.IronStick.id, n: 50 })
       //window.player.addItem({ id: Settings.resDB.hydraulic_piston.id, n: 50 })
-      //window.player.addItem({ id: Settings.resDB.belt1.id, n: 100 })
-      //window.player.addItem({ id: Settings.resDB.belt2.id, n: 100 })
-      //window.player.addItem({ id: Settings.resDB.belt3.id, n: 100 })
-      window.player.addItem({ id: Settings.resDB.StoneFurnace.id, n: 100 })
+      window.player.addItem({ id: classDB.Belt1.id, n: 100 })
+      window.player.addItem({ id: classDB.Belt2.id, n: 100 })
+      window.player.addItem({ id: classDB.Belt3.id, n: 100 })
+      window.player.addItem({ id: window.classDB.BurnerMiner.id, n: 100 })
+      window.player.addItem({ id: window.classDB.StoneFurnace.id, n: 100 })
       //window.player.addItem({ id: Settings.resDB.inserter_burner.id, n: 100 })
       //window.player.addItem({ id: Settings.resDB.circuit.id, n: 100 })
       //window.player.addItem({ id: Settings.resDB.CopperCable.id, n: 100 })

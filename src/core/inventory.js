@@ -10,7 +10,7 @@ export class Inventory {
     if (y > window.game.entityLayer.map[0].length) return
   
     let tile = window.game.entityLayer.map[x][y]
-    if (tile == null && create) tile = createInvOnMap(x, y)
+    if (tile == null && create) tile = Inventory.createInvOnMap(x, y)
     return window.game.allInvs[tile]
   }
 
@@ -95,7 +95,7 @@ export class Inventory {
     let inv = Inventory.getInv(newEntity.pos.x, newEntity.pos.y)
     if (inv == null || inv?.type === Settings.resDB.Empty.id) {
       if (Settings.pointer.stack.INV[0].n > 0) {
-        const invID = createInv(newEntity.type, newEntity)
+        const invID = Inventory.createInv(newEntity.type, newEntity)
         inv = window.game.allInvs[invID]
         inv.id = invID
         inv.pos = { x: newEntity.pos.x, y: newEntity.pos.y }
@@ -127,7 +127,7 @@ export class Inventory {
       window.game.allInvs.push(inv)
       inv.id = window.game.allInvs.length - 1
       window.game.entityLayer.map[newItem.pos.x][newItem.pos.y] = inv.id
-      inv.type = Settings.resDB.belt1.id
+      inv.type = classDB.Belt1.id
     } else inv = inv = window.game.allInvs[invID]
     inv.addItem({ id: newItem.inv.item.id, n: 1 })
   }

@@ -47,7 +47,7 @@ class ElectricalMiner extends Inventory {
       // place into assembling machine
       if (invTo?.type === Settings.resDB.assembling_machine_1.id) stackName = Settings.resName[this.stack.INV[0].id].name
       // place onto belt
-      else if (invTo?.type === Settings.resDB.belt1.id) {
+      else if (invTo?.type === classDB.Belt1.id) {
         const relDir = (invTo.dir - this.dir + 3) % 4
         const dirPref = ['L', 'R', 'L', 'R']
         stackName = dirPref[relDir]
