@@ -1,5 +1,5 @@
 import { Settings } from '../../common.js'
-import { Inventory, invfuncs } from '../../core/inventory.js'
+import { Inventory } from '../../core/inventory.js'
 
 class Pump extends Inventory {
   constructor (pos, data) {
@@ -43,7 +43,7 @@ class Pump extends Inventory {
 
   updateNB () {
     const nbPos = Settings.dirToVec[(this.dir + 1) % 4]
-    const nbPipe = invfuncs.getInv(this.pos.x - nbPos.x, this.pos.y - nbPos.y)
+    const nbPipe = Inventory.getInv(this.pos.x - nbPos.x, this.pos.y - nbPos.y)
     this.nbPipes = []
     if (nbPipe) this.nbPipes.push(nbPipe)
   }

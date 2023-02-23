@@ -1,5 +1,5 @@
 import { Settings } from '../../common.js'
-import { Inventory, invfuncs } from '../../core/inventory.js'
+import { Inventory } from '../../core/inventory.js'
 
 export class Boiler extends Inventory {
   constructor (pos, data) {
@@ -101,17 +101,17 @@ export class Boiler extends Inventory {
     this.nbOutputs = []
 
     let nbPos = Settings.dirToVec[this.dir]
-    let nb = invfuncs.getInv(this.pos.x - nbPos.x, this.pos.y - nbPos.y)
+    let nb = Inventory.getInv(this.pos.x - nbPos.x, this.pos.y - nbPos.y)
     if (nb?.type === Settings.resDB.pipe.id || nb?.type === Settings.resDB.generator.id) this.nbOutputs.push(nb.id)
 
-    nb = invfuncs.getInv(this.pos.x + nbPos.x, this.pos.y + nbPos.y)
+    nb = Inventory.getInv(this.pos.x + nbPos.x, this.pos.y + nbPos.y)
     if (nb?.type === Settings.resDB.pipe.id || nb?.type === Settings.resDB.generator.id) this.nbOutputs.push(nb.id)
 
     nbPos = Settings.dirToVec[(this.dir + 1) % 4]
-    nb = invfuncs.getInv(this.pos.x - nbPos.x, this.pos.y - nbPos.y)
+    nb = Inventory.getInv(this.pos.x - nbPos.x, this.pos.y - nbPos.y)
     if (nb?.type === Settings.resDB.pipe.id || nb?.type === Settings.resDB.boiler.id) this.nbInputs.push(nb.id)
 
-    nb = invfuncs.getInv(this.pos.x + nbPos.x, this.pos.y + nbPos.y)
+    nb = Inventory.getInv(this.pos.x + nbPos.x, this.pos.y + nbPos.y)
     if (nb?.type === Settings.resDB.pipe.id || nb?.type === Settings.resDB.boiler.id) this.nbInputs.push(nb.id)
   }
 

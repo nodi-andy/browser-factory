@@ -1,5 +1,5 @@
 import { Settings, dist } from '../common.js'
-import { invfuncs } from '../core/inventory.js'
+import { Inventory } from '../core/inventory.js'
 import { wssend } from '../core/socket.js'
 import * as NC from 'nodicanvas'
 
@@ -23,7 +23,7 @@ export class EntityLayer extends NC.NodiGrid {
     window.player.onKeyDown(e)
     if (e.code === 'Escape') {
       if (Settings.pointer.stack?.INV?.length) {
-        invfuncs.moveStack({ fromInvID: Settings.pointer.id, fromInvKey: 'INV', fromStackPos: 0, toInvID: window.player.invID, toInvKey: 'INV' })
+        InventorymoveStack({ fromInvID: Settings.pointer.id, fromInvKey: 'INV', fromStackPos: 0, toInvID: window.player.invID, toInvKey: 'INV' })
       }
       window.invMenu.vis = false
       window.entityMenu.vis = false
@@ -38,10 +38,10 @@ export class EntityLayer extends NC.NodiGrid {
   onKeyUp (e) {
     window.player.onKeyUp(e)
     if (e.code === 'KeyQ') {
-      const searchPack = { id: invfuncs.getInvP(Settings.curTilePos).type, n: 1 }
+      const searchPack = { id: Inventory.getInvP(Settings.curTilePos).type, n: 1 }
       const playerInv = window.game.allInvs[window.player.invID]
       const pack = playerInv.hasPack('INV', searchPack)
-      if (pack) invfuncs.moveStack({ fromInvID: window.player.invID, fromInvKey: 'INV', fromStackPos: pack, toInvID: Settings.pointer.id, toInvKey: 'INV', toStackPos: 0 })
+      if (pack) InventorymoveStack({ fromInvID: window.player.invID, fromInvKey: 'INV', fromStackPos: pack, toInvID: Settings.pointer.id, toInvKey: 'INV', toStackPos: 0 })
     }
     if (e.code === 'KeyR') {
       Settings.buildDir = (Settings.buildDir + 1) % 4
@@ -72,7 +72,7 @@ export class EntityLayer extends NC.NodiGrid {
     if (hit) return
     const worldCordinate = window.game.screenToWorld(getEventLocation(e))
     const tileCoordinate = this.worldToTile(worldCordinate)
-    const inv = invfuncs.getInvP(tileCoordinate)
+    const inv = Inventory.getInvP(tileCoordinate)
 
     if (e.buttons === 1) {
       if (window.invMenu.vis) {
@@ -112,7 +112,7 @@ export class EntityLayer extends NC.NodiGrid {
       }
       // Update Neighbours
       for (const nbV of Settings.nbVec) {
-        const nb = invfuncs.getInv(tileCoordinate.x + nbV.x, tileCoordinate.y + nbV.y)
+        const nb = Inventory.getInv(tileCoordinate.x + nbV.x, tileCoordinate.y + nbV.y)
         if (nb?.updateNB) nb.updateNB()
       }
     }
@@ -134,13 +134,13 @@ export class EntityLayer extends NC.NodiGrid {
 
     const worldPos = window.game.screenToWorld({ x: e.offsetX, y: e.offsetY })
     const tilePos = this.worldToTile(worldPos)
-    const inv = invfuncs.getInvP(tilePos)
+    const inv = Inventory.getInvP(tilePos)
 
     if (hit === false) {
       if (e.which === 1) {
         // SHOW ENTITY
         if (Settings.pointer?.type == null && inv) {
-          const invID = invfuncs.getInvP(tilePos).id
+          const invID = Inventory.getInvP(tilePos).id
           Settings.selEntity = window.game.allInvs[invID]
 
           window.game.updateEntityMenu(Settings.selEntity, true)
@@ -170,20 +170,10 @@ export class EntityLayer extends NC.NodiGrid {
     window.game.allInvs.forEach(e => { if (e) e.drawn = 0 })
     const beltsToDraw = [] // list of belts to draw the items in second stage of drawing
     const entsToDraw = [] // all other items
-/*
-    // scan all tiles in view
-    for (let ay = minTile.y - 3; ay < Math.min(maxTile.y + 5, Settings.gridSize.y); ay++) {
-      for (let ax = minTile.x - 3; ax < Math.min(maxTile.x + 2, Settings.gridSize.x); ax++) {
-        if (ax < 0 || ay < 0) continue
-        // GET TILE
-        const invID = this.map[ax][ay]
-        let ent
-        if (invID !== undefined) {
-          ent = window.game.allInvs[invID]
-        }*/
+
     window.game.allInvs.forEach(ent => {
-        if (ent.name == "Player") return
-        if (ent.name == "Inventory") return
+      if (ent?.pos == null) return
+      if (ent?.name == "Player") return
         let ax = ent.pos.x
         let ay = ent.pos.y
         const invID = this.map[ax][ay]
@@ -263,7 +253,8 @@ export class EntityLayer extends NC.NodiGrid {
 
     // ITEMS
     window.game.allInvs.forEach(ent => {
-      if (ent.type !== "item" && ent.name !== "Player") return
+      if (ent?.pos == null) return
+      if (ent?.type !== "item" && ent.name !== "Player") return
       let ax, ay
       if (ent.name == "Player") {
         ax = ent.tilePos.x

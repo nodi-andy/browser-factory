@@ -1,5 +1,5 @@
 import { Settings, toUnitV } from '../../common.js'
-import { Inventory, invfuncs } from '../../core/inventory.js'
+import { Inventory } from '../../core/inventory.js'
 import * as NC from 'nodicanvas'
 
 export class Player extends Inventory {
@@ -32,7 +32,7 @@ export class Player extends Inventory {
     if (this.pos?.x == null || this.pos?.y == null) {
       this.pos = { x: 0, y: 0 }
     }
-    this.output = ["Wood", "WoodenStick", "StoneFurnace", "BurnerMiner", "Chest", "IronStick"]
+    this.output = ["Wood", "StoneFurnace", "BurnerMiner", "Chest", "IronStick", "Gear"]
     this.name = "Player"
     this.dir = { x: 0, y: 0 }
     this.live = 100
@@ -62,7 +62,7 @@ export class Player extends Inventory {
     this.unitdir = toUnitV(this.dir)
     const entTile = window.game.entityLayer.worldToTile(this.pos)
 
-    const entMap = invfuncs.getInv(entTile.x, entTile.y)
+    const entMap = Inventory.getInv(entTile.x, entTile.y)
     if (entMap?.belt) {
       this.pos.x += Settings.dirToVec[entMap.dir].x * entMap.speed
       this.pos.y += Settings.dirToVec[entMap.dir].y * entMap.speed
@@ -168,7 +168,7 @@ export class Player extends Inventory {
   }
 
   fetchTile (x, y) {
-    const e = invfuncs.getInv(x, y)
+    const e = Inventory.getInv(x, y)
     if (e?.type === Settings.resDB.Empty.id || e?.belt) {
       const pickedItem = e.getFirstItem()
       e.moveItemTo(pickedItem, this)
@@ -184,7 +184,7 @@ export class Player extends Inventory {
     }
 
     for (const nbV of Settings.nbVec) {
-      const nb = invfuncs.getInv(this.tilePos.x + nbV.x, this.tilePos.y + nbV.y)
+      const nb = Inventory.getInv(this.tilePos.x + nbV.x, this.tilePos.y + nbV.y)
       if (nb?.type === Settings.resDB.car.id) {
         this.car = window.game.allInvs[nb.id]
       }
@@ -217,14 +217,14 @@ export class Player extends Inventory {
         ent.workProgress += 10
         if (ent.workProgress >= 100) {
           ent.workProgress %= 100
-          const inv = invfuncs.getInv(tileCoordinate.x, tileCoordinate.y)
+          const inv = Inventory.getInv(tileCoordinate.x, tileCoordinate.y)
           const res = window.game.res.getResource(tileCoordinate)
           if (inv) {
             window.player.destructBuilding(tileCoordinate)
             window.player.stopMining(window.player)
             window.game.allInvs[window.game.playerID].addItem({id: inv.id, n: 1})
           } else if (res) {
-            invfuncs.mineToInv({ source: tileCoordinate, id: res.id, n: 1 })
+            Inventory.mineToInv({ source: tileCoordinate, id: res.id, n: 1 })
           }
         }
       }, 100)

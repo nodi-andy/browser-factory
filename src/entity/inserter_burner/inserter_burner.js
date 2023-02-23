@@ -1,5 +1,5 @@
 import { Settings } from '../../common.js'
-import { Inventory, invfuncs } from '../../core/inventory.js'
+import { Inventory } from '../../core/inventory.js'
 
 class InserterBurner extends Inventory {
   constructor (pos, data) {
@@ -41,8 +41,8 @@ class InserterBurner extends Inventory {
 
       if ((ent.isHandFull || ent.armPos > 0) && ent.state === 1) ent.armPos = (ent.armPos + 1) % 64
 
-      const invFrom = invfuncs.getInv(ent.pos.x - myDir.x, ent.pos.y - myDir.y, true)
-      const invTo = invfuncs.getInv(ent.pos.x + myDir.x, ent.pos.y + myDir.y, true)
+      const invFrom = Inventory.getInv(ent.pos.x - myDir.x, ent.pos.y - myDir.y, true)
+      const invTo = Inventory.getInv(ent.pos.x + myDir.x, ent.pos.y + myDir.y, true)
 
       // LOAD COAL
       /* if (ent.armPos === 0 && !ent.isHandFull && ent.energy <= 0 && invFrom.hasItem(Settings.resDB.coal)) {

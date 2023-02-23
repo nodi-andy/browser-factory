@@ -1,6 +1,6 @@
 import { Settings } from '../common.js'
 import { Button } from '../dialogs/button.js'
-import { Inventory, invfuncs } from './inventory.js'
+import { Inventory,  } from './inventory.js'
 import * as NC from 'nodicanvas'
 
 export class ViewModule extends NC.NodiView {
@@ -118,7 +118,7 @@ export class ViewModule extends NC.NodiView {
       if (i == null) return
       const newButton = new Button((pos % 8) * (Settings.buttonSize.x), Math.floor(pos / 8) * (Settings.buttonSize.y), { id: i.id, n: 0 }, window.craftMenu, window.player.invID)
       newButton.onClick = () => {
-        if (Settings.resName[i.id].lock == null) invfuncs.craftToInv(window.player, [i])
+        if (Settings.resName[i.id].lock == null) InventorycraftToInv(window.player, [i])
       }
       window.craftMenu.items.push(newButton)
       pos++

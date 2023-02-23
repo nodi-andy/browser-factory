@@ -1,5 +1,5 @@
 import { Settings } from '../../common.js'
-import { Inventory, invfuncs } from '../../core/inventory.js'
+import { Inventory } from '../../core/inventory.js'
 
 export class BurnerMiner extends Inventory {
   static type = 'entity'
@@ -12,6 +12,7 @@ export class BurnerMiner extends Inventory {
   constructor (pos, data) {
     super(pos, data)
     data.pos = pos
+    this.name = "BurnerMiner"
     this.pos = pos
     this.stack = data.stack
     this.setup(undefined, data)
@@ -25,7 +26,7 @@ export class BurnerMiner extends Inventory {
     const size = BurnerMiner.size
     for (let i = 0; i < size[0]; i++) {
       for (let j = 0; j < size[1]; j++) {
-        invfuncs.setInv(ent.pos.x + i, ent.pos.y + j, this.id)
+        Inventory.getInv(ent.pos.x + i, ent.pos.y + j, this.id)
       }
     }
     this.energy = 0
@@ -45,10 +46,10 @@ export class BurnerMiner extends Inventory {
       if (tile?.n == null) return
 
       let invTo
-      if (this.dir === 0) invTo = invfuncs.getInv(ent.pos.x + 2, ent.pos.y, true)
-      if (this.dir === 1) invTo = invfuncs.getInv(ent.pos.x + 1, ent.pos.y + 2, true)
-      if (this.dir === 2) invTo = invfuncs.getInv(ent.pos.x - 1, ent.pos.y + 1, true)
-      if (this.dir === 3) invTo = invfuncs.getInv(ent.pos.x, ent.pos.y - 1, true)
+      if (this.dir === 0) invTo = Inventory.getInv(ent.pos.x + 2, ent.pos.y, true)
+      if (this.dir === 1) invTo = Inventory.getInv(ent.pos.x + 1, ent.pos.y + 2, true)
+      if (this.dir === 2) invTo = Inventory.getInv(ent.pos.x - 1, ent.pos.y + 1, true)
+      if (this.dir === 3) invTo = Inventory.getInv(ent.pos.x, ent.pos.y - 1, true)
       if (invTo == null) return
 
       if (tile?.n) output = Settings.resDB[Settings.resName[tile.id].becomes]

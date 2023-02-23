@@ -1,5 +1,5 @@
 import { Settings } from '../../common.js'
-import { Inventory, invfuncs } from '../../core/inventory.js'
+import { Inventory } from '../../core/inventory.js'
 
 class Pipe extends Inventory {
   constructor (pos, data) {
@@ -55,10 +55,10 @@ class Pipe extends Inventory {
 
   updateNB () {
     this.nbInputs = []
-    let nbr = invfuncs.getInv(this.pos.x + 1, this.pos.y + 0)
-    let nbl = invfuncs.getInv(this.pos.x - 1, this.pos.y + 0)
-    let nbu = invfuncs.getInv(this.pos.x + 0, this.pos.y - 1)
-    let nbd = invfuncs.getInv(this.pos.x + 0, this.pos.y + 1)
+    let nbr = Inventory.getInv(this.pos.x + 1, this.pos.y + 0)
+    let nbl = Inventory.getInv(this.pos.x - 1, this.pos.y + 0)
+    let nbu = Inventory.getInv(this.pos.x + 0, this.pos.y - 1)
+    let nbd = Inventory.getInv(this.pos.x + 0, this.pos.y + 1)
     if (!(nbr?.type === Settings.resDB.pipe.id || nbr?.type === Settings.resDB.boiler.id)) nbr = undefined
     if (!(nbl?.type === Settings.resDB.pipe.id || nbl?.type === Settings.resDB.boiler.id)) nbl = undefined
     if (!(nbu?.type === Settings.resDB.pipe.id || nbu?.type === Settings.resDB.boiler.id)) nbu = undefined

@@ -1,5 +1,5 @@
 import { Settings } from '../../common.js'
-import { Inventory, invfuncs } from '../../core/inventory.js'
+import { Inventory } from '../../core/inventory.js'
 
 export class AssemblingMachine1 extends Inventory {
   static type = 'entity'
@@ -22,14 +22,14 @@ export class AssemblingMachine1 extends Inventory {
     this.prod = inv.prod
     if (this.prod == null) this.prod = Settings.resDB.gear.id
 
-    invfuncs.setInv(inv.pos.x + 0, inv.pos.y + 1, inv.id)
-    invfuncs.setInv(inv.pos.x + 0, inv.pos.y + 2, inv.id)
-    invfuncs.setInv(inv.pos.x + 1, inv.pos.y + 0, inv.id)
-    invfuncs.setInv(inv.pos.x + 1, inv.pos.y + 1, inv.id)
-    invfuncs.setInv(inv.pos.x + 1, inv.pos.y + 2, inv.id)
-    invfuncs.setInv(inv.pos.x + 2, inv.pos.y + 0, inv.id)
-    invfuncs.setInv(inv.pos.x + 2, inv.pos.y + 1, inv.id)
-    invfuncs.setInv(inv.pos.x + 2, inv.pos.y + 2, inv.id)
+    Inventory.getInv(inv.pos.x + 0, inv.pos.y + 1, inv.id)
+    Inventory.getInv(inv.pos.x + 0, inv.pos.y + 2, inv.id)
+    Inventory.getInv(inv.pos.x + 1, inv.pos.y + 0, inv.id)
+    Inventory.getInv(inv.pos.x + 1, inv.pos.y + 1, inv.id)
+    Inventory.getInv(inv.pos.x + 1, inv.pos.y + 2, inv.id)
+    Inventory.getInv(inv.pos.x + 2, inv.pos.y + 0, inv.id)
+    Inventory.getInv(inv.pos.x + 2, inv.pos.y + 1, inv.id)
+    Inventory.getInv(inv.pos.x + 2, inv.pos.y + 2, inv.id)
 
     this.packsize = 1
     this.itemsize = 50
@@ -75,7 +75,7 @@ export class AssemblingMachine1 extends Inventory {
     this.need = []
     for (let costItemID = 0; costItemID < this.preneed.length; costItemID++) {
       const costItem = this.preneed[costItemID]
-      const existing = invfuncs.getNumberOfItems(window.game.allInvs[this.id], costItem.id)
+      const existing = Inventory.getNumberOfItems(window.game.allInvs[this.id], costItem.id)
       if (existing < costItem.n) {
         this.need.push(costItem)
       }

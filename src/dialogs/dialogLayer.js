@@ -1,7 +1,7 @@
 import { Settings } from '../common.js'
 import { Dialog } from '../dialogs/dialog.js'
 import { Button } from '../dialogs/button.js'
-import { invfuncs } from '../core/inventory.js'
+import { Inventory } from '../core/inventory.js'
 
 import * as NC from 'nodicanvas'
 
@@ -62,7 +62,7 @@ export class DialogLayer extends NC.NodiGrid {
     // CONTENT MENU
     if (Settings.dialogResPos?.x && Settings.dialogResPos?.y) {
       ctx.save()
-      const inv = invfuncs.getInv(Settings.dialogResPos.x, Settings.dialogResPos.y)
+      const inv = Inventory.getInv(Settings.dialogResPos.x, Settings.dialogResPos.y)
       const res = window.game.res.getResource(Settings.dialogResPos)
 
       if (Settings.DEV) {
@@ -160,7 +160,7 @@ export class DialogLayer extends NC.NodiGrid {
           context.drawImage(Settings.resName[costItem.id].img, window.receiptMenu.rect.x + 6, window.receiptMenu.rect.y + Settings.buttonSize.y + dy, 32, 32)
           let missingItems = ''
           if (window.receiptMenu.item.n === 0) {
-            const existing = invfuncs.getNumberOfItems(window.game.allInvs[window.game.playerID], costItem.id)
+            const existing = Inventory.getNumberOfItems(window.game.allInvs[window.game.playerID], costItem.id)
             if (existing < costItem.n) {
               missingItems = existing + ' / '
               context.fillStyle = 'red'

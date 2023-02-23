@@ -1,5 +1,5 @@
 import { Settings } from '../../common.js'
-import { Inventory, invfuncs } from '../../core/inventory.js'
+import { Inventory } from '../../core/inventory.js'
 
 class Belt extends Inventory {
   constructor (pos, data) {
@@ -89,13 +89,13 @@ class Belt extends Inventory {
 
     // DIRECT
     const nbPos = Settings.dirToVec[ent.dir]
-    let beltFrom = invfuncs.getInv(ent.pos.x - nbPos.x, ent.pos.y - nbPos.y)
+    let beltFrom = Inventory.getInv(ent.pos.x - nbPos.x, ent.pos.y - nbPos.y)
     if (beltFrom && (Math.abs(this.dir - beltFrom.dir) === 2 || this.isBelt(beltFrom.type) === false)) beltFrom = undefined
     if (beltFrom) this.beltFromID = beltFrom.id
 
     // LEFT
     const nbLeft = Settings.dirToVec[(ent.dir + 1) % 4]
-    let beltFromLeft = invfuncs.getInv(
+    let beltFromLeft = Inventory.getInv(
       ent.pos.x - nbLeft.x,
       ent.pos.y - nbLeft.y
     )
@@ -106,7 +106,7 @@ class Belt extends Inventory {
 
     // RIGHT
     const nbRight = Settings.dirToVec[(ent.dir + 3) % 4]
-    let beltFromRight = invfuncs.getInv(
+    let beltFromRight = Inventory.getInv(
       ent.pos.x - nbRight.x,
       ent.pos.y - nbRight.y
     )
@@ -116,7 +116,7 @@ class Belt extends Inventory {
     if (beltFromRight) this.beltFromRightID = beltFromRight.id
 
     // TO
-    let beltTo = invfuncs.getInv(ent.pos.x + nbPos.x, ent.pos.y + nbPos.y)
+    let beltTo = Inventory.getInv(ent.pos.x + nbPos.x, ent.pos.y + nbPos.y)
     if (beltTo) this.beltToID = beltTo.id
     if (this.stack.INV?.id && this.stack.L?.id == null) {
       this.stack.L = { id: this.stack.INV.id }

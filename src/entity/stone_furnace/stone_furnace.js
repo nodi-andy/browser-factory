@@ -1,5 +1,5 @@
 import { Settings } from '../../common.js'
-import { Inventory, invfuncs } from '../../core/inventory.js'
+import { Inventory } from '../../core/inventory.js'
 
 export class StoneFurnace extends Inventory {
   static type = 'entity'
@@ -23,9 +23,9 @@ export class StoneFurnace extends Inventory {
 
   setup (map, inv) {
     this.name = "StoneFurnace"
-    invfuncs.setInv(this.pos.x + 1, this.pos.y + 0, this.id)
-    invfuncs.setInv(this.pos.x + 1, this.pos.y + 1, this.id)
-    invfuncs.setInv(this.pos.x + 0, this.pos.y + 1, this.id)
+    Inventory.getInv(this.pos.x + 1, this.pos.y + 0, this.id)
+    Inventory.getInv(this.pos.x + 1, this.pos.y + 1, this.id)
+    Inventory.getInv(this.pos.x + 0, this.pos.y + 1, this.id)
 
     this.packsize = 1
     this.itemsize = 50
@@ -63,7 +63,7 @@ export class StoneFurnace extends Inventory {
 
     for (let costItemID = 0; costItemID < this.preneed.length; costItemID++) {
       const costItem = this.preneed[costItemID]
-      const existing = invfuncs.getNumberOfItems(window.game.allInvs[this.id], costItem.id)
+      const existing = Inventory.getNumberOfItems(window.game.allInvs[this.id], costItem.id)
       if (existing >= costItem.n) {
         this.need.push(costItem)
       } else {

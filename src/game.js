@@ -224,6 +224,7 @@ function loadGame (name) {
       window.game.stop()
     }  else {
       window.game.canvas.style.display = "block"
+      window.game.start()
       window.game.resize() // just for redraw
     }
   }

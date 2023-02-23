@@ -1,5 +1,5 @@
 import { Settings } from '../common.js'
-import { invfuncs } from '../core/inventory.js'
+import { Inventory } from '../core/inventory.js'
 
 export class Button {
   constructor (x, y, item, parent, invID) {
@@ -20,7 +20,11 @@ export class Button {
     if (this.parent) {
       if (this.parent?.vis === false || this.screen.x < this.parent.rect.x || this.screen.x > (this.parent.rect.x + this.parent.w)) return false
     }
-    return (p.x >= this.screen.x && p.y >= this.screen.y && p.x <= this.screen.x + this.size.x && p.y <= this.screen.y + this.size.y)
+    if (p.x <= this.screen.x) return false
+    if (p.y <= this.screen.y) return false
+    if (p.x >= this.screen.x + this.size.x) return false
+    if (p.y >= this.screen.y + this.size.y) return false
+    return true
   }
 
   draw (ctx) {
@@ -79,30 +83,31 @@ export class Button {
     if (button === 1) {
       if (Settings.pointer?.stack?.INV?.length) {
         if (Settings.pointer?.stack?.INV[0].id === window.game.allInvs[this.invID].stack[this.invKey][this.stackPos]?.id) {
-          invfuncs.moveStack({ fromInvID: Settings.pointer.id, fromInvKey: 'INV', fromStackPos: 0, toInvID: this.invID, toInvKey: this.invKey, toStackPos: this.stackPos })
+          InventorymoveStack({ fromInvID: Settings.pointer.id, fromInvKey: 'INV', fromStackPos: 0, toInvID: this.invID, toInvKey: this.invKey, toStackPos: this.stackPos })
         } else {
-          invfuncs.moveStack({ fromInvID: Settings.pointer.id, fromInvKey: 'INV', fromStackPos: 0, toInvID: this.invID, toInvKey: this.invKey })
+          InventorymoveStack({ fromInvID: Settings.pointer.id, fromInvKey: 'INV', fromStackPos: 0, toInvID: this.invID, toInvKey: this.invKey })
         }
       } else {
-        invfuncs.moveStack({ fromInvID: this.invID, fromInvKey: this.invKey, fromStackPos: this.stackPos, toInvID: Settings.pointer.id, toInvKey: 'INV', toStackPos: 0 })
+        InventorymoveStack({ fromInvID: this.invID, fromInvKey: this.invKey, fromStackPos: this.stackPos, toInvID: Settings.pointer.id, toInvKey: 'INV', toStackPos: 0 })
         Settings.curResPos.x = 0
         Settings.curResPos.y = -2
       }
     } else if (button === 3) {
-      Settings.pointer.button = this
-      if (Settings.pointer) {
-        const transfer = Math.round(Settings.pointer.n / 2)
-        Settings.pointer.n -= transfer
-        if (Settings.pointer.button?.item?.n) {
-          Settings.pointer.button.item.n += transfer
+      let buttonInv = window.game.allInvs[this.invID]
+      let pack = buttonInv.stack[this.invKey][this.stackPos]
+      if (Settings.pointer.stack.INV == undefined || Settings.pointer.stack.INV.length == 0) {
+        let transfer = Math.round(pack.n / 2)
+        buttonInv.remItem ({id: pack.id, n: transfer}, this.invKey, this.stackPos)
+        Settings.pointer.addItem({id: pack.id, n: transfer}, 'INV', 0) 
+      } else {
+        let pointerPack = Settings.pointer.stack.INV[0]
+        let transfer = Math.round(pointerPack.n / 2)
+        Settings.pointer.remItem ({id: pointerPack.id, n: transfer}, 'INV', 0)
+        if (buttonInv.stack[this.invKey][this.stackPos]) {
+          buttonInv.addItem({id: pointerPack.id, n: transfer}, this.invKey, this.stackPos) 
         } else {
-          const item = { id: Settings.pointer.id, n: transfer }
-          Settings.pointer.inv.addItem(item)
+          buttonInv.addItem({id: pointerPack.id, n: transfer}, this.invKey, buttonInv.stack[this.invKey].length) 
         }
-      } else if (this.item) {
-        Settings.pointer = { id: this.item.id, n: this.item.n }
-        Settings.pointer.n = Math.round(Settings.pointer.n / 2)
-        this.item.n = this.item.n - Settings.pointer.n
       }
     }
     window.game.updateInventoryMenu(window.player)

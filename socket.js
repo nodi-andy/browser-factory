@@ -1,5 +1,5 @@
 import { Settings } from '../common.js'
-import { invfuncs } from './inventory.js'
+import { Inventory } from './inventory.js'
 
 // const ws        = new WebSocket('wss:/www.mynodi.com:4000');
 // const ws = new WebSocket('ws://localhost:4000')
@@ -7,14 +7,14 @@ import { invfuncs } from './inventory.js'
 export function wssend (msg) {
     let updateInv = false
     if (msg.cmd === 'addEntity') {
-      invfuncs.addInventory(msg.data, false)
+      InventoryaddInventory(msg.data, false)
       updateInv = true
     }
     if (msg.cmd === 'addItem') {
-      invfuncs.addItem(msg.data, false)
+      InventoryaddItem(msg.data, false)
       updateInv = true
     } else if (msg.cmd === 'moveStack') {
-      invfuncs.moveStack(msg.data)
+      InventorymoveStack(msg.data)
       updateInv = true
     } else {
       /* if (ws.readyState === WebSocket.OPEN) {
