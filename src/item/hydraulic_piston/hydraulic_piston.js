@@ -1,4 +1,6 @@
-import { Settings } from '../../common.js'
-Settings.resDB.hydraulic_piston.name = 'hydraulic piston'
-Settings.resDB.hydraulic_piston.type = 'item'
-Settings.resDB.hydraulic_piston.cost = [{ id: Settings.resDB.iron_plate.id, n: 1 }, { id: Settings.resDB.iron_stick.id, n: 1 }]
+export class HydraulicPiston {
+    static name = 'hydraulic_piston'
+    static type = 'item'
+    static cost = [{ id: "IronPlate", n: 1 }, { id: "IronStick", n: 1 }]
+    static imgName = "hydraulic_piston"
+}

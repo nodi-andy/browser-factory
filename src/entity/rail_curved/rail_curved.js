@@ -25,14 +25,14 @@ class RailCurved extends Inventory {
   }
 }
 
-const db = Settings.resDB.rail_curved
+const db = Settings.resDB.rail_curved = {}
 db.name = 'rail curved'
 db.type = 'entity'
 db.lock = 1
 db.size = [1, 1]
 db.mach = RailCurved
 db.rotatable = false
-db.cost = [{ id: Settings.resDB.wood.id, n: 4 }]
+db.cost = [{ id: "Wood", n: 4 }]
 
 if (typeof Image !== 'undefined') {
   const image = new Image(512, 32)

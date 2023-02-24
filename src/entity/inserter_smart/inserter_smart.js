@@ -9,7 +9,7 @@ export class InserterSmart extends Inventory {
   }
 }
 
-const db = Settings.resDB.inserter_smart
+const db = Settings.resDB.inserter_smart = {}
 db.name = 'inserter smart'
 db.lock = 1
 db.size = [1, 1]
@@ -23,4 +23,4 @@ if (typeof Image !== 'undefined') {
   Settings.resDB.inserter_smart.hand = image
 }
 db.mach = InserterSmart
-db.cost = [{ id: Settings.resDB.iron_plate.id, n: 1 }, { id: Settings.resDB.gear.id, n: 1 }, { id: Settings.resDB.hydraulic_piston.id, n: 1 }]
+db.cost = [{ id: "IronPlate", n: 1 }, { id: "Gear", n: 1 }, { id: "HydraulicPiston", n: 1 }]

@@ -116,13 +116,13 @@ export class UPipe extends Inventory {
   }
 }
 
-const db = Settings.resDB.u_pipe
+const db = Settings.resDB.u_pipe = {}
 db.type = 'entity'
 db.playerCanWalkOn = false
 db.rotatable = false
 db.size = [1, 1]
 db.cost = [
-  { id: Settings.resDB.iron_plate.id, n: 1 }
+  { id: "IronPlate", n: 1 }
 ]
 
 if (typeof Image !== 'undefined') {

@@ -78,12 +78,12 @@ class Pole extends Inventory {
   }
 }
 
-const db = Settings.resDB.pole
+const db = Settings.resDB.pole = {}
 db.size = [1, 1]
 db.type = 'entity'
 db.viewsize = [1, 3]
 db.cost = [
-  { id: Settings.resDB.iron_plate.id, n: 1 }
+  { id: "IronPlate", n: 1 }
 ]
 
 if (typeof Image !== 'undefined') {

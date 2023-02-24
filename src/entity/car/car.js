@@ -47,7 +47,7 @@ class Car extends Player {
   }
 }
 
-const db = Settings.resDB.car
+const db = Settings.resDB.car = {}
 db.name = 'car'
 db.type = 'entity'
 db.rotatable = false
@@ -56,9 +56,9 @@ db.mach = Car
 db.playerCanWalkOn = false
 db.size = [1, 1]
 db.cost = [
-  { id: Settings.resDB.inserter_burner.id, n: 100 },
-  { id: Settings.resDB.belt2.id, n: 100 },
-  { id: Settings.resDB.assembling_machine_2.id, n: 100 }
+  { id: "InserterBurner", n: 100 },
+  { id: "Belt2", n: 100 },
+  { id: "AssemblingMachine3", n: 100 }
 ]
 if (typeof Image !== 'undefined') {
   const image = new Image(64, 64)

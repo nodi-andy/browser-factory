@@ -130,14 +130,14 @@ export class Boiler extends Inventory {
   }
 }
 
-const db = Settings.resDB.boiler
+const db = Settings.resDB.boiler = {}
 db.playerCanWalkOn = false
 db.name = 'boiler'
 db.type = 'entity'
 db.lock = 1
 db.size = [1, 1]
 db.cost = [
-  { id: Settings.resDB.iron_plate.id, n: 1 }
+  { id: "IronPlate", n: 1 }
 ]
 
 if (typeof Image !== 'undefined') {

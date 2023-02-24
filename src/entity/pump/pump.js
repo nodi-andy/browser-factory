@@ -55,12 +55,12 @@ class Pump extends Inventory {
   }
 }
 
-const db = Settings.resDB.pump
+const db = Settings.resDB.pump = {}
 db.mach = Pump
 db.name = 'pump'
 db.type = 'entity'
 db.lock = 1
-db.cost = [{ id: Settings.resDB.iron_plate.id, n: 3 }]
+db.cost = [{ id: "IronPlate", n: 3 }]
 if (typeof Image !== 'undefined') {
   const image = new Image(512, 32)
   image.src = './' + db.type + '/pump/pump.png'

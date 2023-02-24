@@ -32,7 +32,7 @@ export class Player extends Inventory {
     if (this.pos?.x == null || this.pos?.y == null) {
       this.pos = { x: 0, y: 0 }
     }
-    this.output = ["Wood", "StoneFurnace", "BurnerMiner", "Chest", "IronStick", "Gear", "Belt1", "Belt2", "Belt3"]
+    this.output = ["Wood", "StoneFurnace", "BurnerMiner", "Chest", "IronStick", "Gear", "Belt1", "Belt2", "Belt3", "InserterBurner"]
     this.name = "Player"
     this.dir = { x: 0, y: 0 }
     this.live = 100

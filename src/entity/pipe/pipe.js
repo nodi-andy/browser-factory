@@ -116,7 +116,7 @@ class Pipe extends Inventory {
   }
 }
 
-const db = Settings.resDB.pipe
+const db = Settings.resDB.pipe = {}
 db.name = 'pipe'
 db.type = 'entity'
 db.lock = 1
@@ -124,7 +124,7 @@ db.playerCanWalkOn = false
 db.rotatable = false
 db.size = [1, 1]
 db.cost = [
-  { id: Settings.resDB.iron_plate.id, n: 1 }
+  { id: "IronPlate", n: 1 }
 ]
 
 if (typeof Image !== 'undefined') {

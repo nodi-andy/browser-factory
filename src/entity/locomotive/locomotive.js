@@ -25,14 +25,14 @@ class Locomotive extends Inventory {
   }
 }
 
-const db = Settings.resDB.locomotive
+const db = Settings.resDB.locomotive = {}
 db.name = 'locomotive'
 db.type = 'entity'
 db.lock = 1
 db.size = [1, 1]
 db.mach = Locomotive
 db.rotatable = false
-db.cost = [{ id: Settings.resDB.wood.id, n: 4 }]
+db.cost = [{ id: "Wood", n: 4 }]
 
 if (typeof Image !== 'undefined') {
   const image = new Image(512, 32)

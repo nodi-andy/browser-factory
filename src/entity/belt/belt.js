@@ -37,7 +37,7 @@ export class Belt extends Inventory {
   }
 
   shift (from, itfrom, to, itto, deciding) {
-    // if (from.stack[itfrom] == null) return;
+
     if (from.stack[itfrom]?.id == null) {
       if (from.stack[itfrom]) {
         from.stack[itfrom].moving = false
@@ -45,26 +45,66 @@ export class Belt extends Inventory {
       }
       return
     }
-    if ((to.stack[itto]?.reserved === false || to.stack[itto]?.reserved == null || deciding === false) && to.stack[itto].id == undefined) {
-      if (deciding) {
-        from.stack[itfrom].moving = true
-        if (to.stack[itto]) to.stack[itto].reserved = true
+    let toPos = to.stack[itto]
+    if (toPos == null) toPos = {n: 1}
+
+    if ( deciding ) {
+      if ( toPos?.reserved === true) {
+        from.stack[itfrom].moving = false
+        from.stack[itfrom].reserved = true
       } else {
-        if (from.stack[itfrom].moving) {
-          to.stack[itto] = from.stack[itfrom]
-          to.stack[itto].moving = false
-          from.stack[itfrom] = { n: 1 }
-        }
+        from.stack[itfrom].moving = true
+        toPos.reserved = true
       }
-    } else {
-      from.stack[itfrom].moving = false
-      from.stack[itfrom].reserved = true
     }
+    else {
+      
+      if (from.stack[itfrom].moving && toPos.id == null) {
+        to.stack[itto] = from.stack[itfrom]
+        to.stack[itto].moving = false
+        to.stack[itto].reserved = false
+        from.stack[itfrom] = {n: 1}
+      }
+      
+    } 
   }
 
   update (map, ent) {
     // sanity
     if (!this.setupDone) this.setup()
+
+    // ITEM LAID ON BELT
+    if (this.stack.INV?.id) {
+      if (this.stack.L.full) this.stack.R = { id: this.stack.INV.id, n: 1 }
+      else this.stack.L = { id: this.stack.INV.id, n:1 }
+      delete this.stack.INV.id
+    }
+
+    if (this.stack.L?.id) {
+      if (this.stack.LA?.id == null && this.stack.LA?.reserved === false) {
+        this.stack.LA.id = this.stack.L.id
+      } else if (this.stack.LB?.id == null && this.stack.LB?.reserved === false) {
+        this.stack.LB.id = this.stack.L.id
+      } else if (this.stack.LC?.id == null && this.stack.LC?.reserved === false) {
+        this.stack.LC.id = this.stack.L.id
+      } else if (this.stack.LD?.id == null && this.stack.LD?.reserved === false) {
+        this.stack.LD.id = this.stack.L.id
+      }
+      delete this.stack.L.id
+    }
+
+    if (this.stack.R?.id) {
+      if (this.stack.RA?.id == null && this.stack.RA?.reserved === false) {
+        this.stack.RA.id = this.stack.R.id
+      } else if (this.stack.RB?.id == null && this.stack.RB?.reserved === false) {
+        this.stack.RB.id = this.stack.R.id
+      } else if (this.stack.RC?.id == null && this.stack.RC?.reserved === false) {
+        this.stack.RC.id = this.stack.R.id
+      } else if (this.stack.RD?.id == null && this.stack.RD?.reserved === false) {
+        this.stack.RD.id = this.stack.R.id
+      }
+      delete this.stack.R.id
+    }
 
     // BELTS SYSTEM
     this.decidingMoving = ((window.game.tick + 0) % (16 / window.classDB[this.name].speed) === 0)
@@ -104,65 +144,22 @@ export class Belt extends Inventory {
           const key = keys[iStack]
           this.stack[key].reserved = false
           this.stack[key].moving = false
-          this.stack[key].n = 1
         }
       }
 
       // TO
       let beltTo = Inventory.getInv(ent.pos.x + nbPos.x, ent.pos.y + nbPos.y)
+      if (beltTo && beltTo.isBelt === false) beltTo = undefined
       if (beltTo) this.beltToID = beltTo.id
-      if (this.stack.INV?.id && this.stack.L?.id == null) {
-        this.stack.L = { id: this.stack.INV.id }
-        this.stack.INV.id = undefined
-      }
+
 
       // SET BELT TYPE
       this.direct = true
       if ((beltFromLeft || beltFromRight) && !(beltFromLeft && beltFromRight)) this.direct = false
       if (beltFrom) this.direct = true
 
-      // ITEM LAID ON BELT
-      if (this.stack.INV[0]?.id && !this.stack.L?.id) {
-        this.stack.L.id = this.stack.INV[0].id
-        this.stack.INV.shift()
-      }
-      if (this.stack.INV[0]?.id && !this.stack.R?.id) {
-        this.stack.R.id = this.stack.INV[0].id
-        this.stack.INV.shift()
-      }
-
-      if (this.stack.L?.id) {
-        if (this.stack.LA?.id == null && this.stack.LA?.reserved === false) {
-          this.stack.LA.id = this.stack.L.id
-        } else if (this.stack.LB?.id == null && this.stack.LB?.reserved === false) {
-          this.stack.LB.id = this.stack.L.id
-        } else if (this.stack.LC?.id == null && this.stack.LC?.reserved === false) {
-          this.stack.LC.id = this.stack.L.id
-        } else if (this.stack.LD?.id == null && this.stack.LD?.reserved === false) {
-          this.stack.LD.id = this.stack.L.id
-        } else {
-          this.stack.LD = { id: this.stack.L.id, n: 1 }
-        }
-        delete this.stack.L.id
-      }
-
-      if (this.stack.R?.id) {
-        if (this.stack.RA?.id == null && this.stack.RA?.reserved === false) {
-          this.stack.RA.id = this.stack.R.id
-        } else if (this.stack.RB?.id == null && this.stack.RB?.reserved === false) {
-          this.stack.RB.id = this.stack.R.id
-        } else if (this.stack.RC?.id == null && this.stack.RC?.reserved === false) {
-          this.stack.RC.id = this.stack.R.id
-        } else if (this.stack.RD?.id == null && this.stack.RD?.reserved === false) {
-          this.stack.RD.id = this.stack.R.id
-        } else {
-          this.stack.RD = { id: this.stack.R.id, n: 1 }
-        }
-        delete this.stack.R.id
-      }
 
       // SHIFT INTO NEXT BELT
-      if (beltTo && beltTo.isBelt === false) beltTo = undefined
       if (beltTo) {
         let dAng = Settings.dirToAng[beltTo.dir] - Settings.dirToAng[this.dir]
         if (beltTo.direct === false) dAng = 0
@@ -194,6 +191,7 @@ export class Belt extends Inventory {
 
       this.stack.L.full = !!((this.stack.LA?.id || this.stack.LA?.reserved) && (this.stack.LB?.id || this.stack.LB?.reserved) && (this.stack.LC?.id || this.stack.LC?.reserved) && (this.stack.LD?.id || this.stack.LD?.reserved))
       this.stack.R.full = !!((this.stack.RA?.id || this.stack.RA?.reserved) && (this.stack.RB?.id || this.stack.RB?.reserved) && (this.stack.RC?.id || this.stack.RC?.reserved) && (this.stack.RD?.id || this.stack.RD?.reserved))
+      this.stack.INV.full = (this.stack.L.full && this.stack.R.full)
     }
     if (beltFrom && beltFrom.done === false) beltFrom.update(map, beltFrom)
     if (beltFromLeft && beltFromLeft.done === false) beltFromLeft.update(map, beltFromLeft)

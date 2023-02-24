@@ -16,7 +16,7 @@ layers.forEach((layer) => {
 })
 
 app.use(express.static('src'));
-/*app.get('/imports.js', function (req, res) {
+app.get('/imports.js', function (req, res) {
     res.setHeader('content-type', 'text/javascript');
     var importFile = ''
     els.forEach((element) => { 
@@ -30,7 +30,7 @@ app.use(express.static('src'));
     importFile += 'export default elements'
     //console.log(importFile)
     res.send(importFile)
-  })*/
+  })
   
 
 app.listen(8080)

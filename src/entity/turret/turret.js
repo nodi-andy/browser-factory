@@ -25,14 +25,14 @@ class Turret extends Inventory {
   }
 }
 
-const db = Settings.resDB.turret
+const db = Settings.resDB.turret = {}
 db.name = 'turret'
 db.type = 'entity'
 db.lock = 1
 db.size = [1, 1]
 db.mach = Turret
 db.rotatable = false
-db.cost = [{ id: Settings.resDB.wood.id, n: 4 }]
+db.cost = [{ id: "Wood", n: 4 }]
 
 if (typeof Image !== 'undefined') {
   const image = new Image(512, 32)

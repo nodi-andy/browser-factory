@@ -23,9 +23,9 @@ export class StoneFurnace extends Inventory {
 
   setup (map, inv) {
     this.name = "StoneFurnace"
-    Inventory.getInv(this.pos.x + 1, this.pos.y + 0, this.id)
-    Inventory.getInv(this.pos.x + 1, this.pos.y + 1, this.id)
-    Inventory.getInv(this.pos.x + 0, this.pos.y + 1, this.id)
+    Inventory.setInv(this.pos.x + 1, this.pos.y + 0, this.id)
+    Inventory.setInv(this.pos.x + 1, this.pos.y + 1, this.id)
+    Inventory.setInv(this.pos.x + 0, this.pos.y + 1, this.id)
 
     this.packsize = 1
     this.itemsize = 50
@@ -55,7 +55,7 @@ export class StoneFurnace extends Inventory {
       this.preneed.push({ id: window.classDB.Copper.id, n: 1 })
       this.preneed.push({ id: window.classDB.Stone.id, n: 1 })
       this.preneed.push({ id: window.classDB.Coal.id, n: 1 })
-      // this.preneed.push({ id: Settings.resDB.wood.id, n: 1 }) TBD: no wood burning
+      // this.preneed.push({ id: "Wood", n: 1 }) TBD: no wood burning
     } else {
       const outputItem = this.stack.OUTPUT[0].id
       this.preneed = JSON.parse(JSON.stringify(Settings.resName[outputItem].cost))
@@ -117,6 +117,6 @@ export class StoneFurnace extends Inventory {
   }
 
   getStackName (type) {
-    if (type === Settings.resDB.coal.id) return 'FUEL'
+    if (type === classDB.Coal.id) return 'FUEL'
   }
 }

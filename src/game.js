@@ -19,14 +19,15 @@ Settings.resID = []
 elements.forEach((el) => {
   let key = Object.keys(el)[0]
 
+  if (key == null) return
+
   Settings.resID.push(key)
   let i = Settings.resID.length - 1
 
   window.classDB[key] = el[key]
   if (window.classDB[key]) window.classDB[key].id = i
 
-  Settings.resDB[Settings.resID[i]] = {}
-  Settings.resDB[Settings.resID[i]].id = i
+  Settings.resDB[Settings.resID[i]] = {id: i}
   Settings.resName[i] = window.classDB[key]
 })
 

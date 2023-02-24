@@ -25,14 +25,14 @@ class Rail extends Inventory {
   }
 }
 
-const db = Settings.resDB.rail
+const db = Settings.resDB.rail ={}
 db.name = 'rail'
 db.type = 'entity'
 db.lock = 1
 db.size = [1, 1]
 db.mach = Rail
 db.rotatable = false
-db.cost = [{ id: Settings.resDB.wood.id, n: 4 }]
+db.cost = [{ id: "Wood", n: 4 }]
 
 if (typeof Image !== 'undefined') {
   const image = new Image(512, 32)

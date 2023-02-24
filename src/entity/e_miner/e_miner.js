@@ -100,12 +100,12 @@ class ElectricalMiner extends Inventory {
   }
 }
 
-const db = Settings.resDB.e_miner
+const db = Settings.resDB.e_miner = {}
 db.mach = ElectricalMiner
 db.name = 'electrical miner'
 db.lock = 1
 db.type = 'entity'
-db.cost = [{ id: Settings.resDB.stone_furnace.id, n: 1 }, { id: Settings.resDB.iron_plate.id, n: 3 }, { id: Settings.resDB.gear.id, n: 2 }]
+db.cost = [{ id: "StoneFurnace", n: 1 }, { id: "IronPlate", n: 3 }, { id: "Gear", n: 2 }]
 if (typeof Image !== 'undefined') {
   const image = new Image(512, 32)
   image.src = './' + db.type + '/burner_miner/platform.png'

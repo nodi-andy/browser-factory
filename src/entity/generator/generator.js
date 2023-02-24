@@ -111,7 +111,7 @@ class Generator extends Inventory {
   }
 }
 
-const db = Settings.resDB.generator
+const db = Settings.resDB.generator = {}
 db.name = 'generator'
 db.type = 'entity'
 db.lock = 1
@@ -119,7 +119,7 @@ db.playerCanWalkOn = false
 db.size = [3, 1]
 db.viewsize = [3, 2]
 db.cost = [
-  { id: Settings.resDB.iron_plate.id, n: 1 }
+  { id: "IronPlate", n: 1 }
 ]
 
 if (typeof Image !== 'undefined') {
