@@ -5,15 +5,15 @@ export class Inventory {
 
   static mineToInv (minedItem) {
     const newItem = { id: window.classDB[Settings.resName[minedItem.id].becomes].id, n: 1 }
-    const res = window.game.res.getResource(minedItem.source)
+    const res = game.res.getResource(minedItem.source)
     res.n--
   
     if (res.n <= 0) {
-      delete window.game.res.map[minedItem.source.x][minedItem.source.y].id
-      window.player.stopMining(window.game.allInvs[window.game.playerID])
+      delete game.res.map[minedItem.source.x][minedItem.source.y].id
+      window.player.stopMining(game.allInvs[game.playerID])
     }
-    window.game.allInvs[window.game.playerID].addItem(newItem)
-    window.game.updateInventoryMenu(window.player)
+    game.allInvs[game.playerID].addItem(newItem)
+    game.updateInventoryMenu(window.player)
   }
 
   static getNumberOfItems (ent, type) {
@@ -44,7 +44,7 @@ export class Inventory {
         const newItem = { id: item.id, n: 1 }
         window.player.addItem(newItem)
         inv.remItems(item.cost)
-        window.game.updateInventoryMenu(window.player)
+        game.updateInventoryMenu(window.player)
       }
       return itemsExist
     })
@@ -52,34 +52,34 @@ export class Inventory {
   
 
   static createInv (type, newEntity) {
-    newEntity.id = window.game.allInvs.length
-    window.game.allInvs.push(new Settings.resName[type](newEntity.pos, newEntity))
-    return window.game.allInvs.length - 1
+    newEntity.id = game.allInvs.length
+    game.allInvs.push(new Settings.resName[type](newEntity.pos, newEntity))
+    return game.allInvs.length - 1
   }
   
   static addInventory (newEntity, updateDir) {
     if (!newEntity) return
-    let inv = window.game.entityLayer.getInv(newEntity.pos.x, newEntity.pos.y)
+    let inv = game.entityLayer.getInv(newEntity.pos.x, newEntity.pos.y)
     if (inv == null || inv?.type === classDB.Empty.id) {
       if (Settings.pointer.stack.INV[0].n > 0) {
         const invID = Inventory.createInv(newEntity.type, newEntity)
-        inv = window.game.allInvs[invID]
+        inv = game.allInvs[invID]
         inv.id = invID
         inv.pos = { x: newEntity.pos.x, y: newEntity.pos.y }
         inv.dir = newEntity.dir
         inv.type = newEntity.type
-        window.game.entityLayer.map[newEntity.pos.x][newEntity.pos.y] = inv.id
+        game.entityLayer.map[newEntity.pos.x][newEntity.pos.y] = inv.id
         if (inv?.updateNB) inv.updateNB()
-        if (typeof window !== 'undefined') window.game.updateInventoryMenu(window.player)
+        if (typeof window !== 'undefined') game.updateInventoryMenu(window.player)
         Settings.pointer.stack.INV[0].n--
         if (Settings.pointer.stack.INV[0].n === 0) delete Settings.pointer.stack.INV
       }
-      if (Settings.resName[newEntity.type].mach && Settings.resName[newEntity.type].mach.setup) Settings.resName[newEntity.type].mach.setup(window.game.entityLayer.map, inv)
+      if (Settings.resName[newEntity.type].mach && Settings.resName[newEntity.type].mach.setup) Settings.resName[newEntity.type].mach.setup(game.entityLayer.map, inv)
     }
   
     // Update Neighbours
     for (const nbV of Settings.nbVec) {
-      const nb = window.game.entityLayer.getInv(newEntity.pos.x + nbV.x, newEntity.pos.y + nbV.y)
+      const nb = game.entityLayer.getInv(newEntity.pos.x + nbV.x, newEntity.pos.y + nbV.y)
       if (nb?.updateNB) nb.updateNB()
     }
   
@@ -88,29 +88,29 @@ export class Inventory {
   
   static addItem (newItem) {
     let inv
-    const invID = window.game.entityLayer.map[newItem.pos.x][newItem.pos.y]
+    const invID = game.entityLayer.map[newItem.pos.x][newItem.pos.y]
     if (invID == null) {
       inv = new Inventory(newItem.pos)
-      window.game.allInvs.push(inv)
-      inv.id = window.game.allInvs.length - 1
-      window.game.entityLayer.map[newItem.pos.x][newItem.pos.y] = inv.id
-    } else inv = inv = window.game.allInvs[invID]
+      game.allInvs.push(inv)
+      inv.id = game.allInvs.length - 1
+      game.entityLayer.map[newItem.pos.x][newItem.pos.y] = inv.id
+    } else inv = inv = game.allInvs[invID]
     inv.addItem({ id: newItem.inv.item.id, n: 1 })
   }
   
   static moveStack (data) {
     if (data.fromInvID === data.toInvID && data.fromInvKey === data.toInvKey && data.fromStackPos === data.toStackPos) return
   
-    const invFrom = window.game.allInvs[data.fromInvID].stack[data.fromInvKey]
+    const invFrom = game.allInvs[data.fromInvID].stack[data.fromInvKey]
     if (invFrom[data.fromStackPos] == undefined) return
   
     const from = invFrom[data.fromStackPos]
   
-    if (data.toStackPos == null) data.toStackPos = window.game.allInvs[data.toInvID].stack[data.toInvKey].length - 1
+    if (data.toStackPos == null) data.toStackPos = game.allInvs[data.toInvID].stack[data.toInvKey].length - 1
   
-    const toStack = window.game.allInvs[data.toInvID].stack
+    const toStack = game.allInvs[data.toInvID].stack
     if (toStack[data.fromStackPos]) {
-      window.game.allInvs[data.toInvID].stack[data.toInvKey][data.toStackPos] = from
+      game.allInvs[data.toInvID].stack[data.toInvKey][data.toStackPos] = from
     } else {
       if (toStack[data.toInvKey] == null) toStack[data.toInvKey] = []
   
@@ -125,9 +125,9 @@ export class Inventory {
     }
   
     invFrom.splice(data.fromStackPos, 1)
-    // s.sendAll(JSON.stringify({msg:"updateInv", data:window.game.allInvs}));
-    if (data.fromInvID === 0 || data.toInvID === 0) window.player.setInventory(window.game.allInvs[0])
-    if (data.fromInvID === window.selEntity?.id || data.toInvID === window.selEntity?.id) window.game.updateInventoryMenu(window.selEntity)
+    // s.sendAll(JSON.stringify({msg:"updateInv", data:game.allInvs}));
+    if (data.fromInvID === 0 || data.toInvID === 0) window.player.setInventory(game.allInvs[0])
+    if (data.fromInvID === window.selEntity?.id || data.toInvID === window.selEntity?.id) game.updateInventoryMenu(window.selEntity)
   }
 
   constructor (pos, entData) {

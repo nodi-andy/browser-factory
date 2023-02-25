@@ -27,7 +27,7 @@ class Pump extends Inventory {
   update (map, ent) {
     if (this.stack.OUTPUT == null) this.stack.OUTPUT = [{ id: Settings.resDB.water.id, n: 0 }]
     const output = this.stack.OUTPUT[0]
-    if (window.game.tick % 10 === 0 && output?.n < 100) {
+    if (game.tick % 10 === 0 && output?.n < 100) {
       output.n += 1
     }
 
@@ -43,7 +43,7 @@ class Pump extends Inventory {
 
   updateNB () {
     const nbPos = Settings.dirToVec[(this.dir + 1) % 4]
-    const nbPipe = window.game.entityLayer.getInv(this.pos.x - nbPos.x, this.pos.y - nbPos.y)
+    const nbPipe = game.entityLayer.getInv(this.pos.x - nbPos.x, this.pos.y - nbPos.y)
     this.nbPipes = []
     if (nbPipe) this.nbPipes.push(nbPipe)
   }

@@ -13,7 +13,7 @@ export class AssemblingMachine extends Inventory {
     const size = AssemblingMachine.size
     for (let i = 0; i < size[0]; i++) {
       for (let j = 0; j < size[1]; j++) {
-        window.game.entityLayer.setInv(pos.x + i, pos.y + j, this.id)
+        game.entityLayer.setInv(pos.x + i, pos.y + j, this.id)
       }
     }
 
@@ -61,7 +61,7 @@ export class AssemblingMachine extends Inventory {
     this.need = []
     for (let costItemID = 0; costItemID < this.preneed.length; costItemID++) {
       const costItem = this.preneed[costItemID]
-      const existing = Inventory.getNumberOfItems(window.game.allInvs[this.id], costItem.id)
+      const existing = Inventory.getNumberOfItems(game.allInvs[this.id], costItem.id)
       if (existing < costItem.n) {
         this.need.push(costItem)
       }

@@ -18,7 +18,7 @@ class Pole extends Inventory {
   }
 
   update (map, ent) {
-    if (window.game.tick % 100) return
+    if (game.tick % 100) return
 
     if (this.nbInputs.length === 0 || this.stack.INV[0].n === 0) return
 
@@ -26,7 +26,7 @@ class Pole extends Inventory {
     let total = 0
     let nSameType = 0
     for (const nbID of this.nbInputs) {
-      const n = window.game.allInvs[nbID]
+      const n = game.allInvs[nbID]
       if (n == null) continue
       let target
       if (n.stack.INV) target = n.stack.INV
@@ -45,7 +45,7 @@ class Pole extends Inventory {
 
     // OUTPUT
     for (const nbID of this.nbInputs) {
-      const n = window.game.allInvs[nbID]
+      const n = game.allInvs[nbID]
       if (n == null) continue
       let target
       if (n.stack.INV) target = n.stack.INV
@@ -64,7 +64,7 @@ class Pole extends Inventory {
     const scanArea = { x: this.pos.x - radius, y: this.pos.y - radius, x2: this.pos.x + this.mapsize.x + 2 * radius, y2: this.pos.y + this.mapsize.y + 2 * radius }
     for (let x = scanArea.x; x < scanArea.x2; x++) {
       for (let y = scanArea.y; y < scanArea.y2; y++) {
-        const nb = window.game.entityLayer.getInv(x, y)
+        const nb = game.entityLayer.getInv(x, y)
         if (nb?.id === this.id) continue
         if ((nb?.type === Settings.resDB.pole.id || nb?.type === Settings.resDB.generator.id || nb?.type === Settings.resDB.e_miner.id) && this.nbInputs.includes(nb.id) === false) this.nbInputs.push(nb.id)
       }

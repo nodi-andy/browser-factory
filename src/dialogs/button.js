@@ -82,7 +82,7 @@ export class Button {
     if (this.item?.id && Settings.resName[this.item?.id].lock === 1) return
     if (button === 1) {
       if (Settings.pointer?.stack?.INV?.length) {
-        if (Settings.pointer?.stack?.INV[0].id === window.game.allInvs[this.invID].stack[this.invKey][this.stackPos]?.id) {
+        if (Settings.pointer?.stack?.INV[0].id === game.allInvs[this.invID].stack[this.invKey][this.stackPos]?.id) {
           Inventory.moveStack({ fromInvID: Settings.pointer.id, fromInvKey: 'INV', fromStackPos: 0, toInvID: this.invID, toInvKey: this.invKey, toStackPos: this.stackPos })
         } else {
           Inventory.moveStack({ fromInvID: Settings.pointer.id, fromInvKey: 'INV', fromStackPos: 0, toInvID: this.invID, toInvKey: this.invKey })
@@ -93,7 +93,7 @@ export class Button {
         Settings.curResPos.y = -2
       }
     } else if (button === 3) {
-      let buttonInv = window.game.allInvs[this.invID]
+      let buttonInv = game.allInvs[this.invID]
       let pack = buttonInv.stack[this.invKey][this.stackPos]
       if (Settings.pointer.stack.INV == undefined || Settings.pointer.stack.INV.length == 0) {
         let transfer = Math.round(pack.n / 2)
@@ -110,7 +110,7 @@ export class Button {
         }
       }
     }
-    window.game.updateInventoryMenu(window.player)
-    if (window.selEntity) window.game.updateEntityMenu(window.selEntity, true)
+    game.updateInventoryMenu(window.player)
+    if (window.selEntity) game.updateEntityMenu(window.selEntity, true)
   };
 }

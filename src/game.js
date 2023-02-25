@@ -54,7 +54,7 @@ function updateGameMenu () {
     const gameDiv = document.createElement('div')
     gameDiv.id = gamesList[gameID]
     gameDiv.classList.add('gameEntry')
-    if (gamesList[gameID] === window.gameName) gameDiv.classList.add('gameEntrySelected')
+    if (gamesList[gameID] === gameName) gameDiv.classList.add('gameEntrySelected')
     const gameNameDiv = document.createElement('div')
     gameNameDiv.onclick = function () { loadGame(this.parentElement.id) }
     gameNameDiv.innerHTML = gamesList[gameID]
@@ -72,7 +72,7 @@ function updateGameMenu () {
           event.preventDefault()
           this.contentEditable = false
           this.classList.remove('editable')
-          window.game.canvas.focus()
+          game.canvas.focus()
           window.localStorage.setItem(this.innerHTML, window.localStorage.getItem(this.parentElement.id))
           window.localStorage.removeItem(this.parentElement.id)
         }
@@ -129,8 +129,8 @@ function loadGame (name) {
       window.uni.start()
       window.uni.canvas.style.display = "block"
   
-      if (window.game.canvas) window.game.canvas.style.display = "none"
-      window.game.stop()
+      if (game.canvas) game.canvas.style.display = "none"
+      game.stop()
     }
     document.body.appendChild(showWorldButton);
 
@@ -208,28 +208,28 @@ function loadGame (name) {
     newProvince.dialogLayer.createInvMenu(newProvince.playerID)
     newProvince.updateInventoryMenu(newProvince.allInvs[newProvince.playerID])
     
-    newProvince.terrain.updateOffscreenMap(window.game.terrain)
-    newProvince.res.updateOffscreenMap(window.game.res)
+    newProvince.terrain.updateOffscreenMap(game.terrain)
+    newProvince.res.updateOffscreenMap(game.res)
 
     // start game loop
     newProvince.time = new TimeLoop(newProvince)
 
     // add the province in province list
-    window.games[newProvince.name] = newProvince
+    games[newProvince.name] = newProvince
   })
 
-  window.player = window.game.allInvs[window.game.playerID]
-  window.player.id = window.game.playerID
+  window.player = game.allInvs[game.playerID]
+  window.player.id = game.playerID
 
-  if (window.game.canvas) {
+  if (game.canvas) {
     // Multiple maps?
     if (provinces.single == null) {
-      window.game.canvas.style.display = "none"
-      window.game.stop()
+      game.canvas.style.display = "none"
+      game.stop()
     }  else {
-      window.game.canvas.style.display = "block"
-      window.game.start()
-      window.game.resize() // just for redraw
+      game.canvas.style.display = "block"
+      game.start()
+      game.resize() // just for redraw
     }
   }
 
@@ -238,43 +238,43 @@ function loadGame (name) {
 
 function createGame (name) {
   if (name == null) name = 'unnamed_0'
-  window.gameName = name
+  gameName = name
   window.games = {}
 
   Object.keys(provinces).forEach(key => {
-    window.games[key] = new ViewModule()
-    window.game = window.games[key]
+    games[key] = new ViewModule()
+    window.game = games[key]
 
-    window.games[key].playerID = 0
-    window.games[key].allInvs = []
+    games[key].playerID = 0
+    games[key].allInvs = []
 
-    window.games[key].terrain = new Terrain('terrain', Settings.gridSize, Settings.tileSize)
-    window.games[key].addLayer(window.game.terrain)
+    games[key].terrain = new Terrain('terrain', Settings.gridSize, Settings.tileSize)
+    games[key].addLayer(game.terrain)
 
-    window.games[key].res = new ResLayer('resource', Settings.gridSize, Settings.tileSize)
-    window.games[key].addLayer(window.game.res)
+    games[key].res = new ResLayer('resource', Settings.gridSize, Settings.tileSize)
+    games[key].addLayer(game.res)
 
-    window.games[key].entityLayer = new EntityLayer('entity', Settings.gridSize, Settings.tileSize)
-    window.games[key].addLayer(window.game.entityLayer)
+    games[key].entityLayer = new EntityLayer('entity', Settings.gridSize, Settings.tileSize)
+    games[key].addLayer(game.entityLayer)
 
-    window.games[key].dialogLayer = new DialogLayer('dialog', Settings.gridSize, Settings.tileSize)
-    window.games[key].addLayer(window.game.dialogLayer)
+    games[key].dialogLayer = new DialogLayer('dialog', Settings.gridSize, Settings.tileSize)
+    games[key].addLayer(game.dialogLayer)
 
-    window.games[key].addLayer(new ControlsLayer('controls', Settings.gridSize, Settings.tileSize))
+    games[key].addLayer(new ControlsLayer('controls', Settings.gridSize, Settings.tileSize))
 
-    window.games[key].player = new window.classDB.Player()
-    window.games[key].allInvs.push(window.games[key].player)
-    window.games[key].invID = window.games[key].allInvs.length - 1
-    window.games[key].allInvs.push(new Inventory())
+    games[key].player = new window.classDB.Player()
+    games[key].allInvs.push(games[key].player)
+    games[key].invID = games[key].allInvs.length - 1
+    games[key].allInvs.push(new Inventory())
   })
-  window.player = window.game.player
+  window.player = game.player
   saveGame()
 }
 
 function saveGame () {
   let provinceList = Object.keys(provinces)
   provinceList.forEach(provinceName => {
-    let province = window.games[provinceName]
+    let province = games[provinceName]
     for (const [key, value] of Object.entries(province.allInvs)) {
       if (value?.layer) value.layer = value.layer.name
     }  
@@ -282,16 +282,16 @@ function saveGame () {
 
   let gameContent = {}
   provinceList.forEach(provinceName => {
-    let province = window.games[provinceName]
+    let province = games[provinceName]
     gameContent[provinceName]  = {terrain: province.terrain.map, res: province.res.map, entity: province.entityLayer.map, ents: province.allInvs, playerID: province.playerID }
   })
 
-  window.localStorage.setItem(window.gameName, JSON.stringify(gameContent))
+  window.localStorage.setItem(gameName, JSON.stringify(gameContent))
 
   provinceList.forEach(provinceName => {
-    let province = window.games[provinceName]
+    let province = games[provinceName]
     for (const [key, value] of Object.entries(province.allInvs)) {
-      if (value?.layer) value.layer = window.game.layers[value.layer]
+      if (value?.layer) value.layer = game.layers[value.layer]
     }
   })
 }
@@ -324,7 +324,7 @@ if (curGame == null) {
 
 
 
-window.addEventListener('resize', function () { window.game.resize() })
+window.addEventListener('resize', function () { game.resize() })
 
 window.selectProvince = (province) => {
   window.uni.worldLayer.selectedProvince = province
@@ -332,9 +332,9 @@ window.selectProvince = (province) => {
 }
 
 window.setProvince = (province) => {
-  window.game = window.games[province]
-  window.game.start()
-  window.game.canvas.style.display = "block"
+  game = games[province]
+  game.start()
+  game.canvas.style.display = "block"
 
   window.uni.canvas.style.display = "none"
   window.uni.stop()

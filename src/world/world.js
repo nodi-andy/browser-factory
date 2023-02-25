@@ -23,7 +23,7 @@ export class World extends NC.NodiGrid {
   }
 
   updateOffscreenMap (resLayer) {
-    if (window.game.res.map == null) return
+    if (game.res.map == null) return
     resLayer.offscreenCanvas.width = Settings.gridSize.x * Settings.tileSize
     resLayer.offscreenCanvas.height = Settings.gridSize.y * Settings.tileSize
     const offScreencontext = resLayer.offscreenCanvas.getContext('2d')

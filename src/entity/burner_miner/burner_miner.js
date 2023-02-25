@@ -26,7 +26,7 @@ export class BurnerMiner extends Inventory {
     const size = BurnerMiner.size
     for (let i = 0; i < size[0]; i++) {
       for (let j = 0; j < size[1]; j++) {
-        window.game.entityLayer.setInv(ent.pos.x + i, ent.pos.y + j, this.id)
+        game.entityLayer.setInv(ent.pos.x + i, ent.pos.y + j, this.id)
       }
     }
     this.energy = 0
@@ -37,19 +37,19 @@ export class BurnerMiner extends Inventory {
     if (this.stack.FUEL == null) this.stack.FUEL = []
     if (this.stack.FUEL[0]?.n === 0) this.stack.FUEL.splice(0, 1)
 
-    if (window.game.tick % 100 === 0) {
+    if (game.tick % 100 === 0) {
       this.power = 0
       if (this.stack.FUEL == null || this.stack.FUEL.length === 0) this.stack.FUEL = [Settings.item(undefined, 0)]
       let output
-      let tile = window.game.res.map[ent.pos.x][ent.pos.y]
+      let tile = game.res.map[ent.pos.x][ent.pos.y]
       if (tile?.n === 0) tile = map[ent.pos.x + 1][ent.pos.y]
       if (tile?.n == null) return
 
       let invTo
-      if (this.dir === 0) invTo = window.game.entityLayer.getInv(ent.pos.x + 2, ent.pos.y, true)
-      if (this.dir === 1) invTo = window.game.entityLayer.getInv(ent.pos.x + 1, ent.pos.y + 2, true)
-      if (this.dir === 2) invTo = window.game.entityLayer.getInv(ent.pos.x - 1, ent.pos.y + 1, true)
-      if (this.dir === 3) invTo = window.game.entityLayer.getInv(ent.pos.x, ent.pos.y - 1, true)
+      if (this.dir === 0) invTo = game.entityLayer.getInv(ent.pos.x + 2, ent.pos.y, true)
+      if (this.dir === 1) invTo = game.entityLayer.getInv(ent.pos.x + 1, ent.pos.y + 2, true)
+      if (this.dir === 2) invTo = game.entityLayer.getInv(ent.pos.x - 1, ent.pos.y + 1, true)
+      if (this.dir === 3) invTo = game.entityLayer.getInv(ent.pos.x, ent.pos.y - 1, true)
       if (invTo == null) return
 
       if (tile?.n) output = classDB[classDBi[tile.id].becomes]
@@ -89,7 +89,7 @@ export class BurnerMiner extends Inventory {
     ctx.translate(Settings.tileSize, Settings.tileSize)
 
     if (this.pos?.x) {
-      if (this.power) ctx.rotate((window.game.tick / 100) % (2 * Math.PI))
+      if (this.power) ctx.rotate((game.tick / 100) % (2 * Math.PI))
     }
     ctx.translate(-Settings.tileSize, -Settings.tileSize)
     ctx.drawImage(BurnerMiner.anim2, 0, 0, BurnerMiner.size[0] * Settings.tileSize, BurnerMiner.size[1] * Settings.tileSize, 0, 0, BurnerMiner.size[0] * Settings.tileSize, BurnerMiner.size[1] * Settings.tileSize)

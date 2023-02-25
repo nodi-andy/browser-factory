@@ -20,13 +20,13 @@ export class ControlsLayer extends NC.NodiGrid {
     this.showInvButton.img = image
 
     this.showInvButton.onClick = () => {
-      window.game.entityLayer.onKeyUp({ code: 'KeyE' })
+      game.entityLayer.onKeyUp({ code: 'KeyE' })
     }
 
     this.buildButton = new Button()
     this.buildButton.item = classDB.IronAxe
     this.buildButton.onClick = () => {
-      window.game.entityLayer.onKeyDown({ code: 'Enter' })
+      game.entityLayer.onKeyDown({ code: 'Enter' })
     }
 
     this.rotateButton = new Button()
@@ -34,7 +34,7 @@ export class ControlsLayer extends NC.NodiGrid {
     imageRotateButton.src = './controls/rotate.png'
     this.rotateButton.img = imageRotateButton
     this.rotateButton.onClick = () => {
-      window.game.entityLayer.onKeyUp({ code: 'KeyR' })
+      game.entityLayer.onKeyUp({ code: 'KeyR' })
     }
   }
 

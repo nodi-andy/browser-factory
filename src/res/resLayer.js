@@ -17,7 +17,7 @@ export class ResLayer extends NC.NodiGrid {
             for (let ay = 0; ay < this.map[ax].length; ay++) {
               const perlinVal = perlinmap[ax * this.gridSize.y + ay]
               const tile = this.map[ax][ay]
-              const terrainTile = window.game.terrain.map[ax][ay]
+              const terrainTile = game.terrain.map[ax][ay]
               if (perlinVal > 8 && tile.id == null && terrainTile[0] === classDB.Grassland.id) {
                 tile.id = res.id
                 tile.n = Math.round((perlinVal - 8) * 200)
@@ -46,7 +46,7 @@ export class ResLayer extends NC.NodiGrid {
   }
 
   updateOffscreenMap (resLayer) {
-    if (window.game.res.map == null) return
+    if (game.res.map == null) return
     resLayer.offscreenCanvas.width = Settings.gridSize.x * Settings.tileSize
     resLayer.offscreenCanvas.height = Settings.gridSize.y * Settings.tileSize
     const offScreencontext = resLayer.offscreenCanvas.getContext('2d')

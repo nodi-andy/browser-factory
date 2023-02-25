@@ -77,7 +77,7 @@ export class ViewModule extends NC.NodiView {
   secureBoundaries () {
     /* if (this.tx > 0) this.tx = 0
     if (this.ty > 0) this.ty = 0
-    const boundary = window.game.screenToWorld({ x: this.size.x, y: this.size.y })
+    const boundary = game.screenToWorld({ x: this.size.x, y: this.size.y })
     if (boundary.x > Settings.gridSize.x * Settings.tileSize) this.tx = this.width / this.sx - (Settings.gridSize.x * Settings.tileSize)
     if (boundary.y > Settings.gridSize.y * Settings.tileSize) this.ty = this.height / this.sy - (Settings.gridSize.y * Settings.tileSize) */
   }
@@ -223,7 +223,7 @@ export class ViewModule extends NC.NodiView {
       if (refresh) {
         window.entityMenu.buttons.PROD = []
         button.onClick = () => {
-          window.game.updateSelectItemMenu(window.selEntity)
+          game.updateSelectItemMenu(window.selEntity)
           window.selectItemMenu.vis = true
           window.entityMenu.vis = false
         }

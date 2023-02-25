@@ -24,7 +24,7 @@ export class Boiler extends Inventory {
   }
 
   update (map, ent) {
-    if (window.game.tick % 100) return
+    if (game.tick % 100) return
 
     if (this.stack.INV[0].n === 0) return
 
@@ -37,7 +37,7 @@ export class Boiler extends Inventory {
     let total = 0
     let nSameType = 1
     for (const nbID of this.nbInputs) {
-      const n = window.game.allInvs[nbID]
+      const n = game.allInvs[nbID]
       if (n == null) continue
       if (n.stack.INV[0].id == null) n.stack.INV[0].id = this.stack.INV[0].id
       if (n.stack.INV[0].id === this.stack.INV[0].id) {
@@ -50,7 +50,7 @@ export class Boiler extends Inventory {
     let medVal = Math.floor(total / nSameType)
 
     for (const nbID of this.nbInputs) {
-      const n = window.game.allInvs[nbID]
+      const n = game.allInvs[nbID]
       if (n == null) continue
       if (n.stack.INV[0].id === this.stack.INV[0].id) {
         n.stack.INV[0].n = medVal
@@ -71,7 +71,7 @@ export class Boiler extends Inventory {
     total = 0
     nSameType = 0
     for (const nbID of this.nbOutputs) {
-      const n = window.game.allInvs[nbID]
+      const n = game.allInvs[nbID]
       if (n == null) continue
       if (n.stack.INV[0].id == null) n.stack.INV[0].id = this.stack.OUTPUT[0].id
       if (n.stack.INV[0].id === this.stack.OUTPUT[0].id) {
@@ -85,7 +85,7 @@ export class Boiler extends Inventory {
     medVal = Math.floor(total / nSameType)
 
     for (const nbID of this.nbOutputs) {
-      const n = window.game.allInvs[nbID]
+      const n = game.allInvs[nbID]
       if (n == null) continue
       if (n.stack.INV[0].id === this.stack.OUTPUT[0].id) {
         n.stack.INV[0].n = medVal
@@ -101,17 +101,17 @@ export class Boiler extends Inventory {
     this.nbOutputs = []
 
     let nbPos = Settings.dirToVec[this.dir]
-    let nb = window.game.entityLayer.getInv(this.pos.x - nbPos.x, this.pos.y - nbPos.y)
+    let nb = game.entityLayer.getInv(this.pos.x - nbPos.x, this.pos.y - nbPos.y)
     if (nb?.type === Settings.resDB.pipe.id || nb?.type === Settings.resDB.generator.id) this.nbOutputs.push(nb.id)
 
-    nb = window.game.entityLayer.getInv(this.pos.x + nbPos.x, this.pos.y + nbPos.y)
+    nb = game.entityLayer.getInv(this.pos.x + nbPos.x, this.pos.y + nbPos.y)
     if (nb?.type === Settings.resDB.pipe.id || nb?.type === Settings.resDB.generator.id) this.nbOutputs.push(nb.id)
 
     nbPos = Settings.dirToVec[(this.dir + 1) % 4]
-    nb = window.game.entityLayer.getInv(this.pos.x - nbPos.x, this.pos.y - nbPos.y)
+    nb = game.entityLayer.getInv(this.pos.x - nbPos.x, this.pos.y - nbPos.y)
     if (nb?.type === Settings.resDB.pipe.id || nb?.type === Settings.resDB.boiler.id) this.nbInputs.push(nb.id)
 
-    nb = window.game.entityLayer.getInv(this.pos.x + nbPos.x, this.pos.y + nbPos.y)
+    nb = game.entityLayer.getInv(this.pos.x + nbPos.x, this.pos.y + nbPos.y)
     if (nb?.type === Settings.resDB.pipe.id || nb?.type === Settings.resDB.boiler.id) this.nbInputs.push(nb.id)
   }
 

@@ -59,7 +59,7 @@ export class Terrain extends NC.NodiGrid {
   }
 
   updateOffscreenMap (terrainLayer) {
-    if (window.game.terrain.map == null) return
+    if (game.terrain.map == null) return
     terrainLayer.offscreenCanvas.width = Settings.gridSize.x * Settings.tileSize
     terrainLayer.offscreenCanvas.height = Settings.gridSize.y * Settings.tileSize
     const offScreencontext = terrainLayer.offscreenCanvas.getContext('2d')

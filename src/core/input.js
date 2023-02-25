@@ -25,7 +25,7 @@ class InputModule {
     if (Settings.pointer) Settings.pointer.overlay = isOverlay
 
     if (isOverlay === false) {
-      const tileCoordinate = window.game.screenToTile(window.mousePos)
+      const tileCoordinate = game.screenToTile(window.mousePos)
       Settings.curResPos.x = tileCoordinate.x
       Settings.curResPos.y = tileCoordinate.y
 

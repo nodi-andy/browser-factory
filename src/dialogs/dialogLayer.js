@@ -62,8 +62,8 @@ export class DialogLayer extends NC.NodiGrid {
     // CONTENT MENU
     if (Settings.dialogResPos?.x && Settings.dialogResPos?.y) {
       ctx.save()
-      const inv = window.game.entityLayer.getInv(Settings.dialogResPos.x, Settings.dialogResPos.y)
-      const res = window.game.res.getResource(Settings.dialogResPos)
+      const inv = game.entityLayer.getInv(Settings.dialogResPos.x, Settings.dialogResPos.y)
+      const res = game.res.getResource(Settings.dialogResPos)
 
       if (Settings.DEV) {
         // console.log(JSON.stringify(game.map[curResPos.x][curResPos.y]), inv);
@@ -160,7 +160,7 @@ export class DialogLayer extends NC.NodiGrid {
           context.drawImage(Settings.resName[costItem.id].img, window.receiptMenu.rect.x + 6, window.receiptMenu.rect.y + Settings.buttonSize.y + dy, 32, 32)
           let missingItems = ''
           if (window.receiptMenu.item.n === 0) {
-            const existing = Inventory.getNumberOfItems(window.game.allInvs[window.game.playerID], costItem.id)
+            const existing = Inventory.getNumberOfItems(game.allInvs[game.playerID], costItem.id)
             if (existing < costItem.n) {
               missingItems = existing + ' / '
               context.fillStyle = 'red'
@@ -191,9 +191,9 @@ export class DialogLayer extends NC.NodiGrid {
       context.font = (Settings.buttonSize.y / 2) + 'px Arial'
       context.fillStyle = 'black'
       let resText = ''
-      if (window.selEntity.id && window.game.allInvs[window.selEntity.id]?.type) resText = Settings.resName[window.game.allInvs[window.selEntity.id].type]?.name
+      if (window.selEntity.id && game.allInvs[window.selEntity.id]?.type) resText = Settings.resName[game.allInvs[window.selEntity.id].type]?.name
       context.fillText(resText, window.entityMenu.rect.x + Settings.buttonSize.x / 4, window.entityMenu.rect.y + Settings.buttonSize.x / 2)
-      const selInv = window.game.allInvs[window.selEntity.id]
+      const selInv = game.allInvs[window.selEntity.id]
       if (selInv) {
         if (selInv.selectedItem) {
           window.entityMenu.buttons.PROD[0].item = { id: selInv.selectedItem }

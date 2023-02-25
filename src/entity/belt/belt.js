@@ -107,21 +107,21 @@ export class Belt extends Inventory {
     }
 
     // BELTS SYSTEM
-    this.decidingMoving = ((window.game.tick + 0) % (16 / window.classDB[this.name].speed) === 0)
-    this.movingParts = ((window.game.tick + 1) % (16 / window.classDB[this.name].speed) === 0)
+    this.decidingMoving = ((game.tick + 0) % (16 / window.classDB[this.name].speed) === 0)
+    this.movingParts = ((game.tick + 1) % (16 / window.classDB[this.name].speed) === 0)
 
     // Do not update twice
     ent.done = true
 
     // DIRECT
     const nbPos = Settings.dirToVec[ent.dir]
-    let beltFrom = window.game.entityLayer.getInv(ent.pos.x - nbPos.x, ent.pos.y - nbPos.y)
+    let beltFrom = game.entityLayer.getInv(ent.pos.x - nbPos.x, ent.pos.y - nbPos.y)
     if (beltFrom && (Math.abs(this.dir - beltFrom.dir) === 2 || beltFrom.isBelt === false)) beltFrom = undefined
     if (beltFrom) this.beltFromID = beltFrom.id
 
     // LEFT
     const nbLeft = Settings.dirToVec[(ent.dir + 1) % 4]
-    let beltFromLeft = window.game.entityLayer.getInv(ent.pos.x - nbLeft.x, ent.pos.y - nbLeft.y)
+    let beltFromLeft = game.entityLayer.getInv(ent.pos.x - nbLeft.x, ent.pos.y - nbLeft.y)
     if (beltFromLeft && ((beltFromLeft.dir - ent.dir + 4) % 4 !== 1 || beltFromLeft.isBelt === false)) {
       beltFromLeft = undefined
     }
@@ -129,7 +129,7 @@ export class Belt extends Inventory {
 
     // RIGHT
     const nbRight = Settings.dirToVec[(ent.dir + 3) % 4]
-    let beltFromRight = window.game.entityLayer.getInv(ent.pos.x - nbRight.x, ent.pos.y - nbRight.y)
+    let beltFromRight = game.entityLayer.getInv(ent.pos.x - nbRight.x, ent.pos.y - nbRight.y)
     if (beltFromRight && ((beltFromRight.dir - ent.dir + 4) % 4 !== 3 || beltFromRight.isBelt === false)) {
       beltFromRight = undefined
     }
@@ -148,7 +148,7 @@ export class Belt extends Inventory {
       }
 
       // TO
-      let beltTo = window.game.entityLayer.getInv(ent.pos.x + nbPos.x, ent.pos.y + nbPos.y)
+      let beltTo = game.entityLayer.getInv(ent.pos.x + nbPos.x, ent.pos.y + nbPos.y)
       if (beltTo && beltTo.isBelt === false) beltTo = undefined
       if (beltTo) this.beltToID = beltTo.id
 
@@ -202,7 +202,7 @@ export class Belt extends Inventory {
   }
 
   drawItems (ctx) {
-    const beltPos = (Math.round(window.game.tick) * window.classDB[this.name].speed / 2) % 8
+    const beltPos = (Math.round(game.tick) * window.classDB[this.name].speed / 2) % 8
     if (this.pos == null && this.stack == null) return
     ctx.save()
     ctx.translate((this.pos.x + 0.5) * Settings.tileSize, (this.pos.y + 0.5) * Settings.tileSize)
@@ -344,9 +344,9 @@ export class Belt extends Inventory {
     }
     ctx.restore()
     this.drawn = 2 // set draw layer
-    const beltFrom = window.game.allInvs[this.beltFromID]
-    const beltFromLeft = window.game.allInvs[this.beltFromLeftID]
-    const beltFromRight = window.game.allInvs[this.beltFromRightID]
+    const beltFrom = game.allInvs[this.beltFromID]
+    const beltFromLeft = game.allInvs[this.beltFromLeftID]
+    const beltFromRight = game.allInvs[this.beltFromRightID]
     if (beltFrom && beltFrom.drawItems && beltFrom.drawn < 2) beltFrom.drawItems(ctx)
     if (beltFromLeft && beltFromLeft.drawItems && beltFromLeft.drawn < 2) beltFromLeft.drawItems(ctx)
     if (beltFromRight && beltFromRight.drawItems && beltFromRight.drawn < 2) beltFromRight.drawItems(ctx)

@@ -18,7 +18,7 @@ class Pipe extends Inventory {
   }
 
   update (map, ent) {
-    if (window.game.tick % 100) return
+    if (game.tick % 100) return
 
     if (this.nbInputs.length === 0 || this.stack.INV[0].n === 0) return
 
@@ -26,7 +26,7 @@ class Pipe extends Inventory {
     let total = 0
     let nSameType = 0
     for (const nbID of this.nbInputs) {
-      const n = window.game.allInvs[nbID]
+      const n = game.allInvs[nbID]
       if (n == null) continue
       if (n.stack.INV[0].id == null) n.stack.INV[0].id = this.stack.INV[0].id
       if (n.stack.INV[0].id === this.stack.INV[0].id) {
@@ -42,7 +42,7 @@ class Pipe extends Inventory {
 
     // OUTPUT
     for (const nbID of this.nbInputs) {
-      const n = window.game.allInvs[nbID]
+      const n = game.allInvs[nbID]
       if (n == null) continue
       if (n.stack.INV[0].id === this.stack.INV[0].id) {
         n.stack.INV[0].n = medVal
@@ -55,10 +55,10 @@ class Pipe extends Inventory {
 
   updateNB () {
     this.nbInputs = []
-    let nbr = window.game.entityLayer.getInv(this.pos.x + 1, this.pos.y + 0)
-    let nbl = window.game.entityLayer.getInv(this.pos.x - 1, this.pos.y + 0)
-    let nbu = window.game.entityLayer.getInv(this.pos.x + 0, this.pos.y - 1)
-    let nbd = window.game.entityLayer.getInv(this.pos.x + 0, this.pos.y + 1)
+    let nbr = game.entityLayer.getInv(this.pos.x + 1, this.pos.y + 0)
+    let nbl = game.entityLayer.getInv(this.pos.x - 1, this.pos.y + 0)
+    let nbu = game.entityLayer.getInv(this.pos.x + 0, this.pos.y - 1)
+    let nbd = game.entityLayer.getInv(this.pos.x + 0, this.pos.y + 1)
     if (!(nbr?.type === Settings.resDB.pipe.id || nbr?.type === Settings.resDB.boiler.id)) nbr = undefined
     if (!(nbl?.type === Settings.resDB.pipe.id || nbl?.type === Settings.resDB.boiler.id)) nbl = undefined
     if (!(nbu?.type === Settings.resDB.pipe.id || nbu?.type === Settings.resDB.boiler.id)) nbu = undefined

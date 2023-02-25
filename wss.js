@@ -34,11 +34,11 @@ function protocoll (ws, req) {
     const playerEnt = {}
     window.player.setup(undefined, playerEnt)
 
-    window.game.allInvs.push(playerEnt)
-    playerEnt.id = window.game.allInvs.length - 1
+    game.allInvs.push(playerEnt)
+    playerEnt.id = game.allInvs.length - 1
 
     Settings.allMovableEnts.push(playerEnt.id)
-    playerID = window.game.allInvs.length - 1
+    playerID = game.allInvs.length - 1
   }
 
   ws.playerID = playerID
@@ -48,16 +48,16 @@ function protocoll (ws, req) {
   ws.on('message', function (message) {
     const msg = JSON.parse(message)
     if (msg.cmd === 'updateInventories') {
-      window.game.allInvs = JSON.parse(JSON.stringify(msg.data))
+      game.allInvs = JSON.parse(JSON.stringify(msg.data))
     }
     if (msg.cmd === 'updateMapData') {
-      window.game.map = JSON.parse(JSON.stringify(msg.data))
-      s.sendAll(JSON.stringify({ msg: 'updateMapData', data: window.game.map }), ws.playerID)
+      game.map = JSON.parse(JSON.stringify(msg.data))
+      s.sendAll(JSON.stringify({ msg: 'updateMapData', data: game.map }), ws.playerID)
     }
     if (msg.cmd === 'updateEntity') {
       if (msg.data.ent) {
-        window.game.allInvs[msg.data.id] = JSON.parse(JSON.stringify(msg.data.ent))
-        s.sendAll(JSON.stringify({ msg: 'updateEntity', data: { id: msg.data.id, ent: window.game.allInvs[msg.data.id] } }), ws.playerID)
+        game.allInvs[msg.data.id] = JSON.parse(JSON.stringify(msg.data.ent))
+        s.sendAll(JSON.stringify({ msg: 'updateEntity', data: { id: msg.data.id, ent: game.allInvs[msg.data.id] } }), ws.playerID)
         console.log(msg.data)
       }
     }
@@ -72,7 +72,7 @@ function protocoll (ws, req) {
   ws.send(JSON.stringify({ msg: 'updateInventories', data: c.allInvs }))
   s.sendAll(JSON.stringify({
     msg: 'updateEntity',
-    data: { id: playerID, ent: window.game.allInvs[playerID] }
+    data: { id: playerID, ent: game.allInvs[playerID] }
   }))
   ws.send(JSON.stringify({ msg: 'setPlayerID', data: playerID }))
   ws.send(JSON.stringify({ msg: 'startGame' }))
@@ -81,7 +81,7 @@ wss.on('connection', protocoll)
 
 update()
 function update () {
-  window.game.tick++
+  game.tick++
   /*
   // machines,  belts and player excluded
   for(let ient = 0; ient < Settings.allEnts.length; ient++) {
@@ -90,7 +90,7 @@ function update () {
     if(entity.type === Settings.resDB.belt1.id) continue;
     if(entity.type === Settings.resDB.player.id) continue;
     if(Settings.resName[entity.type].mach) {
-      Settings.resName[entity.type].mach.update(window.game.map, entity);
+      Settings.resName[entity.type].mach.update(game.map, entity);
     }
   }
 
@@ -111,12 +111,12 @@ function update () {
         let y = belt.pos.y;
 
         let nbPos = Settings.dirToVec[belt.dir];
-        let nbTile = window.game.map[x + nbPos.x][y + nbPos.y];
+        let nbTile = game.map[x + nbPos.x][y + nbPos.y];
         let nbEntity = Settings.allEnts[nbTile[c.layers.buildings]];
         if (nbEntity && nbEntity.type === Settings.resDB.belt1.id && nbEntity.done === false) belt = nbEntity;
         else break;
       }
-      Settings.resDB.belt1.mach.update(window.game.map, belt);
+      Settings.resDB.belt1.mach.update(game.map, belt);
     }
   }
 

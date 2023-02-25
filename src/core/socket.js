@@ -50,7 +50,7 @@ function wssend (msg) {
 
     if (updateInv) {
       /* if (ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({ cmd: 'updateInventories', data: window.game.allInvs }))
+        ws.send(JSON.stringify({ cmd: 'updateInventories', data: game.allInvs }))
       } */
     }
     // ws.send(JSON.stringify(msg));
@@ -73,37 +73,37 @@ ws.onmessage = function (e) {
 
   if (socketMsg.msg === 'updateInventories') {
     const rawInvs = JSON.parse(JSON.stringify(socketMsg.data))
-    window.game.allInvs = []
+    game.allInvs = []
     for (const inv of rawInvs) {
-      window.game.allInvs.push(Object.assign(new Inventory(), inv))
+      game.allInvs.push(Object.assign(new Inventory(), inv))
     }
     Settings.player.setInventoryID(0)
     if (window.selEntity) {
       const inv = socketMsg.data[window.selEntity.id]
-      window.game.updateInventoryMenu(inv)
+      game.updateInventoryMenu(inv)
     }
   }
 
   if (socketMsg.msg === 'serverTick') {
-    // window.game.tick = socketMsg.data;
+    // game.tick = socketMsg.data;
     // console.log("server tick:", Settings.serverTick);
   }
 
   if (socketMsg.msg === 'updateEntities') {
-    window.game.allInvs = JSON.parse(JSON.stringify(socketMsg.data))
+    game.allInvs = JSON.parse(JSON.stringify(socketMsg.data))
   }
 
   if (socketMsg.msg === 'updateEntity') {
-    window.game.allInvs[socketMsg.data.id] = socketMsg.data.ent
+    game.allInvs[socketMsg.data.id] = socketMsg.data.ent
     // Settings.player.setInventory(socketMsg.data.inv, socketMsg.data.invID);
   }
   if (socketMsg.msg === 'remEntity') {
-    delete window.game.allInvs[socketMsg.data]
+    delete game.allInvs[socketMsg.data]
     // Settings.player.setInventory(socketMsg.data.inv, socketMsg.data.invID);
   }
   if (socketMsg.msg === 'updateMapData') updateMapData(socketMsg.data)
   if (socketMsg.msg === 'startGame') Time.gameLoop()
-  if (socketMsg.msg === 'setPlayerID') window.game.playerID = socketMsg.data
+  if (socketMsg.msg === 'setPlayerID') game.playerID = socketMsg.data
   if (socketMsg.msg === 'id') console.log("Received: '" + socketMsg.data + "'")
 } */
 
