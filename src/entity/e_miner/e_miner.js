@@ -41,11 +41,11 @@ export class ElectricalMiner extends Inventory {
       if (this.dir === 1) invTo = game.entityLayer.getInv(ent.pos.x + 1, ent.pos.y + 2, true)
       if (this.dir === 2) invTo = game.entityLayer.getInv(ent.pos.x - 1, ent.pos.y + 1, true)
       if (this.dir === 3) invTo = game.entityLayer.getInv(ent.pos.x, ent.pos.y - 1, true)
-      if (tile?.n) output = Settings.resName[Settings.resName[tile.id].becomes]
+      if (tile?.n) output = classDBi[classDBi[tile.id].becomes]
       // Shift output on next tile
       let stackName
       // place into assembling machine
-      if (invTo?.type === classDB.assembling_machine_1.id) stackName = Settings.resName[this.stack.INV[0].id].name
+      if (invTo?.type === classDB.assembling_machine_1.id) stackName = classDBi[this.stack.INV[0].id].name
       // place onto belt
       else if (invTo?.type === classDB.Belt1.id) {
         const relDir = (invTo.dir - this.dir + 3) % 4
@@ -54,9 +54,9 @@ export class ElectricalMiner extends Inventory {
       }
 
       const hasPlace = invTo.hasPlaceFor({ id: output, n: 1 }, stackName)
-      const neededEnergy = Settings.resName[tile.id].E
+      const neededEnergy = classDBi[tile.id].E
       if (this.stack.FUEL[0]?.n > 0 && hasPlace && this.energy <= neededEnergy) {
-        this.energy += Settings.resName[this.stack.FUEL[0].id].E // add time factor
+        this.energy += classDBi[this.stack.FUEL[0].id].E // add time factor
         this.power = 100
         this.stack.FUEL[0].n--
         tile.n--

@@ -87,8 +87,8 @@ export class Player extends Inventory {
     if (this.dir.y > 0.25 && Math.abs(this.dir.x) < 0.25) this.ss.y = 4
     if (this.dir.y > 0.25 && this.dir.x > 0.25) this.ss.y = 3
 
-    if (this.dir.x !== 0) Settings.curResPos.x = 0
-    if (this.dir.y !== 0) Settings.curResPos.y = 0
+    if (this.dir.x !== 0) window.curResPos.x = 0
+    if (this.dir.y !== 0) window.curResPos.y = 0
 
     this.ss.x += 30
     this.ss.x %= 30
@@ -197,14 +197,14 @@ export class Player extends Inventory {
 
   checkCollision (pos) {
     if (game.terrain.map == null) return
-    const terrain = Settings.resID[game.terrain.map[pos.x][pos.y][0]]
-    if (window.classDB[terrain].playerCanWalkOn === false) return true
+    const terrain = classDBi[game.terrain.map[pos.x][pos.y][0]]
+    if (terrain.playerCanWalkOn === false) return true
 
     const building = game.entityLayer.map[pos.x][pos.y]
     if (building == null) return false
     const buildingType = game.allInvs[building]?.type
     if (buildingType) {
-      const canWalk = Settings.resName[buildingType].playerCanWalkOn
+      const canWalk = classDBi[buildingType].playerCanWalkOn
       if (canWalk === false || canWalk == null) return true
     }
     return false

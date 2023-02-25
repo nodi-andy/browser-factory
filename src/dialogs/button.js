@@ -64,7 +64,7 @@ export class Button {
       }
     }
 
-    if (this.item?.id && Settings.resName[this.item.id].lock) {
+    if (this.item?.id && classDBi[this.item.id].lock) {
       ctx.beginPath()
       ctx.fillStyle = 'rgb(200, 100, 100, 0.3)'
       ctx.rect(this.screen.x, this.screen.y, Settings.buttonSize.x, Settings.buttonSize.y)
@@ -79,7 +79,7 @@ export class Button {
   }
 
   onClick (button) {
-    if (this.item?.id && Settings.resName[this.item?.id].lock === 1) return
+    if (this.item?.id && classDBi[this.item?.id].lock === 1) return
     if (button === 1) {
       if (Settings.pointer?.stack?.INV?.length) {
         if (Settings.pointer?.stack?.INV[0].id === game.allInvs[this.invID].stack[this.invKey][this.stackPos]?.id) {
@@ -89,8 +89,8 @@ export class Button {
         }
       } else {
         Inventory.moveStack({ fromInvID: this.invID, fromInvKey: this.invKey, fromStackPos: this.stackPos, toInvID: Settings.pointer.id, toInvKey: 'INV', toStackPos: 0 })
-        Settings.curResPos.x = 0
-        Settings.curResPos.y = -2
+        window.curResPos.x = 0
+        window.curResPos.y = -2
       }
     } else if (button === 3) {
       let buttonInv = game.allInvs[this.invID]

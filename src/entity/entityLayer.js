@@ -31,7 +31,7 @@ export class EntityLayer extends NC.NodiGrid {
       window.craftMenu.vis = false
     }
     if (e.code === 'Enter') {
-      this.setOnMap(NC.Vec2.add(window.player.tilePos, Settings.curResPos))
+      this.setOnMap(NC.Vec2.add(window.player.tilePos, window.curResPos))
     }
     window.player.stopMining(game.allInvs[game.playerID])
   }
@@ -59,7 +59,7 @@ export class EntityLayer extends NC.NodiGrid {
   setOnMap (tileCoordinate) {
     if (Settings.pointer?.stack?.INV == null) return
     if (Settings.pointer?.stack?.INV[0] == null) return
-    Settings.pointer.type = Settings.resName[Settings.pointer?.stack?.INV[0].id].type
+    Settings.pointer.type = classDBi[Settings.pointer?.stack?.INV[0].id].type
     if (Settings.pointer.type === 'entity') {
       wssend({ cmd: 'addEntity', data: { pos: { x: tileCoordinate.x, y: tileCoordinate.y }, dir: Settings.buildDir, type: Settings.pointer.stack.INV[0].id } })
     } else {
@@ -123,8 +123,8 @@ export class EntityLayer extends NC.NodiGrid {
     if (hit) return
     this.extendMouseData(e)
     Settings.curTilePos = { x: e.gridX, y: e.gridY }
-    Settings.curResPos.x = e.gridX - window.player.tilePos.x
-    Settings.curResPos.y = e.gridY - window.player.tilePos.y
+    window.curResPos.x = e.gridX - window.player.tilePos.x
+    window.curResPos.y = e.gridY - window.player.tilePos.y
 
     console.log(game.entityLayer.getInvP(Settings.curTilePos))
   }
@@ -205,8 +205,8 @@ export class EntityLayer extends NC.NodiGrid {
       ctx.save()
       ctx.translate(ax * Settings.tileSize, ay * Settings.tileSize)
 
-      if (Settings.resName[ent?.type]?.img && ent.drawn === 0) {
-        const type = Settings.resName[ent.type]
+      if (classDBi[ent?.type]?.img && ent.drawn === 0) {
+        const type = classDBi[ent.type]
         if (type && type.size) {
           ctx.translate(type.size[0] / 2 * Settings.tileSize, type.size[1] / 2 * Settings.tileSize)
           if (window.classDB[ent.name].rotatable !== false) ctx.rotate(ent.dir * Math.PI / 2)
@@ -214,7 +214,7 @@ export class EntityLayer extends NC.NodiGrid {
         }
 
         if (ent?.draw) ent.draw(ctx)
-        else ctx.drawImage(Settings.resName[ent.type].img, 0, 0)
+        else ctx.drawImage(classDBi[ent.type].img, 0, 0)
         ent.drawn = 1 // static objects are drawn now
 
         if (ent.isBelt) {
@@ -232,7 +232,7 @@ export class EntityLayer extends NC.NodiGrid {
           for (let iitem = 0; iitem < packs.length; iitem++) {
             const item = packs[iitem]
             if (item.id !== undefined) {
-              ctx.drawImage(Settings.resName[item.id].img, 0, 0)
+              ctx.drawImage(classDBi[item.id].img, 0, 0)
               if (iitem !== 1) {
                 ctx.translate(1.0 * Settings.tileSize, 0.0 * Settings.tileSize)
               } else {
@@ -282,10 +282,10 @@ export class EntityLayer extends NC.NodiGrid {
       if (ent?.drawn < 2 && !ent.isBelt && ent?.drawItems) {
         ctx.save()
         ctx.translate(ent.pos.x * Settings.tileSize, ent.pos.y * Settings.tileSize)
-        const type = Settings.resName[ent.type]
+        const type = classDBi[ent.type]
         if (type?.size) {
           ctx.translate(type.size[0] / 2 * Settings.tileSize, type.size[1] / 2 * Settings.tileSize)
-          if (Settings.resName[ent.type].rotatable !== false) ctx.rotate(ent.dir * Math.PI / 2)
+          if (classDBi[ent.type].rotatable !== false) ctx.rotate(ent.dir * Math.PI / 2)
           ctx.translate(-type.size[0] / 2 * Settings.tileSize, -type.size[1] / 2 * Settings.tileSize)
         }
         ent.drawItems(ctx)
@@ -303,16 +303,16 @@ export class EntityLayer extends NC.NodiGrid {
 
   drawEntityCandidate (ctx) {
     if (Settings.pointer?.stack?.INV == null) return
-    if (Settings.curResPos == null) return
+    if (window.curResPos == null) return
     if (Settings.pointer.stack.INV.length === 0) return
     // ENTITY CANDIDATE
 
-    const item = Settings.resName[Settings.pointer.stack.INV[0].id]
+    const item = classDBi[Settings.pointer.stack.INV[0].id]
     if (item == null) return
     let size = item.size
     if (size == null) size = [1, 1]
 
-    Settings.drawResPos = NC.Vec2.add(window.player.tilePos, Settings.curResPos)
+    Settings.drawResPos = NC.Vec2.add(window.player.tilePos, window.curResPos)
     ctx.save()
 
     ctx.translate(Settings.drawResPos.x * Settings.tileSize, Settings.drawResPos.y * Settings.tileSize)

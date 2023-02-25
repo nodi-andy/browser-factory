@@ -4,7 +4,7 @@ import { Settings } from '../common.js'
 export class Inventory {
 
   static mineToInv (minedItem) {
-    const newItem = { id: window.classDB[Settings.resName[minedItem.id].becomes].id, n: 1 }
+    const newItem = { id: window.classDB[classDBi[minedItem.id].becomes].id, n: 1 }
     const res = game.res.getResource(minedItem.source)
     res.n--
   
@@ -53,7 +53,7 @@ export class Inventory {
 
   static createInv (type, newEntity) {
     newEntity.id = game.allInvs.length
-    game.allInvs.push(new Settings.resName[type](newEntity.pos, newEntity))
+    game.allInvs.push(new classDBi[type](newEntity.pos, newEntity))
     return game.allInvs.length - 1
   }
   
@@ -74,7 +74,7 @@ export class Inventory {
         Settings.pointer.stack.INV[0].n--
         if (Settings.pointer.stack.INV[0].n === 0) delete Settings.pointer.stack.INV
       }
-      if (Settings.resName[newEntity.type].mach && Settings.resName[newEntity.type].mach.setup) Settings.resName[newEntity.type].mach.setup(game.entityLayer.map, inv)
+      if (classDBi[newEntity.type].mach && classDBi[newEntity.type].mach.setup) classDBi[newEntity.type].mach.setup(game.entityLayer.map, inv)
     }
   
     // Update Neighbours

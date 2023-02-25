@@ -61,7 +61,7 @@ export class StoneFurnace extends Inventory {
       // this.preneed.push({ id: "Wood", n: 1 }) TBD: no wood burning
     } else {
       const outputItem = this.stack.OUTPUT[0].id
-      this.preneed = JSON.parse(JSON.stringify(Settings.resName[outputItem].cost))
+      this.preneed = JSON.parse(JSON.stringify(classDBi[outputItem].cost))
     }
 
     for (let costItemID = 0; costItemID < this.preneed.length; costItemID++) {
@@ -79,7 +79,7 @@ export class StoneFurnace extends Inventory {
       else {
         const inItem = this.stack.INV[0]
         let targetSlot = 'INPUT'
-        if (Settings.resName[inItem.id].E) targetSlot = 'FUEL'
+        if (classDBi[inItem.id].E) targetSlot = 'FUEL'
         this.addItem(inItem, targetSlot)
         delete this.stack.INV
       }
@@ -89,7 +89,7 @@ export class StoneFurnace extends Inventory {
             stack.INPUT == null ||
             stack.INPUT[0] == null ||
             stack.INPUT[0].id == null ||
-            Settings.resName[stack.INPUT[0].id].smeltedInto == null) {
+            classDBi[stack.INPUT[0].id].smeltedInto == null) {
       ent.state = 0
       return
     }

@@ -29,7 +29,7 @@ export class Boiler extends Inventory {
     if (this.stack.INV[0].n === 0) return
 
     if (this.stack.FUEL[0]?.n > 0 && this.energy <= 1) {
-      this.energy += Settings.resName[this.stack.FUEL[0].id].E // add time factor
+      this.energy += classDBi[this.stack.FUEL[0].id].E // add time factor
       this.stack.FUEL[0].n--
     }
 

@@ -9,29 +9,18 @@ import { ResLayer } from './res/resLayer.js'
 import { DialogLayer } from './dialogs/dialogLayer.js'
 import { ControlsLayer } from './controls/controlsLayer.js'
 //import { provinces } from './world/germany.js'
-import * as NC from 'nodicanvas'
 
 import elements from './imports.js'
 
-window.classDB = {}
-window.classDBi = {}
-window.gameName = ''
-Settings.resID = []
-
-elements.forEach((el) => {
+for(let i = 0; i < elements.length; i++) {
+  let el = elements[i]
   let key = Object.keys(el)[0]
-
-  if (key == null) return
-
-  Settings.resID.push(key)
-  let i = Settings.resID.length - 1
+  if (key == null) continue
 
   window.classDB[key] = el[key]
   window.classDBi[i] = el[key]
   if (window.classDB[key]) window.classDB[key].id = i
-
-  Settings.resName[i] = window.classDB[key]
-})
+}
 
 
 function updateNextGameID () {

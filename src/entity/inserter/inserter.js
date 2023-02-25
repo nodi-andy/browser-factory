@@ -37,7 +37,7 @@ export class Inserter extends Inventory {
     if (this.pos) {
       if (this.stack.FUEL[0]?.n > 0 && this.energy <= 2) {
         // TBD: don't use coal until electricity is developed
-        // this.energy += Settings.resName[this.stack.FUEL[0].id].E // add time factor
+        // this.energy += classDBi[this.stack.FUEL[0].id].E // add time factor
         // this.stack.FUEL[0].n--
         this.energy = 10
       }

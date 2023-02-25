@@ -118,7 +118,7 @@ export class ViewModule extends NC.NodiView {
       if (i == null) return
       const newButton = new Button((pos % 8) * (Settings.buttonSize.x), Math.floor(pos / 8) * (Settings.buttonSize.y), { id: i.id, n: 0 }, window.craftMenu, window.player.invID)
       newButton.onClick = () => {
-        if (Settings.resName[i.id].lock == null) Inventory.craftToInv(window.player, [i])
+        if (classDBi[i.id].lock == null) Inventory.craftToInv(window.player, [i])
       }
       window.craftMenu.items.push(newButton)
       pos++
@@ -182,7 +182,7 @@ export class ViewModule extends NC.NodiView {
       tInv.stack.INV.size = 64
       tInv.packsize = inv.packsize
       tInv.itemsize = inv.itemsize
-      const cost = Settings.resName[craftItem.item.id].cost
+      const cost = classDBi[craftItem.item.id].cost
       craftItem.item.n = 0
       if (cost) {
         while (tInv.remItems(cost)) craftItem.item.n++ // how much can be build

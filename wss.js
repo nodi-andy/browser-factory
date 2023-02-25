@@ -89,8 +89,8 @@ function update () {
     if (!entity) continue;
     if(entity.type === classDB.belt1.id) continue;
     if(entity.type === classDB.player.id) continue;
-    if(Settings.resName[entity.type].mach) {
-      Settings.resName[entity.type].mach.update(game.map, entity);
+    if(classDBi[entity.type].mach) {
+      classDBi[entity.type].mach.update(game.map, entity);
     }
   }
 

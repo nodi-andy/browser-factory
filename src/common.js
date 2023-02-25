@@ -1,7 +1,9 @@
 import * as NC from 'nodicanvas'
-export const Settings = {}
 
-const resName = {}
+window.classDB = {}
+window.classDBi = {}
+window.gameName = ''
+window.curResPos = new NC.Vec2(0, 0)
 
 export const provinces = {
   "single" : {
@@ -10,17 +12,15 @@ export const provinces = {
   }
 }
 
-Settings.resName = resName
-
-Settings.buttonSize = { x: 68, y: 68 }
-Settings.tileSize = 64
-Settings.gridSize = new NC.Vec2(160, 90)
-Settings.buildDir = 0
-Settings.dirToVec = [{ x: 1, y: 0 },{ x: 0, y: 1 },{ x: -1, y: 0 },{ x: 0, y: -1 }]
-Settings.dirToAng = [0, 90, 180, 270]
-Settings.nbVec = [{ x: 1, y: 0 }, { x: 1, y: -1 }, { x: 0, y: -1 }, { x: -1, y: -1 }, { x: -1, y: 0 }, { x: -1, y: 1 }, { x: 0, y: 1 } , { x: 1, y: 1 }]
-
-Settings.curResPos = new NC.Vec2(0, 0)
+export const Settings = {
+  buttonSize : { x: 68, y: 68 },
+  tileSize : 64,
+  gridSize : new NC.Vec2(160, 90),
+  buildDir : 0,
+  dirToVec : [{ x: 1, y: 0 },{ x: 0, y: 1 },{ x: -1, y: 0 },{ x: 0, y: -1 }],
+  dirToAng : [0, 90, 180, 270],
+  nbVec : [{ x: 1, y: 0 }, { x: 1, y: -1 }, { x: 0, y: -1 }, { x: -1, y: -1 }, { x: -1, y: 0 }, { x: -1, y: 1 }, { x: 0, y: 1 } , { x: 1, y: 1 }]
+}
 
 export function dist (a, b) { return Math.hypot(a.x - b.x, a.y - b.y) }
 

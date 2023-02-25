@@ -56,7 +56,7 @@ export class BurnerMiner extends Inventory {
       // Shift output on next tile
       let stackName
       // place into assembling machine
-      if (invTo?.type === classDB.AssemblingMachine1?.id) stackName = Settings.resName[this.stack.INV[0].id].name
+      if (invTo?.type === classDB.AssemblingMachine1?.id) stackName = classDBi[this.stack.INV[0].id].name
       // place onto belt
       else if (invTo?.isBelt) {
         const relDir = (invTo.dir - this.dir + 3) % 4
@@ -65,9 +65,9 @@ export class BurnerMiner extends Inventory {
       }
 
       const hasPlace = invTo.hasPlaceFor({ id: output.id, n: 1 }, stackName)
-      const neededEnergy = Settings.resName[tile.id].W
+      const neededEnergy = classDBi[tile.id].W
       if (this.stack.FUEL[0]?.n > 0 && hasPlace && this.energy <= neededEnergy) {
-        this.energy += Settings.resName[this.stack.FUEL[0].id].E // add time factor
+        this.energy += classDBi[this.stack.FUEL[0].id].E // add time factor
         this.power = 100
         this.stack.FUEL[0].n--
         tile.n--

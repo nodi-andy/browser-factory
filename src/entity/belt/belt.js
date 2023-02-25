@@ -216,7 +216,7 @@ export class Belt extends Inventory {
       if (this.stack.LA.moving) pos = beltPos
       else pos = 0
       ctx.drawImage(
-        Settings.resName[this.stack.LA.id].img,
+        classDBi[this.stack.LA.id].img,
         0,
         0,
         64,
@@ -232,7 +232,7 @@ export class Belt extends Inventory {
       if (this.stack.RA.moving) pos = beltPos
       else pos = 0
       ctx.drawImage(
-        Settings.resName[this.stack.RA.id].img,
+        classDBi[this.stack.RA.id].img,
         0,
         0,
         64,
@@ -249,7 +249,7 @@ export class Belt extends Inventory {
       if (this.stack.LB.moving) pos = beltPos
       else pos = 0
       ctx.drawImage(
-        Settings.resName[this.stack.LB.id].img,
+        classDBi[this.stack.LB.id].img,
         0,
         0,
         64,
@@ -265,7 +265,7 @@ export class Belt extends Inventory {
       if (this.stack.RB.moving) pos = beltPos
       else pos = 0
       ctx.drawImage(
-        Settings.resName[this.stack.RB.id].img,
+        classDBi[this.stack.RB.id].img,
         0,
         0,
         64,
@@ -282,7 +282,7 @@ export class Belt extends Inventory {
       if (this.stack.LC.moving) pos = beltPos
       else pos = 0
       ctx.drawImage(
-        Settings.resName[this.stack.LC.id].img,
+        classDBi[this.stack.LC.id].img,
         0,
         0,
         64,
@@ -298,7 +298,7 @@ export class Belt extends Inventory {
       if (this.stack.RC.moving) pos = beltPos
       else pos = 0
       ctx.drawImage(
-        Settings.resName[this.stack.RC.id].img,
+        classDBi[this.stack.RC.id].img,
         0,
         0,
         64,
@@ -315,7 +315,7 @@ export class Belt extends Inventory {
       if (this.stack.LD.moving) pos = beltPos
       else pos = 0
       ctx.drawImage(
-        Settings.resName[this.stack.LD.id].img,
+        classDBi[this.stack.LD.id].img,
         0,
         0,
         64,
@@ -331,7 +331,7 @@ export class Belt extends Inventory {
       if (this.stack.RD.moving) pos = beltPos
       else pos = 0
       ctx.drawImage(
-        Settings.resName[this.stack.RD.id].img,
+        classDBi[this.stack.RD.id].img,
         0,
         0,
         64,

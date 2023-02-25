@@ -50,9 +50,9 @@ export class Terrain extends NC.NodiGrid {
         // MAP
         const type = tile[0]
         const variant = tile[1]
-        if (Settings.resName[type]?.img?.complete === false) return false
+        if (classDBi[type]?.img?.complete === false) return false
 
-        offScreencontext.drawImage(Settings.resName[type].img, variant * 64, 0, Settings.tileSize, Settings.tileSize, ax * Settings.tileSize, ay * Settings.tileSize, Settings.tileSize, Settings.tileSize)
+        offScreencontext.drawImage(classDBi[type].img, variant * 64, 0, Settings.tileSize, Settings.tileSize, ax * Settings.tileSize, ay * Settings.tileSize, Settings.tileSize, Settings.tileSize)
       }
     }
     return true

@@ -37,7 +37,7 @@ export class AssemblingMachine extends Inventory {
       }
     }
 
-    const cost = Settings.resName[this.selectedItem].cost
+    const cost = classDBi[this.selectedItem].cost
     if (this.stack == null && this.inv.stack) this.stack = this.inv.stack
     if (this.stack == null) this.stack = {}
     this.packsize = {}
@@ -46,7 +46,7 @@ export class AssemblingMachine extends Inventory {
     this.packsize.OUTPUT = 1
     for (let icost = 0; icost < cost.length; icost++) {
       const item = cost[icost]
-      const name = Settings.resName[item.id].name
+      const name = classDBi[item.id].name
       if (this.stack[name] == null) this.stack[name] = []
       this.packsize[name] = 1
     }
@@ -54,7 +54,7 @@ export class AssemblingMachine extends Inventory {
 
   update (map, invThis) {
     if (this.selectedItem == null) return
-    this.preneed = JSON.parse(JSON.stringify(Settings.resName[this.selectedItem].cost))
+    this.preneed = JSON.parse(JSON.stringify(classDBi[this.selectedItem].cost))
     delete this.preneed.OUTPUT
     delete this.preneed.PROD
 
@@ -81,7 +81,7 @@ export class AssemblingMachine extends Inventory {
           if (invThis.stack.OUTPUT[0].n == null) invThis.stack.OUTPUT[0].n = 0
           if (this.stack.OUTPUT[0].n < this.itemsize) {
             invThis.stack.OUTPUT[0].n++
-            invThis.remItems(Settings.resName[invThis.selectedItem].cost)
+            invThis.remItems(classDBi[invThis.selectedItem].cost)
           }
         }
       }
@@ -89,6 +89,6 @@ export class AssemblingMachine extends Inventory {
   }
 
   getStackName (type) {
-    return Settings.resName[type].name
+    return classDBi[type].name
   }
 }

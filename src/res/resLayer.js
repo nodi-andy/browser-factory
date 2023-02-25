@@ -38,8 +38,8 @@ export class ResLayer extends NC.NodiGrid {
         const type = tile.id
         const n = tile.n
         if (type == null || n === 0) continue
-        if (Settings.resName[type]?.img?.complete === false) return false
-        offScreencontext.drawImage(Settings.resName[type].img, Math.min(Math.floor(n / 100), 6) * 64, 2, 60, 60, ax * resLayer.tileSize, ay * resLayer.tileSize, 64, 64)
+        if (classDBi[type]?.img?.complete === false) return false
+        offScreencontext.drawImage(classDBi[type].img, Math.min(Math.floor(n / 100), 6) * 64, 2, 60, 60, ax * resLayer.tileSize, ay * resLayer.tileSize, 64, 64)
       }
     }
     return true

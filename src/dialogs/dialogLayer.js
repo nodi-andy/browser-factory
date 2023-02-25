@@ -89,7 +89,7 @@ export class DialogLayer extends NC.NodiGrid {
         ctx.fillRect(0, 0, Settings.buttonSize.x * 2, Settings.buttonSize.x)
         ctx.font = (Settings.buttonSize.y / 2) + 'px Arial'
         ctx.fillStyle = 'black'
-        ctx.fillText(Settings.resName[res.id].name, 0, Settings.buttonSize.y / 2)
+        ctx.fillText(classDBi[res.id].name, 0, Settings.buttonSize.y / 2)
         ctx.fillText(res.n, 0, Settings.buttonSize.y)
       }
       ctx.restore()
@@ -109,7 +109,7 @@ export class DialogLayer extends NC.NodiGrid {
 
     // POINTER ITEM
     if (Settings.pointer?.stack?.INV?.length && Settings.pointer.overlay) {
-      const item = Settings.resName[Settings.pointer.stack.INV[0].id]
+      const item = classDBi[Settings.pointer.stack.INV[0].id]
       if (item) {
         ctx.save()
         ctx.translate(window.mousePos.x, window.mousePos.y)
@@ -150,14 +150,14 @@ export class DialogLayer extends NC.NodiGrid {
       context.fillRect(window.receiptMenu.rect.x, window.receiptMenu.rect.y, window.receiptMenu.rect.w, window.receiptMenu.rect.h)
       context.font = (Settings.buttonSize.y / 2) + 'px Arial'
       context.fillStyle = 'black'
-      let title = Settings.resName[window.receiptMenu.item.id].name
-      if (Settings.resName[window.receiptMenu.item.id].lock) title += ' (developing...)'
+      let title = classDBi[window.receiptMenu.item.id].name
+      if (classDBi[window.receiptMenu.item.id].lock) title += ' (developing...)'
       context.fillText(title, window.receiptMenu.rect.x + 6, window.receiptMenu.rect.y + Settings.buttonSize.y / 2)
       let dy = 0
-      if (Settings.resName[window.receiptMenu.item.id].cost) {
-        for (const costItem of Settings.resName[window.receiptMenu.item.id].cost) {
+      if (classDBi[window.receiptMenu.item.id].cost) {
+        for (const costItem of classDBi[window.receiptMenu.item.id].cost) {
           context.fillRect(window.receiptMenu.rect.x + 6, window.receiptMenu.rect.y + Settings.buttonSize.y + dy, 32, 32)
-          context.drawImage(Settings.resName[costItem.id].img, window.receiptMenu.rect.x + 6, window.receiptMenu.rect.y + Settings.buttonSize.y + dy, 32, 32)
+          context.drawImage(classDBi[costItem.id].img, window.receiptMenu.rect.x + 6, window.receiptMenu.rect.y + Settings.buttonSize.y + dy, 32, 32)
           let missingItems = ''
           if (window.receiptMenu.item.n === 0) {
             const existing = Inventory.getNumberOfItems(game.allInvs[game.playerID], costItem.id)
@@ -166,7 +166,7 @@ export class DialogLayer extends NC.NodiGrid {
               context.fillStyle = 'red'
             } else context.fillStyle = 'black'
           } else context.fillStyle = 'black'
-          context.fillText(missingItems + costItem.n + 'x ' + Settings.resName[costItem.id].name, window.receiptMenu.rect.x + 46, window.receiptMenu.rect.y + Settings.buttonSize.y * 1.2 + dy)
+          context.fillText(missingItems + costItem.n + 'x ' + classDBi[costItem.id].name, window.receiptMenu.rect.x + 46, window.receiptMenu.rect.y + Settings.buttonSize.y * 1.2 + dy)
           dy += Settings.buttonSize.y
           window.receiptMenu.rect.h = dy + 100
         }
@@ -191,7 +191,7 @@ export class DialogLayer extends NC.NodiGrid {
       context.font = (Settings.buttonSize.y / 2) + 'px Arial'
       context.fillStyle = 'black'
       let resText = ''
-      if (window.selEntity.id && game.allInvs[window.selEntity.id]?.type) resText = Settings.resName[game.allInvs[window.selEntity.id].type]?.name
+      if (window.selEntity.id && game.allInvs[window.selEntity.id]?.type) resText = classDBi[game.allInvs[window.selEntity.id].type]?.name
       context.fillText(resText, window.entityMenu.rect.x + Settings.buttonSize.x / 4, window.entityMenu.rect.y + Settings.buttonSize.x / 2)
       const selInv = game.allInvs[window.selEntity.id]
       if (selInv) {
