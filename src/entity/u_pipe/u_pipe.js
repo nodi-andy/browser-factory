@@ -13,7 +13,7 @@ export class UPipe extends Inventory {
     this.packsize.INV = 1
 
     if (this.stack.INV == null) this.stack.INV = [{ n: 0 }]
-    this.mapsize = { x: Settings.resDB.pipe.size[0], y: Settings.resDB.pipe.size[1] }
+    this.mapsize = { x: classDB.pipe.size[0], y: classDB.pipe.size[1] }
     this.nbInputs = []
   }
 
@@ -59,48 +59,48 @@ export class UPipe extends Inventory {
     let nbl = game.entityLayer.getInv(this.pos.x - 1, this.pos.y + 0)
     let nbu = game.entityLayer.getInv(this.pos.x + 0, this.pos.y - 1)
     let nbd = game.entityLayer.getInv(this.pos.x + 0, this.pos.y + 1)
-    if (!(nbr?.type === Settings.resDB.pipe.id || nbr?.type === Settings.resDB.boiler.id)) nbr = undefined
-    if (!(nbl?.type === Settings.resDB.pipe.id || nbl?.type === Settings.resDB.boiler.id)) nbl = undefined
-    if (!(nbu?.type === Settings.resDB.pipe.id || nbu?.type === Settings.resDB.boiler.id)) nbu = undefined
-    if (!(nbd?.type === Settings.resDB.pipe.id || nbd?.type === Settings.resDB.boiler.id)) nbd = undefined
+    if (!(nbr?.type === classDB.pipe.id || nbr?.type === classDB.boiler.id)) nbr = undefined
+    if (!(nbl?.type === classDB.pipe.id || nbl?.type === classDB.boiler.id)) nbl = undefined
+    if (!(nbu?.type === classDB.pipe.id || nbu?.type === classDB.boiler.id)) nbu = undefined
+    if (!(nbd?.type === classDB.pipe.id || nbd?.type === classDB.boiler.id)) nbd = undefined
 
     const nbs = [nbr, nbl, nbu, nbd]
     for (const nb of nbs) {
-      if ((nb?.type === Settings.resDB.pipe.id || nb?.type === Settings.resDB.boiler.id) && this.nbInputs.includes(nb.id) === false) this.nbInputs.push(nb.id)
+      if ((nb?.type === classDB.pipe.id || nb?.type === classDB.boiler.id) && this.nbInputs.includes(nb.id) === false) this.nbInputs.push(nb.id)
     }
 
-    this.img = Settings.resDB.pipe.sh
+    this.img = classDB.pipe.sh
     this.imgMirror = false
     switch (this.nbInputs.length) {
       case 1:
-        if (nbd) this.img = Settings.resDB.pipe.enddown
-        else if (nbu) this.img = Settings.resDB.pipe.endup
-        else if (nbl) this.img = Settings.resDB.pipe.endright
-        else if (nbr) this.img = Settings.resDB.pipe.endleft
+        if (nbd) this.img = classDB.pipe.enddown
+        else if (nbu) this.img = classDB.pipe.endup
+        else if (nbl) this.img = classDB.pipe.endright
+        else if (nbr) this.img = classDB.pipe.endleft
         break // is that right?
       case 2:
-        if (nbl && nbr) this.img = Settings.resDB.pipe.sh
-        else if (nbd && nbu) this.img = Settings.resDB.pipe.sv
-        else if (nbl && nbu) this.img = Settings.resDB.pipe.crd
-        else if (nbr && nbu) this.img = Settings.resDB.pipe.cld
-        else if (nbl && nbd) this.img = Settings.resDB.pipe.cru
-        else if (nbr && nbd) this.img = Settings.resDB.pipe.clu
+        if (nbl && nbr) this.img = classDB.pipe.sh
+        else if (nbd && nbu) this.img = classDB.pipe.sv
+        else if (nbl && nbu) this.img = classDB.pipe.crd
+        else if (nbr && nbu) this.img = classDB.pipe.cld
+        else if (nbl && nbd) this.img = classDB.pipe.cru
+        else if (nbr && nbd) this.img = classDB.pipe.clu
 
         break
       case 3:
-        if (nbd == null) this.img = Settings.resDB.pipe.tup
-        else if (nbu == null) this.img = Settings.resDB.pipe.tdown
-        else if (nbl == null) this.img = Settings.resDB.pipe.tright
-        else if (nbr == null) this.img = Settings.resDB.pipe.tleft
+        if (nbd == null) this.img = classDB.pipe.tup
+        else if (nbu == null) this.img = classDB.pipe.tdown
+        else if (nbl == null) this.img = classDB.pipe.tright
+        else if (nbr == null) this.img = classDB.pipe.tleft
         break
-      case 4: this.img = Settings.resDB.pipe.cross
+      case 4: this.img = classDB.pipe.cross
         break
     }
   }
 
   draw (ctx, ent) {
     let img = this.img
-    if (ent) img = Settings.resDB.pipe.sh
+    if (ent) img = classDB.pipe.sh
     ctx.drawImage(img, 0, 0, db.size[0] * Settings.tileSize / 2, db.size[1] * Settings.tileSize / 2, 0, 0, db.size[0] * Settings.tileSize, db.size[1] * Settings.tileSize)
   }
 
@@ -116,7 +116,7 @@ export class UPipe extends Inventory {
   }
 }
 
-const db = Settings.resDB.u_pipe = {}
+const db = UPipe
 db.type = 'entity'
 db.playerCanWalkOn = false
 db.rotatable = false
@@ -127,8 +127,6 @@ db.cost = [
 
 if (typeof Image !== 'undefined') {
   const image = new Image(32, 32)
-  image.src = './' + Settings.resDB.u_pipe.type + '/u_pipe/u_pipe.png'
-  Settings.resDB.u_pipe.img = image
+  image.src = './' + UPipe.type + '/u_pipe/u_pipe.png'
+  UPipe.img = image
 }
-
-db.mach = UPipe

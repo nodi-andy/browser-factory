@@ -76,8 +76,8 @@ export class AssemblingMachine extends Inventory {
       if (invThis.state === 0) { invThis.lastTime = performance.now(); invThis.state = 1 };
       if (invThis.state === 1) {
         if (invThis.selectedItem) {
-          if (!invThis.stack.OUTPUT?.length) invThis.stack.OUTPUT = [Settings.item(invThis.selectedItem, 0)]
-          if (invThis.stack.OUTPUT[0] == null) invThis.stack.OUTPUT[0] = Settings.item(invThis.selectedItem, 0)
+          if (!invThis.stack.OUTPUT?.length) invThis.stack.OUTPUT = [ {id: invThis.selectedItem, n: 0} ]
+          if (invThis.stack.OUTPUT[0] == null) invThis.stack.OUTPUT[0] = {id: invThis.selectedItem, n: 0}
           if (invThis.stack.OUTPUT[0].n == null) invThis.stack.OUTPUT[0].n = 0
           if (this.stack.OUTPUT[0].n < this.itemsize) {
             invThis.stack.OUTPUT[0].n++

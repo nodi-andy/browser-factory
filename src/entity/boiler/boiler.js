@@ -16,8 +16,8 @@ export class Boiler extends Inventory {
     this.energy = 0
 
     if (this.stack.FUEL == null) this.stack.FUEL = []
-    if (this.stack.INV == null) this.stack.INV = [{ id: Settings.resDB.water.id, n: 0 }]
-    if (this.stack.OUTPUT == null) this.stack.OUTPUT = [{ id: Settings.resDB.steam.id, n: 0 }]
+    if (this.stack.INV == null) this.stack.INV = [{ id: classDB.water.id, n: 0 }]
+    if (this.stack.OUTPUT == null) this.stack.OUTPUT = [{ id: classDB.steam.id, n: 0 }]
 
     this.nbInputs = []
     this.nbOutputs = []
@@ -102,21 +102,21 @@ export class Boiler extends Inventory {
 
     let nbPos = Settings.dirToVec[this.dir]
     let nb = game.entityLayer.getInv(this.pos.x - nbPos.x, this.pos.y - nbPos.y)
-    if (nb?.type === Settings.resDB.pipe.id || nb?.type === Settings.resDB.generator.id) this.nbOutputs.push(nb.id)
+    if (nb?.type === classDB.pipe.id || nb?.type === classDB.generator.id) this.nbOutputs.push(nb.id)
 
     nb = game.entityLayer.getInv(this.pos.x + nbPos.x, this.pos.y + nbPos.y)
-    if (nb?.type === Settings.resDB.pipe.id || nb?.type === Settings.resDB.generator.id) this.nbOutputs.push(nb.id)
+    if (nb?.type === classDB.pipe.id || nb?.type === classDB.generator.id) this.nbOutputs.push(nb.id)
 
     nbPos = Settings.dirToVec[(this.dir + 1) % 4]
     nb = game.entityLayer.getInv(this.pos.x - nbPos.x, this.pos.y - nbPos.y)
-    if (nb?.type === Settings.resDB.pipe.id || nb?.type === Settings.resDB.boiler.id) this.nbInputs.push(nb.id)
+    if (nb?.type === classDB.pipe.id || nb?.type === classDB.boiler.id) this.nbInputs.push(nb.id)
 
     nb = game.entityLayer.getInv(this.pos.x + nbPos.x, this.pos.y + nbPos.y)
-    if (nb?.type === Settings.resDB.pipe.id || nb?.type === Settings.resDB.boiler.id) this.nbInputs.push(nb.id)
+    if (nb?.type === classDB.pipe.id || nb?.type === classDB.boiler.id) this.nbInputs.push(nb.id)
   }
 
   draw (ctx, ent) {
-    ctx.drawImage(Settings.resDB.boiler.img, 0, 0, db.size[0] * Settings.tileSize, db.size[1] * Settings.tileSize, 0, 0, db.size[0] * Settings.tileSize, db.size[1] * Settings.tileSize)
+    ctx.drawImage(classDB.boiler.img, 0, 0, db.size[0] * Settings.tileSize, db.size[1] * Settings.tileSize, 0, 0, db.size[0] * Settings.tileSize, db.size[1] * Settings.tileSize)
   }
 
   drawItems (ctx) {
@@ -130,9 +130,8 @@ export class Boiler extends Inventory {
   }
 }
 
-const db = Settings.resDB.boiler = {}
+const db = Boiler
 db.playerCanWalkOn = false
-db.name = 'boiler'
 db.type = 'entity'
 db.lock = 1
 db.size = [1, 1]
@@ -142,8 +141,8 @@ db.cost = [
 
 if (typeof Image !== 'undefined') {
   const image = new Image(512, 32)
-  image.src = './' + Settings.resDB.boiler.type + '/boiler/boiler.png'
-  Settings.resDB.boiler.img = image
+  image.src = './' + Boiler.type + '/boiler/boiler.png'
+  Boiler.img = image
 }
 
 db.mach = Boiler

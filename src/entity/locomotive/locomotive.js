@@ -1,7 +1,7 @@
 import { Settings } from '../../common.js'
 import { Inventory } from '../../core/inventory.js'
 
-class Locomotive extends Inventory {
+export class Locomotive extends Inventory {
   constructor (pos, data) {
     super(pos, data)
     data.pos = pos
@@ -20,17 +20,15 @@ class Locomotive extends Inventory {
   }
 
   draw (ctx, ent) {
-    const db = Settings.resDB.chest
+    const db = classDB.chest
     ctx.drawImage(db.img, 0, 0, db.size[0] * Settings.tileSize, db.size[1] * Settings.tileSize, 0, 0, db.size[0] * Settings.tileSize, db.size[1] * Settings.tileSize)
   }
 }
 
-const db = Settings.resDB.locomotive = {}
-db.name = 'locomotive'
+const db = Locomotive
 db.type = 'entity'
 db.lock = 1
 db.size = [1, 1]
-db.mach = Locomotive
 db.rotatable = false
 db.cost = [{ id: "Wood", n: 4 }]
 

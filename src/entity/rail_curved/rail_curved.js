@@ -1,7 +1,7 @@
 import { Settings } from '../../common.js'
 import { Inventory } from '../../core/inventory.js'
 
-class RailCurved extends Inventory {
+export class RailCurved extends Inventory {
   constructor (pos, data) {
     super(pos, data)
     data.pos = pos
@@ -20,17 +20,15 @@ class RailCurved extends Inventory {
   }
 
   draw (ctx, ent) {
-    const db = Settings.resDB.rail_curved
+    const db = classDB.rail_curved
     ctx.drawImage(db.img, 0, 0, db.size[0] * Settings.tileSize, db.size[1] * Settings.tileSize, 0, 0, db.size[0] * Settings.tileSize, db.size[1] * Settings.tileSize)
   }
 }
 
-const db = Settings.resDB.rail_curved = {}
-db.name = 'rail curved'
+const db = RailCurved
 db.type = 'entity'
 db.lock = 1
 db.size = [1, 1]
-db.mach = RailCurved
 db.rotatable = false
 db.cost = [{ id: "Wood", n: 4 }]
 

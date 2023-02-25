@@ -1,4 +1,5 @@
-import { Settings } from '../../common.js'
-Settings.resDB.raw_wood = {}
-Settings.resDB.raw_wood.name = 'raw wood'
-Settings.resDB.raw_wood.type = 'item'
+export class RawWood {
+    static type = 'item'
+    static E = 100
+    static imgName = 'raw_wood'
+}

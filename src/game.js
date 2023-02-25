@@ -15,6 +15,7 @@ import elements from './imports.js'
 
 window.classDB = {}
 window.classDBi = {}
+window.gameName = ''
 Settings.resID = []
 
 elements.forEach((el) => {
@@ -29,7 +30,6 @@ elements.forEach((el) => {
   window.classDBi[i] = el[key]
   if (window.classDB[key]) window.classDB[key].id = i
 
-  Settings.resDB[Settings.resID[i]] = {id: i}
   Settings.resName[i] = window.classDB[key]
 })
 
@@ -117,7 +117,7 @@ function loadGame (name) {
   // try again, after creation
   savedData = JSON.parse(window.localStorage.getItem(name))
 
-  window.gameName = name
+  gameName = name
 
   if (provinces.single == null) {
     let showWorldButton = document.createElement('div')

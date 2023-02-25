@@ -1,6 +1,6 @@
 import * as NC from 'nodicanvas'
 export const Settings = {}
-const resDB = {}
+
 const resName = {}
 
 export const provinces = {
@@ -10,23 +10,17 @@ export const provinces = {
   }
 }
 
-Settings.resDB = resDB
 Settings.resName = resName
-
-Settings.item = item
 
 Settings.buttonSize = { x: 68, y: 68 }
 Settings.tileSize = 64
 Settings.gridSize = new NC.Vec2(160, 90)
-Settings.DEV = false
 Settings.buildDir = 0
 Settings.dirToVec = [{ x: 1, y: 0 },{ x: 0, y: 1 },{ x: -1, y: 0 },{ x: 0, y: -1 }]
 Settings.dirToAng = [0, 90, 180, 270]
 Settings.nbVec = [{ x: 1, y: 0 }, { x: 1, y: -1 }, { x: 0, y: -1 }, { x: -1, y: -1 }, { x: -1, y: 0 }, { x: -1, y: 1 }, { x: 0, y: 1 } , { x: 1, y: 1 }]
 
 Settings.curResPos = new NC.Vec2(0, 0)
-
-function item (type, n) { return { id: type, n } }
 
 export function dist (a, b) { return Math.hypot(a.x - b.x, a.y - b.y) }
 

@@ -101,14 +101,14 @@ export class EntityLayer extends NC.NodiGrid {
   }
 
   removeEntity (tileCoordinate) {
-    const inv = this.map[tileCoordinate.x][tileCoordinate.y]
+    const inv = this.getInvP(tileCoordinate)
     if (inv) {
       game.allInvs[game.playerID].addItem({ id: game.allInvs[inv].type, n: 1 })
       game.allInvs[inv] = undefined
 
       for (let ix = 0; ix < this.map.length; ix++) {
         for (let iy = 0; iy < this.map[ix].length; iy++) {
-          if (this.map[ix][iy] === inv) this.map[ix][iy] = undefined
+          if (this.getInv(ix, iy) === inv) this.setInv(ix, iy, undefined)
         }
       }
       // Update Neighbours
@@ -200,7 +200,7 @@ export class EntityLayer extends NC.NodiGrid {
       if (ent?.name == "Player" || ent?.name == "Inventory") return
       let ax = ent.pos.x
       let ay = ent.pos.y
-      const invID = this.map[ax][ay]
+      const invID = this.getInvP(ent.pos)
       // ENTITY GROUNDS
       ctx.save()
       ctx.translate(ax * Settings.tileSize, ay * Settings.tileSize)
@@ -274,15 +274,14 @@ export class EntityLayer extends NC.NodiGrid {
 
     // ITEMS
     game.allInvs.forEach(ent => {
-      if (ent?.pos == null) return
-      if (ent?.name == "Inventory") return
-      let ax, ay
+      if (ent == null) return
+      if (ent.pos == null) return
+      if (ent.name == "Inventory") return
       if (ent.name == "Player") return
-      ax = ent.pos.x
-      ay = ent.pos.y
+
       if (ent?.drawn < 2 && !ent.isBelt && ent?.drawItems) {
         ctx.save()
-        ctx.translate(ax * Settings.tileSize, ay * Settings.tileSize)
+        ctx.translate(ent.pos.x * Settings.tileSize, ent.pos.y * Settings.tileSize)
         const type = Settings.resName[ent.type]
         if (type?.size) {
           ctx.translate(type.size[0] / 2 * Settings.tileSize, type.size[1] / 2 * Settings.tileSize)

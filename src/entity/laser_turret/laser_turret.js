@@ -1,7 +1,7 @@
 import { Settings } from '../../common.js'
 import { Inventory } from '../../core/inventory.js'
 
-class LaserTurret extends Inventory {
+export class LaserTurret extends Inventory {
   constructor (pos, data) {
     super(pos, data)
     data.pos = pos
@@ -20,22 +20,19 @@ class LaserTurret extends Inventory {
   }
 
   draw (ctx, ent) {
-    const db = Settings.resDB.laser_turret
+    const db = classDB.laser_turret
     ctx.drawImage(db.img, 0, 0, db.size[0] * Settings.tileSize, db.size[1] * Settings.tileSize, 0, 0, db.size[0] * Settings.tileSize, db.size[1] * Settings.tileSize)
   }
 }
 
-const db = Settings.resDB.laser_turret = {}
+const db = LaserTurret
 db.type = 'entity'
-db.name = 'laser turret'
 db.size = [1, 1]
 db.lock = 1
 db.mach = LaserTurret
 db.rotatable = false
 db.cost = [{ id: "Wood", n: 4 }]
 
-if (typeof Image !== 'undefined') {
-  const image = new Image(512, 32)
-  image.src = './' + db.type + '/laser_turret/laser_turret.png'
-  db.img = image
-}
+const image = new Image(512, 32)
+image.src = './' + db.type + '/laser_turret/laser_turret.png'
+db.img = image

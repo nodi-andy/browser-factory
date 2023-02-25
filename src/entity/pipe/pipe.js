@@ -1,7 +1,7 @@
 import { Settings } from '../../common.js'
 import { Inventory } from '../../core/inventory.js'
 
-class Pipe extends Inventory {
+export class Pipe extends Inventory {
   constructor (pos, data) {
     super(pos, data)
     this.setup(undefined, data)
@@ -13,7 +13,7 @@ class Pipe extends Inventory {
     this.packsize.INV = 1
 
     if (this.stack.INV == null) this.stack.INV = [{ n: 0 }]
-    this.mapsize = { x: Settings.resDB.pipe.size[0], y: Settings.resDB.pipe.size[1] }
+    this.mapsize = { x: Pipe.size[0], y: Pipe.size[1] }
     this.nbInputs = []
   }
 
@@ -59,48 +59,48 @@ class Pipe extends Inventory {
     let nbl = game.entityLayer.getInv(this.pos.x - 1, this.pos.y + 0)
     let nbu = game.entityLayer.getInv(this.pos.x + 0, this.pos.y - 1)
     let nbd = game.entityLayer.getInv(this.pos.x + 0, this.pos.y + 1)
-    if (!(nbr?.type === Settings.resDB.pipe.id || nbr?.type === Settings.resDB.boiler.id)) nbr = undefined
-    if (!(nbl?.type === Settings.resDB.pipe.id || nbl?.type === Settings.resDB.boiler.id)) nbl = undefined
-    if (!(nbu?.type === Settings.resDB.pipe.id || nbu?.type === Settings.resDB.boiler.id)) nbu = undefined
-    if (!(nbd?.type === Settings.resDB.pipe.id || nbd?.type === Settings.resDB.boiler.id)) nbd = undefined
+    if (!(nbr?.type === Pipe.id || nbr?.type === classDB.boiler.id)) nbr = undefined
+    if (!(nbl?.type === Pipe.id || nbl?.type === classDB.boiler.id)) nbl = undefined
+    if (!(nbu?.type === Pipe.id || nbu?.type === classDB.boiler.id)) nbu = undefined
+    if (!(nbd?.type === Pipe.id || nbd?.type === classDB.boiler.id)) nbd = undefined
 
     const nbs = [nbr, nbl, nbu, nbd]
     for (const nb of nbs) {
-      if ((nb?.type === Settings.resDB.pipe.id || nb?.type === Settings.resDB.boiler.id) && this.nbInputs.includes(nb.id) === false) this.nbInputs.push(nb.id)
+      if ((nb?.type === Pipe.id || nb?.type === classDB.boiler.id) && this.nbInputs.includes(nb.id) === false) this.nbInputs.push(nb.id)
     }
 
-    this.img = Settings.resDB.pipe.sh
+    this.img = Pipe.sh
     this.imgMirror = false
     switch (this.nbInputs.length) {
       case 1:
-        if (nbd) this.img = Settings.resDB.pipe.enddown
-        else if (nbu) this.img = Settings.resDB.pipe.endup
-        else if (nbl) this.img = Settings.resDB.pipe.endright
-        else if (nbr) this.img = Settings.resDB.pipe.endleft
+        if (nbd) this.img = Pipe.enddown
+        else if (nbu) this.img = Pipe.endup
+        else if (nbl) this.img = Pipe.endright
+        else if (nbr) this.img = Pipe.endleft
         break // is that right?
       case 2:
-        if (nbl && nbr) this.img = Settings.resDB.pipe.sh
-        else if (nbd && nbu) this.img = Settings.resDB.pipe.sv
-        else if (nbl && nbu) this.img = Settings.resDB.pipe.crd
-        else if (nbr && nbu) this.img = Settings.resDB.pipe.cld
-        else if (nbl && nbd) this.img = Settings.resDB.pipe.cru
-        else if (nbr && nbd) this.img = Settings.resDB.pipe.clu
+        if (nbl && nbr) this.img = Pipe.sh
+        else if (nbd && nbu) this.img = Pipe.sv
+        else if (nbl && nbu) this.img = Pipe.crd
+        else if (nbr && nbu) this.img = Pipe.cld
+        else if (nbl && nbd) this.img = Pipe.cru
+        else if (nbr && nbd) this.img = Pipe.clu
 
         break
       case 3:
-        if (nbd == null) this.img = Settings.resDB.pipe.tup
-        else if (nbu == null) this.img = Settings.resDB.pipe.tdown
-        else if (nbl == null) this.img = Settings.resDB.pipe.tright
-        else if (nbr == null) this.img = Settings.resDB.pipe.tleft
+        if (nbd == null) this.img = Pipe.tup
+        else if (nbu == null) this.img = Pipe.tdown
+        else if (nbl == null) this.img = Pipe.tright
+        else if (nbr == null) this.img = Pipe.tleft
         break
-      case 4: this.img = Settings.resDB.pipe.cross
+      case 4: this.img = Pipe.cross
         break
     }
   }
 
   draw (ctx, ent) {
     let img = this.img
-    if (ent) img = Settings.resDB.pipe.sh
+    if (ent) img = Pipe.sh
     ctx.drawImage(img, 0, 0, db.size[0] * Settings.tileSize / 2, db.size[1] * Settings.tileSize / 2, 0, 0, db.size[0] * Settings.tileSize, db.size[1] * Settings.tileSize)
   }
 
@@ -116,8 +116,7 @@ class Pipe extends Inventory {
   }
 }
 
-const db = Settings.resDB.pipe = {}
-db.name = 'pipe'
+const db = Pipe
 db.type = 'entity'
 db.lock = 1
 db.playerCanWalkOn = false
@@ -129,65 +128,62 @@ db.cost = [
 
 if (typeof Image !== 'undefined') {
   let image = new Image(32, 32)
-  image.src = './' + Settings.resDB.pipe.type + '/pipe/pipe-straight-horizontal.png'
-  Settings.resDB.pipe.sh = image
+  image.src = './' + Pipe.type + '/pipe/pipe-straight-horizontal.png'
+  Pipe.sh = image
 
   image = new Image(32, 32)
-  image.src = './' + Settings.resDB.pipe.type + '/pipe/pipe-straight-vertical.png'
-  Settings.resDB.pipe.sv = image
+  image.src = './' + Pipe.type + '/pipe/pipe-straight-vertical.png'
+  Pipe.sv = image
 
   image = new Image(32, 32)
-  image.src = './' + Settings.resDB.pipe.type + '/pipe/pipe-cross.png'
-  Settings.resDB.pipe.cross = image
+  image.src = './' + Pipe.type + '/pipe/pipe-cross.png'
+  Pipe.cross = image
 
   image = new Image(32, 32)
-  image.src = './' + Settings.resDB.pipe.type + '/pipe/pipe-ending-up.png'
-  Settings.resDB.pipe.endup = image
+  image.src = './' + Pipe.type + '/pipe/pipe-ending-up.png'
+  Pipe.endup = image
 
   image = new Image(32, 32)
-  image.src = './' + Settings.resDB.pipe.type + '/pipe/pipe-ending-down.png'
-  Settings.resDB.pipe.enddown = image
+  image.src = './' + Pipe.type + '/pipe/pipe-ending-down.png'
+  Pipe.enddown = image
 
   image = new Image(32, 32)
-  image.src = './' + Settings.resDB.pipe.type + '/pipe/pipe-ending-left.png'
-  Settings.resDB.pipe.endleft = image
+  image.src = './' + Pipe.type + '/pipe/pipe-ending-left.png'
+  Pipe.endleft = image
 
   image = new Image(32, 32)
-  image.src = './' + Settings.resDB.pipe.type + '/pipe/pipe-ending-right.png'
-  Settings.resDB.pipe.endright = image
+  image.src = './' + Pipe.type + '/pipe/pipe-ending-right.png'
+  Pipe.endright = image
 
   image = new Image(32, 32)
-  image.src = './' + Settings.resDB.pipe.type + '/pipe/pipe-t-right.png'
-  Settings.resDB.pipe.tright = image
+  image.src = './' + Pipe.type + '/pipe/pipe-t-right.png'
+  Pipe.tright = image
 
   image = new Image(32, 32)
-  image.src = './' + Settings.resDB.pipe.type + '/pipe/pipe-t-left.png'
-  Settings.resDB.pipe.tleft = image
+  image.src = './' + Pipe.type + '/pipe/pipe-t-left.png'
+  Pipe.tleft = image
 
   image = new Image(32, 32)
-  image.src = './' + Settings.resDB.pipe.type + '/pipe/pipe-t-up.png'
-  Settings.resDB.pipe.tup = image
+  image.src = './' + Pipe.type + '/pipe/pipe-t-up.png'
+  Pipe.tup = image
 
   image = new Image(32, 32)
-  image.src = './' + Settings.resDB.pipe.type + '/pipe/pipe-t-down.png'
-  Settings.resDB.pipe.tdown = image
+  image.src = './' + Pipe.type + '/pipe/pipe-t-down.png'
+  Pipe.tdown = image
 
   image = new Image(32, 32)
-  image.src = './' + Settings.resDB.pipe.type + '/pipe/pipe-corner-left-down.png'
-  Settings.resDB.pipe.cld = image
+  image.src = './' + Pipe.type + '/pipe/pipe-corner-left-down.png'
+  Pipe.cld = image
 
   image = new Image(32, 32)
-  image.src = './' + Settings.resDB.pipe.type + '/pipe/pipe-corner-left-up.png'
-  Settings.resDB.pipe.clu = image
+  image.src = './' + Pipe.type + '/pipe/pipe-corner-left-up.png'
+  Pipe.clu = image
 
   image = new Image(32, 32)
-  image.src = './' + Settings.resDB.pipe.type + '/pipe/pipe-corner-right-down.png'
-  Settings.resDB.pipe.crd = image
+  image.src = './' + Pipe.type + '/pipe/pipe-corner-right-down.png'
+  Pipe.crd = image
 
   image = new Image(32, 32)
-  image.src = './' + Settings.resDB.pipe.type + '/pipe/pipe-corner-right-up.png'
-  Settings.resDB.pipe.cru = image
+  image.src = './' + Pipe.type + '/pipe/pipe-corner-right-up.png'
+  Pipe.cru = image
 }
-
-db.mach = Pipe
-export { Pipe }

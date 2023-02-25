@@ -1,7 +1,7 @@
 import { Settings } from '../../common.js'
 import { Inventory } from '../../core/inventory.js'
 
-class Generator extends Inventory {
+export class Generator extends Inventory {
   constructor (pos, data) {
     super(pos, data)
     this.setup(undefined, data)
@@ -13,10 +13,10 @@ class Generator extends Inventory {
     this.packsize.INV = 1
     this.packsize.OUTPUT = 1
 
-    if (this.stack.INV == null) this.stack.INV = [{ id: Settings.resDB.steam.id, n: 0 }]
-    if (this.stack.OUTPUT == null) this.stack.OUTPUT = [{ id: Settings.resDB.coulomb.id, n: 0 }]
-    this.mapsize = { x: Settings.resDB.generator.size[0], y: Settings.resDB.generator.size[1] }
-    if (this.dir === 1 || this.dir === 3) this.mapsize = { x: Settings.resDB.generator.size[1], y: Settings.resDB.generator.size[0] }
+    if (this.stack.INV == null) this.stack.INV = [{ id: classDB.steam.id, n: 0 }]
+    if (this.stack.OUTPUT == null) this.stack.OUTPUT = [{ id: classDB.coulomb.id, n: 0 }]
+    this.mapsize = { x: classDB.generator.size[0], y: classDB.generator.size[1] }
+    if (this.dir === 1 || this.dir === 3) this.mapsize = { x: classDB.generator.size[1], y: classDB.generator.size[0] }
     for (let i = 0; i < this.mapsize.x; i++) {
       for (let j = 0; j < this.mapsize.y; j++) {
         game.entityLayer.getInv(ent.pos.x + i, ent.pos.y + j, this.id)
@@ -98,21 +98,20 @@ class Generator extends Inventory {
       for (let y = scanArea.y; y < scanArea.y2; y++) {
         const nb = game.entityLayer.getInv(x, y)
         if (nb?.id === this.id) continue
-        if (nb?.type === Settings.resDB.boiler.id && this.nbInputs.includes(nb.id) === false) this.nbInputs.push(nb.id)
-        if (nb?.type === Settings.resDB.pole.id && this.nbOutputs.includes(nb.id) === false) this.nbOutputs.push(nb.id)
+        if (nb?.type === classDB.boiler.id && this.nbInputs.includes(nb.id) === false) this.nbInputs.push(nb.id)
+        if (nb?.type === classDB.pole.id && this.nbOutputs.includes(nb.id) === false) this.nbOutputs.push(nb.id)
       }
     }
   }
 
   draw (ctx, ent) {
-    const mapSize = Settings.resDB.generator.size
-    const viewSize = Settings.resDB.generator.viewsize
-    ctx.drawImage(Settings.resDB.generator.img, 0, 0, mapSize[0] * Settings.tileSize / 2, mapSize[1] * Settings.tileSize / 2, 0, 0, viewSize[0] * Settings.tileSize, (mapSize[1] - viewSize[1]) * Settings.tileSize)
+    const mapSize = classDB.generator.size
+    const viewSize = classDB.generator.viewsize
+    ctx.drawImage(classDB.generator.img, 0, 0, mapSize[0] * Settings.tileSize / 2, mapSize[1] * Settings.tileSize / 2, 0, 0, viewSize[0] * Settings.tileSize, (mapSize[1] - viewSize[1]) * Settings.tileSize)
   }
 }
 
-const db = Settings.resDB.generator = {}
-db.name = 'generator'
+const db = Generator
 db.type = 'entity'
 db.lock = 1
 db.playerCanWalkOn = false
@@ -124,10 +123,6 @@ db.cost = [
 
 if (typeof Image !== 'undefined') {
   const image = new Image(960, 1120)
-  image.src = './' + Settings.resDB.generator.type + '/generator/steam_generator_horizontal.png'
-  Settings.resDB.generator.img = image
+  image.src = './' + Generator.type + '/generator/steam_generator_horizontal.png'
+  Generator.img = image
 }
-
-db.mach = Generator
-
-export { Generator }

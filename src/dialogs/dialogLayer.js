@@ -65,7 +65,7 @@ export class DialogLayer extends NC.NodiGrid {
       const inv = game.entityLayer.getInv(Settings.dialogResPos.x, Settings.dialogResPos.y)
       const res = game.res.getResource(Settings.dialogResPos)
 
-      if (Settings.DEV) {
+      if (window.DEV) {
         // console.log(JSON.stringify(game.map[curResPos.x][curResPos.y]), inv);
         ctx.font = (Settings.buttonSize.y / 2) + 'px Arial'
         ctx.fillStyle = 'white'

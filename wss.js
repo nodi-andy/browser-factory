@@ -87,8 +87,8 @@ function update () {
   for(let ient = 0; ient < Settings.allEnts.length; ient++) {
     let entity = Settings.allEnts[ient];
     if (!entity) continue;
-    if(entity.type === Settings.resDB.belt1.id) continue;
-    if(entity.type === Settings.resDB.player.id) continue;
+    if(entity.type === classDB.belt1.id) continue;
+    if(entity.type === classDB.player.id) continue;
     if(Settings.resName[entity.type].mach) {
       Settings.resName[entity.type].mach.update(game.map, entity);
     }
@@ -98,7 +98,7 @@ function update () {
   let belts = [];
   for(let ient = 0; ient < Settings.allEnts.length; ient++) {
     let entity = Settings.allEnts[ient];
-    if (entity.type === Settings.resDB.belt1.id) belts.push(entity);
+    if (entity.type === classDB.belt1.id) belts.push(entity);
   }
 
   for(let ibelt = 0; ibelt < belts.length;) {
@@ -113,10 +113,10 @@ function update () {
         let nbPos = Settings.dirToVec[belt.dir];
         let nbTile = game.map[x + nbPos.x][y + nbPos.y];
         let nbEntity = Settings.allEnts[nbTile[c.layers.buildings]];
-        if (nbEntity && nbEntity.type === Settings.resDB.belt1.id && nbEntity.done === false) belt = nbEntity;
+        if (nbEntity && nbEntity.type === classDB.belt1.id && nbEntity.done === false) belt = nbEntity;
         else break;
       }
-      Settings.resDB.belt1.mach.update(game.map, belt);
+      classDB.belt1.mach.update(game.map, belt);
     }
   }
 

@@ -100,8 +100,7 @@ export class StoneFurnace extends Inventory {
         const deltaT = performance.now() - this.lastTime
         const becomesThat = classDB[classDBi[stack.INPUT[0].id].smeltedInto].id
         if (becomesThat && deltaT > 5000) {
-          // if (inv.stack.OUTPUT == null || inv.stack.OUTPUT.length === 0) inv.stack.OUTPUT = [Settings.item(undefined, 0)];
-          if (stack.OUTPUT[0] == null) stack.OUTPUT[0] = Settings.item(undefined, 0)
+          if (stack.OUTPUT[0] == null) stack.OUTPUT[0] = {id: undefined, n: 0}
           if (stack.OUTPUT[0].n == null) stack.OUTPUT[0].n = 0
           stack.INPUT[0].n--
           stack.FUEL[0].n--

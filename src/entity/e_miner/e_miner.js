@@ -1,7 +1,7 @@
 import { Settings } from '../../common.js'
 import { Inventory } from '../../core/inventory.js'
 
-class ElectricalMiner extends Inventory {
+export class ElectricalMiner extends Inventory {
   constructor (pos, data) {
     super(pos, data)
     data.pos = pos
@@ -15,7 +15,7 @@ class ElectricalMiner extends Inventory {
     if (this.stack.FUEL == null) this.stack.FUEL = []
     this.packsize = {}
     this.packsize.FUEL = 1
-    const size = Settings.resDB.burner_miner.size
+    const size = classDB.burner_miner.size
     for (let i = 0; i < size[0]; i++) {
       for (let j = 0; j < size[1]; j++) {
         game.entityLayer.getInv(ent.pos.x + i, ent.pos.y + j, this.id)
@@ -23,7 +23,7 @@ class ElectricalMiner extends Inventory {
     }
     this.energy = 0
     this.power = 0
-    this.mapsize = { x: Settings.resDB.e_miner.size[0], y: Settings.resDB.e_miner.size[1] }
+    this.mapsize = { x: classDB.e_miner.size[0], y: classDB.e_miner.size[1] }
   }
 
   update (map, ent) {
@@ -31,7 +31,7 @@ class ElectricalMiner extends Inventory {
 
     if (game.tick % 100 === 0) {
       this.power = 0
-      if (this.stack.FUEL == null || this.stack.FUEL.length === 0) this.stack.FUEL = [Settings.item(undefined, 0)]
+      if (this.stack.FUEL == null || this.stack.FUEL.length === 0) this.stack.FUEL = [ {x: undefined, n: 0} ]
       let output
       let tile = wigamendow.res.map[ent.pos.x][ent.pos.y]
       if (tile?.n === 0) tile = map[ent.pos.x + 1][ent.pos.y]
@@ -45,7 +45,7 @@ class ElectricalMiner extends Inventory {
       // Shift output on next tile
       let stackName
       // place into assembling machine
-      if (invTo?.type === Settings.resDB.assembling_machine_1.id) stackName = Settings.resName[this.stack.INV[0].id].name
+      if (invTo?.type === classDB.assembling_machine_1.id) stackName = Settings.resName[this.stack.INV[0].id].name
       // place onto belt
       else if (invTo?.type === classDB.Belt1.id) {
         const relDir = (invTo.dir - this.dir + 3) % 4
@@ -78,13 +78,13 @@ class ElectricalMiner extends Inventory {
       for (let y = scanArea.y; y < scanArea.y2; y++) {
         const nb = game.entityLayer.getInv(x, y)
         if (nb?.id === this.id) continue
-        if (nb?.type === Settings.resDB.pole.id && this.nbInputs.includes(nb.id) === false) this.nbInputs.push(nb.id)
+        if (nb?.type === classDB.pole.id && this.nbInputs.includes(nb.id) === false) this.nbInputs.push(nb.id)
       }
     }
   }
 
   draw (ctx, ent) {
-    const db = Settings.resDB.burner_miner
+    const db = classDB.burner_miner
     ctx.save()
     ctx.drawImage(db.anim1, 0, 0, db.size[0] * Settings.tileSize, db.size[1] * Settings.tileSize, 0, 0, db.size[0] * Settings.tileSize, db.size[1] * Settings.tileSize)
     ctx.fillStyle = 'black'
@@ -100,9 +100,7 @@ class ElectricalMiner extends Inventory {
   }
 }
 
-const db = Settings.resDB.e_miner = {}
-db.mach = ElectricalMiner
-db.name = 'electrical miner'
+const db = ElectricalMiner
 db.lock = 1
 db.type = 'entity'
 db.cost = [{ id: "StoneFurnace", n: 1 }, { id: "IronPlate", n: 3 }, { id: "Gear", n: 2 }]
@@ -117,4 +115,3 @@ if (typeof Image !== 'undefined') {
   db.anim2 = image
 }
 db.size = [2, 2]
-export { ElectricalMiner }

@@ -20,17 +20,15 @@ class Turret extends Inventory {
   }
 
   draw (ctx, ent) {
-    const db = Settings.resDB.turret
+    const db = classDB.turret
     ctx.drawImage(db.img, 0, 0, db.size[0] * Settings.tileSize, db.size[1] * Settings.tileSize, 0, 0, db.size[0] * Settings.tileSize, db.size[1] * Settings.tileSize)
   }
 }
 
-const db = Settings.resDB.turret = {}
-db.name = 'turret'
+const db = Turret
 db.type = 'entity'
 db.lock = 1
 db.size = [1, 1]
-db.mach = Turret
 db.rotatable = false
 db.cost = [{ id: "Wood", n: 4 }]
 

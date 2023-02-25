@@ -1,7 +1,7 @@
 import { Settings } from '../../common.js'
 import { Inventory } from '../../core/inventory.js'
 
-class Pole extends Inventory {
+export class Pole extends Inventory {
   constructor (pos, data) {
     super(pos, data)
     this.setup(undefined, data)
@@ -13,7 +13,7 @@ class Pole extends Inventory {
     this.packsize.INV = 1
 
     if (this.stack.INV == null) this.stack.INV = [{ n: 0 }]
-    this.mapsize = { x: Settings.resDB.pole.size[0], y: Settings.resDB.pole.size[1] }
+    this.mapsize = { x: classDB.pole.size[0], y: classDB.pole.size[1] }
     this.nbInputs = []
   }
 
@@ -66,19 +66,19 @@ class Pole extends Inventory {
       for (let y = scanArea.y; y < scanArea.y2; y++) {
         const nb = game.entityLayer.getInv(x, y)
         if (nb?.id === this.id) continue
-        if ((nb?.type === Settings.resDB.pole.id || nb?.type === Settings.resDB.generator.id || nb?.type === Settings.resDB.e_miner.id) && this.nbInputs.includes(nb.id) === false) this.nbInputs.push(nb.id)
+        if ((nb?.type === classDB.pole.id || nb?.type === classDB.generator.id || nb?.type === classDB.e_miner.id) && this.nbInputs.includes(nb.id) === false) this.nbInputs.push(nb.id)
       }
     }
   }
 
   drawItems (ctx) {
-    const mapSize = Settings.resDB.pole.size
-    const viewSize = Settings.resDB.pole.viewsize
-    ctx.drawImage(Settings.resDB.pole.img, 0, 0, Settings.tileSize, Settings.tileSize, 0, -(viewSize[1] - mapSize[1]) * Settings.tileSize, viewSize[0] * Settings.tileSize, viewSize[1] * Settings.tileSize)
+    const mapSize = classDB.pole.size
+    const viewSize = classDB.pole.viewsize
+    ctx.drawImage(classDB.pole.img, 0, 0, Settings.tileSize, Settings.tileSize, 0, -(viewSize[1] - mapSize[1]) * Settings.tileSize, viewSize[0] * Settings.tileSize, viewSize[1] * Settings.tileSize)
   }
 }
 
-const db = Settings.resDB.pole = {}
+const db = Pole
 db.size = [1, 1]
 db.type = 'entity'
 db.viewsize = [1, 3]
@@ -93,6 +93,5 @@ if (typeof Image !== 'undefined') {
 }
 
 db.mach = Pole
-db.name = 'electrical pole'
 db.type = 'entity'
 db.lock = 1

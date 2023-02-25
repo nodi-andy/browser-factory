@@ -52,7 +52,7 @@ export class Inserter extends Inventory {
       const invTo = game.entityLayer.getInv(this.pos.x + myDir.x * this.constructor.armLen, this.pos.y + myDir.y * this.constructor.armLen, true)
 
       // LOAD COAL
-      /* if (this.armPos === 0 && !this.isHandFull && this.energy <= 0 && invFrom.hasItem(Settings.resDB.coal)) {
+      /* if (this.armPos === 0 && !this.isHandFull && this.energy <= 0 && invFrom.hasItem(classDB.coal)) {
         invFrom.moveItemTo({ id: classDB.Coal.id, n: 1 }, ent, 'FUEL')
       } else */
       // PICK

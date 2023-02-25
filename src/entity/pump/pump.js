@@ -1,7 +1,7 @@
 import { Settings } from '../../common.js'
 import { Inventory } from '../../core/inventory.js'
 
-class Pump extends Inventory {
+export class Pump extends Inventory {
   constructor (pos, data) {
     super(pos, data)
     data.pos = pos
@@ -15,8 +15,8 @@ class Pump extends Inventory {
     if (this.stack == null) this.stack = {}
     this.packsize = {}
     this.packsize.OUTPUT = 1
-    /* this.mapsize = {x: Settings.resDB.generator.size[0], y: Settings.resDB.generator.size[1]};
-        if (this.dir === 1 || this.dir === 3) this.mapsize = {x: Settings.resDB.generator.size[1], y: Settings.resDB.generator.size[0]};
+    /* this.mapsize = {x: classDB.generator.size[0], y: classDB.generator.size[1]};
+        if (this.dir === 1 || this.dir === 3) this.mapsize = {x: classDB.generator.size[1], y: classDB.generator.size[0]};
         for(let i = 0; i < this.mapsize.x; i++) {
             for(let j = 0; j < this.mapsize.y; j++) {
                 inventory.setInv(this.pos.x + i, this.pos. y + j, this.id);
@@ -25,7 +25,7 @@ class Pump extends Inventory {
   }
 
   update (map, ent) {
-    if (this.stack.OUTPUT == null) this.stack.OUTPUT = [{ id: Settings.resDB.water.id, n: 0 }]
+    if (this.stack.OUTPUT == null) this.stack.OUTPUT = [{ id: classDB.water.id, n: 0 }]
     const output = this.stack.OUTPUT[0]
     if (game.tick % 10 === 0 && output?.n < 100) {
       output.n += 1
@@ -49,15 +49,13 @@ class Pump extends Inventory {
   }
 
   draw (ctx, ent) {
-    const mapSize = Settings.resDB.pump.size
-    const viewSize = Settings.resDB.pump.viewsize
-    ctx.drawImage(Settings.resDB.pump.img, 0, 0, Settings.tileSize, Settings.tileSize, 0, -(viewSize[1] - mapSize[1]) * Settings.tileSize, viewSize[0] * Settings.tileSize, viewSize[1] * Settings.tileSize)
+    const mapSize = classDB.pump.size
+    const viewSize = classDB.pump.viewsize
+    ctx.drawImage(classDB.pump.img, 0, 0, Settings.tileSize, Settings.tileSize, 0, -(viewSize[1] - mapSize[1]) * Settings.tileSize, viewSize[0] * Settings.tileSize, viewSize[1] * Settings.tileSize)
   }
 }
 
-const db = Settings.resDB.pump = {}
-db.mach = Pump
-db.name = 'pump'
+const db = Pump
 db.type = 'entity'
 db.lock = 1
 db.cost = [{ id: "IronPlate", n: 3 }]
@@ -68,5 +66,3 @@ if (typeof Image !== 'undefined') {
 }
 db.size = [1, 2]
 db.viewsize = [1, 2]
-
-export { Pump }
