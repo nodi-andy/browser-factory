@@ -10,8 +10,7 @@ export class Empty extends Inventory {
 
   constructor (pos, data) {
     super(pos, data)
-    data.pos = pos
-    this.setup(undefined, data)
+    this.setup(undefined)
     this.name = "Empty"
   }
 
@@ -27,15 +26,9 @@ export class Empty extends Inventory {
   }
 
   draw (ctx, ent) {
-    const db = Settings.resDB.Empty
-    ctx.drawImage(db.img, 0, 0, db.size[0] * Settings.tileSize, db.size[1] * Settings.tileSize, 0, 0, db.size[0] * Settings.tileSize, db.size[1] * Settings.tileSize)
+    ctx.drawImage(Empty.img, 0, 0, Empty.size[0] * Settings.tileSize, Empty.size[1] * Settings.tileSize, 0, 0, Empty.size[0] * Settings.tileSize, Empty.size[1] * Settings.tileSize)
   }
 }
 
-
-
-if (typeof Image !== 'undefined') {
-  const image = new Image(512, 32)
-  image.src = './' + Empty.type + '/empty/empty.png'
-  Empty.img = image
-}
+Empty.img = new Image(512, 32)
+Empty.img.src = './' + Empty.type + '/empty/empty.png'

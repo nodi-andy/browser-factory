@@ -12,8 +12,6 @@ export class Belt1 extends Belt {
   constructor (pos, data) {
     super(pos, data)
     this.name = "Belt1"
-
-
   }
 
   draw (ctx) {

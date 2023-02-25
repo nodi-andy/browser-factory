@@ -13,7 +13,6 @@ export const provinces = {
 Settings.resDB = resDB
 Settings.resName = resName
 
-Settings.selEntity = 0
 Settings.item = item
 
 Settings.buttonSize = { x: 68, y: 68 }

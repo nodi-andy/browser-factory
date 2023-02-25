@@ -32,7 +32,7 @@ export class TimeLoop {
       } else {
         if (entity.update) {
           entity.update(this.game.entityLayer.map, entity)
-        } else entity.draw(this.game.canvas?.getContext('2d'))
+        } //else entity.draw(this.game.canvas?.getContext('2d'))
       }
     }
 
@@ -60,7 +60,7 @@ export class TimeLoop {
       }
     }
 
-    if (Settings.selEntity) this.game.updateEntityMenu(Settings.selEntity, true)
+    //if (window.selEntity) this.game.updateEntityMenu(window.selEntity, true)
     setTimeout(this.gameLoop.bind(this), 20)
   }
 }

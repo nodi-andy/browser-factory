@@ -43,7 +43,7 @@ class Pump extends Inventory {
 
   updateNB () {
     const nbPos = Settings.dirToVec[(this.dir + 1) % 4]
-    const nbPipe = Inventory.getInv(this.pos.x - nbPos.x, this.pos.y - nbPos.y)
+    const nbPipe = window.game.entityLayer.getInv(this.pos.x - nbPos.x, this.pos.y - nbPos.y)
     this.nbPipes = []
     if (nbPipe) this.nbPipes.push(nbPipe)
   }

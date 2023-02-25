@@ -23,29 +23,29 @@ function wssend (msg) {
     }
     if (msg.cmd === 'godmode') {
       window.player.stacksize = 50
-      window.player.addItem({ id: window.classDB.Chest.id, n: 100 })
-      window.player.addItem({ id: window.classDB.Coal.id, n: 100 })
-      window.player.addItem({ id: window.classDB.Copper.id, n: 100 })
-      window.player.addItem({ id: window.classDB.Iron.id, n: 100 })
-      window.player.addItem({ id: window.classDB.IronPlate.id, n: 500 })
-      window.player.addItem({ id: window.classDB.Stone.id, n: 50 })
-      window.player.addItem({ id: window.classDB.Gear.id, n: 50 })
-      window.player.addItem({ id: window.classDB.IronStick.id, n: 50 })
-      window.player.addItem({ id: window.classDB.HydraulicPiston.id, n: 50 })
+      window.player.addItem({ id: classDB.Chest.id, n: 100 })
+      window.player.addItem({ id: classDB.Coal.id, n: 100 })
+      window.player.addItem({ id: classDB.Copper.id, n: 100 })
+      window.player.addItem({ id: classDB.Iron.id, n: 100 })
+      window.player.addItem({ id: classDB.IronPlate.id, n: 500 })
+      window.player.addItem({ id: classDB.Stone.id, n: 50 })
+      window.player.addItem({ id: classDB.Gear.id, n: 50 })
+      window.player.addItem({ id: classDB.IronStick.id, n: 50 })
+      window.player.addItem({ id: classDB.HydraulicPiston.id, n: 50 })
       window.player.addItem({ id: classDB.Belt1.id, n: 100 })
       window.player.addItem({ id: classDB.Belt2.id, n: 100 })
       window.player.addItem({ id: classDB.Belt3.id, n: 100 })
-      window.player.addItem({ id: window.classDB.BurnerMiner.id, n: 100 })
-      window.player.addItem({ id: window.classDB.StoneFurnace.id, n: 100 })
-      window.player.addItem({ id: window.classDB.InserterBurner.id, n: 100 })
-      //window.player.addItem({ id: Settings.resDB.circuit.id, n: 100 })
-      //window.player.addItem({ id: Settings.resDB.CopperCable.id, n: 100 })
-      //window.player.addItem({ id: Settings.resDB.generator.id, n: 100 })
-      //window.player.addItem({ id: Settings.resDB.pipe.id, n: 100 })
-      //window.player.addItem({ id: Settings.resDB.assembling_machine_1.id, n: 100 })
-      //window.player.addItem({ id: Settings.resDB.assembling_machine_2.id, n: 100 })
-      //window.player.addItem({ id: Settings.resDB.assembling_machine_3.id, n: 100 })
-      //window.player.addItem({ id: Settings.resDB.car.id, n: 100 })
+      window.player.addItem({ id: classDB.BurnerMiner.id, n: 100 })
+      window.player.addItem({ id: classDB.StoneFurnace.id, n: 100 })
+      window.player.addItem({ id: classDB.Inserter.id, n: 100 })
+      window.player.addItem({ id: classDB.InserterLong.id, n: 100 })
+      window.player.addItem({ id: classDB.InserterSmart.id, n: 100 })
+      window.player.addItem({ id: classDB.Circuit.id, n: 100 })
+      window.player.addItem({ id: classDB.CopperCable.id, n: 100 })
+      window.player.addItem({ id: classDB.AssemblingMachine1.id, n: 100 })
+      window.player.addItem({ id: classDB.AssemblingMachine2.id, n: 100 })
+      window.player.addItem({ id: classDB.AssemblingMachine3.id, n: 100 })
+      window.player.addItem({ id: classDB.Car.id, n: 100 })
     }
 
     if (updateInv) {
@@ -78,8 +78,8 @@ ws.onmessage = function (e) {
       window.game.allInvs.push(Object.assign(new Inventory(), inv))
     }
     Settings.player.setInventoryID(0)
-    if (Settings.selEntity) {
-      const inv = socketMsg.data[Settings.selEntity.id]
+    if (window.selEntity) {
+      const inv = socketMsg.data[window.selEntity.id]
       window.game.updateInventoryMenu(inv)
     }
   }

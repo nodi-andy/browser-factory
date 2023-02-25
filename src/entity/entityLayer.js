@@ -2,6 +2,7 @@ import { Settings, dist } from '../common.js'
 import { Inventory } from '../core/inventory.js'
 import { wssend } from '../core/socket.js'
 import * as NC from 'nodicanvas'
+import { Empty } from './empty/empty.js'
 
 // Gets the relevant location from a mouse or single touch event
 function getEventLocation (e) {
@@ -38,7 +39,7 @@ export class EntityLayer extends NC.NodiGrid {
   onKeyUp (e) {
     window.player.onKeyUp(e)
     if (e.code === 'KeyQ') {
-      const searchPack = { id: Inventory.getInvP(Settings.curTilePos).type, n: 1 }
+      const searchPack = { id: this.getInvP(Settings.curTilePos).type, n: 1 }
       const playerInv = window.game.allInvs[window.player.invID]
       const pack = playerInv.hasPack('INV', searchPack)
       if (pack) Inventory.moveStack({ fromInvID: window.player.invID, fromInvKey: 'INV', fromStackPos: pack, toInvID: Settings.pointer.id, toInvKey: 'INV', toStackPos: 0 })
@@ -72,7 +73,7 @@ export class EntityLayer extends NC.NodiGrid {
     if (hit) return
     const worldCordinate = window.game.screenToWorld(getEventLocation(e))
     const tileCoordinate = this.worldToTile(worldCordinate)
-    const inv = Inventory.getInvP(tileCoordinate)
+    const inv = this.getInvP(tileCoordinate)
 
     if (e.buttons === 1) {
       if (window.invMenu.vis) {
@@ -85,7 +86,7 @@ export class EntityLayer extends NC.NodiGrid {
       const res = window.game.res.getResource(tileCoordinate)
       const d = dist(window.game.allInvs[window.game.playerID].pos, worldCordinate)
 
-      if (Settings.pointer?.stack?.INV?.length && (inv == null || inv.type === Settings.resDB.Empty.id)) {
+      if (Settings.pointer?.stack?.INV?.length && (inv == null || inv.type === classDB.Empty.id)) {
         this.setOnMap(tileCoordinate)
       } else {
         window.isDragStarted = true
@@ -112,7 +113,7 @@ export class EntityLayer extends NC.NodiGrid {
       }
       // Update Neighbours
       for (const nbV of Settings.nbVec) {
-        const nb = Inventory.getInv(tileCoordinate.x + nbV.x, tileCoordinate.y + nbV.y)
+        const nb = this.getInv(tileCoordinate.x + nbV.x, tileCoordinate.y + nbV.y)
         if (nb?.updateNB) nb.updateNB()
       }
     }
@@ -125,7 +126,7 @@ export class EntityLayer extends NC.NodiGrid {
     Settings.curResPos.x = e.gridX - window.player.tilePos.x
     Settings.curResPos.y = e.gridY - window.player.tilePos.y
 
-    console.log(this.map[Settings.curTilePos.x][Settings.curTilePos.y])
+    console.log(game.entityLayer.getInvP(Settings.curTilePos))
   }
 
   onMouseUp (e, hit) {
@@ -134,16 +135,17 @@ export class EntityLayer extends NC.NodiGrid {
 
     const worldPos = window.game.screenToWorld({ x: e.offsetX, y: e.offsetY })
     const tilePos = this.worldToTile(worldPos)
-    const inv = Inventory.getInvP(tilePos)
+    const inv = this.getInvP(tilePos)
 
     if (hit === false) {
       if (e.which === 1) {
+        window.selEntity = null
         // SHOW ENTITY
         if (Settings.pointer?.type == null && inv) {
-          const invID = Inventory.getInvP(tilePos).id
-          Settings.selEntity = window.game.allInvs[invID]
-
-          window.game.updateEntityMenu(Settings.selEntity, true)
+          const invID = this.getInvP(tilePos).id
+          window.selEntity = window.game.allInvs[invID]
+          window.game.updateSelectItemMenu(window.selEntity)
+          window.game.updateEntityMenu(window.selEntity, true)
 
           if (inv) {
             window.entityMenu.vis = window.invMenu.vis = true; window.craftMenu.vis = false
@@ -152,13 +154,35 @@ export class EntityLayer extends NC.NodiGrid {
           }
         }
 
-        if (inv == null) window.entityMenu.vis = false
+        if (inv == null) {
+          window.entityMenu.vis = false
+          window.selectItemMenu.vis = false
+        }
 
         window.isDragging = false
         window.dragStart = undefined
         window.isBuilding = false
       }
     }
+  }
+
+  getInv (x, y, create = false) {
+    if (x < 0) return
+    if (y < 0) return
+    if (x > this.map.length) return
+    if (y > this.map[0].length) return
+  
+    let tile = this.map[x][y]
+    if (tile == null && create) tile = new Empty({x: x, y : y})
+    return window.game.allInvs[tile]
+  }
+
+  setInv (x, y, invID) {
+    window.game.entityLayer.map[x][y] = invID
+  }
+
+  getInvP (p, create = false) {
+    return this.getInv(p.x, p.y, create)
   }
 
   render (view) {
@@ -200,7 +224,7 @@ export class EntityLayer extends NC.NodiGrid {
       }
 
       // ITEMS ON GROUND
-      if (invID !== undefined && window.game.allInvs[invID]?.type === Settings.resDB.Empty.id) {
+      if (invID !== undefined && window.game.allInvs[invID]?.type === classDB.Empty.id) {
         const packs = window.game.allInvs[invID].stack.INV
         if (packs) {
           ctx.scale(0.5, 0.5)

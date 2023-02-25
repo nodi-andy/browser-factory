@@ -1,26 +1,7 @@
-/* eslint-disable no-unmodified-loop-condition */
 import { Settings } from '../common.js'
 
+
 export class Inventory {
-
-  static getInv (x, y, create = false) {
-    if (x < 0) return
-    if (y < 0) return
-    if (x > window.game.entityLayer.map.length) return
-    if (y > window.game.entityLayer.map[0].length) return
-  
-    let tile = window.game.entityLayer.map[x][y]
-    if (tile == null && create) tile = Inventory.createInvOnMap(x, y)
-    return window.game.allInvs[tile]
-  }
-
-  static setInv (x, y, invID) {
-    window.game.entityLayer.map[x][y] = invID
-  }
-
-  static getInvP (p, create = false) {
-    return Inventory.getInv(p.x, p.y, create)
-  }
 
   static mineToInv (minedItem) {
     const newItem = { id: window.classDB[Settings.resName[minedItem.id].becomes].id, n: 1 }
@@ -69,21 +50,7 @@ export class Inventory {
     })
   }
   
-  static createInvOnMap (x, y) {
-    let invID = window.game.entityLayer.map[x][y]
-    if (invID == null) {
-      const inv = new Inventory({ x, y })
-  
-      window.game.allInvs.push(inv)
-      inv.id = window.game.allInvs.length - 1
-  
-      window.game.entityLayer.map[x][y] = inv.id
-      inv.type = Settings.resDB.Empty.id
-      invID = inv.id
-    }
-    return invID
-  }
-  
+
   static createInv (type, newEntity) {
     newEntity.id = window.game.allInvs.length
     window.game.allInvs.push(new Settings.resName[type](newEntity.pos, newEntity))
@@ -92,8 +59,8 @@ export class Inventory {
   
   static addInventory (newEntity, updateDir) {
     if (!newEntity) return
-    let inv = Inventory.getInv(newEntity.pos.x, newEntity.pos.y)
-    if (inv == null || inv?.type === Settings.resDB.Empty.id) {
+    let inv = window.game.entityLayer.getInv(newEntity.pos.x, newEntity.pos.y)
+    if (inv == null || inv?.type === classDB.Empty.id) {
       if (Settings.pointer.stack.INV[0].n > 0) {
         const invID = Inventory.createInv(newEntity.type, newEntity)
         inv = window.game.allInvs[invID]
@@ -112,7 +79,7 @@ export class Inventory {
   
     // Update Neighbours
     for (const nbV of Settings.nbVec) {
-      const nb = Inventory.getInv(newEntity.pos.x + nbV.x, newEntity.pos.y + nbV.y)
+      const nb = window.game.entityLayer.getInv(newEntity.pos.x + nbV.x, newEntity.pos.y + nbV.y)
       if (nb?.updateNB) nb.updateNB()
     }
   
@@ -160,7 +127,7 @@ export class Inventory {
     invFrom.splice(data.fromStackPos, 1)
     // s.sendAll(JSON.stringify({msg:"updateInv", data:window.game.allInvs}));
     if (data.fromInvID === 0 || data.toInvID === 0) window.player.setInventory(window.game.allInvs[0])
-    if (data.fromInvID === Settings.selEntity?.id || data.toInvID === Settings.selEntity?.id) window.game.updateInventoryMenu(Settings.selEntity)
+    if (data.fromInvID === window.selEntity?.id || data.toInvID === window.selEntity?.id) window.game.updateInventoryMenu(window.selEntity)
   }
 
   constructor (pos, entData) {
@@ -434,15 +401,5 @@ export class Inventory {
     let pack = this.stack[selectedKey]
     if (Array.isArray(pack)) pack = pack[0]
     return pack
-  }
-
-  draw (ctx) {
-    if (ctx == null) return
-    ctx.beginPath()
-    ctx.fillStyle = 'rgba(120, 120, 120, 0.9)'
-    ctx.rect(this.x, this.y, this.w, this.h)
-    ctx.fill()
-    ctx.font = (Settings.buttonSize.y / 2) + 'px Arial'
-    ctx.fillText(this.t, this.x, this.y + 48)
   }
 }

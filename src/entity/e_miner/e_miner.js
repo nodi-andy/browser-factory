@@ -18,7 +18,7 @@ class ElectricalMiner extends Inventory {
     const size = Settings.resDB.burner_miner.size
     for (let i = 0; i < size[0]; i++) {
       for (let j = 0; j < size[1]; j++) {
-        Inventory.getInv(ent.pos.x + i, ent.pos.y + j, this.id)
+        window.game.entityLayer.getInv(ent.pos.x + i, ent.pos.y + j, this.id)
       }
     }
     this.energy = 0
@@ -37,10 +37,10 @@ class ElectricalMiner extends Inventory {
       if (tile?.n === 0) tile = map[ent.pos.x + 1][ent.pos.y]
 
       let invTo
-      if (this.dir === 0) invTo = Inventory.getInv(ent.pos.x + 2, ent.pos.y, true)
-      if (this.dir === 1) invTo = Inventory.getInv(ent.pos.x + 1, ent.pos.y + 2, true)
-      if (this.dir === 2) invTo = Inventory.getInv(ent.pos.x - 1, ent.pos.y + 1, true)
-      if (this.dir === 3) invTo = Inventory.getInv(ent.pos.x, ent.pos.y - 1, true)
+      if (this.dir === 0) invTo = window.game.entityLayer.getInv(ent.pos.x + 2, ent.pos.y, true)
+      if (this.dir === 1) invTo = window.game.entityLayer.getInv(ent.pos.x + 1, ent.pos.y + 2, true)
+      if (this.dir === 2) invTo = window.game.entityLayer.getInv(ent.pos.x - 1, ent.pos.y + 1, true)
+      if (this.dir === 3) invTo = window.game.entityLayer.getInv(ent.pos.x, ent.pos.y - 1, true)
       if (tile?.n) output = Settings.resName[Settings.resName[tile.id].becomes]
       // Shift output on next tile
       let stackName
@@ -76,7 +76,7 @@ class ElectricalMiner extends Inventory {
     const scanArea = { x: this.pos.x - 1, y: this.pos.y - 1, x2: this.pos.x + this.mapsize.x + 2, y2: this.pos.y + this.mapsize.y + 2 }
     for (let x = scanArea.x; x < scanArea.x2; x++) {
       for (let y = scanArea.y; y < scanArea.y2; y++) {
-        const nb = Inventory.getInv(x, y)
+        const nb = window.game.entityLayer.getInv(x, y)
         if (nb?.id === this.id) continue
         if (nb?.type === Settings.resDB.pole.id && this.nbInputs.includes(nb.id) === false) this.nbInputs.push(nb.id)
       }

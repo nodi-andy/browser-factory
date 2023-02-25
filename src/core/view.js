@@ -129,17 +129,18 @@ export class ViewModule extends NC.NodiView {
 
   // SELECT ITEM MENU
   updateSelectItemMenu (ent) {
-    const items = Settings.resName[ent.type].output
+    if (ent.output == null) return
+    const items = ent.output
     window.selectItemMenu.items = []
     let pos = 0
-    items.forEach(i => {
-      const newButton = new Button((pos % 8) * (Settings.buttonSize.x), Math.floor(pos / 8) * (Settings.buttonSize.y), { id: i }, window.selectItemMenu)
+    items.forEach(item => {
+      const newButton = new Button((pos % 8) * (Settings.buttonSize.x), Math.floor(pos / 8) * (Settings.buttonSize.y), { id: classDB[item].id }, window.selectItemMenu)
       newButton.ent = ent
       newButton.onClick = (which, button) => {
         button.ent.setOutput(button.item.id)
-        Settings.selEntity.vis = true
         window.selectItemMenu.vis = false
-        this.updateEntityMenu(Settings.selEntity, true)
+        window.entityMenu.vis = true
+        this.updateEntityMenu(window.selEntity, true)
       }
       window.selectItemMenu.items.push(newButton)
       pos++
@@ -217,32 +218,30 @@ export class ViewModule extends NC.NodiView {
 
     let dx = Settings.buttonSize.x * 2
     let dy = Settings.buttonSize.y
-    if (inv.prod) {
-      let button
+    if (inv.selectedItem) {
+      let button = new Button(dx, dy, undefined, window.entityMenu, window.selEntity.id)
       if (refresh) {
         window.entityMenu.buttons.PROD = []
-        button = new Button(dx, dy, undefined, window.entityMenu, Settings.selEntity.id)
         button.onClick = () => {
-          window.game.updateSelectItemMenu(Settings.selEntity)
+          window.game.updateSelectItemMenu(window.selEntity)
           window.selectItemMenu.vis = true
+          window.entityMenu.vis = false
         }
         dy += Settings.buttonSize.y
       } else button = window.entityMenu.buttons.PROD
       button.invKey = 'PROD'
       button.stackPos = 0
-      // button.item = item
 
       if (refresh) window.entityMenu.items.push(button)
       if (refresh) window.entityMenu.buttons.PROD.push(button)
     }
-
     for (const s of Object.keys(showStack)) {
       dx = Settings.buttonSize.x * 3
       if (refresh) window.entityMenu.buttons[s] = []
       for (let stackPos = 0; stackPos < inv.packsize[s]; stackPos++) {
         const item = showStack[s][stackPos]
         let button
-        if (refresh) button = new Button(dx, dy, item, window.entityMenu, Settings.selEntity.id)
+        if (refresh) button = new Button(dx, dy, item, window.entityMenu, window.selEntity.id)
         else button = window.entityMenu.buttons[s][stackPos]
         dx += Settings.buttonSize.x
         button.invKey = s

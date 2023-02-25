@@ -62,7 +62,7 @@ export class DialogLayer extends NC.NodiGrid {
     // CONTENT MENU
     if (Settings.dialogResPos?.x && Settings.dialogResPos?.y) {
       ctx.save()
-      const inv = Inventory.getInv(Settings.dialogResPos.x, Settings.dialogResPos.y)
+      const inv = window.game.entityLayer.getInv(Settings.dialogResPos.x, Settings.dialogResPos.y)
       const res = window.game.res.getResource(Settings.dialogResPos)
 
       if (Settings.DEV) {
@@ -191,12 +191,12 @@ export class DialogLayer extends NC.NodiGrid {
       context.font = (Settings.buttonSize.y / 2) + 'px Arial'
       context.fillStyle = 'black'
       let resText = ''
-      if (Settings.selEntity.id && window.game.allInvs[Settings.selEntity.id]?.type) resText = Settings.resName[window.game.allInvs[Settings.selEntity.id].type]?.name
+      if (window.selEntity.id && window.game.allInvs[window.selEntity.id]?.type) resText = Settings.resName[window.game.allInvs[window.selEntity.id].type]?.name
       context.fillText(resText, window.entityMenu.rect.x + Settings.buttonSize.x / 4, window.entityMenu.rect.y + Settings.buttonSize.x / 2)
-      const selInv = window.game.allInvs[Settings.selEntity.id]
+      const selInv = window.game.allInvs[window.selEntity.id]
       if (selInv) {
-        if (selInv.prod) {
-          window.entityMenu.buttons.PROD[0].item = { id: selInv.prod }
+        if (selInv.selectedItem) {
+          window.entityMenu.buttons.PROD[0].item = { id: selInv.selectedItem }
           context.font = (Settings.buttonSize.y / 2) + 'px Arial'
           context.fillStyle = 'black'
           context.fillText('PROD', window.entityMenu.rect.x + Settings.buttonSize.x / 4, window.entityMenu.rect.y + dy)

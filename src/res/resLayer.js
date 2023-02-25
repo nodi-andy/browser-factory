@@ -18,7 +18,7 @@ export class ResLayer extends NC.NodiGrid {
               const perlinVal = perlinmap[ax * this.gridSize.y + ay]
               const tile = this.map[ax][ay]
               const terrainTile = window.game.terrain.map[ax][ay]
-              if (perlinVal > 8 && tile.id == null && terrainTile[0] === Settings.resDB.Grassland.id) {
+              if (perlinVal > 8 && tile.id == null && terrainTile[0] === classDB.Grassland.id) {
                 tile.id = res.id
                 tile.n = Math.round((perlinVal - 8) * 200)
               }

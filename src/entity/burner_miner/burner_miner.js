@@ -26,7 +26,7 @@ export class BurnerMiner extends Inventory {
     const size = BurnerMiner.size
     for (let i = 0; i < size[0]; i++) {
       for (let j = 0; j < size[1]; j++) {
-        Inventory.getInv(ent.pos.x + i, ent.pos.y + j, this.id)
+        window.game.entityLayer.setInv(ent.pos.x + i, ent.pos.y + j, this.id)
       }
     }
     this.energy = 0
@@ -46,25 +46,25 @@ export class BurnerMiner extends Inventory {
       if (tile?.n == null) return
 
       let invTo
-      if (this.dir === 0) invTo = Inventory.getInv(ent.pos.x + 2, ent.pos.y, true)
-      if (this.dir === 1) invTo = Inventory.getInv(ent.pos.x + 1, ent.pos.y + 2, true)
-      if (this.dir === 2) invTo = Inventory.getInv(ent.pos.x - 1, ent.pos.y + 1, true)
-      if (this.dir === 3) invTo = Inventory.getInv(ent.pos.x, ent.pos.y - 1, true)
+      if (this.dir === 0) invTo = window.game.entityLayer.getInv(ent.pos.x + 2, ent.pos.y, true)
+      if (this.dir === 1) invTo = window.game.entityLayer.getInv(ent.pos.x + 1, ent.pos.y + 2, true)
+      if (this.dir === 2) invTo = window.game.entityLayer.getInv(ent.pos.x - 1, ent.pos.y + 1, true)
+      if (this.dir === 3) invTo = window.game.entityLayer.getInv(ent.pos.x, ent.pos.y - 1, true)
       if (invTo == null) return
 
-      if (tile?.n) output = Settings.resDB[Settings.resName[tile.id].becomes]
+      if (tile?.n) output = classDB[classDBi[tile.id].becomes]
       // Shift output on next tile
       let stackName
       // place into assembling machine
-      if (invTo?.type === Settings.resDB.AssemblingMachine1?.id) stackName = Settings.resName[this.stack.INV[0].id].name
+      if (invTo?.type === classDB.AssemblingMachine1?.id) stackName = Settings.resName[this.stack.INV[0].id].name
       // place onto belt
-      else if (invTo?.type === Settings.resDB.Belt1?.id) {
+      else if (invTo?.isBelt) {
         const relDir = (invTo.dir - this.dir + 3) % 4
         const dirPref = ['L', 'R', 'L', 'R']
         stackName = dirPref[relDir]
       }
 
-      const hasPlace = invTo.hasPlaceFor({ id: output, n: 1 }, stackName)
+      const hasPlace = invTo.hasPlaceFor({ id: output.id, n: 1 }, stackName)
       const neededEnergy = Settings.resName[tile.id].W
       if (this.stack.FUEL[0]?.n > 0 && hasPlace && this.energy <= neededEnergy) {
         this.energy += Settings.resName[this.stack.FUEL[0].id].E // add time factor

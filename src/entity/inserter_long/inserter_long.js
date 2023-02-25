@@ -1,7 +1,13 @@
-import { Settings } from '../../common.js'
-import { Inventory } from '../../core/inventory.js'
+import { Inserter } from "../inserter/inserter.js"
 
-export class InserterLong extends Inventory {
+export class InserterLong extends Inserter {
+  static name = 'inserter long'
+  static size = [1, 1]
+  static type = 'entity'
+  static cost = [{ id: "IronPlate", n: 1 }, { id: "Gear", n: 1 }, { id: "HydraulicPiston", n: 1 }]
+  static imgName = "inserter_long"
+  static armLen = 2
+
   constructor (pos, data) {
     super(pos, data)
     data.pos = pos
@@ -9,18 +15,7 @@ export class InserterLong extends Inventory {
   }
 }
 
-const db = Settings.resDB.inserter_long = {}
-db.name = 'inserter long'
-db.lock = 1
-db.size = [1, 1]
-db.type = 'entity'
-if (typeof Image !== 'undefined') {
-  let image = new Image(64, 64)
-  image.src = './' + Settings.resDB.inserter_long.type + '/inserter_burner/inserter_platform.png'
-  Settings.resDB.inserter_long.platform = image
-  image = new Image(64, 64)
-  image.src = './' + Settings.resDB.inserter_long.type + '/inserter_burner/inserter_burner_hand.png'
-  Settings.resDB.inserter_long.hand = image
-}
-db.mach = InserterLong
-db.cost = [{ id: "IronPlate", n: 1 }, { id: "Gear", n: 1 }, { id: "HydraulicPiston", n: 1 }]
+InserterLong.platform = new Image(64, 64)
+InserterLong.platform.src = './' + InserterLong.type + '/inserter_long/inserter_platform.png'
+InserterLong.hand = new Image(64, 64)
+InserterLong.hand.src = './' + InserterLong.type + '/inserter_long/inserter_hand.png'

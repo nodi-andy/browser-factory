@@ -57,9 +57,9 @@ export class Button {
 
     if (this.item == null) return
 
-    if (this.item?.id && Settings.resName[this.item.id].img) { // standard image
+    if (this.item?.id && classDBi[this.item.id].img) { // standard image
       try {
-        ctx.drawImage(Settings.resName[this.item.id].img, this.screen.x + 2, this.screen.y + 2, Settings.buttonSize.x, Settings.buttonSize.y)
+        ctx.drawImage(classDBi[this.item.id].img, this.screen.x + 2, this.screen.y + 2, Settings.buttonSize.x, Settings.buttonSize.y)
       } catch {
       }
     }
@@ -111,6 +111,6 @@ export class Button {
       }
     }
     window.game.updateInventoryMenu(window.player)
-    if (Settings.selEntity) window.game.updateEntityMenu(Settings.selEntity, true)
+    if (window.selEntity) window.game.updateEntityMenu(window.selEntity, true)
   };
 }

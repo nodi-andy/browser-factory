@@ -64,7 +64,7 @@ class Pole extends Inventory {
     const scanArea = { x: this.pos.x - radius, y: this.pos.y - radius, x2: this.pos.x + this.mapsize.x + 2 * radius, y2: this.pos.y + this.mapsize.y + 2 * radius }
     for (let x = scanArea.x; x < scanArea.x2; x++) {
       for (let y = scanArea.y; y < scanArea.y2; y++) {
-        const nb = Inventory.getInv(x, y)
+        const nb = window.game.entityLayer.getInv(x, y)
         if (nb?.id === this.id) continue
         if ((nb?.type === Settings.resDB.pole.id || nb?.type === Settings.resDB.generator.id || nb?.type === Settings.resDB.e_miner.id) && this.nbInputs.includes(nb.id) === false) this.nbInputs.push(nb.id)
       }

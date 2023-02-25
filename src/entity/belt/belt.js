@@ -115,13 +115,13 @@ export class Belt extends Inventory {
 
     // DIRECT
     const nbPos = Settings.dirToVec[ent.dir]
-    let beltFrom = Inventory.getInv(ent.pos.x - nbPos.x, ent.pos.y - nbPos.y)
+    let beltFrom = window.game.entityLayer.getInv(ent.pos.x - nbPos.x, ent.pos.y - nbPos.y)
     if (beltFrom && (Math.abs(this.dir - beltFrom.dir) === 2 || beltFrom.isBelt === false)) beltFrom = undefined
     if (beltFrom) this.beltFromID = beltFrom.id
 
     // LEFT
     const nbLeft = Settings.dirToVec[(ent.dir + 1) % 4]
-    let beltFromLeft = Inventory.getInv(ent.pos.x - nbLeft.x, ent.pos.y - nbLeft.y)
+    let beltFromLeft = window.game.entityLayer.getInv(ent.pos.x - nbLeft.x, ent.pos.y - nbLeft.y)
     if (beltFromLeft && ((beltFromLeft.dir - ent.dir + 4) % 4 !== 1 || beltFromLeft.isBelt === false)) {
       beltFromLeft = undefined
     }
@@ -129,7 +129,7 @@ export class Belt extends Inventory {
 
     // RIGHT
     const nbRight = Settings.dirToVec[(ent.dir + 3) % 4]
-    let beltFromRight = Inventory.getInv(ent.pos.x - nbRight.x, ent.pos.y - nbRight.y)
+    let beltFromRight = window.game.entityLayer.getInv(ent.pos.x - nbRight.x, ent.pos.y - nbRight.y)
     if (beltFromRight && ((beltFromRight.dir - ent.dir + 4) % 4 !== 3 || beltFromRight.isBelt === false)) {
       beltFromRight = undefined
     }
@@ -148,7 +148,7 @@ export class Belt extends Inventory {
       }
 
       // TO
-      let beltTo = Inventory.getInv(ent.pos.x + nbPos.x, ent.pos.y + nbPos.y)
+      let beltTo = window.game.entityLayer.getInv(ent.pos.x + nbPos.x, ent.pos.y + nbPos.y)
       if (beltTo && beltTo.isBelt === false) beltTo = undefined
       if (beltTo) this.beltToID = beltTo.id
 
@@ -189,6 +189,9 @@ export class Belt extends Inventory {
       this.shift(this, 'RC', this, 'RB', this.decidingMoving)
       this.shift(this, 'RD', this, 'RC', this.decidingMoving)
 
+      if (this.stack.L == null) this.stack.L = { n: 1 }
+      if (this.stack.R == null) this.stack.R = { n: 1 }
+  
       this.stack.L.full = !!((this.stack.LA?.id || this.stack.LA?.reserved) && (this.stack.LB?.id || this.stack.LB?.reserved) && (this.stack.LC?.id || this.stack.LC?.reserved) && (this.stack.LD?.id || this.stack.LD?.reserved))
       this.stack.R.full = !!((this.stack.RA?.id || this.stack.RA?.reserved) && (this.stack.RB?.id || this.stack.RB?.reserved) && (this.stack.RC?.id || this.stack.RC?.reserved) && (this.stack.RD?.id || this.stack.RD?.reserved))
       this.stack.INV.full = (this.stack.L.full && this.stack.R.full)

@@ -55,10 +55,10 @@ export class UPipe extends Inventory {
 
   updateNB () {
     this.nbInputs = []
-    let nbr = Inventory.getInv(this.pos.x + 1, this.pos.y + 0)
-    let nbl = Inventory.getInv(this.pos.x - 1, this.pos.y + 0)
-    let nbu = Inventory.getInv(this.pos.x + 0, this.pos.y - 1)
-    let nbd = Inventory.getInv(this.pos.x + 0, this.pos.y + 1)
+    let nbr = window.game.entityLayer.getInv(this.pos.x + 1, this.pos.y + 0)
+    let nbl = window.game.entityLayer.getInv(this.pos.x - 1, this.pos.y + 0)
+    let nbu = window.game.entityLayer.getInv(this.pos.x + 0, this.pos.y - 1)
+    let nbd = window.game.entityLayer.getInv(this.pos.x + 0, this.pos.y + 1)
     if (!(nbr?.type === Settings.resDB.pipe.id || nbr?.type === Settings.resDB.boiler.id)) nbr = undefined
     if (!(nbl?.type === Settings.resDB.pipe.id || nbl?.type === Settings.resDB.boiler.id)) nbl = undefined
     if (!(nbu?.type === Settings.resDB.pipe.id || nbu?.type === Settings.resDB.boiler.id)) nbu = undefined

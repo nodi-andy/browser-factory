@@ -21,11 +21,14 @@ export class StoneFurnace extends Inventory {
     this.setup(undefined, this)
   }
 
-  setup (map, inv) {
+  setup (map, ent) {
     this.name = "StoneFurnace"
-    Inventory.setInv(this.pos.x + 1, this.pos.y + 0, this.id)
-    Inventory.setInv(this.pos.x + 1, this.pos.y + 1, this.id)
-    Inventory.setInv(this.pos.x + 0, this.pos.y + 1, this.id)
+    const size = StoneFurnace.size
+    for (let i = 0; i < size[0]; i++) {
+      for (let j = 0; j < size[1]; j++) {
+        window.game.entityLayer.setInv(ent.pos.x + i, ent.pos.y + j, this.id)
+      }
+    }
 
     this.packsize = 1
     this.itemsize = 50
@@ -95,7 +98,7 @@ export class StoneFurnace extends Inventory {
       if (ent.state === 0) { this.lastTime = performance.now(); ent.state = 1 };
       if (ent.state === 1) {
         const deltaT = performance.now() - this.lastTime
-        const becomesThat = Settings.resDB[Settings.resName[stack.INPUT[0].id].smeltedInto].id
+        const becomesThat = classDB[classDBi[stack.INPUT[0].id].smeltedInto].id
         if (becomesThat && deltaT > 5000) {
           // if (inv.stack.OUTPUT == null || inv.stack.OUTPUT.length === 0) inv.stack.OUTPUT = [Settings.item(undefined, 0)];
           if (stack.OUTPUT[0] == null) stack.OUTPUT[0] = Settings.item(undefined, 0)

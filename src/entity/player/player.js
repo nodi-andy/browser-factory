@@ -32,12 +32,12 @@ export class Player extends Inventory {
     if (this.pos?.x == null || this.pos?.y == null) {
       this.pos = { x: 0, y: 0 }
     }
-    this.output = ["Wood", "StoneFurnace", "BurnerMiner", "Chest", "IronStick", "Gear", "Belt1", "Belt2", "Belt3", "InserterBurner"]
+    this.output = ["Wood", "StoneFurnace", "BurnerMiner", "Chest", "IronStick", "Gear", "Belt1", "Belt2", "Belt3", "Inserter", "InserterLong", "InserterSmart", "CopperCable", "Circuit", "AssemblingMachine1", "AssemblingMachine2", "AssemblingMachine3", "Car"]
     this.name = "Player"
     this.dir = { x: 0, y: 0 }
     this.live = 100
     this.nextPos = { x: 0, y: 0 }
-    this.type = Settings.resDB.Player.id
+    this.type = classDB.Player.id
     this.movable = true
     this.speed = 5
 
@@ -62,7 +62,7 @@ export class Player extends Inventory {
     this.unitdir = toUnitV(this.dir)
     const entTile = window.game.entityLayer.worldToTile(this.pos)
 
-    const entMap = Inventory.getInv(entTile.x, entTile.y)
+    const entMap = window.game.entityLayer.getInv(entTile.x, entTile.y)
     if (entMap?.isBelt) {
       this.pos.x += Settings.dirToVec[entMap.dir].x * window.classDB[entMap.name].speed
       this.pos.y += Settings.dirToVec[entMap.dir].y * window.classDB[entMap.name].speed
@@ -168,8 +168,8 @@ export class Player extends Inventory {
   }
 
   fetchTile (x, y) {
-    const e = Inventory.getInv(x, y)
-    if (e?.type === Settings.resDB.Empty.id || e?.isBelt) {
+    const e = window.game.entityLayer.getInv(x, y)
+    if (e?.type === classDB.Empty.id || e?.isBelt) {
       const pickedItem = e.getFirstItem()
       e.moveItemTo(pickedItem, this)
       if (pickedItem?.reserved === true) pickedItem.reserved = false
@@ -184,8 +184,8 @@ export class Player extends Inventory {
     }
 
     for (const nbV of Settings.nbVec) {
-      const nb = Inventory.getInv(this.tilePos.x + nbV.x, this.tilePos.y + nbV.y)
-      if (nb?.type === Settings.resDB.car.id) {
+      const nb = window.game.entityLayer.getInv(this.tilePos.x + nbV.x, this.tilePos.y + nbV.y)
+      if (nb?.type === classDB.Car.id) {
         this.car = window.game.allInvs[nb.id]
       }
     }
@@ -217,7 +217,7 @@ export class Player extends Inventory {
         ent.workProgress += 10
         if (ent.workProgress >= 100) {
           ent.workProgress %= 100
-          const inv = Inventory.getInv(tileCoordinate.x, tileCoordinate.y)
+          const inv = window.game.entityLayer.getInv(tileCoordinate.x, tileCoordinate.y)
           const res = window.game.res.getResource(tileCoordinate)
           if (inv) {
             window.player.destructBuilding(tileCoordinate)

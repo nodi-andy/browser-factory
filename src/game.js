@@ -14,6 +14,7 @@ import * as NC from 'nodicanvas'
 import elements from './imports.js'
 
 window.classDB = {}
+window.classDBi = {}
 Settings.resID = []
 
 elements.forEach((el) => {
@@ -25,6 +26,7 @@ elements.forEach((el) => {
   let i = Settings.resID.length - 1
 
   window.classDB[key] = el[key]
+  window.classDBi[i] = el[key]
   if (window.classDB[key]) window.classDB[key].id = i
 
   Settings.resDB[Settings.resID[i]] = {id: i}

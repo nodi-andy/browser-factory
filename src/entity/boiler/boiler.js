@@ -101,17 +101,17 @@ export class Boiler extends Inventory {
     this.nbOutputs = []
 
     let nbPos = Settings.dirToVec[this.dir]
-    let nb = Inventory.getInv(this.pos.x - nbPos.x, this.pos.y - nbPos.y)
+    let nb = window.game.entityLayer.getInv(this.pos.x - nbPos.x, this.pos.y - nbPos.y)
     if (nb?.type === Settings.resDB.pipe.id || nb?.type === Settings.resDB.generator.id) this.nbOutputs.push(nb.id)
 
-    nb = Inventory.getInv(this.pos.x + nbPos.x, this.pos.y + nbPos.y)
+    nb = window.game.entityLayer.getInv(this.pos.x + nbPos.x, this.pos.y + nbPos.y)
     if (nb?.type === Settings.resDB.pipe.id || nb?.type === Settings.resDB.generator.id) this.nbOutputs.push(nb.id)
 
     nbPos = Settings.dirToVec[(this.dir + 1) % 4]
-    nb = Inventory.getInv(this.pos.x - nbPos.x, this.pos.y - nbPos.y)
+    nb = window.game.entityLayer.getInv(this.pos.x - nbPos.x, this.pos.y - nbPos.y)
     if (nb?.type === Settings.resDB.pipe.id || nb?.type === Settings.resDB.boiler.id) this.nbInputs.push(nb.id)
 
-    nb = Inventory.getInv(this.pos.x + nbPos.x, this.pos.y + nbPos.y)
+    nb = window.game.entityLayer.getInv(this.pos.x + nbPos.x, this.pos.y + nbPos.y)
     if (nb?.type === Settings.resDB.pipe.id || nb?.type === Settings.resDB.boiler.id) this.nbInputs.push(nb.id)
   }
 

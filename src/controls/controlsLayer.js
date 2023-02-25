@@ -24,7 +24,7 @@ export class ControlsLayer extends NC.NodiGrid {
     }
 
     this.buildButton = new Button()
-    this.buildButton.item = Settings.resDB.iron_axe
+    this.buildButton.item = classDB.IronAxe
     this.buildButton.onClick = () => {
       window.game.entityLayer.onKeyDown({ code: 'Enter' })
     }
