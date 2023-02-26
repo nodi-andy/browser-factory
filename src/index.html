@@ -15,9 +15,9 @@
     .container {
         display: inline;
         position: absolute;
-        top: 10px;
-        right: 10px;
-        padding: 2px;
+        z-index: 2;
+        right: 0px;
+        padding: 4px;
         cursor: pointer;
         background-color:rgb(172, 164, 164);
     }
@@ -78,13 +78,6 @@
   color: #f1f1f1;
 }
 
-.overlay .closebtn {
-  position: absolute;
-  top: 20px;
-  right: 45px;
-  font-size: 60px;
-}
-
 .editable {
   display: block;
   width: 100%;
@@ -106,11 +99,6 @@
 
 @media screen and (max-height: 450px) {
   .overlay a {font-size: 20px}
-  .overlay .closebtn {
-  font-size: 40px;
-  top: 15px;
-  right: 35px;
-  }
 }
 </style>
 
@@ -126,7 +114,6 @@
 <html>
     <body>
     <div id="myNav" class="overlay">
-        <div id = "closeNavBtn" class="closebtn" >&times;</div>
         <div class="overlay-content">
           <div id = "newGameBtn">New Game</div>
           <div id = "saveGameBtn">Save</div>

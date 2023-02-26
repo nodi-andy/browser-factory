@@ -87,11 +87,9 @@ function remGame (gameName) {
 }
 
 function openNav () {
-  document.getElementById('myNav').style.left = (window.innerWidth - 300) + 'px'
-}
-
-function closeNav () {
-  document.getElementById('myNav').style.left = '100%'
+  let nav = document.getElementById('myNav')
+  if (nav.style.left == '100%')  nav.style.left = (window.innerWidth - 300) + 'px'
+  else nav.style.left = '100%'
 }
 
 function loadGame (name) {
@@ -330,7 +328,6 @@ window.setProvince = (province) => {
 }
 
 document.getElementById('openNavBtn').onclick = openNav
-document.getElementById('closeNavBtn').onclick = closeNav
 document.getElementById('saveGameBtn').onclick = saveGame
 document.getElementById('newGameBtn').onclick = createGame
 
