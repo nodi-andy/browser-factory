@@ -12,6 +12,8 @@ export class InserterSmart extends Inserter {
     data.pos = pos
     this.setup(undefined, data)
     this.name = 'InserterSmart'
+    this.output = ['Empty', 'WoodenStick', 'IronStick', 'Gear', 'CopperCable', 'Circuit', 'HydraulicPiston']
+    if (this.selectedItem == null) this.selectedItem = classDB['Empty'].id
   }
 
   draw (ctx, ent) {

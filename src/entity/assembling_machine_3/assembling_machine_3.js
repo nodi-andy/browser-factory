@@ -17,7 +17,7 @@ export class AssemblingMachine3 extends AssemblingMachine {
   }
 
   setup (map, ent) {
-    this.output = ['Empty', 'WoodenStick', 'IronStick', 'Gear', 'CopperCable', 'Circuit', 'AssemblingMachine1', 'AssemblingMachine2', 'AssemblingMachine3']
+    this.output = ['Empty', 'WoodenStick', 'IronStick', 'Gear', 'CopperCable', 'Circuit', 'Belt1', 'Belt2', 'Belt3', 'Inserter' , 'InserterLong', 'InserterSmart', 'AssemblingMachine1', 'AssemblingMachine2', 'AssemblingMachine3', 'Car']
   }
   
   draw (ctx, ent) {

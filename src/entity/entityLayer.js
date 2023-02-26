@@ -104,7 +104,7 @@ export class EntityLayer extends NC.NodiGrid {
     const inv = this.getInvP(tileCoordinate)
     if (inv) {
       game.allInvs[game.playerID].addItem({ id: inv.type, n: 1 })
-      game.allInvs[inv] = undefined
+      game.allInvs[inv.id] = undefined
 
       for (let ix = 0; ix < this.map.length; ix++) {
         for (let iy = 0; iy < this.map[ix].length; iy++) {

@@ -37,7 +37,7 @@ export class AssemblingMachine extends Inventory {
         delete this.stack[s]
       }
     }
-
+    if (this.selectedItem == null) return
     const cost = classDBi[this.selectedItem].cost
     if (this.stack == null && this.inv.stack) this.stack = this.inv.stack
     if (this.stack == null) this.stack = {}

@@ -88,7 +88,7 @@ function remGame (gameName) {
 
 function openNav () {
   let nav = document.getElementById('myNav')
-  if (nav.style.left == '100%')  nav.style.left = (window.innerWidth - 300) + 'px'
+  if (nav.style.left == '100%' || nav.style.left == '')  nav.style.left = (window.innerWidth - 300) + 'px'
   else nav.style.left = '100%'
 }
 
@@ -99,10 +99,12 @@ function loadGame (name) {
 
   let savedData = JSON.parse(window.localStorage.getItem(name))
   
-  if (!savedData) createGame(name)
+  if (!savedData) {
+     createGame(name)
 
-  // try again, after creation
-  savedData = JSON.parse(window.localStorage.getItem(name))
+    // try again, after creation
+    savedData = JSON.parse(window.localStorage.getItem(name))
+  }
 
   gameName = name
 
@@ -178,9 +180,9 @@ function loadGame (name) {
       const ent = provinceData.ents[i]
       if (ent == null) continue
       if (ent?.name == "Inventory") {
-        newProvince.allInvs.push(new Inventory(ent.pos, ent))
+        newProvince.allInvs[ent.id] = new Inventory(ent.pos, ent)
       } else {
-        newProvince.allInvs.push(new window.classDB[ent.name](ent.pos, ent))
+        newProvince.allInvs[ent.id] = new window.classDB[ent.name](ent.pos, ent)
       }
     }
 
@@ -233,7 +235,7 @@ function createGame (name) {
     window.game = games[key]
 
     games[key].playerID = 0
-    games[key].allInvs = []
+    games[key].allInvs =  {}
 
     games[key].terrain = new Terrain('terrain', Settings.gridSize, Settings.tileSize)
     games[key].addLayer(game.terrain)
@@ -250,9 +252,9 @@ function createGame (name) {
     games[key].addLayer(new ControlsLayer('controls', Settings.gridSize, Settings.tileSize))
 
     games[key].player = new window.classDB.Player()
-    games[key].allInvs.push(games[key].player)
+    games[key].allInvs[0] = push(games[key].player)
     games[key].invID = games[key].allInvs.length - 1
-    games[key].allInvs.push(new Inventory())
+    games[key].allInvs[1] = new Inventory()
   })
   window.player = game.player
   saveGame()

@@ -59,8 +59,8 @@ export class BurnerMiner extends Inventory {
       if (invTo?.type === classDB.AssemblingMachine1?.id) stackName = classDBi[this.stack.INV[0].id].name
       // place onto belt
       else if (invTo?.isBelt) {
-        const relDir = (invTo.dir - this.dir + 3) % 4
-        const dirPref = ['L', 'R', 'L', 'R']
+        const relDir = (invTo.dir - this.dir + 4) % 4
+        const dirPref = ['L', 'R', 'L', 'L']
         stackName = dirPref[relDir]
       }
 

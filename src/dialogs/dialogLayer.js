@@ -198,7 +198,7 @@ export class DialogLayer extends NC.NodiGrid {
           window.entityMenu.buttons.PROD[0].item = { id: selInv.selectedItem }
           context.font = (Settings.buttonSize.y / 2) + 'px Arial'
           context.fillStyle = 'black'
-          context.fillText('PROD', window.entityMenu.rect.x + Settings.buttonSize.x / 4, window.entityMenu.rect.y + dy)
+          context.fillText('Select', window.entityMenu.rect.x + Settings.buttonSize.x / 4, window.entityMenu.rect.y + dy)
           window.entityMenu.buttons.PROD[0].draw(context)
           dy += Settings.buttonSize.y
         }

@@ -170,8 +170,8 @@ export class Player extends Inventory {
   fetchTile (x, y) {
     const e = game.entityLayer.getInv(x, y)
     if (e?.type === classDB.Empty.id || e?.isBelt) {
-      const pickedItem = e.getFirstItem()
-      e.moveItemTo(pickedItem, this)
+      const pickedItem = e.getItem()
+      e.moveItemTo({id: pickedItem, n:1}, this)
       if (pickedItem?.reserved === true) pickedItem.reserved = false
     }
   }

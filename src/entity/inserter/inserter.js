@@ -20,18 +20,20 @@ export class Inserter extends Inventory {
     if (this.stack == null) this.stack = {}
     this.stacksize = 3
     if (this.stack.FUEL == null) this.stack.FUEL = []
-    if (this.stack.INPUT == null) this.stack.INPUT = []
     if (this.stack.INV == null) this.stack.INV = []
 
     if (this.packsize == null) this.packsize = {}
     this.packsize.INV = 1
-    this.packsize.INPUT = 1
     this.packsize.FUEL = 1
     if (this.armPos == null) this.armPos = 0
     this.energy = 10 // TBD: electricity
     if (this.isHandFull == null) this.isHandFull = false
   }
 
+  // Actuallly a filter
+  setOutput(item) {
+    this.selectedItem = item
+  }
   update (map, ent) {
     this.done = true
     if (this.pos) {
@@ -55,24 +57,33 @@ export class Inserter extends Inventory {
       /* if (this.armPos === 0 && !this.isHandFull && this.energy <= 0 && invFrom.hasItem(classDB.coal)) {
         invFrom.moveItemTo({ id: classDB.Coal.id, n: 1 }, ent, 'FUEL')
       } else */
+
       // PICK
       if (this.armPos === 0 && !this.isHandFull && this.energy > 0 && invFrom) {
         let item
+        //If picking from a producing machine, pick the output
         if (invFrom.stack.OUTPUT) {
-          item = invFrom.getFirstPack('OUTPUT')
-        } else if (invTo?.need?.length) {
+          item = invFrom.getItem('OUTPUT', this.selectedItem)
+        }
+        // if picking for a producing machine, pick the needed part
+        else if (invTo?.need?.length) {
           for (let ineed = 0; ineed < invTo.need.length; ineed++) {
             if (invFrom.hasItem(invTo.need[ineed])) {
-              item = invTo.need[ineed]
+              item = invTo.need[ineed].id
               break
             }
           }
-        } else item = invFrom.getFirstPack()
+        }
+        
+        // Pick just a random item
+        else item = invFrom.getItem(undefined, this.selectedItem)
 
-        if (item?.n && invFrom.moveItemTo({ id: item.id, n: 1 }, ent)) {
+        if (item && invFrom.moveItemTo({ id: item, n: 1 }, ent)) {
           //this.energy--
           this.state = 1
-        } else this.state = 0
+        } else {
+          this.state = 0
+        }
       // PLACE
       } else if (this.armPos === 32 && this.isHandFull) {
         if (invTo == null) {
@@ -82,7 +93,7 @@ export class Inserter extends Inventory {
         let stackName
 
         // place onto belt
-        if (invTo?.type === classDB.Belt1.id) {
+        if (invTo?.isBelt) {
           const relDir = (invTo.dir - this.dir + 3) % 4
           const dirPref = ['R', 'L', 'R', 'L']
           stackName = dirPref[relDir]

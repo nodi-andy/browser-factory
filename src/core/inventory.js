@@ -375,31 +375,58 @@ export class Inventory {
     return ret
   }
 
+  getItem(filterStack, filterItem) {
+    if (filterStack) {
+      if (this.stack[filterStack]) {
+        for(const pack of Object.keys(this.stack[filterStack])) {
+          if (filterItem && this.stack[filterStack][pack]?.id !== filterItem) continue
+          else return this.stack[filterStack][pack]?.id
+        }
+        return null
+      } else {
+        return null
+      }
+    }
+
+    //iterate all items
+    
+    for(const stackName of Object.keys(this.stack)){
+      if (Array.isArray(this.stack[stackName]) ) {
+        for(const pack of Object.keys(this.stack[stackName])){
+          if (filterItem && this.stack[stackName][pack]?.id !== filterItem) continue
+          else return this.stack[stackName][pack]?.id
+        }
+      } else {
+        if (filterItem && this.stack[stackName]?.id !== filterItem) continue
+        if (this.stack[stackName]?.id) return this.stack[stackName]?.id
+      }
+    }
+    return null
+  }
+
+  getStack (pref) {
+    if (pref && this.stack[pref]) 
+      return this.stack[pref]
+    else {
+      Object.keys(this.stack).forEach(stackName => {
+        if (this.stack[stackName][0]?.id) {
+          return this.stack[selectedKey]
+        }
+      })
+    }
+  }
+
   getFirstItem () {
     const firstPack = this.getFirstPack()
     if (firstPack?.length) return firstPack[0]
     return firstPack
   }
 
-  getFirstPack (pref) {
-    let key, selectedKey
-    if (pref && this.stack[pref]) 
-      selectedKey = pref
-    else {
-      const keys = Object.keys(this.stack)
-      if (keys.length) {
-        for (let iStack = 0; iStack < keys.length; iStack++) {
-          key = keys[iStack]
-          if (this.stack[key]?.id || this.stack[key][0]?.id) {
-            selectedKey = key
-            break
-          }
-        }
-      }
-    }
-    if (selectedKey == null) return
-    let pack = this.stack[selectedKey]
-    if (Array.isArray(pack)) pack = pack[0]
-    return pack
+  getFirstPack (prefStack) {
+    let selectedStack = this.getStack(prefStack)
+    if (Array.isArray(selectedStack)) 
+      return selectedStack[0]
+    else
+      return null
   }
 }
