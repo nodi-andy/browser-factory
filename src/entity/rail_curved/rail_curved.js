@@ -27,13 +27,7 @@ export class RailCurved extends Inventory {
 
 const db = RailCurved
 db.type = 'entity'
-db.lock = 1
+db.imgName = 'rail_curved'
 db.size = [1, 1]
 db.rotatable = false
 db.cost = [{ id: "Wood", n: 4 }]
-
-if (typeof Image !== 'undefined') {
-  const image = new Image(512, 32)
-  image.src = './' + db.type + '/rail_curved/rail_curved.png'
-  db.img = image
-}

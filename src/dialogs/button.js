@@ -57,18 +57,11 @@ export class Button {
 
     if (this.item == null) return
 
-    if (this.item?.id && classDBi[this.item.id].img) { // standard image
+    if (this.item?.id && classDBi[this.item.id]?.img) { // standard image
       try {
         ctx.drawImage(classDBi[this.item.id].img, this.screen.x + 2, this.screen.y + 2, Settings.buttonSize.x, Settings.buttonSize.y)
       } catch {
       }
-    }
-
-    if (this.item?.id && classDBi[this.item.id].lock) {
-      ctx.beginPath()
-      ctx.fillStyle = 'rgb(200, 100, 100, 0.3)'
-      ctx.rect(this.screen.x, this.screen.y, Settings.buttonSize.x, Settings.buttonSize.y)
-      ctx.fill()
     }
 
     if (this.item?.n !== undefined) {
@@ -79,7 +72,6 @@ export class Button {
   }
 
   onClick (button) {
-    if (this.item?.id && classDBi[this.item?.id].lock === 1) return
     if (button === 1) {
       if (Settings.pointer?.stack?.INV?.length) {
         if (Settings.pointer?.stack?.INV[0].id === game.allInvs[this.invID].stack[this.invKey][this.stackPos]?.id) {

@@ -10,17 +10,17 @@ export class ResLayer extends NC.NodiGrid {
     if (this.map == null) {
       this.map = Array(this.gridSize.x).fill(0).map(() => Array(this.gridSize.y).fill(0).map(() => ({ type: undefined, id: undefined })))
       Object.keys(window.classDB).forEach(name => {
-        const perlinmap = Terrain.generateTerrain(this.gridSize.x, this.gridSize.y)
+        const perlinmap = Terrain.generateTerrain(this.gridSize.x * 2, this.gridSize.y * 2)
         const res = window.classDB[name]
         if (res?.type === 'res') {
           for (let ax = 0; ax < this.map.length; ax++) {
             for (let ay = 0; ay < this.map[ax].length; ay++) {
-              const perlinVal = perlinmap[ax * this.gridSize.y + ay]
+              const perlinVal = perlinmap[ax * this.gridSize.y * 2 + ay]
               const tile = this.map[ax][ay]
               const terrainTile = game.terrain.map[ax][ay]
-              if (perlinVal > 8 && tile.id == null && terrainTile[0] === classDB.Grassland.id) {
+              if (perlinVal > 9 && tile.id == null && terrainTile[0] === classDB.Grassland.id) {
                 tile.id = res.id
-                tile.n = Math.round((perlinVal - 8) * 200)
+                tile.n = Math.round((perlinVal - 9) * 400)
               }
             }
           }

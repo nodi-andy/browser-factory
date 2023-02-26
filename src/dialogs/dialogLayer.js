@@ -151,7 +151,6 @@ export class DialogLayer extends NC.NodiGrid {
       context.font = (Settings.buttonSize.y / 2) + 'px Arial'
       context.fillStyle = 'black'
       let title = classDBi[window.receiptMenu.item.id].name
-      if (classDBi[window.receiptMenu.item.id].lock) title += ' (developing...)'
       context.fillText(title, window.receiptMenu.rect.x + 6, window.receiptMenu.rect.y + Settings.buttonSize.y / 2)
       let dy = 0
       if (classDBi[window.receiptMenu.item.id].cost) {

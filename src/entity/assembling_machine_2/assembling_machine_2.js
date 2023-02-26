@@ -1,5 +1,6 @@
 import { Settings } from '../../common.js'
 import { AssemblingMachine } from '../assembling_machine/assembling_machine.js'
+import { Gear } from '../../item/gear/gear.js'
 
 export class AssemblingMachine2 extends AssemblingMachine {
   static cost = [
@@ -16,11 +17,17 @@ export class AssemblingMachine2 extends AssemblingMachine {
   }
 
   setup (map, ent) {
-    this.output = ['Empty', 'WoodenStick', 'IronStick', 'Gear', 'CopperCable', 'Circuit', 'AssemblingMachine1']
+    this.output = ['Empty', 'WoodenStick', 'IronStick', 'Gear', 'CopperCable', 'Circuit', 'HydraulicPiston',
+                   'AssemblingMachine1', 'Inserter']
   }
   
   draw (ctx, ent) {
     ctx.drawImage(AssemblingMachine2.anim, 0, 0, AssemblingMachine2.size[0] * Settings.tileSize, AssemblingMachine2.size[1] * Settings.tileSize, 0, 0, AssemblingMachine2.size[0] * Settings.tileSize, AssemblingMachine2.size[1] * Settings.tileSize)
+    ctx.drawImage(Gear.img, 0, 0, Settings.tileSize, Settings.tileSize, 10, 10, Settings.tileSize, Settings.tileSize)
+    ctx.drawImage(Gear.img, 0, 0, Settings.tileSize, Settings.tileSize, Settings.tileSize, Settings.tileSize * 0.75, Settings.tileSize, Settings.tileSize)
+    if (this.selectedItem) {
+      ctx.drawImage(classDBi[this.selectedItem].img, 0, 0, Settings.tileSize, Settings.tileSize, Settings.tileSize, Settings.tileSize * 2, Settings.tileSize, Settings.tileSize)
+    }
   }
 
 }

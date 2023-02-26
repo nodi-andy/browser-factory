@@ -133,7 +133,6 @@ export class Boiler extends Inventory {
 const db = Boiler
 db.playerCanWalkOn = false
 db.type = 'entity'
-db.lock = 1
 db.size = [1, 1]
 db.cost = [
   { id: "IronPlate", n: 1 }

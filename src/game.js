@@ -296,9 +296,9 @@ Object.keys(window.classDB).forEach(key => {
     let costs = window.classDB[key].cost
     if (costs) costs.forEach(cost => {cost.id = window.classDB[cost.id].id})
 
-    const image = new Image(Settings.tileSize, Settings.tileSize)
     let imgName = window.classDB[key].imgName
     if (imgName == null) imgName = key.toLowerCase()
+    const image = new Image(Settings.tileSize, Settings.tileSize)
     image.src = './' + window.classDB[key].type + '/' + imgName + '/' +  imgName + '.png'
     window.classDB[key].img = image
   }

@@ -27,7 +27,6 @@ export class Locomotive extends Inventory {
 
 const db = Locomotive
 db.type = 'entity'
-db.lock = 1
 db.size = [1, 1]
 db.rotatable = false
 db.cost = [{ id: "Wood", n: 4 }]

@@ -4,15 +4,15 @@ import { Inventory } from '../../core/inventory.js'
 export class AssemblingMachine extends Inventory {
   static type = 'entity'
   static size = [3, 3]
-
+  static imgName = 'assembling_machine'
+  
   constructor (pos, data) {
     super(data.pos, data)
     data.pos = pos
     this.name = "AssemblingMachine"
 
-    const size = AssemblingMachine.size
-    for (let i = 0; i < size[0]; i++) {
-      for (let j = 0; j < size[1]; j++) {
+    for (let i = 0; i < this.constructor.size[0]; i++) {
+      for (let j = 0; j < this.constructor.size[1]; j++) {
         game.entityLayer.setInv(pos.x + i, pos.y + j, this.id)
       }
     }
@@ -23,7 +23,8 @@ export class AssemblingMachine extends Inventory {
     this.packsize = {}
     this.state = 0
     this.lastTime = performance.now()
-    this.selectedItem = classDB['Empty'].id
+    this.setOutput(data.selectedItem)
+    if (this.selectedItem == null) this.selectedItem = classDB['Empty'].id
   }
 
   setOutput (out, transferInputToPlayer = true) {

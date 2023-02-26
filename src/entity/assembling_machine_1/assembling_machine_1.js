@@ -1,7 +1,9 @@
 import { Settings } from '../../common.js'
 import { AssemblingMachine } from '../assembling_machine/assembling_machine.js'
+import { Gear } from '../../item/gear/gear.js'
 
 export class AssemblingMachine1 extends AssemblingMachine {
+  static rotatable = false
   static cost = [
     { id: 'Circuit', n: 3 },
     { id: 'Gear', n: 5 },
@@ -16,11 +18,15 @@ export class AssemblingMachine1 extends AssemblingMachine {
   }
 
   setup (map, ent) {
-    this.output = ['Empty', 'WoodenStick', 'IronStick', 'Gear', 'CopperCable', 'Circuit']
+    this.output = ['Empty', 'WoodenStick', 'IronStick', 'Gear', 'CopperCable', 'Circuit', 'HydraulicPiston']
   }
   
   draw (ctx, ent) {
     ctx.drawImage(AssemblingMachine1.anim, 0, 0, AssemblingMachine1.size[0] * Settings.tileSize, AssemblingMachine1.size[1] * Settings.tileSize, 0, 0, AssemblingMachine1.size[0] * Settings.tileSize, AssemblingMachine1.size[1] * Settings.tileSize)
+    ctx.drawImage(Gear.img, 0, 0, Settings.tileSize, Settings.tileSize, 10, 10, Settings.tileSize, Settings.tileSize)
+    if (this.selectedItem) {
+      ctx.drawImage(classDBi[this.selectedItem].img, 0, 0, Settings.tileSize, Settings.tileSize, Settings.tileSize, Settings.tileSize * 2, Settings.tileSize, Settings.tileSize)
+    }
   }
 
 }

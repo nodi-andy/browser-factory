@@ -57,7 +57,6 @@ export class Pump extends Inventory {
 
 const db = Pump
 db.type = 'entity'
-db.lock = 1
 db.cost = [{ id: "IronPlate", n: 3 }]
 if (typeof Image !== 'undefined') {
   const image = new Image(512, 32)

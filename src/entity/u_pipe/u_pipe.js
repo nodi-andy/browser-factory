@@ -121,6 +121,7 @@ db.type = 'entity'
 db.playerCanWalkOn = false
 db.rotatable = false
 db.size = [1, 1]
+db.imgName = 'u_pipe'
 db.cost = [
   { id: "IronPlate", n: 1 }
 ]

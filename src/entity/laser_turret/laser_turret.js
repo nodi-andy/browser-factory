@@ -2,6 +2,8 @@ import { Settings } from '../../common.js'
 import { Inventory } from '../../core/inventory.js'
 
 export class LaserTurret extends Inventory {
+  static imgName = 'laser_turret'
+
   constructor (pos, data) {
     super(pos, data)
     data.pos = pos
@@ -28,7 +30,6 @@ export class LaserTurret extends Inventory {
 const db = LaserTurret
 db.type = 'entity'
 db.size = [1, 1]
-db.lock = 1
 db.mach = LaserTurret
 db.rotatable = false
 db.cost = [{ id: "Wood", n: 4 }]

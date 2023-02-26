@@ -118,7 +118,6 @@ export class Pipe extends Inventory {
 
 const db = Pipe
 db.type = 'entity'
-db.lock = 1
 db.playerCanWalkOn = false
 db.rotatable = false
 db.size = [1, 1]

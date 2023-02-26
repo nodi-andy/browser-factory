@@ -34,7 +34,7 @@ export class Terrain extends NC.NodiGrid {
         let resVal = 0
         if (perlinVal < 1) resVal = [classDB.Deepsea.id, 0]
         else if (perlinVal < 2) resVal = [classDB.Sea.id, 0]
-        else if (perlinVal < 8) resVal = [classDB.Grassland.id, Math.round(Math.random() * 3)]
+        else if (perlinVal < 9) resVal = [classDB.Grassland.id, Math.round(Math.random() * 3)]
         else resVal = [classDB.Hills.id, Math.round(Math.random() * 3)]
 
         this.map[ax][ay] = resVal

@@ -18,4 +18,4 @@ export class InserterLong extends Inserter {
 InserterLong.platform = new Image(64, 64)
 InserterLong.platform.src = './' + InserterLong.type + '/inserter_long/inserter_platform.png'
 InserterLong.hand = new Image(64, 64)
-InserterLong.hand.src = './' + InserterLong.type + '/inserter_long/inserter_hand.png'
+InserterLong.hand.src = './' + InserterLong.type + '/inserter_long/inserter_long_hand.png'

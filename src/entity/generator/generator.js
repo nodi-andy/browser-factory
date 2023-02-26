@@ -113,7 +113,6 @@ export class Generator extends Inventory {
 
 const db = Generator
 db.type = 'entity'
-db.lock = 1
 db.playerCanWalkOn = false
 db.size = [3, 1]
 db.viewsize = [3, 2]

@@ -94,4 +94,3 @@ if (typeof Image !== 'undefined') {
 
 db.mach = Pole
 db.type = 'entity'
-db.lock = 1

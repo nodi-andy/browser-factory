@@ -27,7 +27,6 @@ class Turret extends Inventory {
 
 const db = Turret
 db.type = 'entity'
-db.lock = 1
 db.size = [1, 1]
 db.rotatable = false
 db.cost = [{ id: "Wood", n: 4 }]

@@ -2,6 +2,8 @@ import { Settings } from '../../common.js'
 import { Inventory } from '../../core/inventory.js'
 
 export class ElectricalMiner extends Inventory {
+  static imgName = "e_miner"
+
   constructor (pos, data) {
     super(pos, data)
     data.pos = pos
@@ -101,7 +103,6 @@ export class ElectricalMiner extends Inventory {
 }
 
 const db = ElectricalMiner
-db.lock = 1
 db.type = 'entity'
 db.cost = [{ id: "StoneFurnace", n: 1 }, { id: "IronPlate", n: 3 }, { id: "Gear", n: 2 }]
 if (typeof Image !== 'undefined') {

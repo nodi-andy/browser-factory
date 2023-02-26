@@ -39,7 +39,7 @@ export class EntityLayer extends NC.NodiGrid {
   onKeyUp (e) {
     window.player.onKeyUp(e)
     if (e.code === 'KeyQ') {
-      const searchPack = { id: this.getInvP(Settings.curTilePos).type, n: 1 }
+      const searchPack = { id: this.getInvP(window.curTilePos).type, n: 1 }
       const playerInv = game.allInvs[window.player.invID]
       const pack = playerInv.hasPack('INV', searchPack)
       if (pack) Inventory.moveStack({ fromInvID: window.player.invID, fromInvKey: 'INV', fromStackPos: pack, toInvID: Settings.pointer.id, toInvKey: 'INV', toStackPos: 0 })
@@ -86,7 +86,7 @@ export class EntityLayer extends NC.NodiGrid {
       const res = game.res.getResource(tileCoordinate)
       const d = dist(game.allInvs[game.playerID].pos, worldCordinate)
 
-      if (Settings.pointer?.stack?.INV?.length && (inv == null || inv.type === classDB.Empty.id)) {
+      if (Settings.pointer?.stack?.INV?.length && (inv == null || inv?.type === classDB.Empty.id)) {
         this.setOnMap(tileCoordinate)
       } else {
         window.isDragStarted = true
@@ -103,7 +103,7 @@ export class EntityLayer extends NC.NodiGrid {
   removeEntity (tileCoordinate) {
     const inv = this.getInvP(tileCoordinate)
     if (inv) {
-      game.allInvs[game.playerID].addItem({ id: game.allInvs[inv].type, n: 1 })
+      game.allInvs[game.playerID].addItem({ id: inv.type, n: 1 })
       game.allInvs[inv] = undefined
 
       for (let ix = 0; ix < this.map.length; ix++) {
@@ -122,11 +122,15 @@ export class EntityLayer extends NC.NodiGrid {
   onMouseMove (e, hit) {
     if (hit) return
     this.extendMouseData(e)
-    Settings.curTilePos = { x: e.gridX, y: e.gridY }
+    window.curTilePos = { x: e.gridX, y: e.gridY }
     window.curResPos.x = e.gridX - window.player.tilePos.x
     window.curResPos.y = e.gridY - window.player.tilePos.y
 
-    console.log(game.entityLayer.getInvP(Settings.curTilePos))
+    console.log(game.entityLayer.getInvP(window.curTilePos))
+
+    if (window.isBuilding) {
+      this.setOnMap(window.curTilePos)
+    }
   }
 
   onMouseUp (e, hit) {
@@ -169,8 +173,8 @@ export class EntityLayer extends NC.NodiGrid {
   getInv (x, y, create = false) {
     if (x < 0) return
     if (y < 0) return
-    if (x > this.map.length) return
-    if (y > this.map[0].length) return
+    if (x >= this.map.length) return
+    if (y >= this.map[0].length) return
   
     let tile = this.map[x][y]
     if (tile == null && create) tile = new Empty({x: x, y : y})
