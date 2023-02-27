@@ -219,6 +219,9 @@ export class EntityLayer extends NC.NodiGrid {
           ctx.translate(-type.size[0] / 2 * Settings.tileSize, -type.size[1] / 2 * Settings.tileSize)
         }
 
+        ctx.font = '10px Arial'
+        //ctx.fillStyle = 'green'
+        ctx.fillText(ent.id, 0, 0)
         if (ent?.draw) ent.draw(ctx)
         else ctx.drawImage(classDBi[ent.type].img, 0, 0)
         ent.drawn = 1 // static objects are drawn now

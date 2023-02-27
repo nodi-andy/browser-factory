@@ -19,6 +19,7 @@ export class Player extends Inventory {
     this.tilePos = data.tilePos
     this.pos = data.pos
     this.stack = data.stack
+    if (this.stack == null) this.stack = {}
     this.setup()
   }
 
@@ -68,13 +69,28 @@ export class Player extends Inventory {
       this.pos.y += Settings.dirToVec[entMap.dir].y * window.classDB[entMap.name].speed
     }
 
-    this.nextPos.x = this.pos.x + this.speed * this.unitdir.x
-    const nextXTile = game.entityLayer.worldToTileXY(this.nextPos.x, this.pos.y)
-    if (nextXTile.x > 0 && nextXTile.x < Settings.gridSize.x - 1 && this.checkCollision({ x: nextXTile.x, y: entTile.y }) === false) this.pos.x = this.nextPos.x
+    if (this.speed != 0 && this.car == null) {
+      this.nextPos.x = this.pos.x + this.speed * this.unitdir.x
+      const nextXTile = game.entityLayer.worldToTileXY(this.nextPos.x, this.pos.y)
+      if (nextXTile.x > 0 && nextXTile.x < Settings.gridSize.x - 1 && this.checkCollision({ x: nextXTile.x, y: entTile.y }) === false) this.pos.x = this.nextPos.x
 
-    this.nextPos.y = this.pos.y + this.speed * this.unitdir.y
-    const nextYTile = game.entityLayer.worldToTileXY(this.pos.x, this.nextPos.y)
-    if (nextYTile.y > 0 && nextYTile.y < Settings.gridSize.y - 1 && this.checkCollision({ x: entTile.x, y: nextYTile.y }) === false) this.pos.y = this.nextPos.y
+      this.nextPos.y = this.pos.y + this.speed * this.unitdir.y
+      const nextYTile = game.entityLayer.worldToTileXY(this.pos.x, this.nextPos.y)
+      if (nextYTile.y > 0 && nextYTile.y < Settings.gridSize.y - 1 && this.checkCollision({ x: entTile.x, y: nextYTile.y }) === false) this.pos.y = this.nextPos.y
+    }
+
+    if (this.car) {
+      let c = game.allInvs[this.car]
+      this.tilePos = {x: c.pos.x, y: c.pos.y}
+      this.pos = { x: c.mapPos.x, y: c.mapPos.y }
+    }
+
+    if (this.pos && this.id === game.playerID && (this.speed != 0 || this.car?.speed != 0)) {
+      game.setCenter(this.pos.x, this.pos.y - 66)
+      game.focusOn()
+    }
+
+
 
     if (this.dir.x < 0) this.ss.x--; else this.ss.x++
 
@@ -94,26 +110,15 @@ export class Player extends Inventory {
     this.ss.x %= 30
     if (this.dir.x === 0 && this.dir.y === 0) this.ss.x = 5
 
-    if (this.pos && this.id === game.playerID) {
-      const myMid = {}
-      myMid.x = this.pos.x
-      myMid.y = this.pos.y - 66
-      game.setCenter(myMid.x, myMid.y)
-      game.focusOn()
-      if (this.dir.x !== 0 || this.dir.y !== 0) {
-        this.needUpdate = true
-      } else {
-        // wssend(JSON.stringify({ cmd: 'updateEntity', data: { id: game.playerID, ent: game.allInvs[game.playerID] } }))
-        this.needUpdate = false
-      }
-      // if (ent.needUpdate) wssend(JSON.stringify({ cmd: 'updateEntity', data: { id: game.playerID, ent: game.allInvs[game.playerID] } }))
-    }
+
+
+
     //console.log(this.ss)
     // console.log(ent.pos, entTile);
   }
 
   draw (ctx, ent) {
-    if (this.car) return
+    if (this.car != null) return
     ctx.translate(this.pos.x, this.pos.y)
     ctx.drawImage(Player.img, this.ss.x * 96, this.ss.y * 132, 96, 132, -48, -100, 96, 132)
 
@@ -132,7 +137,7 @@ export class Player extends Inventory {
     if (e.code === 'Enter' || e.code === 'NumpadEnter') this.enterCar()
 
     if (this.car) {
-      this.car.onKeyDown(e)
+      game.allInvs[this.car].onKeyDown(e)
     } else {
       if (e.code === 'KeyW') this.dir.y = -1
       if (e.code === 'KeyS') this.dir.y = 1
@@ -144,7 +149,7 @@ export class Player extends Inventory {
 
   onKeyUp (e) {
     if (this.car) {
-      this.car.onKeyUp(e)
+      game.allInvs[this.car].onKeyUp(e)
     } else {
       if (e.code === 'KeyW') this.dir.y = 0
       if (e.code === 'KeyS') this.dir.y = 0
@@ -178,7 +183,7 @@ export class Player extends Inventory {
 
   enterCar () {
     if (this.car) {
-      this.car.speed = 0
+      game.allInvs[this.car].speed = 0
       this.car = undefined
       return
     }
@@ -186,7 +191,7 @@ export class Player extends Inventory {
     for (const nbV of Settings.nbVec) {
       const nb = game.entityLayer.getInv(this.tilePos.x + nbV.x, this.tilePos.y + nbV.y)
       if (nb?.type === classDB.Car.id) {
-        this.car = game.allInvs[nb.id]
+        this.car = nb.id
       }
     }
   }
