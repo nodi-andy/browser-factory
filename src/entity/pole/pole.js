@@ -92,5 +92,4 @@ if (typeof Image !== 'undefined') {
   db.img = image
 }
 
-db.mach = Pole
 db.type = 'entity'

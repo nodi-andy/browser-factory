@@ -29,8 +29,7 @@ export class LaserTurret extends Inventory {
 
 const db = LaserTurret
 db.type = 'entity'
-db.size = [1, 1]
-db.mach = LaserTurret
+
 db.rotatable = false
 db.cost = [{ id: "Wood", n: 4 }]
 

@@ -145,66 +145,66 @@ function loadGame (name) {
   window.games = {}
   Object.keys(savedData).forEach(provinceName => {
     let savedProvinceData = savedData[provinceName]
-    let newProvince = new ViewModule(document.createElement('canvas'))
-    newProvince.canvas.id = 'myCanvas'+ provinceName
-    newProvince.canvas.style = "display:none; border:none; margin:0"
-    newProvince.canvas.width = window.innerWidth
-    newProvince.canvas.height = window.innerHeight
-    newProvince.canvas.oncontextmenu = function (e) { e.preventDefault() }
-    newProvince.name = provinceName
-    newProvince.playerID = 0
-    newProvince.allInvs = []
+    if (savedProvinceData.terrain) {
+      let newProvince = new ViewModule(document.createElement('canvas'))
+      newProvince.canvas.id = 'myCanvas'+ provinceName
+      newProvince.canvas.style = "display:none; border:none; margin:0"
+      newProvince.canvas.width = window.innerWidth
+      newProvince.canvas.height = window.innerHeight
+      newProvince.canvas.oncontextmenu = function (e) { e.preventDefault() }
+      newProvince.name = provinceName
+      newProvince.playerID = 0
+      newProvince.allInvs = []
 
-    document.body.appendChild(newProvince.canvas); // adds the canvas to the body element
-    //newProvince.stop();
+      document.body.appendChild(newProvince.canvas); // adds the canvas to the body element
+      //newProvince.stop();
 
-    window.game = newProvince
+      window.game = newProvince
 
-    newProvince.terrain = new Terrain('terrain', Settings.gridSize, Settings.tileSize, savedProvinceData.terrain)
-    newProvince.addLayer(newProvince.terrain)
+      newProvince.terrain = new Terrain('terrain', Settings.gridSize, Settings.tileSize, savedProvinceData.terrain)
+      newProvince.addLayer(newProvince.terrain)
 
-    newProvince.res = new ResLayer('resource', Settings.gridSize, Settings.tileSize, savedProvinceData.res)
-    newProvince.addLayer(newProvince.res)
+      newProvince.res = new ResLayer('resource', Settings.gridSize, Settings.tileSize, savedProvinceData.res)
+      newProvince.addLayer(newProvince.res)
 
-    newProvince.entityLayer = new EntityLayer('entity', Settings.gridSize, Settings.tileSize, savedProvinceData.entity)
-    newProvince.addLayer(newProvince.entityLayer)
+      newProvince.entityLayer = new EntityLayer('entity', Settings.gridSize, Settings.tileSize, savedProvinceData.entity)
+      newProvince.addLayer(newProvince.entityLayer)
 
-    newProvince.dialogLayer = new DialogLayer('dialog', Settings.gridSize, Settings.tileSize)
-    newProvince.addLayer(newProvince.dialogLayer)
+      newProvince.dialogLayer = new DialogLayer('dialog', Settings.gridSize, Settings.tileSize)
+      newProvince.addLayer(newProvince.dialogLayer)
 
-    newProvince.controlLayer = new ControlsLayer('controls', Settings.gridSize, Settings.tileSize)
-    newProvince.addLayer(newProvince.controlLayer)
+      newProvince.controlLayer = new ControlsLayer('controls', Settings.gridSize, Settings.tileSize)
+      newProvince.addLayer(newProvince.controlLayer)
 
-    let provinceData = savedData[provinceName]
-    for (let i = 0; i < provinceData.ents.length; i++) {
-      const ent = provinceData.ents[i]
-      if (ent == null) continue
-      if (ent?.name == "Inventory") {
-        newProvince.allInvs[ent.id] = new Inventory(ent.pos, ent)
-      } else {
-        newProvince.allInvs[ent.id] = new window.classDB[ent.name](ent.pos, ent)
+      for (const ent of Object.values(savedProvinceData.ents)) {
+        if (ent == null) continue
+        if (ent?.name == "Inventory") {
+          newProvince.allInvs[ent.id] = new Inventory(ent.pos, ent)
+        } else {
+          newProvince.allInvs[ent.id] = new window.classDB[ent.name](ent.pos, ent)
+        }
       }
+
+      newProvince.allInvs.forEach(ent => {
+        if (ent?.updateNB) ent.updateNB()
+      })
+
+      newProvince.player = newProvince.allInvs[newProvince.playerID]
+      Settings.pointer = newProvince.allInvs[1]
+      Settings.pointer.id = 1
+
+      newProvince.dialogLayer.createInvMenu(newProvince.playerID)
+      newProvince.updateInventoryMenu(newProvince.allInvs[newProvince.playerID])
+      
+      newProvince.terrain.updateOffscreenMap(game.terrain)
+      newProvince.res.updateOffscreenMap(game.res)
+
+      // start game loop
+      newProvince.time = new TimeLoop(newProvince)
+
+      // add the province in province list
+      games[newProvince.name] = newProvince
     }
-
-    newProvince.allInvs.forEach(ent => {
-      if (ent?.updateNB) ent.updateNB()
-    })
-
-    newProvince.player = newProvince.allInvs[newProvince.playerID]
-    Settings.pointer = newProvince.allInvs[1]
-    Settings.pointer.id = 1
-
-    newProvince.dialogLayer.createInvMenu(newProvince.playerID)
-    newProvince.updateInventoryMenu(newProvince.allInvs[newProvince.playerID])
-    
-    newProvince.terrain.updateOffscreenMap(game.terrain)
-    newProvince.res.updateOffscreenMap(game.res)
-
-    // start game loop
-    newProvince.time = new TimeLoop(newProvince)
-
-    // add the province in province list
-    games[newProvince.name] = newProvince
   })
 
   window.player = game.allInvs[game.playerID]
@@ -229,7 +229,7 @@ function createGame (name) {
   if (name == null) name = 'unnamed_0'
   gameName = name
   window.games = {}
-
+  window.games.version = 0.1
   Object.keys(provinces).forEach(key => {
     games[key] = new ViewModule()
     window.game = games[key]
@@ -252,9 +252,11 @@ function createGame (name) {
     games[key].addLayer(new ControlsLayer('controls', Settings.gridSize, Settings.tileSize))
 
     games[key].player = new window.classDB.Player()
-    games[key].allInvs[0] = push(games[key].player)
+    games[key].player.id = 0
+    games[key].allInvs[0] = games[key].player
     games[key].invID = games[key].allInvs.length - 1
     games[key].allInvs[1] = new Inventory()
+    games[key].allInvs[1].id = 1
   })
   window.player = game.player
   saveGame()
@@ -270,6 +272,7 @@ function saveGame () {
   })
 
   let gameContent = {}
+  gameContent.version = window.games.version
   provinceList.forEach(provinceName => {
     let province = games[provinceName]
     gameContent[provinceName]  = {terrain: province.terrain.map, res: province.res.map, entity: province.entityLayer.map, ents: province.allInvs, playerID: province.playerID }

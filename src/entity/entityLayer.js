@@ -86,8 +86,10 @@ export class EntityLayer extends NC.NodiGrid {
       const res = game.res.getResource(tileCoordinate)
       const d = dist(game.allInvs[game.playerID].pos, worldCordinate)
 
-      if (Settings.pointer?.stack?.INV?.length && (inv == null || inv?.type === classDB.Empty.id)) {
-        this.setOnMap(tileCoordinate)
+      if (Settings.pointer?.stack?.INV?.length) {
+        if (inv == null || inv?.type === classDB.Empty.id) {
+          this.setOnMap(tileCoordinate)
+        }
       } else {
         window.isDragStarted = true
         window.isBuilding = false

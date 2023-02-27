@@ -143,5 +143,3 @@ if (typeof Image !== 'undefined') {
   image.src = './' + Boiler.type + '/boiler/boiler.png'
   Boiler.img = image
 }
-
-db.mach = Boiler

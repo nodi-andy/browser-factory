@@ -1,5 +1,6 @@
 import { Settings } from '../common.js'
-
+import { Grassland } from '../terrain/grassland/grassland.js'
+import { Tree } from '../res/tree/tree.js'
 
 export class Inventory {
 
@@ -35,11 +36,33 @@ export class Inventory {
     })
   }
   
+  static checkFreeSpace(entity) {
+    let size = classDBi[entity.type].size
+    for (let i = 0; i < size[0]; i++) {
+      for (let j = 0; j < size[1]; j++) {
+        let p = {x: entity.pos.x + i, y : entity.pos.y + j}
+        if (game.entityLayer.getInv(p.x, p.y) != null ||
+            game.terrain.map[p.x][p.y][0] != Grassland.id ||
+            game.res.getResource(p).id == Tree.id ) {
+          return false
+        }
+      }
+    }
+    return true
+  }
 
-  static createInv (type, newEntity) {
+  static createInv (newEntity) {
     newEntity.id = game.allInvs.length
-    game.allInvs.push(new classDBi[type](newEntity.pos, newEntity))
-    return game.allInvs.length - 1
+
+    if (this.checkFreeSpace(newEntity)) {
+      let newClass = new classDBi[newEntity.type](newEntity.pos, newEntity)
+      if (newClass){
+        game.allInvs.push(newClass)
+        return game.allInvs.length - 1
+      } else {
+        return null
+      }
+    }
   }
   
   static addInventory (newEntity, updateDir) {
@@ -47,26 +70,28 @@ export class Inventory {
     let inv = game.entityLayer.getInv(newEntity.pos.x, newEntity.pos.y)
     if (inv == null || inv?.type === classDB.Empty.id) {
       if (Settings.pointer.stack.INV[0].n > 0) {
-        const invID = Inventory.createInv(newEntity.type, newEntity)
-        inv = game.allInvs[invID]
-        inv.id = invID
-        inv.pos = { x: newEntity.pos.x, y: newEntity.pos.y }
-        inv.dir = newEntity.dir
-        inv.type = newEntity.type
-        game.entityLayer.map[newEntity.pos.x][newEntity.pos.y] = inv.id
-        if (inv?.updateNB) inv.updateNB()
-        if (typeof window !== 'undefined') game.updateInventoryMenu(window.player)
-        Settings.pointer.stack.INV[0].n--
-        if (Settings.pointer.stack.INV[0].n === 0) delete Settings.pointer.stack.INV
+        const invID = Inventory.createInv(newEntity)
+        if (invID != null) {
+          inv = game.allInvs[invID]
+          inv.id = invID
+          inv.pos = { x: newEntity.pos.x, y: newEntity.pos.y }
+          inv.dir = newEntity.dir
+          inv.type = newEntity.type
+          game.entityLayer.map[newEntity.pos.x][newEntity.pos.y] = inv.id
+          if (inv?.updateNB) inv.updateNB()
+          if (typeof window !== 'undefined') game.updateInventoryMenu(window.player)
+          Settings.pointer.stack.INV[0].n--
+          if (Settings.pointer.stack.INV[0].n === 0) delete Settings.pointer.stack.INV
+        }
+        // Update Neighbours
+        for (const nbV of Settings.nbVec) {
+          const nb = game.entityLayer.getInv(newEntity.pos.x + nbV.x, newEntity.pos.y + nbV.y)
+          if (nb?.updateNB) nb.updateNB()
+        }
       }
-      if (classDBi[newEntity.type].mach && classDBi[newEntity.type].mach.setup) classDBi[newEntity.type].mach.setup(game.entityLayer.map, inv)
     }
   
-    // Update Neighbours
-    for (const nbV of Settings.nbVec) {
-      const nb = game.entityLayer.getInv(newEntity.pos.x + nbV.x, newEntity.pos.y + nbV.y)
-      if (nb?.updateNB) nb.updateNB()
-    }
+
   
     if (inv) return inv.id
   }
