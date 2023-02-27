@@ -61,12 +61,8 @@ export class Inserter extends Inventory {
       // PICK
       if (this.armPos === 0 && !this.isHandFull && this.energy > 0 && invFrom) {
         let item
-        //If picking from a producing machine, pick the output
-        if (invFrom.stack.OUTPUT) {
-          item = invFrom.getItem('OUTPUT', this.selectedItem)
-        }
         // if picking for a producing machine, pick the needed part
-        else if (invTo?.need?.length) {
+        if (invTo?.need?.length) {
           for (let ineed = 0; ineed < invTo.need.length; ineed++) {
             if (invFrom.hasItem(invTo.need[ineed])) {
               item = invTo.need[ineed].id
@@ -74,9 +70,14 @@ export class Inserter extends Inventory {
             }
           }
         }
+
+        //If picking from a producing machine, pick the output
+        if (item == null && invFrom.stack.OUTPUT) {
+          item = invFrom.getItem('OUTPUT', this.selectedItem)
+        }
         
         // Pick just a random item
-        else item = invFrom.getItem(undefined, this.selectedItem)
+        if (item == null && invFrom.stack.OUTPUT == null && invTo?.need == null) item = invFrom.getItem(undefined, this.selectedItem)
 
         if (item && invFrom.moveItemTo({ id: item, n: 1 }, ent)) {
           //this.energy--

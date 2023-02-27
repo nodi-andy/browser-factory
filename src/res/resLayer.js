@@ -67,8 +67,8 @@ export class ResLayer extends NC.NodiGrid {
   getResource (p) {
     if (p.x < 0) return
     if (p.y < 0) return
-    if (p.x > this.map.length) return
-    if (p.y > this.map[0].length) return
+    if (p.x >= this.map.length) return
+    if (p.y >= this.map[0].length) return
 
     return this.map[p.x][p.y]
   }

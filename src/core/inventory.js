@@ -7,6 +7,7 @@ export class Inventory {
     const newItem = { id: window.classDB[classDBi[minedItem.id].becomes].id, n: 1 }
     const res = game.res.getResource(minedItem.source)
     res.n--
+    game.res.updateOffscreenMap(game.res)
   
     if (res.n <= 0) {
       delete game.res.map[minedItem.source.x][minedItem.source.y].id
@@ -16,22 +17,6 @@ export class Inventory {
     game.updateInventoryMenu(window.player)
   }
 
-  static getNumberOfItems (ent, type) {
-    if (ent == null || ent.stack == null) return
-    let n = 0
-    const keys = Object.keys(ent.stack)
-    for (let iStack = 0; iStack < keys.length; iStack++) {
-      const key = keys[iStack]
-      for (let iPack = 0; iPack < ent.packsize[key]; iPack++) {
-        const pack = ent.stack[key][iPack]
-        if (pack && pack.id === type) {
-          n += pack.n
-        }
-      }
-    }
-    return n
-  }
-  
   static craftToInv (inv, items) {
     if (!items) return
     items.forEach(item => {
@@ -143,6 +128,21 @@ export class Inventory {
 
   getStackName () {
     return 'INV'
+  }
+
+  getNumberOfItems (type) {
+    let n = 0
+    for(const stackName of Object.keys(this.stack)){
+      if (Array.isArray(this.stack[stackName]) ) {
+        for(const pack of Object.keys(this.stack[stackName])){
+          if (this.stack[stackName][pack]?.id === type) n++
+        }
+      } else {
+        if (this.stack[stackName]?.id === type) n++
+      }
+    }
+
+    return n
   }
 
   moveItemTo (item, to, toStackname) {

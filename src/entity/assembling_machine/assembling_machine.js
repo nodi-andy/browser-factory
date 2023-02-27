@@ -62,7 +62,7 @@ export class AssemblingMachine extends Inventory {
     this.need = []
     for (let costItemID = 0; costItemID < this.preneed.length; costItemID++) {
       const costItem = this.preneed[costItemID]
-      const existing = Inventory.getNumberOfItems(game.allInvs[this.id], costItem.id)
+      const existing = this.getNumberOfItems(costItem.id)
       if (existing < costItem.n) {
         this.need.push(costItem)
       }

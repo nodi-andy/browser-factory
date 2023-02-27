@@ -159,7 +159,7 @@ export class DialogLayer extends NC.NodiGrid {
           context.drawImage(classDBi[costItem.id].img, window.receiptMenu.rect.x + 6, window.receiptMenu.rect.y + Settings.buttonSize.y + dy, 32, 32)
           let missingItems = ''
           if (window.receiptMenu.item.n === 0) {
-            const existing = Inventory.getNumberOfItems(game.allInvs[game.playerID], costItem.id)
+            const existing = game.player.getNumberOfItems(costItem.id)
             if (existing < costItem.n) {
               missingItems = existing + ' / '
               context.fillStyle = 'red'
