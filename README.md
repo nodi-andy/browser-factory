@@ -14,18 +14,17 @@ Released:
 - Stone furnace
 - Wooden chest
 - Burner mining drill
-- Burner inserter
-- Basic Transport belts
-- Fast/express transport belts
+- Inserter (no energy)
+- Belts
 - Assembling machine (1, 2, 3)
+- Long handed/Smart inserter
+- Car
 
-Done:
+Testing:
 - Basic electric inserter
 - Pipes
 - Boilers
 - Steam engine
-- Long handed/Fast/smart inserter : open
-- Car
 
 Open
 - Red/green wires that can be used to send signals : open
