@@ -29,9 +29,15 @@ export class Car extends Player {
     }
     this.relPos = new NC.Vec2(0, 0)
     this.mapPos = {x: this.pos.x * Settings.tileSize + this.relPos.x, y: this.pos.y * Settings.tileSize + this.relPos.y}
+    if (isNaN(this.dir)) {
+      this.dir = 0
+      this.drawDir = 4
+    }
   }
 
   update (map, ent) {
+
+
     this.relPos.x = this.relPos.x + this.speed * Math.cos(ent.dir)
     //ent.pos.x = ent.nextPos.x
 
@@ -70,8 +76,7 @@ export class Car extends Player {
     this.dir = Math.round(this.dir / (Math.PI / 8)) * (Math.PI / 8)
     this.drawDir = (((Math.round(this.dir / (Math.PI / 8))) + 4) % 16)
 
-    
-    console.log(this.dir + '  ' + this.drawDir)
+    //console.log(this.dir + '  ' + this.drawDir)
   }
 
   onKeyUp (e) {
@@ -83,12 +88,7 @@ export class Car extends Player {
     if (this.relPos) {
       ctx.translate(this.relPos.x, this.relPos.y)
     }
-    if (isNaN(this.dir)) {
-      this.dir = 0
-      this.drawDir = 4
-    }
-
-    ctx.drawImage(Car.img_anim, this.drawDir * 260, 0, 260, 260, -100, -80, 260, 260)
+    if (this.drawDir != null) ctx.drawImage(Car.img_anim, this.drawDir * 260, 0, 260, 260, -100, -80, 260, 260)
   }
 }
 
