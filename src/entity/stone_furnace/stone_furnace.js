@@ -94,7 +94,7 @@ export class StoneFurnace extends Inventory {
       return
     }
 
-    if (stack?.FUEL.length && stack.FUEL[0].n && stack.INPUT.length && stack.INPUT[0].n) {
+    if (stack.FUEL[0]?.n && stack.INPUT[0]?.n) {
       if (ent.state === 0) { this.lastTime = performance.now(); ent.state = 1 };
       if (ent.state === 1) {
         const deltaT = performance.now() - this.lastTime
@@ -102,10 +102,11 @@ export class StoneFurnace extends Inventory {
         if (becomesThat && deltaT > 5000) {
           if (stack.OUTPUT[0] == null) stack.OUTPUT[0] = {id: undefined, n: 0}
           if (stack.OUTPUT[0].n == null) stack.OUTPUT[0].n = 0
-          stack.INPUT[0].n--
-          stack.FUEL[0].n--
+          this.remItem({id: stack.FUEL[0].id, n:1}, "FUEL", 0)
+          this.remItem({id: stack.INPUT[0].id, n:1}, "INPUT", 0)
           stack.OUTPUT[0].id = becomesThat
           stack.OUTPUT[0].n++
+          game.updateEntityMenu(window.selEntity, true)
           this.lastTime = performance.now()
         }
       }
