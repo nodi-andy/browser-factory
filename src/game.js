@@ -9,8 +9,10 @@ import { ResLayer } from './res/resLayer.js'
 import { DialogLayer } from './dialogs/dialogLayer.js'
 import { ControlsLayer } from './controls/controlsLayer.js'
 //import { provinces } from './world/germany.js'
+import { elements, version} from './imports.js'
 
-import elements from './imports.js'
+console.log("📦: Browser factory")
+console.log("🚀: " + version)
 
 for(let i = 0; i < elements.length; i++) {
   let el = elements[i]
@@ -93,9 +95,15 @@ function openNav () {
 }
 
 function loadGame (name) {
+
+  if (window.game) {
+    window.game.stop()
+    saveGame()
+  }
+
   updateNextGameID()
 
-  if (name == null) name = 'unnamed_' + window.nextGameID
+  if (name == null || typeof(name) == 'object') name = 'unnamed_' + window.nextGameID
 
   let savedData = JSON.parse(window.localStorage.getItem(name))
   
@@ -135,7 +143,6 @@ function loadGame (name) {
     window.uni.canvas.style.display = "block"
     window.uni.worldLayer.updateOffscreenMap(window.uni.worldLayer)
     window.uni.name = name
-    window.uni.state = 1
 
     window.uni.setCenter(600, 600)
     window.uni.focusOn()
@@ -143,6 +150,7 @@ function loadGame (name) {
   }
 
   window.games = {}
+  window.player = null
   Object.keys(savedData).forEach(provinceName => {
     let savedProvinceData = savedData[provinceName]
     if (savedProvinceData.terrain) {
@@ -157,7 +165,6 @@ function loadGame (name) {
       newProvince.allInvs = []
 
       document.body.appendChild(newProvince.canvas); // adds the canvas to the body element
-      //newProvince.stop();
 
       window.game = newProvince
 
@@ -197,7 +204,7 @@ function loadGame (name) {
       newProvince.updateInventoryMenu(newProvince.allInvs[newProvince.playerID])
       
       newProvince.terrain.updateOffscreenMap(game.terrain)
-      newProvince.res.updateOffscreenMap(game.res)
+      newProvince.res.updateOffscreenMap()
 
       // start game loop
       newProvince.time = new TimeLoop(newProvince)
@@ -229,7 +236,7 @@ function createGame (name) {
   if (name == null) name = 'unnamed_0'
   gameName = name
   window.games = {}
-  window.games.version = 0.1
+  window.games.version = version
   Object.keys(provinces).forEach(key => {
     games[key] = new ViewModule()
     window.game = games[key]
@@ -334,7 +341,7 @@ window.setProvince = (province) => {
 
 document.getElementById('openNavBtn').onclick = openNav
 document.getElementById('saveGameBtn').onclick = saveGame
-document.getElementById('newGameBtn').onclick = createGame
+document.getElementById('newGameBtn').onclick = loadGame
 
 
 loadGame(curGame)

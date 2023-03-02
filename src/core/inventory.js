@@ -8,7 +8,7 @@ export class Inventory {
     const newItem = { id: window.classDB[classDBi[minedItem.id].becomes].id, n: 1 }
     const res = game.res.getResource(minedItem.source)
     res.n--
-    game.res.updateOffscreenMap(game.res)
+    game.res.updateOffscreenMap()
   
     if (res.n <= 0) {
       delete game.res.map[minedItem.source.x][minedItem.source.y].id
@@ -160,7 +160,7 @@ export class Inventory {
     for(const stackName of Object.keys(this.stack)){
       if (Array.isArray(this.stack[stackName]) ) {
         for(const pack of Object.keys(this.stack[stackName])){
-          if (this.stack[stackName][pack]?.id === type) n++
+          if (this.stack[stackName][pack]?.id === type) n += this.stack[stackName][pack].n
         }
       } else {
         if (this.stack[stackName]?.id === type) n++

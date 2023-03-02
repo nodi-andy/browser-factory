@@ -9,7 +9,7 @@ export class Car extends Player {
   static rotatable = false
   static size = [3, 3]
   static playerCanWalkOn = false
-  static cost = [{ id: "InserterSmart", n: 100 },  { id: "Belt3", n: 100 },  { id: "AssemblingMachine3", n: 100 }]
+  static cost = [{ id: "InserterSmart", n: 50 },  { id: "Belt3", n: 50 },  { id: "AssemblingMachine3", n: 50 }]
   static imgName = 'car'
 
   constructor (pos, data) {

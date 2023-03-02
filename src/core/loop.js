@@ -5,17 +5,15 @@ export class TimeLoop {
     this.game = game
     this.gameLoop()
   }
+
+  start() {
+    this.timeout = setInterval(this.gameLoop.bind(this), 33)
+  }
+  stop() {
+    clearInterval(this.timeout)
+  }
   // LOOP
   gameLoop () {
-    if (this.game.state === 0) {
-      setTimeout(window.Time.gameLoop, 20)
-      return
-    }
-
-    if (this.game.state === 2) {
-      this.game.stopped()
-      return
-    }
 
     // Game tick increment
     this.game.tick++
@@ -60,7 +58,5 @@ export class TimeLoop {
       }
     }
 
-    //if (window.selEntity) this.game.updateEntityMenu(window.selEntity, true)
-    setTimeout(this.gameLoop.bind(this), 20)
   }
 }

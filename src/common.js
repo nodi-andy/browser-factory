@@ -4,6 +4,7 @@ window.classDB = {}
 window.classDBi = {}
 window.gameName = ''
 window.curResPos = new NC.Vec2(0, 0)
+window.gameState ={"loading": 1, "running": 2, "stopping": 3, "stopped": 4}
 
 export const provinces = {
   "single" : {

@@ -106,7 +106,7 @@ export class StoneFurnace extends Inventory {
           this.remItem({id: stack.INPUT[0].id, n:1}, "INPUT", 0)
           stack.OUTPUT[0].id = becomesThat
           stack.OUTPUT[0].n++
-          game.updateEntityMenu(window.selEntity, true)
+          if (window.selEntity == this) game.updateEntityMenu(window.selEntity, true)
           this.lastTime = performance.now()
         }
       }

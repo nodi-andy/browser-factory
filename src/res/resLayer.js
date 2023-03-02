@@ -46,6 +46,7 @@ export class ResLayer extends NC.NodiGrid {
   }
 
   updateOffscreenMap (resLayer) {
+    if (resLayer == null) resLayer = game.res
     if (game.res.map == null) return
     resLayer.offscreenCanvas.width = Settings.gridSize.x * Settings.tileSize
     resLayer.offscreenCanvas.height = Settings.gridSize.y * Settings.tileSize
@@ -70,6 +71,14 @@ export class ResLayer extends NC.NodiGrid {
     if (p.x >= this.map.length) return
     if (p.y >= this.map[0].length) return
 
-    return this.map[p.x][p.y]
+    return this.getResourceXY(p.x, p.y)
+  }
+  getResourceXY (x, y) {
+    if (x < 0) return
+    if (y < 0) return
+    if (x >= this.map.length) return
+    if (y >= this.map[0].length) return
+
+    return this.map[x][y]
   }
 }

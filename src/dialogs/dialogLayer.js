@@ -155,17 +155,16 @@ export class DialogLayer extends NC.NodiGrid {
       let dy = 0
       if (classDBi[window.receiptMenu.item.id].cost) {
         for (const costItem of classDBi[window.receiptMenu.item.id].cost) {
-          context.fillRect(window.receiptMenu.rect.x + 6, window.receiptMenu.rect.y + Settings.buttonSize.y + dy, 32, 32)
-          context.drawImage(classDBi[costItem.id].img, window.receiptMenu.rect.x + 6, window.receiptMenu.rect.y + Settings.buttonSize.y + dy, 32, 32)
           let missingItems = ''
-          if (window.receiptMenu.item.n === 0) {
+          context.fillStyle = 'black'
             const existing = game.player.getNumberOfItems(costItem.id)
             if (existing < costItem.n) {
               missingItems = existing + ' / '
               context.fillStyle = 'red'
-            } else context.fillStyle = 'black'
-          } else context.fillStyle = 'black'
-          context.fillText(missingItems + costItem.n + 'x ' + classDBi[costItem.id].name, window.receiptMenu.rect.x + 46, window.receiptMenu.rect.y + Settings.buttonSize.y * 1.2 + dy)
+            }
+            context.fillRect(window.receiptMenu.rect.x + 6, window.receiptMenu.rect.y + Settings.buttonSize.y + dy, 32, 32)
+            context.drawImage(classDBi[costItem.id].img, window.receiptMenu.rect.x + 6, window.receiptMenu.rect.y + Settings.buttonSize.y + dy, 32, 32)
+            context.fillText(missingItems + costItem.n + 'x ' + classDBi[costItem.id].name, window.receiptMenu.rect.x + 46, window.receiptMenu.rect.y + Settings.buttonSize.y * 1.2 + dy)
           dy += Settings.buttonSize.y
           window.receiptMenu.rect.h = dy + 100
         }

@@ -13,13 +13,18 @@ export class ViewModule extends NC.NodiView {
   }
 
   stop() {
+    document.body.removeChild(window.game.canvas)
     this.setCanvas(null)
     this.ctx = null
+    window.game.state = window.gameState.stopped
+    window.game.time.stop()
   }
 
   start() {
     this.setCanvas(this.savedCanvas)
     this.ctx = this.canvas.getContext('2d')
+    window.game.state = window.gameState.running
+    window.game.time.start()
   }
 
   resize () {
@@ -205,6 +210,7 @@ export class ViewModule extends NC.NodiView {
   }
 
   updateEntityMenu (inv, forceUpdate = false) {
+    if (inv == null) return
     const showStack = inv.stack
     if (showStack == null) return
 

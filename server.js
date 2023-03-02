@@ -22,12 +22,12 @@ app.get('/imports.js', function (req, res) {
     els.forEach((element) => { 
         importFile += 'import * as ' + element.name + ' from "'  + element.filename  + '"\r\n'
     })
-    importFile += 'var elements = ['
+    importFile += 'export var elements = ['
     els.forEach((element) => { 
         importFile += element.name  + ', '
     })
     importFile += ']\r\n'
-    importFile += 'export default elements'
+    importFile += 'export var version ="' + process.env.npm_package_version + '"\r\n'
     //console.log(importFile)
     res.send(importFile)
   })

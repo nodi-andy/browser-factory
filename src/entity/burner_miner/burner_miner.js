@@ -41,9 +41,23 @@ export class BurnerMiner extends Inventory {
       this.power = 0
       if (this.stack.FUEL == null || this.stack.FUEL.length === 0) this.stack.FUEL = [ { id: undefined, n: 0}]
       let output
-      let tile = game.res.map[ent.pos.x][ent.pos.y]
-      if (tile?.n === 0) tile = map[ent.pos.x + 1][ent.pos.y]
-      if (tile?.n == null) return
+      let tile =  game.res.getResource(ent.pos)
+      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x + 1, ent.pos.y)
+      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x, ent.pos.y + 1)
+      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x + 1, ent.pos.y + 1)
+      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x - 1, ent.pos.y - 1)
+      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x, ent.pos.y - 1)
+      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x + 1, ent.pos.y - 1)
+      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x + 2, ent.pos.y - 1)
+      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x - 1, ent.pos.y)
+      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x + 2, ent.pos.y)
+      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x - 1, ent.pos.y + 1)
+      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x + 2, ent.pos.y + 1)
+      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x - 1, ent.pos.y + 2)
+      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x, ent.pos.y + 2)
+      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x + 1, ent.pos.y + 2)
+      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x + 2, ent.pos.y + 2)
+      if (tile?.n == null || tile?.n == 0) return
 
       let invTo
       if (this.dir === 0) invTo = game.entityLayer.getInv(ent.pos.x + 2, ent.pos.y, true)
@@ -70,13 +84,14 @@ export class BurnerMiner extends Inventory {
         this.energy += classDBi[this.stack.FUEL[0].id].E // add time factor
         this.power = 100
         this.stack.FUEL[0].n--
-        tile.n--
       }
-
+      
       if (output && hasPlace && this.energy > neededEnergy) {
         this.power = 100
         this.energy -= neededEnergy // add time factor
         invTo.addItem({ id: output.id, n: 1 }, stackName)
+        tile.n--
+        game.res.updateOffscreenMap()
       }
     }
   }
