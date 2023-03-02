@@ -226,12 +226,12 @@ export class Inventory {
       let pack = this.stack[key]
       if (Array.isArray(pack)) pack = pack[iPack]
       if (pack == null) {
-        pack = { id: newItem.id, n: 1 }
+        pack = { id: newItem.id, n: newItem.n }
         this.stack[key].push(pack)
         return true
       } else if (pack.id == null) {
         if (pack.reserved === true) return false
-        pack = { id: newItem.id, n: 1 }
+        pack = { id: newItem.id, n: newItem.n }
         this.stack[key] = pack
         return true
       } else if (pack.id === newItem.id && pack.n + newItem.n <= this.itemsize) {

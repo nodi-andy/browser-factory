@@ -48,30 +48,70 @@ export class StoneFurnace extends Inventory {
   update (map, ent) {
     if (ent == null) return
     this.need = []
-    this.preneed = []
+    this.shallNeed = []
+    let becomesThat = null
 
-    if (this.stack.INPUT[0] == null || this.stack.INPUT[0]?.n === 0) this.stack.INPUT = []
-    if (this.stack.FUEL[0] == null || this.stack.FUEL[0]?.n === 0) this.stack.FUEL = []
-
-    if (this.stack.OUTPUT[0]?.id == null) {
-      this.preneed.push({ id: window.classDB.Iron.id, n: 1 })
-      this.preneed.push({ id: window.classDB.Copper.id, n: 1 })
-      this.preneed.push({ id: window.classDB.Stone.id, n: 1 })
-      this.preneed.push({ id: window.classDB.Coal.id, n: 1 })
-      // this.preneed.push({ id: "Wood", n: 1 }) TBD: no wood burning
+    if (this.stack.FUEL[0] == null || this.stack.FUEL[0]?.n === 0) {
+      this.stack.FUEL = []
+      this.stack.FUEL.filter = {}
+      this.stack.FUEL.filter[window.classDB.Coal.id] = 50
+      this.stack.FUEL.filter[window.classDB.Wood.id] = 50
     } else {
-      const outputItem = this.stack.OUTPUT[0].id
-      this.preneed = JSON.parse(JSON.stringify(classDBi[outputItem].cost))
+     this.stack.FUEL.filter = {}
+     this.stack.FUEL.filter[this.stack.FUEL[0].id] = 50
+   }
+
+
+    if (this.stack.INPUT[0] == null || this.stack.INPUT[0]?.n === 0) {
+      this.stack.INPUT = []
+      this.stack.INPUT.filter = {}
+      this.stack.INPUT.filter[window.classDB.Iron.id] = 50
+      this.stack.INPUT.filter[window.classDB.Copper.id] = 50
+      this.stack.INPUT.filter[window.classDB.Stone.id] = 50
+      this.stack.INPUT.filter[window.classDB.Coal.id] = 50
+    } else {
+      this.stack.INPUT.filter = {}
+      this.stack.INPUT.filter[this.stack.INPUT[0].id] = 50
     }
 
-    for (let costItemID = 0; costItemID < this.preneed.length; costItemID++) {
-      const costItem = this.preneed[costItemID]
-      const existing = this.getNumberOfItems(costItem.id)
-      if (existing >= costItem.n) {
-        this.need.push(costItem)
-      } else {
-        this.need.unshift(costItem)
+    if (this.stack.OUTPUT[0]?.id) {
+      becomesThat = this.stack.OUTPUT[0]?.id
+      let filter = {}
+      for (let inputPossible of Object.keys(this.stack.INPUT.filter)) {
+        let inputPossibleInt = parseInt(inputPossible)
+        if (classDB[classDBi[inputPossibleInt].smeltedInto]?.id === this.stack.OUTPUT[0]?.id) {
+          filter[inputPossibleInt] = this.stack.INPUT.filter[inputPossible]
+        }
       }
+      this.stack.INPUT.filter = filter
+    }
+
+    if (becomesThat == null && this.stack.INPUT[0]?.id) {
+      becomesThat = classDB[classDBi[this.stack.INPUT[0].id].smeltedInto].id
+    }
+
+    if (becomesThat) {
+      this.canNeed = {}
+      let cost = classDBi[becomesThat].cost
+      for (let costItem of Object.keys(cost)) {
+        this.canNeed[cost[costItem].id] = cost[costItem].n
+      }
+    } else {
+      this.canNeed = {...this.stack.INPUT.filter, ...this.stack.FUEL.filter}
+    }
+
+    this.canHave = {...this.stack.INPUT.filter, ...this.stack.FUEL.filter}
+
+    for (let costItem of Object.keys(this.canNeed)) {
+      let costItemInt = parseInt(costItem)
+      const existing = this.getNumberOfItems(costItemInt)
+      if (existing < this.canNeed[costItemInt] ) this.need.push(costItemInt)
+    }
+
+    for (let costItem of Object.keys(this.canHave)) {
+      let costItemInt = parseInt(costItem)
+      const existing = this.getNumberOfItems(parseInt(costItemInt))
+      if (existing < this.canHave[costItemInt] ) this.shallNeed.push(costItemInt)
     }
 
     if (this.stack.INV) {

@@ -64,20 +64,28 @@ export class Inserter extends Inventory {
         // if picking for a producing machine, pick the needed part
         if (invTo?.need?.length) {
           for (let ineed = 0; ineed < invTo.need.length; ineed++) {
-            if (invFrom.hasItem(invTo.need[ineed])) {
-              item = invTo.need[ineed].id
+            if (invFrom.hasItem({id: invTo.need[ineed]})) {
+              item = invTo.need[ineed]
               break
             }
           }
         }
-
+        // if picking for a producing machine, pick any usefull part
+        if (item == null && invTo?.shallNeed?.length) {
+          for (let needItem of invTo.shallNeed) {
+            if (invFrom.hasItem({id: needItem})) {
+              item = needItem
+              break
+            }
+          }
+        }
         //If picking from a producing machine, pick the output
         if (item == null && invFrom.stack.OUTPUT) {
           item = invFrom.getItem('OUTPUT', this.selectedItem)
         }
         
         // Pick just a random item
-        if (item == null && invFrom.stack.OUTPUT == null && invTo?.need == null) item = invFrom.getItem(undefined, this.selectedItem)
+        if (item == null && invFrom.stack.OUTPUT == null && invTo?.need == null && invTo?.preneed == null) item = invFrom.getItem(undefined, this.selectedItem)
 
         if (item && invFrom.moveItemTo({ id: item, n: 1 }, ent)) {
           //this.energy--
@@ -99,7 +107,7 @@ export class Inserter extends Inventory {
           const dirPref = ['R', 'L', 'R', 'L']
           stackName = dirPref[relDir]
         // place into burner miner
-        } else if (invTo?.type === classDB.Inserter.id) {
+        } else if (invTo?.type === classDB.BurnerMiner.id) {
           stackName = 'FUEL'
 
         // place into assembling machine
