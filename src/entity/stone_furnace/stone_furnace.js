@@ -8,6 +8,7 @@ export class StoneFurnace extends Inventory {
   static cost = [{ id: "Stone", n: 5 }]
   static rotatable = false
   static imgName = 'stone_furnace'
+  static P = 0.02
 
   constructor (pos, data) {
     if (data == null) {
@@ -32,6 +33,7 @@ export class StoneFurnace extends Inventory {
 
     this.packsize = 1
     this.itemsize = 50
+    this.energy = 0
     if (this.stack.FUEL == null) this.stack.FUEL = []
     if (this.stack.INPUT == null) this.stack.INPUT = []
     if (this.stack.OUTPUT == null) this.stack.OUTPUT = []
@@ -133,21 +135,27 @@ export class StoneFurnace extends Inventory {
       ent.state = 0
       return
     }
+    if (stack.FUEL[0]?.n >= 1 && this.energy <= 0) {
+      this.energy += classDBi[stack.FUEL[0].id].E
+      stack.FUEL[0].n--
+    }
 
-    if (stack.FUEL[0]?.n && stack.INPUT[0]?.n) {
+    if (this.energy && stack.INPUT[0]?.n) {
       if (ent.state === 0) { this.lastTime = performance.now(); ent.state = 1 };
       if (ent.state === 1) {
         const deltaT = performance.now() - this.lastTime
         const becomesThat = classDB[classDBi[stack.INPUT[0].id].smeltedInto].id
-        if (becomesThat && deltaT > 5000) {
-          if (stack.OUTPUT[0] == null) stack.OUTPUT[0] = {id: undefined, n: 0}
-          if (stack.OUTPUT[0].n == null) stack.OUTPUT[0].n = 0
-          this.remItem({id: stack.FUEL[0].id, n:1}, "FUEL", 0)
-          this.remItem({id: stack.INPUT[0].id, n:1}, "INPUT", 0)
-          stack.OUTPUT[0].id = becomesThat
-          stack.OUTPUT[0].n++
-          if (window.selEntity == this) game.updateEntityMenu(window.selEntity, true)
-          this.lastTime = performance.now()
+        if (becomesThat) {
+          if (deltaT * StoneFurnace.P > classDBi[becomesThat].E) {
+            this.energy -= classDBi[becomesThat].E
+            if (stack.OUTPUT[0] == null) stack.OUTPUT[0] = {id: undefined, n: 0}
+            if (stack.OUTPUT[0].n == null) stack.OUTPUT[0].n = 0
+            this.remItem({id: stack.INPUT[0].id, n:1}, "INPUT", 0)
+            stack.OUTPUT[0].id = becomesThat
+            stack.OUTPUT[0].n++
+            if (window.selEntity == this) game.updateEntityMenu(window.selEntity, true)
+            this.lastTime = performance.now()
+          }
         }
       }
     }
