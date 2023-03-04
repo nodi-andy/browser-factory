@@ -16,7 +16,6 @@ export class Rail extends Inventory {
     if (this.stack == null) this.stack = {}
     if (this.stack.INV == null) this.stack.INV = []
     this.stack.INV.size = 6
-    this.itemsize = 50
   }
 
   draw (ctx, ent) {

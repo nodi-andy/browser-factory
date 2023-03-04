@@ -109,6 +109,7 @@ export class Inventory {
   }
   
   static moveStack (data) {
+    let transferedItems = 0
     if (data.fromInvID === data.toInvID && data.fromInvKey === data.toInvKey && data.fromStackPos === data.toStackPos) return
   
     const invFrom = game.allInvs[data.fromInvID].stack[data.fromInvKey]
@@ -126,27 +127,39 @@ export class Inventory {
   
       // add items into stack
       if (toStack[data.toInvKey][data.toStackPos]?.id === from.id) {
-        toStack[data.toInvKey][data.toStackPos].n += from.n
+        transferedItems = from.n
+        if (toStack[data.toInvKey][data.toStackPos].n + transferedItems > 50) transferedItems = 50 - toStack[data.toInvKey][data.toStackPos].n
+        toStack[data.toInvKey][data.toStackPos].n += transferedItems
   
       // add new stack
       } else {
-        toStack[data.toInvKey].push(from)
+        if (toStack[data.toInvKey].allow) {
+          if (toStack[data.toInvKey].allow == from.id) {
+            transferedItems = from.n
+            if (transferedItems > 50) transferedItems = 50
+            toStack[data.toInvKey].push({id: from.id, n: transferedItems})
+            
+          }
+        } else {
+          transferedItems = from.n
+          if (transferedItems > 50) transferedItems = 50
+          toStack[data.toInvKey].push({id: from.id, n: transferedItems})
+        }
       }
     }
   
-    invFrom.splice(data.fromStackPos, 1)
+    game.allInvs[data.fromInvID].remItem({id: from.id, n: transferedItems}, data.fromInvKey, data.fromStackPos)
     // s.sendAll(JSON.stringify({msg:"updateInv", data:game.allInvs}));
     if (data.fromInvID === 0 || data.toInvID === 0) window.player.setInventory(game.allInvs[0])
     if (data.fromInvID === window.selEntity?.id || data.toInvID === window.selEntity?.id) game.updateInventoryMenu(window.selEntity)
   }
 
   constructor (pos, entData) {
-    this.stack = {}
+    this.stack = new Map()
     if (pos) this.pos = { x: pos.x, y: pos.y }
     this.stacksize = 1
     this.packsize = {}
     this.packsize.INV = 4
-    this.itemsize = 1
     this.name = "Inventory"
     if (entData) Object.assign(this, entData)
   }
@@ -234,7 +247,7 @@ export class Inventory {
         pack = { id: newItem.id, n: newItem.n }
         this.stack[key] = pack
         return true
-      } else if (pack.id === newItem.id && pack.n + newItem.n <= this.itemsize) {
+      } else if (pack.id === newItem.id && pack.n + newItem.n <= 50) {
         pack.n += newItem.n
         return true
       }
@@ -260,7 +273,7 @@ export class Inventory {
       if (Array.isArray(pack)) pack = pack[iPack]
       if (pack?.id == null) return true
       if (pack.id === newItem.id) {
-        if (pack.n + newItem.n <= this.itemsize) {
+        if (pack.n + newItem.n <= 50) {
           return true
         }
       }

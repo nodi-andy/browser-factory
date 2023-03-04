@@ -22,7 +22,6 @@ export class Empty extends Inventory {
     if (this.stack == null) this.stack = {}
     if (this.stack.INV == null) this.stack.INV = []
     this.stack.INV.size = 4
-    this.itemsize = 1
   }
 
   draw (ctx, ent) {

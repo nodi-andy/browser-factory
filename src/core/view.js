@@ -186,7 +186,6 @@ export class ViewModule extends NC.NodiView {
       tInv.stack = JSON.parse(JSON.stringify(inv.stack))
       tInv.stack.INV.size = 64
       tInv.packsize = inv.packsize
-      tInv.itemsize = inv.itemsize
       const cost = classDBi[craftItem.item.id].cost
       craftItem.item.n = 0
       if (cost) {
@@ -244,7 +243,7 @@ export class ViewModule extends NC.NodiView {
     for (const s of Object.keys(showStack)) {
       dx = Settings.buttonSize.x * 3
       if (refresh) window.entityMenu.buttons[s] = []
-      for (let stackPos = 0; stackPos < inv.packsize[s]; stackPos++) {
+      for (let stackPos = 0; stackPos < showStack[s].packsize; stackPos++) {
         const item = showStack[s][stackPos]
         let button
         if (refresh) button = new Button(dx, dy, item, window.entityMenu, window.selEntity.id)

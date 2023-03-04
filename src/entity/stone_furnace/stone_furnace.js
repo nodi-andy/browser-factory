@@ -32,7 +32,6 @@ export class StoneFurnace extends Inventory {
     }
 
     this.packsize = 1
-    this.itemsize = 50
     this.energy = 0
     if (this.stack.FUEL == null) this.stack.FUEL = []
     if (this.stack.INPUT == null) this.stack.INPUT = []
@@ -55,37 +54,37 @@ export class StoneFurnace extends Inventory {
 
     if (this.stack.FUEL[0] == null || this.stack.FUEL[0]?.n === 0) {
       this.stack.FUEL = []
-      this.stack.FUEL.filter = {}
-      this.stack.FUEL.filter[window.classDB.Coal.id] = 50
-      this.stack.FUEL.filter[window.classDB.Wood.id] = 50
+      this.stack.FUEL.allow = {}
+      this.stack.FUEL.allow[window.classDB.Coal.id] = 50
+      this.stack.FUEL.allow[window.classDB.Wood.id] = 50
     } else {
-     this.stack.FUEL.filter = {}
-     this.stack.FUEL.filter[this.stack.FUEL[0].id] = 50
+     this.stack.FUEL.allow = {}
+     this.stack.FUEL.allow[this.stack.FUEL[0].id] = 50
    }
 
 
     if (this.stack.INPUT[0] == null || this.stack.INPUT[0]?.n === 0) {
       this.stack.INPUT = []
-      this.stack.INPUT.filter = {}
-      this.stack.INPUT.filter[window.classDB.Iron.id] = 50
-      this.stack.INPUT.filter[window.classDB.Copper.id] = 50
-      this.stack.INPUT.filter[window.classDB.Stone.id] = 50
-      this.stack.INPUT.filter[window.classDB.Coal.id] = 50
+      this.stack.INPUT.allow = {}
+      this.stack.INPUT.allow[window.classDB.Iron.id] = 50
+      this.stack.INPUT.allow[window.classDB.Copper.id] = 50
+      this.stack.INPUT.allow[window.classDB.Stone.id] = 50
+      this.stack.INPUT.allow[window.classDB.Coal.id] = 50
     } else {
-      this.stack.INPUT.filter = {}
-      this.stack.INPUT.filter[this.stack.INPUT[0].id] = 50
+      this.stack.INPUT.allow = {}
+      this.stack.INPUT.allow[this.stack.INPUT[0].id] = 50
     }
 
     if (this.stack.OUTPUT[0]?.id) {
       becomesThat = this.stack.OUTPUT[0]?.id
       let filter = {}
-      for (let inputPossible of Object.keys(this.stack.INPUT.filter)) {
+      for (let inputPossible of Object.keys(this.stack.INPUT.allow)) {
         let inputPossibleInt = parseInt(inputPossible)
         if (classDB[classDBi[inputPossibleInt].smeltedInto]?.id === this.stack.OUTPUT[0]?.id) {
-          filter[inputPossibleInt] = this.stack.INPUT.filter[inputPossible]
+          filter[inputPossibleInt] = this.stack.INPUT.allow[inputPossible]
         }
       }
-      this.stack.INPUT.filter = filter
+      this.stack.INPUT.allow = filter
     }
 
     if (becomesThat == null && this.stack.INPUT[0]?.id) {
@@ -99,10 +98,10 @@ export class StoneFurnace extends Inventory {
         this.canNeed[cost[costItem].id] = cost[costItem].n
       }
     } else {
-      this.canNeed = {...this.stack.INPUT.filter, ...this.stack.FUEL.filter}
+      this.canNeed = {...this.stack.INPUT.allow, ...this.stack.FUEL.allow}
     }
 
-    this.canHave = {...this.stack.INPUT.filter, ...this.stack.FUEL.filter}
+    this.canHave = {...this.stack.INPUT.allow, ...this.stack.FUEL.allow}
 
     for (let costItem of Object.keys(this.canNeed)) {
       let costItemInt = parseInt(costItem)

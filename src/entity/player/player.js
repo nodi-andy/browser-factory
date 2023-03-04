@@ -47,7 +47,6 @@ export class Player extends Inventory {
     this.stacksize = 1
     this.packsize = {}
     this.packsize.INV = 64
-    this.itemsize = 1000
     this.workProgress = 0
     this.miningTimer = 0
     this.invID = 0
@@ -249,7 +248,6 @@ export class Player extends Inventory {
   setInventory (newInv, newID) {
     game.allInvs[this.invID].stack = JSON.parse(JSON.stringify(newInv.stack))
     game.allInvs[this.invID].packsize = newInv.packsize
-    game.allInvs[this.invID].itemsize = newInv.itemsize
 
     const currentID = game.allInvs[this.invID].id
     if (newInv.id !== undefined) {
