@@ -4,9 +4,9 @@ import { Gear } from '../../item/gear/gear.js'
 
 export class AssemblingMachine3 extends AssemblingMachine {
   static cost = [
-    { id: 'Circuit', n: 3 },
-    { id: 'Gear', n: 5 },
-    { id: 'IronPlate', n: 9 }
+    { id: 'AssemblingMachine1', n: 2 },
+    { id: 'AssemblingMachine2', n: 5 },
+    { id: 'Inserter', n: 9 }
   ]
   static imgName = 'assembling_machine_3'
 

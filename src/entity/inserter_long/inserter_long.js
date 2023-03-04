@@ -4,7 +4,7 @@ import { Inserter } from "../inserter/inserter.js"
 export class InserterLong extends Inserter {
   static size = [1, 1]
   static type = 'entity'
-  static cost = [{ id: "IronPlate", n: 1 }, { id: "Gear", n: 1 }, { id: "HydraulicPiston", n: 1 }]
+  static cost = [{ id: "Inserter", n: 1 }, { id: "Gear", n: 1 }, { id: "HydraulicPiston", n: 1 }]
   static imgName = "inserter_long"
   static armLen = 2
 

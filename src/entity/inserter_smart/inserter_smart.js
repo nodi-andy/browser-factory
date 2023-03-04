@@ -4,7 +4,7 @@ import { Inserter } from "../inserter/inserter.js"
 export class InserterSmart extends Inserter {
   static size = [1, 1]
   static type = 'entity'
-  static cost = [{ id: "Inserter", n: 2 }, { id: "Gear", n: 1 }, { id: "HydraulicPiston", n: 1 }]
+  static cost = [{ id: "InserterLong", n: 2 }, { id: "Circuit", n: 1 }, { id: "HydraulicPiston", n: 1 }]
   static imgName = 'inserter_smart'
 
   constructor (pos, data) {

@@ -31,8 +31,5 @@ export class AssemblingMachine1 extends AssemblingMachine {
 
 }
 
-if (typeof Image !== 'undefined') {
-  const image = new Image(512, 32)
-  image.src = './' + AssemblingMachine1.type + '/assembling_machine_1/platform.png'
-  AssemblingMachine1.anim = image
-}
+AssemblingMachine1.anim = new Image(512, 32)
+AssemblingMachine1.anim.src = './' + AssemblingMachine1.type + '/assembling_machine_1/platform.png'
