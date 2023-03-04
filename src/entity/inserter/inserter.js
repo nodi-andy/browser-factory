@@ -104,7 +104,7 @@ export class Inserter extends Inventory {
         // place onto belt
         if (invTo?.isBelt) {
           const relDir = (invTo.dir - this.dir + 3) % 4
-          const dirPref = ['R', 'L', 'R', 'L']
+          const dirPref = ['L', 'L', 'R', 'L']
           stackName = dirPref[relDir]
         // place into burner miner
         } else if (invTo?.type === classDB.BurnerMiner.id) {

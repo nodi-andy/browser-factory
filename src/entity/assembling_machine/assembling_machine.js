@@ -5,6 +5,7 @@ export class AssemblingMachine extends Inventory {
   static type = 'entity'
   static size = [3, 3]
   static imgName = 'assembling_machine'
+  static P = 2
   
   constructor (pos, data) {
     super(data.pos, data)
@@ -23,6 +24,7 @@ export class AssemblingMachine extends Inventory {
     this.packsize = {}
     this.state = 0
     this.lastTime = performance.now()
+    this.energy = 0
     this.setOutput(data.selectedItem)
     if (this.selectedItem == null) this.selectedItem = classDB['Empty'].id
   }
@@ -55,34 +57,35 @@ export class AssemblingMachine extends Inventory {
 
   update (map, invThis) {
     if (this.selectedItem == null) return
-    this.preneed = JSON.parse(JSON.stringify(classDBi[this.selectedItem].cost))
-    delete this.preneed.OUTPUT
-    delete this.preneed.PROD
-
     this.need = []
-    for (let costItemID = 0; costItemID < this.preneed.length; costItemID++) {
+    this.shallNeed = []
+    let cost = classDBi[this.selectedItem].cost
+    this.preneed = JSON.parse(JSON.stringify(cost))
+
+    if (this.energy <= 0) this.energy += 1000 // free energy
+
+    for (let costItemID of Object.keys(this.preneed)) {
       const costItem = this.preneed[costItemID]
       const existing = this.getNumberOfItems(costItem.id)
       if (existing < costItem.n) {
-        this.need.push(costItem)
+        this.need.push(costItem.id)
+      }
+      if (existing < 50) {
+        this.shallNeed.push(costItem.id)
       }
     }
 
-    const tempInv = new Inventory()
-    tempInv.stack = JSON.parse(JSON.stringify(this.stack))
-    tempInv.packsize = JSON.parse(JSON.stringify(this.packsize))
-    tempInv.PROD = []
-    tempInv.OUTPUT = []
-    if (invThis.need && tempInv.remItems(invThis.need)) {
+    if (invThis.need.length == 0 && this.energy) {
       if (invThis.state === 0) { invThis.lastTime = performance.now(); invThis.state = 1 };
-      if (invThis.state === 1) {
-        if (invThis.selectedItem) {
-          if (!invThis.stack.OUTPUT?.length) invThis.stack.OUTPUT = [ {id: invThis.selectedItem, n: 0} ]
-          if (invThis.stack.OUTPUT[0] == null) invThis.stack.OUTPUT[0] = {id: invThis.selectedItem, n: 0}
-          if (invThis.stack.OUTPUT[0].n == null) invThis.stack.OUTPUT[0].n = 0
-          if (this.stack.OUTPUT[0].n < this.itemsize) {
+      if (invThis.state === 1 && invThis.selectedItem) {
+        const deltaT = performance.now() - this.lastTime
+        if (invThis.stack.OUTPUT[0]?.n == null) invThis.stack.OUTPUT[0] = {id: invThis.selectedItem, n: 0}
+        if (this.stack.OUTPUT[0].n < this.itemsize) {
+          if (deltaT * AssemblingMachine.P > classDBi[invThis.selectedItem].E) {
+            this.energy -= classDBi[invThis.selectedItem].E
             invThis.stack.OUTPUT[0].n++
-            invThis.remItems(classDBi[invThis.selectedItem].cost)
+            invThis.remItems(cost)
+            this.lastTime = performance.now()
           }
         }
       }
