@@ -89,7 +89,13 @@ export class DialogLayer extends NC.NodiGrid {
         ctx.fillRect(0, 0, Settings.buttonSize.x * 2, Settings.buttonSize.x)
         ctx.font = (Settings.buttonSize.y / 2) + 'px Arial'
         ctx.fillStyle = 'black'
-        ctx.fillText(classDBi[res.id].name, 0, Settings.buttonSize.y / 2)
+        let title = ""
+        if (classDBi[res.id].getLabel) {
+          title = classDBi[res.id].getLabel()
+        } else {
+          title = classDBi[res.id].name
+        }
+        ctx.fillText(title, 0, Settings.buttonSize.y / 2)
         ctx.fillText(res.n, 0, Settings.buttonSize.y)
       }
       ctx.restore()
@@ -150,7 +156,12 @@ export class DialogLayer extends NC.NodiGrid {
       context.fillRect(window.receiptMenu.rect.x, window.receiptMenu.rect.y, window.receiptMenu.rect.w, window.receiptMenu.rect.h)
       context.font = (Settings.buttonSize.y / 2) + 'px Arial'
       context.fillStyle = 'black'
-      let title = classDBi[window.receiptMenu.item.id].name
+      let title = ""
+      if (classDBi[window.receiptMenu.item.id].getLabel) {
+        title = classDBi[window.receiptMenu.item.id].getLabel()
+      } else {
+        title = classDBi[window.receiptMenu.item.id].name
+      }
       context.fillText(title, window.receiptMenu.rect.x + 6, window.receiptMenu.rect.y + Settings.buttonSize.y / 2)
       let dy = 0
       if (classDBi[window.receiptMenu.item.id].cost) {
@@ -164,7 +175,13 @@ export class DialogLayer extends NC.NodiGrid {
             }
             context.fillRect(window.receiptMenu.rect.x + 6, window.receiptMenu.rect.y + Settings.buttonSize.y + dy, 32, 32)
             context.drawImage(classDBi[costItem.id].img, window.receiptMenu.rect.x + 6, window.receiptMenu.rect.y + Settings.buttonSize.y + dy, 32, 32)
-            context.fillText(missingItems + costItem.n + 'x ' + classDBi[costItem.id].name, window.receiptMenu.rect.x + 46, window.receiptMenu.rect.y + Settings.buttonSize.y * 1.2 + dy)
+            let name = ""
+            if (classDBi[costItem.id].label) {
+              name = classDBi[costItem.id].label;
+            } else {
+              name = classDBi[costItem.id].name
+            }
+            context.fillText(missingItems + costItem.n + 'x ' + name, window.receiptMenu.rect.x + 46, window.receiptMenu.rect.y + Settings.buttonSize.y * 1.2 + dy)
           dy += Settings.buttonSize.y
           window.receiptMenu.rect.h = dy + 100
         }
@@ -188,9 +205,14 @@ export class DialogLayer extends NC.NodiGrid {
       context.fillRect(window.entityMenu.rect.x, window.entityMenu.rect.y, window.entityMenu.rect.w, window.entityMenu.rect.h)
       context.font = (Settings.buttonSize.y / 2) + 'px Arial'
       context.fillStyle = 'black'
-      let resText = ''
-      if (window.selEntity.id && game.allInvs[window.selEntity.id]?.type) resText = classDBi[game.allInvs[window.selEntity.id].type]?.name
-      context.fillText(resText, window.entityMenu.rect.x + Settings.buttonSize.x / 4, window.entityMenu.rect.y + Settings.buttonSize.x / 2)
+      let title = ""
+      if (classDBi[window.selEntity.type].getLabel) {
+        title = classDBi[window.selEntity.type].getLabel()
+      } else {
+        title = classDBi[window.selEntity.type].name
+      }
+      
+      context.fillText(title, window.entityMenu.rect.x + Settings.buttonSize.x / 4, window.entityMenu.rect.y + Settings.buttonSize.x / 2)
       const selInv = game.allInvs[window.selEntity.id]
       if (selInv) {
         if (selInv.selectedItem) {

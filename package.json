@@ -1,6 +1,6 @@
 {
   "name": "browser-factorio-main",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "",
   "main": "node.js",
   "type" : "module",

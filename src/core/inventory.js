@@ -134,7 +134,7 @@ export class Inventory {
       // add new stack
       } else {
         if (toStack[data.toInvKey].allow) {
-          if (toStack[data.toInvKey].allow == from.id) {
+          if (toStack[data.toInvKey].allow.hasOwnProperty(from.id)) {
             transferedItems = from.n
             if (transferedItems > 50) transferedItems = 50
             toStack[data.toInvKey].push({id: from.id, n: transferedItems})
@@ -162,6 +162,11 @@ export class Inventory {
     this.packsize.INV = 4
     this.name = "Inventory"
     if (entData) Object.assign(this, entData)
+  }
+
+  static getLabel() {
+    if (this.label) return this.label
+    if(this.name) return this.name
   }
 
   getStackName () {
