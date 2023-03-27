@@ -422,7 +422,7 @@ export class Inventory {
         } else {
           let pack = this.stack[stackName]
           if (filterItem && pack.id !== filterItem) continue
-          else return pack.id
+          else if (pack.id) return pack.id
         }
     }
     return null

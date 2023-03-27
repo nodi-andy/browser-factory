@@ -119,16 +119,6 @@ export class Tower extends Inventory {
       if (existing < this.canHave[costItemInt] ) this.shallNeed.push(costItemInt)
     }
 
-    if (this.stack.INV) {
-      if (this.stack.INPUT == null) this.stack.INPUT = this.stack.INV[0]
-      else {
-        const inItem = this.stack.INV[0]
-        let targetSlot = 'INPUT'
-        if (classDBi[inItem.id].E) targetSlot = 'FUEL'
-        this.addItem(inItem, targetSlot)
-        delete this.stack.INV
-      }
-    }
     const stack = ent?.stack
     if (stack?.FUEL == null ||
             stack.INPUT == null ||
