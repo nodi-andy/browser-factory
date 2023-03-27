@@ -50,7 +50,7 @@ export class Inserter extends Inventory {
 
       if ((this.isHandFull || this.armPos > 0) && this.state === 1) this.armPos = (this.armPos + 1) % 64
 
-      const invFrom = game.entityLayer.getInv(this.pos.x - myDir.x * this.constructor.armLen, this.pos.y - myDir.y * this.constructor.armLen, true)
+      const invFrom = game.entityLayer.getInv(this.pos.x - myDir.x * this.constructor.armLen, this.pos.y - myDir.y * this.constructor.armLen)
       const invTo = game.entityLayer.getInv(this.pos.x + myDir.x * this.constructor.armLen, this.pos.y + myDir.y * this.constructor.armLen, true)
 
       // LOAD COAL

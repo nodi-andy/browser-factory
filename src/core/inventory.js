@@ -146,9 +146,14 @@ export class Inventory {
   getNumberOfItems (type) {
     let n = 0
     for(const stackName of Object.keys(this.stack)){
+      if (this.stack[stackName].packs) {
         for(const pack of this.stack[stackName].packs){
           if (pack.id === type) n += pack.n
         }
+      } else {
+        let pack = this.stack[stackName]
+        if (pack.id === type) n += pack.n
+      }
     }
 
     return n
@@ -207,15 +212,18 @@ export class Inventory {
     const key = stackName
 
     for (let iPack = 0; iPack < this.stack[key].maxlen; iPack++) {
-      let pack = this.stack[key].packs[iPack]
+      let pack;
+      if (this.stack[key].packs) pack = this.stack[key].packs[iPack]
+      else pack = this.stack[key]
+
       if (pack == null) {
         pack = { id: newItem.id, n: newItem.n }
         this.stack[key].packs.push(pack)
         return true
       } else if (pack.id == null) {
         if (pack.reserved === true) return false
-        pack = { id: newItem.id, n: newItem.n }
-        this.stack[key] = pack
+        this.stack[key].id = newItem.id
+        this.stack[key].n = newItem.n
         return true
       } else if (pack.id === newItem.id && pack.n + newItem.n <= this.stack[key].packsize) {
         pack.n += newItem.n
@@ -236,14 +244,18 @@ export class Inventory {
     }
 
     if (this.stack[stackName]?.full === true) return false
-
-    const key = stackName
-    for (let iPack = 0; iPack < this.stack[key].maxlen; iPack++) {
-      let pack = this.stack[key].packs[iPack]
-      if (pack?.id == null) return true
-      if (pack.id === newItem.id) {
-        if (pack.n + newItem.n <= this.stack[key].packsize) {
-          return true
+    else if (this.stack[stackName]?.full === false) return true
+    else {
+      const key = stackName
+      for (let iPack = 0; iPack < this.stack[key].maxlen; iPack++) {
+        let pack;
+        if (this.stack[key].packs) pack = this.stack[key].packs[iPack]
+        else pack = this.stack[key]
+        if (pack?.id == null) return true
+        if (pack.id === newItem.id) {
+          if (pack.n + newItem.n <= this.stack[key].packsize) {
+            return true
+          }
         }
       }
     }
@@ -259,16 +271,24 @@ export class Inventory {
   }
 
   remItemFromStack (removingItem, stackName) {
-    for (let iPack = 0; iPack < this.stack[stackName].packs.length && removingItem; iPack++) {
-      const pack = this.stack[stackName].packs[iPack]
-      if (pack && pack.id === removingItem.id) { // Find the pack
+    for (let iPack = 0; iPack < this.stack[stackName].maxlen && removingItem; iPack++) {
+      let pack;
+      if (this.stack[stackName].packs) pack = this.stack[stackName].packs[iPack]
+      else pack = this.stack[stackName]
+
+      if (pack?.id && pack.id === removingItem.id) { // Find the pack
         const n = pack.n - removingItem.n
         if (n > 0) {
           pack.n = n
           return true
         } else if (n === 0) {
-          this.stack[stackName].packs.splice(iPack, 1) // Remove empty pack
-          iPack--
+          if (this.stack[stackName].packs) {
+            this.stack[stackName].packs.splice(iPack, 1) // Remove empty pack
+            iPack--
+          } else {
+            pack.n--
+            delete pack.id
+          }
           return true
         } else return false
       }
@@ -358,8 +378,10 @@ export class Inventory {
     const keys = Object.keys(this.stack)
     for (let iStack = 0; iStack < keys.length && searchItem; iStack++) {
       const key = keys[iStack]
-      for (let iPack = 0; iPack < this.stack[key].packs.length && searchItem; iPack++) {
-        const pack = this.stack[key].packs[iPack]
+      for (let iPack = 0; iPack < this.stack[key].maxlen && searchItem; iPack++) {
+        let pack;
+        if (this.stack[key].packs) pack = this.stack[key].packs[iPack]
+        else pack = this.stack[key]
         if (pack?.id === searchItem.id) { // Find the pack
           return (pack.n >= searchItem.n || searchItem.n == null)
         }
@@ -392,7 +414,13 @@ export class Inventory {
     //iterate all items
     
     for(const stackName of Object.keys(this.stack)){
-        for(const pack of this.stack[stackName].packs){
+        if (this.stack[stackName].packs) {
+          for(const pack of this.stack[stackName].packs){
+            if (filterItem && pack.id !== filterItem) continue
+            else return pack.id
+          }
+        } else {
+          let pack = this.stack[stackName]
           if (filterItem && pack.id !== filterItem) continue
           else return pack.id
         }

@@ -243,7 +243,10 @@ export class ViewModule extends NC.NodiView {
       dx = Settings.buttonSize.x * 3
       if (refresh) window.entityMenu.buttons[s] = []
       for (let stackPos = 0; stackPos < showStack[s].maxlen; stackPos++) {
-        const item = showStack[s].packs[stackPos]
+        const packs = showStack[s].packs
+        let item;
+        if (packs) item = showStack[s].packs[stackPos]
+        else item = showStack[s]
         let button
         if (refresh) button = new Button(dx, dy, item, window.entityMenu, window.selEntity.id)
         else button = window.entityMenu.buttons[s][stackPos]

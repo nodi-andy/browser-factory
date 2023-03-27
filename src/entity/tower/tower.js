@@ -1,7 +1,7 @@
 import { Settings } from '../../common.js'
 import { Inventory } from '../../core/inventory.js'
 
-export class tower extends Inventory {
+export class Tower extends Inventory {
   static type = 'entity'
   static size = [2, 2]
   static viewsize = [2, 2.5]

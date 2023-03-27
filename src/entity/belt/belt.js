@@ -11,26 +11,20 @@ export class Belt extends Inventory {
 
   setup (map, ent) {
     this.stacksize = 8
-    this.packsize = {}
-    this.packsize.INV = 1
-    this.packsize.LD = 1
-    this.packsize.RD = 1
-    this.packsize.L = 1
-    this.packsize.R = 1
 
     this.isBelt = true
 
-    if (this.stack.INV == null) this.stack.INV = { n: 1 }
-    if (this.stack.L == null) this.stack.L = { n: 1 }
-    if (this.stack.R == null) this.stack.R = { n: 1 }
-    if (this.stack.LA == null) this.stack.LA = { n: 1 }
-    if (this.stack.LB == null) this.stack.LB = { n: 1 }
-    if (this.stack.LC == null) this.stack.LC = { n: 1 }
-    if (this.stack.LD == null) this.stack.LD = { n: 1 }
-    if (this.stack.RA == null) this.stack.RA = { n: 1 }
-    if (this.stack.RB == null) this.stack.RB = { n: 1 }
-    if (this.stack.RC == null) this.stack.RC = { n: 1 }
-    if (this.stack.RD == null) this.stack.RD = { n: 1 }
+    if (this.stack.INV == null) this.stack.INV = { n: 1, maxlen: 1 }
+    if (this.stack.L == null) this.stack.L = { n: 1, maxlen: 1 }
+    if (this.stack.R == null) this.stack.R = { n: 1, maxlen: 1 }
+    if (this.stack.LA == null) this.stack.LA = { n: 1, maxlen: 1 }
+    if (this.stack.LB == null) this.stack.LB = { n: 1, maxlen: 1 }
+    if (this.stack.LC == null) this.stack.LC = { n: 1, maxlen: 1 }
+    if (this.stack.LD == null) this.stack.LD = { n: 1, maxlen: 1 }
+    if (this.stack.RA == null) this.stack.RA = { n: 1, maxlen: 1 }
+    if (this.stack.RB == null) this.stack.RB = { n: 1, maxlen: 1 }
+    if (this.stack.RC == null) this.stack.RC = { n: 1, maxlen: 1 }
+    if (this.stack.RD == null) this.stack.RD = { n: 1, maxlen: 1 }
     this.setupDone = true
     this.decidingMoving = false
     this.movingParts = false
@@ -46,7 +40,7 @@ export class Belt extends Inventory {
       return
     }
     let toPos = to.stack[itto]
-    if (toPos == null) toPos = {n: 1}
+    if (toPos == null) toPos = {n: 1, maxlen: 1}
 
     if ( deciding ) {
       if ( toPos?.reserved === true) {
@@ -63,7 +57,7 @@ export class Belt extends Inventory {
         to.stack[itto] = from.stack[itfrom]
         to.stack[itto].moving = false
         to.stack[itto].reserved = false
-        from.stack[itfrom] = {n: 1}
+        from.stack[itfrom] = {n: 1, maxlen: 1}
       }
       
     } 

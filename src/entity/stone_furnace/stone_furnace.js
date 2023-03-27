@@ -113,15 +113,13 @@ export class StoneFurnace extends Inventory {
     }
 
     if (this.stack.INV.packs[0]) {
-      if (this.stack.INPUT == null) this.stack.INPUT = this.stack.INV.packs[0]
-      else {
-        const inItem = this.stack.INV.packs[0]
-        let targetSlot = 'INPUT'
-        if (classDBi[inItem.id].E) targetSlot = 'FUEL'
-        this.addItem(inItem, targetSlot)
-        delete this.stack.INV
-      }
+      const inItem = this.stack.INV.packs[0]
+      let targetSlot = 'INPUT'
+      if (classDBi[inItem.id].E) targetSlot = 'FUEL'
+      this.addItem(inItem, targetSlot)
+      this.stack.INV.packs.splice(0, 1)
     }
+
     const stack = ent?.stack
     if (stack?.FUEL == null || stack.INPUT.packs[0]?.id == null ||
             classDBi[stack.INPUT.packs[0].id].smeltedInto == null) {
