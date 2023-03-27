@@ -1,0 +1,125 @@
+import { Settings } from '../../common.js'
+import { Inventory } from '../../core/inventory.js'
+
+export class tower extends Inventory {
+  static type = 'entity'
+  static size = [2, 2]
+  static viewsize = [2, 2.5]
+  static cost = [{ id: "StoneFurnace", n: 1 }, { id: "IronPlate", n: 3 }, { id: "Gear", n: 2 }]
+  static rotatable = true
+  static imgName = 'Tower'
+
+  constructor (pos, data) {
+    super(pos, data)
+    data.pos = pos
+    this.name = "Tower"
+    this.pos = pos
+    this.stack = data.stack
+    this.setup(undefined, data)
+  }
+
+  setup (map, ent) {
+    if (this.stack == null) this.stack = {}
+    if (this.stack.FUEL == null) this.stack.FUEL = []
+    this.packsize = {}
+    this.packsize.FUEL = 1
+    const size = Tower.size
+    for (let i = 0; i < size[0]; i++) {
+      for (let j = 0; j < size[1]; j++) {
+        game.entityLayer.setInv(ent.pos.x + i, ent.pos.y + j, this.id)
+      }
+    }
+    this.energy = 0
+    this.power = 0
+  }
+
+  update (map, ent) {
+    if (this.stack.FUEL == null) this.stack.FUEL = []
+    if (this.stack.FUEL[0]?.n === 0) this.stack.FUEL.splice(0, 1)
+
+    if (game.tick % 100 === 0) {
+      this.power = 0
+      if (this.stack.FUEL == null || this.stack.FUEL.length === 0) this.stack.FUEL = [ { id: undefined, n: 0}]
+      let output
+      let tile =  game.res.getResource(ent.pos)
+      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x + 1, ent.pos.y)
+      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x, ent.pos.y + 1)
+      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x + 1, ent.pos.y + 1)
+      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x - 1, ent.pos.y - 1)
+      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x, ent.pos.y - 1)
+      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x + 1, ent.pos.y - 1)
+      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x + 2, ent.pos.y - 1)
+      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x - 1, ent.pos.y)
+      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x + 2, ent.pos.y)
+      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x - 1, ent.pos.y + 1)
+      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x + 2, ent.pos.y + 1)
+      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x - 1, ent.pos.y + 2)
+      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x, ent.pos.y + 2)
+      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x + 1, ent.pos.y + 2)
+      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x + 2, ent.pos.y + 2)
+      if (tile?.n == null || tile?.n == 0) return
+
+      let invTo
+      if (this.dir === 0) invTo = game.entityLayer.getInv(ent.pos.x + 2, ent.pos.y, true)
+      if (this.dir === 1) invTo = game.entityLayer.getInv(ent.pos.x + 1, ent.pos.y + 2, true)
+      if (this.dir === 2) invTo = game.entityLayer.getInv(ent.pos.x - 1, ent.pos.y + 1, true)
+      if (this.dir === 3) invTo = game.entityLayer.getInv(ent.pos.x, ent.pos.y - 1, true)
+      if (invTo == null) return
+
+      if (tile?.n) output = classDB[classDBi[tile.id].becomes]
+      // Shift output on next tile
+      let stackName
+      // place into assembling machine
+      if (invTo?.type === classDB.AssemblingMachine1?.id) stackName = classDBi[this.stack.INV[0].id].name
+      // place onto belt
+      else if (invTo?.isBelt) {
+        const relDir = (invTo.dir - this.dir + 4) % 4
+        const dirPref = ['L', 'R', 'L', 'L']
+        stackName = dirPref[relDir]
+      }
+
+      const hasPlace = invTo.hasPlaceFor({ id: output.id, n: 1 }, stackName)
+      const neededEnergy = classDBi[tile.id].W
+      if (this.stack.FUEL[0]?.n > 0 && hasPlace && this.energy <= neededEnergy) {
+        this.energy += classDBi[this.stack.FUEL[0].id].E // add time factor
+        this.power = 100
+        this.stack.FUEL[0].n--
+      }
+      
+      if (output && hasPlace && this.energy > neededEnergy) {
+        this.power = 100
+        this.energy -= neededEnergy // add time factor
+        invTo.addItem({ id: output.id, n: 1 }, stackName)
+        tile.n--
+        game.res.updateOffscreenMap()
+      }
+    }
+  }
+
+  draw (ctx, ent) {
+    ctx.save()
+    ctx.drawImage(Tower.anim1, 0, 0, Tower.size[0] * Settings.tileSize, Tower.size[1] * Settings.tileSize, 0, 0, Tower.size[0] * Settings.tileSize, Tower.size[1] * Settings.tileSize)
+    ctx.fillStyle = 'black'
+    ctx.fillRect(Settings.tileSize * 1.75, Settings.tileSize * 0.5, Settings.tileSize / 4, Settings.tileSize / 4)
+    ctx.translate(Settings.tileSize, Settings.tileSize)
+
+    if (this.pos?.x) {
+      if (this.power) ctx.rotate((game.tick / 100) % (2 * Math.PI))
+    }
+    ctx.translate(-Settings.tileSize, -Settings.tileSize)
+    ctx.drawImage(Tower.anim2, 0, 0, Tower.size[0] * Settings.tileSize, Tower.size[1] * Settings.tileSize, 0, 0, Tower.size[0] * Settings.tileSize, Tower.size[1] * Settings.tileSize)
+    ctx.restore()
+  }
+}
+
+if (typeof Image !== 'undefined') {
+  const image = new Image(512, 32)
+  image.src = './' + Tower.type + '/Tower/platform.png'
+  Tower.anim1 = image
+}
+
+if (typeof Image !== 'undefined') {
+  const image = new Image(512, 32)
+  image.src = './' + Tower.type + '/Tower/drill.png'
+  Tower.anim2 = image
+}
