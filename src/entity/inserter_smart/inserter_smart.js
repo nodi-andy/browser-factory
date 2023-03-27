@@ -27,9 +27,9 @@ export class InserterSmart extends Inserter {
       ctx.translate(Settings.tileSize * 0.5, Settings.tileSize * 0.5)
       ctx.rotate(this.armPos * Math.PI / 32)
       ctx.drawImage(InserterSmart.hand, 0, 0, 64, 64, -48, -15, 64, 64)
-      if (this.isHandFull && this.stack?.INV[0]?.id) {
+      if (this.isHandFull && this.stack?.INV.packs[0]?.id) {
         ctx.scale(0.5, 0.5)
-        ctx.drawImage(classDBi[this.stack.INV[0].id].img, -96, -24)
+        ctx.drawImage(classDBi[this.stack.INV.packs[0].id].img, -96, -24)
         ctx.scale(2, 2)
       }
     }

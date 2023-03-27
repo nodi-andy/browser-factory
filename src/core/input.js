@@ -32,7 +32,8 @@ class InputModule {
       if (e.which === 1) {
         if (window.isBuilding) {
           if ((window.lastResPos.x !== window.curResPos.x || window.lastResPos.y !== window.curResPos.y) && Settings.pointer?.item?.id) {
-            if (Settings.pointer.type === 'entity') {
+            if (classDBi[Settings.pointer?.stack?.INV.packs[0]?.id].type === 'entity') {
+
               wssend({ cmd: 'addEntity', data: { pos: { x: tileCoordinate.x, y: tileCoordinate.y }, dir: Settings.buildDir, type: Settings.pointer.item.id } })
             } else {
               wssend({ cmd: 'addItem', data: { pos: tileCoordinate, dir: Settings.buildDir, inv: Settings.pointer } })

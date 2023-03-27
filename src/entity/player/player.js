@@ -5,11 +5,11 @@ import * as NC from 'nodicanvas'
 export class Player extends Inventory {
   static type = 'entity'
   static P = 100
+  static name = "Player"
   constructor (pos, data) {
     if (data == null) {
       data = {
         tilePos: new NC.Vec2(game.entityLayer.gridSize.x / 2, game.entityLayer.gridSize.y / 2),
-        stack: {}
       }
       data.pos = game.entityLayer.tileToWorld(data.tilePos)
     }
@@ -18,12 +18,12 @@ export class Player extends Inventory {
 
     this.tilePos = data.tilePos
     this.pos = data.pos
-    this.stack = data.stack
-    if (this.stack == null) this.stack = {}
+    if (data.stack) this.stack = data.stack
     this.setup()
   }
 
   setup (map, inv) {
+    this.stack.INV.maxlen = 64
     if (this.tilePos == null) {
       this.tilePos = new NC.Vec2(game.entityLayer.gridSize.x / 2, game.entityLayer.gridSize.y / 2)
     }
@@ -34,7 +34,6 @@ export class Player extends Inventory {
       this.pos = { x: 0, y: 0 }
     }
     this.output = ["Wood", "StoneFurnace", "BurnerMiner", "Chest", "IronStick", "Gear", "HydraulicPiston", "Belt1", "Belt2", "Belt3", "Inserter", "InserterLong", "InserterSmart", "CopperCable", "Circuit", "AssemblingMachine1", "AssemblingMachine2", "AssemblingMachine3", "Car"]
-    this.name = "Player"
     this.dir = { x: 0, y: 0 }
     this.live = 100
     this.nextPos = { x: 0, y: 0 }
@@ -43,10 +42,6 @@ export class Player extends Inventory {
     this.speed = 5
 
     this.ss = { x: 0, y: 0 }
-    if (this.stack && this.stack?.INV == null) this.stack.INV = []
-    this.stacksize = 1
-    this.packsize = {}
-    this.packsize.INV = 64
     this.workProgress = 0
     this.miningTimer = 0
     this.invID = 0

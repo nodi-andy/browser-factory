@@ -20,9 +20,7 @@ export class BurnerMiner extends Inventory {
 
   setup (map, ent) {
     if (this.stack == null) this.stack = {}
-    if (this.stack.FUEL == null) this.stack.FUEL = []
-    this.packsize = {}
-    this.packsize.FUEL = 1
+    if (this.stack.FUEL == null) this.stack.FUEL = {maxlen: 1, packsize : 50, packs:[]}
     const size = BurnerMiner.size
     for (let i = 0; i < size[0]; i++) {
       for (let j = 0; j < size[1]; j++) {
@@ -34,12 +32,13 @@ export class BurnerMiner extends Inventory {
   }
 
   update (map, ent) {
-    if (this.stack.FUEL == null) this.stack.FUEL = []
-    if (this.stack.FUEL[0]?.n === 0) this.stack.FUEL.splice(0, 1)
+    if (this.stack.FUEL == null) this.stack.FUEL = {maxlen: 1, packsize : 50, packs:[]}
+    if (this.stack.FUEL.packs[0]?.n === 0) this.stack.FUEL.packs.splice(0, 1)
+    let fuel = this.stack.FUEL.packs[0]
+    if (fuel == null) { this.power = 0; return;}
 
     if (game.tick % 100 === 0) {
       this.power = 0
-      if (this.stack.FUEL == null || this.stack.FUEL.length === 0) this.stack.FUEL = [ { id: undefined, n: 0}]
       let output
       let tile =  game.res.getResource(ent.pos)
       if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x + 1, ent.pos.y)
@@ -70,7 +69,7 @@ export class BurnerMiner extends Inventory {
       // Shift output on next tile
       let stackName
       // place into assembling machine
-      if (invTo?.type === classDB.AssemblingMachine1?.id) stackName = classDBi[this.stack.INV[0].id].name
+      if (invTo?.type === classDB.AssemblingMachine1?.id) stackName = classDBi[this.stack.INV.packs[0].id].name
       // place onto belt
       else if (invTo?.isBelt) {
         const relDir = (invTo.dir - this.dir + 4) % 4
@@ -80,10 +79,10 @@ export class BurnerMiner extends Inventory {
 
       const hasPlace = invTo.hasPlaceFor({ id: output.id, n: 1 }, stackName)
       const neededEnergy = classDBi[tile.id].W
-      if (this.stack.FUEL[0]?.n > 0 && hasPlace && this.energy <= neededEnergy) {
-        this.energy += classDBi[this.stack.FUEL[0].id].E // add time factor
+      if (fuel.n > 0 && hasPlace && this.energy <= neededEnergy) {
+        this.energy += classDBi[fuel.id].E // add time factor
         this.power = 100
-        this.stack.FUEL[0].n--
+        fuel.n--
       }
       
       if (output && hasPlace && this.energy > neededEnergy) {

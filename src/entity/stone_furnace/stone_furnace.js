@@ -27,25 +27,17 @@ export class StoneFurnace extends Inventory {
   setup (map, ent) {
     const size = StoneFurnace.size
     for (let i = 0; i < size[0]; i++) {
-      for (let j = 0; j < size[1]; j++) {
+      for (let j = 0; j < size[1]; j++) { 
         game.entityLayer.setInv(ent.pos.x + i, ent.pos.y + j, this.id)
       }
     }
 
-    this.packsize = 1
     this.energy = 0
-    if (this.stack.FUEL == null) this.stack.FUEL = []
-    if (this.stack.INPUT == null) this.stack.INPUT = []
-    if (this.stack.OUTPUT == null) this.stack.OUTPUT = []
-    this.stack.OUTPUT.packsize = 1
-    this.stacksize = 4
-    this.packsize = {}
-    this.packsize.FUEL = 1
-    this.packsize.INPUT = 1
-    this.packsize.OUTPUT = 1
-    this.packsize.INV = 8
+    if (this.stack.FUEL == null) this.stack.FUEL = {maxlen: 1, packsize : 50, packs:[]}
+    if (this.stack.INPUT == null) this.stack.INPUT = {maxlen: 1, packsize : 50, packs:[]}
     this.state = 0
     this.lastTime = performance.now()
+    this.stack.INV.visible = false;
   }
 
   update (map, ent) {
@@ -54,21 +46,18 @@ export class StoneFurnace extends Inventory {
     this.shallNeed = []
     let becomesThat = null
 
-    if (this.stack.FUEL[0] == null || this.stack.FUEL[0]?.n === 0) {
-      this.stack.FUEL = []
-      this.stack.FUEL.packsize = 1
+    if (this.stack.FUEL.packs.length == 0) {
+      this.stack.FUEL = {maxlen: 1, packsize : 50, packs:[]}
       this.stack.FUEL.allow = {}
       this.stack.FUEL.allow[window.classDB.Coal.id] = 50
       this.stack.FUEL.allow[window.classDB.Wood.id] = 50
     } else {
      this.stack.FUEL.allow = {}
-     this.stack.FUEL.allow[this.stack.FUEL[0].id] = 50
+     this.stack.FUEL.allow[this.stack.FUEL.packs[0].id] = 50
    }
 
-
-    if (this.stack.INPUT[0] == null || this.stack.INPUT[0]?.n === 0) {
-      this.stack.INPUT = []
-      this.stack.INPUT.packsize = 1
+    if (this.stack.INPUT?.packs.length == 0) {
+      if (this.stack.INPUT == null) this.stack.INPUT = {maxlen: 1, packsize : 50, packs:[]}
       this.stack.INPUT.allow = {}
       this.stack.INPUT.allow[window.classDB.Iron.id] = 50
       this.stack.INPUT.allow[window.classDB.Copper.id] = 50
@@ -76,8 +65,9 @@ export class StoneFurnace extends Inventory {
       this.stack.INPUT.allow[window.classDB.Coal.id] = 50
     } else {
       this.stack.INPUT.allow = {}
-      this.stack.INPUT.allow[this.stack.INPUT[0].id] = 50
+      this.stack.INPUT.allow[this.stack.INPUT.packs[0].id] = 50
     }
+    if (this.stack.OUTPUT == null) this.stack.OUTPUT = {maxlen: 1, packsize : 50, packs:[]}
 
     if (this.stack.OUTPUT[0]?.id) {
       becomesThat = this.stack.OUTPUT[0]?.id
@@ -91,8 +81,11 @@ export class StoneFurnace extends Inventory {
       this.stack.INPUT.allow = filter
     }
 
-    if (becomesThat == null && this.stack.INPUT[0]?.id) {
-      becomesThat = classDB[classDBi[this.stack.INPUT[0].id].smeltedInto].id
+    if (becomesThat == null && this.stack.INPUT.packs[0]?.id) { 
+      let out = classDBi[this.stack.INPUT.packs[0].id].smeltedInto;
+      if (out) {
+        becomesThat = classDB[out].id
+      }
     }
 
     if (becomesThat) {
@@ -119,10 +112,10 @@ export class StoneFurnace extends Inventory {
       if (existing < this.canHave[costItemInt] ) this.shallNeed.push(costItemInt)
     }
 
-    if (this.stack.INV) {
-      if (this.stack.INPUT == null) this.stack.INPUT = this.stack.INV[0]
+    if (this.stack.INV.packs[0]) {
+      if (this.stack.INPUT == null) this.stack.INPUT = this.stack.INV.packs[0]
       else {
-        const inItem = this.stack.INV[0]
+        const inItem = this.stack.INV.packs[0]
         let targetSlot = 'INPUT'
         if (classDBi[inItem.id].E) targetSlot = 'FUEL'
         this.addItem(inItem, targetSlot)
@@ -130,31 +123,28 @@ export class StoneFurnace extends Inventory {
       }
     }
     const stack = ent?.stack
-    if (stack?.FUEL == null ||
-            stack.INPUT == null ||
-            stack.INPUT[0] == null ||
-            stack.INPUT[0].id == null ||
-            classDBi[stack.INPUT[0].id].smeltedInto == null) {
+    if (stack?.FUEL == null || stack.INPUT.packs[0]?.id == null ||
+            classDBi[stack.INPUT.packs[0].id].smeltedInto == null) {
       ent.state = 0
       return
     }
-    if (stack.FUEL[0]?.n >= 1 && this.energy <= 0) {
-      this.energy += classDBi[stack.FUEL[0].id].E
-      stack.FUEL[0].n--
+    if (stack.FUEL.packs[0]?.n >= 1 && this.energy <= 0) {
+      this.energy += classDBi[stack.FUEL.packs[0].id].E
+      stack.FUEL.packs[0].n--
     }
 
-    if (this.energy && stack.INPUT[0]?.n) {
+    if (this.energy && stack.INPUT.packs[0]?.n) {
       if (ent.state === 0) { this.lastTime = performance.now(); ent.state = 1 };
       if (ent.state === 1) {
         const deltaT = performance.now() - this.lastTime
-        const becomesThat = classDB[classDBi[stack.INPUT[0].id].smeltedInto].id
+        const becomesThat = classDB[classDBi[stack.INPUT.packs[0].id].smeltedInto].id
         if (becomesThat && (deltaT * StoneFurnace.P > classDBi[becomesThat].E)) {
           this.energy -= classDBi[becomesThat].E
-          if (stack.OUTPUT[0] == null) stack.OUTPUT[0] = {id: undefined, n: 0}
-          if (stack.OUTPUT[0].n == null) stack.OUTPUT[0].n = 0
-          this.remItem({id: stack.INPUT[0].id, n:1}, "INPUT", 0)
-          stack.OUTPUT[0].id = becomesThat
-          stack.OUTPUT[0].n++
+          if (stack.OUTPUT.packs[0] == null) stack.OUTPUT.packs[0] = {id: undefined, n: 0}
+          if (stack.OUTPUT.packs[0].n == null) stack.OUTPUT.packs[0].n = 0
+          this.remItem({id: stack.INPUT.packs[0].id, n:1}, "INPUT", 0)
+          stack.OUTPUT.packs[0].id = becomesThat
+          stack.OUTPUT.packs[0].n++
           if (window.selEntity == this) game.updateEntityMenu(window.selEntity, true)
           this.lastTime = performance.now()
         }

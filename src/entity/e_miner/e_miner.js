@@ -47,7 +47,7 @@ export class ElectricalMiner extends Inventory {
       // Shift output on next tile
       let stackName
       // place into assembling machine
-      if (invTo?.type === classDB.assembling_machine_1.id) stackName = classDBi[this.stack.INV[0].id].name
+      if (invTo?.type === classDB.assembling_machine_1.id) stackName = classDBi[this.stack.INV.packs[0].id].name
       // place onto belt
       else if (invTo?.type === classDB.Belt1.id) {
         const relDir = (invTo.dir - this.dir + 3) % 4

@@ -17,9 +17,7 @@ export class Chest extends Inventory {
   }
 
   setup (map, ent) {
-    if (this.stack == null) this.stack = {}
-    if (this.stack.INV == null) this.stack.INV = []
-    this.stack.INV.packsize = 4
+    if (this.stack.INV == null) this.stack.INV = {maxlen: 4, packsize: 50 , packs:[]}
   }
 
   draw (ctx, ent) {

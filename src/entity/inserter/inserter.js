@@ -44,7 +44,7 @@ export class Inserter extends Inventory {
         this.energy = 10
       }
       this.isHandFull = false
-      if (this.stack?.INV && this.stack?.INV[0]?.n > 0) this.isHandFull = true
+      if (this.stack?.INV && this.stack?.INV.packs[0]?.n > 0) this.isHandFull = true
 
       const myDir = Settings.dirToVec[this.dir]
 
@@ -112,11 +112,11 @@ export class Inserter extends Inventory {
 
         // place into assembling machine
         } else {
-          stackName = invTo.getStackName(this.stack.INV[0].id)
+          stackName = invTo.getStackName(this.stack.INV.packs[0].id)
         }
 
-        if (invTo.hasPlaceFor(this.stack.INV[0], stackName)) {
-          this.moveItemTo(this.stack.INV[0], invTo, stackName)
+        if (invTo.hasPlaceFor(this.stack.INV.packs[0], stackName)) {
+          this.moveItemTo(this.stack.INV.packs[0], invTo, stackName)
           this.state = 1
         } else { this.state = 0 }
       // GO TO INITIAL POS
@@ -137,9 +137,9 @@ export class Inserter extends Inventory {
       ctx.translate(Settings.tileSize * 0.5, Settings.tileSize * 0.5)
       ctx.rotate(this.armPos * Math.PI / 32)
       ctx.drawImage(Inserter.hand, 0, 0, 64, 64, -48, -15, 64, 64)
-      if (this.isHandFull && this.stack?.INV[0]?.id) {
+      if (this.isHandFull && this.stack?.INV.packs[0]?.id) {
         ctx.scale(0.5, 0.5)
-        ctx.drawImage(classDBi[this.stack.INV[0].id].img, -96, -24)
+        ctx.drawImage(classDBi[this.stack.INV.packs[0].id].img, -96, -24)
         ctx.scale(2, 2)
       }
     }

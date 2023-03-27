@@ -114,8 +114,8 @@ export class DialogLayer extends NC.NodiGrid {
     this.drawReceiptMenu(ctx)
 
     // POINTER ITEM
-    if (Settings.pointer?.stack?.INV?.length && Settings.pointer.overlay) {
-      const item = classDBi[Settings.pointer.stack.INV[0].id]
+    if (Settings.pointer?.stack?.INV?.packs.length && Settings.pointer.overlay) {
+      const item = classDBi[Settings.pointer?.stack?.INV.packs[0]?.id]
       if (item) {
         ctx.save()
         ctx.translate(window.mousePos.x, window.mousePos.y)
@@ -124,10 +124,10 @@ export class DialogLayer extends NC.NodiGrid {
         if (item?.draw) item.draw(ctx, Settings.pointer.item)
         else {
           ctx.drawImage(item.img, 0, 0)
-          if (Settings.pointer.stack.INV[0].n != null) {
+          if (Settings.pointer?.stack?.INV.packs[0]?.n != null) {
             ctx.font = (Settings.buttonSize.y / 2) + 'px Arial'
             ctx.fillStyle = 'white'
-            ctx.fillText(Settings.pointer.stack.INV[0].n, 0, 0 + Settings.buttonSize.x)
+            ctx.fillText(Settings.pointer?.stack?.INV.packs[0]?.n, 0, 0 + Settings.buttonSize.x)
           }
         }
         ctx.restore()
@@ -225,12 +225,13 @@ export class DialogLayer extends NC.NodiGrid {
         }
 
         for (const f in selInv.stack) {
+          if (selInv.stack[f].visible == false) continue;
           context.font = (Settings.buttonSize.y / 2) + 'px Arial'
           context.fillStyle = 'black'
           context.fillText(JSON.stringify(f).replaceAll('"', ''), window.entityMenu.rect.x + 16, window.entityMenu.rect.y + dy)
-          if (window.entityMenu.buttons[f]) {
+          /*if (window.entityMenu.buttons[f]) {
             window.entityMenu.buttons[f].forEach(b => { b.draw(context) })
-          }
+          }*/
           dy += Settings.buttonSize.y
         }
         window.entityMenu.rect.h = dy + Settings.buttonSize.y / 2

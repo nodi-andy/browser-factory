@@ -73,8 +73,8 @@ export class Button {
 
   onClick (button) {
     if (button === 1) {
-      if (Settings.pointer?.stack?.INV?.length) {
-        if (Settings.pointer?.stack?.INV[0].id === game.allInvs[this.invID].stack[this.invKey][this.stackPos]?.id) {
+      if (Settings.pointer?.stack?.INV?.packs[0]?.id) {
+        if (Settings.pointer?.stack?.INV.packs[0]?.id === game.allInvs[this.invID].stack[this.invKey][this.stackPos]?.id) {
           Inventory.moveStack({ fromInvID: Settings.pointer.id, fromInvKey: 'INV', fromStackPos: 0, toInvID: this.invID, toInvKey: this.invKey, toStackPos: this.stackPos })
         } else {
           Inventory.moveStack({ fromInvID: Settings.pointer.id, fromInvKey: 'INV', fromStackPos: 0, toInvID: this.invID, toInvKey: this.invKey })
@@ -86,16 +86,16 @@ export class Button {
       }
     } else if (button === 3) {
       let buttonInv = game.allInvs[this.invID]
-      let pack = buttonInv.stack[this.invKey][this.stackPos]
-      if (Settings.pointer.stack.INV == undefined || Settings.pointer.stack.INV.length == 0) {
+      let pack = buttonInv.stack[this.invKey].packs[this.stackPos]
+      if (Settings.pointer?.stack?.INV == undefined || Settings.pointer?.stack?.INV.packs.length == 0) {
         let transfer = Math.round(pack.n / 2)
         buttonInv.remItem ({id: pack.id, n: transfer}, this.invKey, this.stackPos)
         Settings.pointer.addItem({id: pack.id, n: transfer}, 'INV', 0) 
       } else {
-        let pointerPack = Settings.pointer.stack.INV[0]
+        let pointerPack = Settings.pointer?.stack?.INV.packs[0]
         let transfer = Math.round(pointerPack.n / 2)
         Settings.pointer.remItem ({id: pointerPack.id, n: transfer}, 'INV', 0)
-        if (buttonInv.stack[this.invKey][this.stackPos]) {
+        if (buttonInv.stack[this.invKey].packs[this.stackPos]) {
           buttonInv.addItem({id: pointerPack.id, n: transfer}, this.invKey, this.stackPos) 
         } else {
           buttonInv.addItem({id: pointerPack.id, n: transfer}, this.invKey, buttonInv.stack[this.invKey].length) 

@@ -6,8 +6,8 @@ import { Inventory } from './inventory.js'
 
 function wssend (msg) {
     let updateInv = false
-    if (msg.cmd === 'addEntity') {
-      Inventory.addInventory(msg.data, false)
+    if (msg.cmd === 'addEntityByClick') {
+      game.entityLayer.addEntityFromCursor(msg.data, false)
       updateInv = true
     }
     if (msg.cmd === 'addItem') {

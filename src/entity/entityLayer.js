@@ -23,7 +23,7 @@ export class EntityLayer extends NC.NodiGrid {
   onKeyDown (e) {
     window.player.onKeyDown(e)
     if (e.code === 'Escape') {
-      if (Settings.pointer.stack?.INV?.length) {
+      if (Settings.pointer?.stack?.INV?.packs.length) {
         Inventory.moveStack({ fromInvID: Settings.pointer.id, fromInvKey: 'INV', fromStackPos: 0, toInvID: window.player.invID, toInvKey: 'INV' })
       }
       window.invMenu.vis = false
@@ -57,16 +57,14 @@ export class EntityLayer extends NC.NodiGrid {
   }
 
   setOnMap (tileCoordinate) {
-    if (Settings.pointer?.stack?.INV == null) return
-    if (Settings.pointer?.stack?.INV[0] == null) return
-    Settings.pointer.type = classDBi[Settings.pointer?.stack?.INV[0].id].type
-    if (Settings.pointer.type === 'entity') {
-      wssend({ cmd: 'addEntity', data: { pos: { x: tileCoordinate.x, y: tileCoordinate.y }, dir: Settings.buildDir, type: Settings.pointer.stack.INV[0].id } })
+    window.isBuilding = true
+    if (Settings.pointer?.stack?.INV?.packs[0] == null) return
+    if (classDBi[Settings.pointer?.stack?.INV.packs[0]?.id].type === 'entity') {
+      wssend({ cmd: 'addEntityByClick', data: { pos: { x: tileCoordinate.x, y: tileCoordinate.y }, dir: Settings.buildDir, type: Settings.pointer?.stack?.INV.packs[0]?.id } })
     } else {
       wssend({ cmd: 'addItem', data: { pos: tileCoordinate, dir: Settings.buildDir, inv: { item: Settings.pointer.item } } })
     }
     window.isDragStarted = false
-    window.isBuilding = true
   }
 
   onMouseDown (e, hit) {
@@ -80,13 +78,12 @@ export class EntityLayer extends NC.NodiGrid {
         window.invMenu.vis = false
         window.craftMenu.vis = false
         Settings.pointer.item = undefined
-        return
       }
       window.dragStart = worldCordinate
       const res = game.res.getResource(tileCoordinate)
       const d = dist(game.allInvs[game.playerID].pos, worldCordinate)
 
-      if (Settings.pointer?.stack?.INV?.length) {
+      if (Settings.pointer?.stack?.INV?.packs.length) {
         if (inv == null || inv?.type === classDB.Empty.id) {
           this.setOnMap(tileCoordinate)
         }
@@ -96,9 +93,11 @@ export class EntityLayer extends NC.NodiGrid {
         if ((res?.id || inv?.id) && d < 5 * Settings.tileSize) window.player.startMining(tileCoordinate, game.allInvs[game.playerID])
       }
 
-      if (Settings.pointer?.stack?.INV?.length == null || Settings.pointer?.stack?.INV?.length === 0) Settings.pointer.type = undefined
     } else if (e.buttons === 2) {
-      this.removeEntity(tileCoordinate)
+      const inv = this.getInvP(tileCoordinate)
+      if (inv?.type !== classDB.Empty.id) {
+        this.removeEntity(tileCoordinate)
+      }
     }
   }
 
@@ -147,7 +146,7 @@ export class EntityLayer extends NC.NodiGrid {
       if (e.which === 1) {
         window.selEntity = null
         // SHOW ENTITY
-        if (Settings.pointer?.type == null && inv) {
+        if (Settings.pointer?.stack.INV.packs[0]?.id == null && inv) {
           const invID = this.getInvP(tilePos).id
           window.selEntity = game.allInvs[invID]
           game.updateSelectItemMenu(window.selEntity)
@@ -179,7 +178,7 @@ export class EntityLayer extends NC.NodiGrid {
     if (y >= this.map[0].length) return
   
     let tile = this.map[x][y]
-    if (tile == null && create) tile = new Empty({x: x, y : y})
+    if ((tile == null || game.allInvs[tile] == null) && create) this.addEntity({pos: {x: x, y : y}, type: Empty.id})
     return game.allInvs[tile]
   }
 
@@ -189,6 +188,52 @@ export class EntityLayer extends NC.NodiGrid {
 
   getInvP (p, create = false) {
     return this.getInv(p.x, p.y, create)
+  }
+
+  addEntityFromCursor (newEntity, updateDir) {
+    if (!newEntity) return
+    let inv = game.entityLayer.getInv(newEntity.pos.x, newEntity.pos.y)
+    let pack = Settings.pointer?.stack?.INV.packs[0];
+
+    if ((inv == null || inv?.type === classDB.Empty.id) && pack?.n > 0) {
+       if (this.addEntity(newEntity)) {
+          pack.n--
+          if (Settings.pointer?.stack?.INV.packs[0].n === 0) {
+            delete Settings.pointer?.stack?.INV.packs.splice(0, 1);
+            window.isBuilding = false
+          }
+      }
+    }  
+    if (inv) return inv.id
+  }
+
+  addEntity (newEntity) {
+    if (!newEntity) return
+    let inv = game.entityLayer.getInv(newEntity.pos.x, newEntity.pos.y)
+    let newInv;
+    if (inv == null || inv?.type === classDB.Empty.id) {
+        const invID = Inventory.createInv(newEntity)
+        if (invID != null) {
+          newInv = game.allInvs[invID]
+          if (inv?.type === classDB.Empty.id) {
+            newInv.addStack("INV", inv.stack);
+            game.allInvs[inv.id] = null;
+          }
+          newInv.id = invID
+          newInv.pos = { x: newEntity.pos.x, y: newEntity.pos.y }
+          newInv.dir = newEntity.dir
+          newInv.type = newEntity.type
+          game.entityLayer.map[newEntity.pos.x][newEntity.pos.y] = newInv.id
+          if (newInv?.updateNB) newInv.updateNB()
+          if (typeof window !== 'undefined') game.updateInventoryMenu(window.player)
+        }
+        // Update Neighbours
+        for (const nbV of Settings.nbVec) {
+          const nb = game.entityLayer.getInv(newEntity.pos.x + nbV.x, newEntity.pos.y + nbV.y)
+          if (nb?.updateNB) nb.updateNB()
+        }
+    }  
+    if (newInv) return newInv.id
   }
 
   render (view) {
@@ -203,7 +248,8 @@ export class EntityLayer extends NC.NodiGrid {
 
     game.allInvs.forEach(ent => {
       if (ent?.pos == null) return
-      if (ent?.name == "Player" || ent?.name == "Inventory") return
+      if (ent?.name == "Player" || ent.constructor.name == "Inventory") return
+      let name = ent.constructor.name;
       let ax = ent.pos.x
       let ay = ent.pos.y
       const invID = this.getInvP(ent.pos)
@@ -215,7 +261,7 @@ export class EntityLayer extends NC.NodiGrid {
         const type = classDBi[ent.type]
         if (type && type.size) {
           ctx.translate(type.size[0] / 2 * Settings.tileSize, type.size[1] / 2 * Settings.tileSize)
-          if (window.classDB[ent.name].rotatable !== false) ctx.rotate(ent.dir * Math.PI / 2)
+          if (window.classDB[name].rotatable !== false) ctx.rotate(ent.dir * Math.PI / 2)
           ctx.translate(-type.size[0] / 2 * Settings.tileSize, -type.size[1] / 2 * Settings.tileSize)
         }
 
@@ -233,26 +279,7 @@ export class EntityLayer extends NC.NodiGrid {
         } else entsToDraw.push(ent)
       }
 
-      // ITEMS ON GROUND
-      if (invID !== undefined && game.allInvs[invID]?.type === classDB.Empty.id) {
-        const packs = game.allInvs[invID].stack.INV
-        if (packs) {
-          ctx.scale(0.5, 0.5)
 
-          for (let iitem = 0; iitem < packs.length; iitem++) {
-            const item = packs[iitem]
-            if (item.id !== undefined) {
-              ctx.drawImage(classDBi[item.id].img, 0, 0)
-              if (iitem !== 1) {
-                ctx.translate(1.0 * Settings.tileSize, 0.0 * Settings.tileSize)
-              } else {
-                ctx.translate(-1.0 * Settings.tileSize, 1 * Settings.tileSize)
-              }
-            }
-          }
-          ctx.scale(2, 2)
-        }
-      }
 
       ctx.restore()
     })
@@ -286,8 +313,8 @@ export class EntityLayer extends NC.NodiGrid {
     game.allInvs.forEach(ent => {
       if (ent == null) return
       if (ent.pos == null) return
-      if (ent.name == "Inventory") return
-      if (ent.name == "Player") return
+      if (ent.constructor.name == "Inventory") return
+      if (ent.constructor.name == "Player") return
 
       if (ent?.drawn < 2 && !ent.isBelt && ent?.drawItems) {
         ctx.save()
@@ -312,12 +339,11 @@ export class EntityLayer extends NC.NodiGrid {
   }
 
   drawEntityCandidate (ctx) {
-    if (Settings.pointer?.stack?.INV == null) return
+    if (Settings.pointer?.stack?.INV?.packs.length == 0) return
     if (window.curResPos == null) return
-    if (Settings.pointer.stack.INV.length === 0) return
     // ENTITY CANDIDATE
 
-    const item = classDBi[Settings.pointer.stack.INV[0].id]
+    const item = classDBi[Settings.pointer?.stack?.INV.packs[0]?.id]
     if (item == null) return
     let size = item.size
     if (size == null) size = [1, 1]
@@ -337,10 +363,10 @@ export class EntityLayer extends NC.NodiGrid {
     else if (item.prototype.drawItems) item.prototype.drawItems(ctx, Settings.pointer.item)
     else ctx.drawImage(item.img, 0, 0)
 
-    if (Settings.pointer.stack.INV[0].n != null) {
+    if (Settings.pointer?.stack?.INV.packs[0]?.n != null) {
       ctx.font = (Settings.buttonSize.y / 2) + 'px Arial'
       ctx.fillStyle = 'white'
-      ctx.fillText(Settings.pointer.stack.INV[0].n, 0, 0 + Settings.buttonSize.x)
+      ctx.fillText(Settings.pointer?.stack?.INV.packs[0]?.n, 0, 0 + Settings.buttonSize.x)
     }
     ctx.restore()
   }

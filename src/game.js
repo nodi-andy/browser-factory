@@ -185,10 +185,10 @@ function loadGame (name) {
 
       for (const ent of Object.values(savedProvinceData.ents)) {
         if (ent == null) continue
-        if (ent?.name == "Inventory") {
+        if (ent?.name == "Inventory" || ent.type == null) {
           newProvince.allInvs[ent.id] = new Inventory(ent.pos, ent)
         } else {
-          newProvince.allInvs[ent.id] = new window.classDB[ent.name](ent.pos, ent)
+          newProvince.allInvs[ent.id] = new window.classDBi[ent.type](ent.pos, ent)
         }
       }
 
