@@ -1,125 +1,174 @@
 import { Settings } from '../../common.js'
 import { Inventory } from '../../core/inventory.js'
 
-export class tower extends Inventory {
+export class Tower extends Inventory {
   static type = 'entity'
   static size = [2, 2]
   static viewsize = [2, 2.5]
-  static cost = [{ id: "StoneFurnace", n: 1 }, { id: "IronPlate", n: 3 }, { id: "Gear", n: 2 }]
-  static rotatable = true
-  static imgName = 'Tower'
+  static cost = [{ id: "Stone", n: 5 }]
+  static rotatable = false
+  static imgName = 'tower'
+  static P = 0.02
+  static name = "Tower"
+  static label = "Tower"
 
   constructor (pos, data) {
+    if (data == null) {
+      data = {
+        tilePos: { x: Settings.gridSize.x / 2, y: Settings.gridSize.y / 2 },
+        pos,
+        stack: {}
+      }
+    }
     super(pos, data)
-    data.pos = pos
-    this.name = "Tower"
-    this.pos = pos
-    this.stack = data.stack
-    this.setup(undefined, data)
+    this.setup(undefined, this)
   }
 
   setup (map, ent) {
-    if (this.stack == null) this.stack = {}
-    if (this.stack.FUEL == null) this.stack.FUEL = []
-    this.packsize = {}
-    this.packsize.FUEL = 1
     const size = Tower.size
     for (let i = 0; i < size[0]; i++) {
       for (let j = 0; j < size[1]; j++) {
         game.entityLayer.setInv(ent.pos.x + i, ent.pos.y + j, this.id)
       }
     }
+
+    this.packsize = 1
     this.energy = 0
-    this.power = 0
+    if (this.stack.FUEL == null) this.stack.FUEL = []
+    if (this.stack.INPUT == null) this.stack.INPUT = []
+    if (this.stack.OUTPUT == null) this.stack.OUTPUT = []
+    this.stack.OUTPUT.packsize = 1
+    this.stacksize = 4
+    this.packsize = {}
+    this.packsize.FUEL = 1
+    this.packsize.INPUT = 1
+    this.packsize.OUTPUT = 1
+    this.packsize.INV = 8
+    this.state = 0
+    this.lastTime = performance.now()
   }
 
   update (map, ent) {
-    if (this.stack.FUEL == null) this.stack.FUEL = []
-    if (this.stack.FUEL[0]?.n === 0) this.stack.FUEL.splice(0, 1)
+    if (ent == null) return
+    this.need = []
+    this.shallNeed = []
+    let becomesThat = null
 
-    if (game.tick % 100 === 0) {
-      this.power = 0
-      if (this.stack.FUEL == null || this.stack.FUEL.length === 0) this.stack.FUEL = [ { id: undefined, n: 0}]
-      let output
-      let tile =  game.res.getResource(ent.pos)
-      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x + 1, ent.pos.y)
-      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x, ent.pos.y + 1)
-      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x + 1, ent.pos.y + 1)
-      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x - 1, ent.pos.y - 1)
-      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x, ent.pos.y - 1)
-      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x + 1, ent.pos.y - 1)
-      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x + 2, ent.pos.y - 1)
-      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x - 1, ent.pos.y)
-      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x + 2, ent.pos.y)
-      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x - 1, ent.pos.y + 1)
-      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x + 2, ent.pos.y + 1)
-      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x - 1, ent.pos.y + 2)
-      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x, ent.pos.y + 2)
-      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x + 1, ent.pos.y + 2)
-      if (tile?.n == null || tile?.n == 0) tile = game.res.getResourceXY(ent.pos.x + 2, ent.pos.y + 2)
-      if (tile?.n == null || tile?.n == 0) return
+    if (this.stack.FUEL[0] == null || this.stack.FUEL[0]?.n === 0) {
+      this.stack.FUEL = []
+      this.stack.FUEL.packsize = 1
+      this.stack.FUEL.allow = {}
+      this.stack.FUEL.allow[window.classDB.Coal.id] = 50
+      this.stack.FUEL.allow[window.classDB.Wood.id] = 50
+    } else {
+     this.stack.FUEL.allow = {}
+     this.stack.FUEL.allow[this.stack.FUEL[0].id] = 50
+   }
 
-      let invTo
-      if (this.dir === 0) invTo = game.entityLayer.getInv(ent.pos.x + 2, ent.pos.y, true)
-      if (this.dir === 1) invTo = game.entityLayer.getInv(ent.pos.x + 1, ent.pos.y + 2, true)
-      if (this.dir === 2) invTo = game.entityLayer.getInv(ent.pos.x - 1, ent.pos.y + 1, true)
-      if (this.dir === 3) invTo = game.entityLayer.getInv(ent.pos.x, ent.pos.y - 1, true)
-      if (invTo == null) return
 
-      if (tile?.n) output = classDB[classDBi[tile.id].becomes]
-      // Shift output on next tile
-      let stackName
-      // place into assembling machine
-      if (invTo?.type === classDB.AssemblingMachine1?.id) stackName = classDBi[this.stack.INV[0].id].name
-      // place onto belt
-      else if (invTo?.isBelt) {
-        const relDir = (invTo.dir - this.dir + 4) % 4
-        const dirPref = ['L', 'R', 'L', 'L']
-        stackName = dirPref[relDir]
+    if (this.stack.INPUT[0] == null || this.stack.INPUT[0]?.n === 0) {
+      this.stack.INPUT = []
+      this.stack.INPUT.packsize = 1
+      this.stack.INPUT.allow = {}
+      this.stack.INPUT.allow[window.classDB.Iron.id] = 50
+      this.stack.INPUT.allow[window.classDB.Copper.id] = 50
+      this.stack.INPUT.allow[window.classDB.Stone.id] = 50
+      this.stack.INPUT.allow[window.classDB.Coal.id] = 50
+    } else {
+      this.stack.INPUT.allow = {}
+      this.stack.INPUT.allow[this.stack.INPUT[0].id] = 50
+    }
+
+    if (this.stack.OUTPUT[0]?.id) {
+      becomesThat = this.stack.OUTPUT[0]?.id
+      let filter = {}
+      for (let inputPossible of Object.keys(this.stack.INPUT.allow)) {
+        let inputPossibleInt = parseInt(inputPossible)
+        if (classDB[classDBi[inputPossibleInt].smeltedInto]?.id === this.stack.OUTPUT[0]?.id) {
+          filter[inputPossibleInt] = this.stack.INPUT.allow[inputPossible]
+        }
       }
+      this.stack.INPUT.allow = filter
+    }
 
-      const hasPlace = invTo.hasPlaceFor({ id: output.id, n: 1 }, stackName)
-      const neededEnergy = classDBi[tile.id].W
-      if (this.stack.FUEL[0]?.n > 0 && hasPlace && this.energy <= neededEnergy) {
-        this.energy += classDBi[this.stack.FUEL[0].id].E // add time factor
-        this.power = 100
-        this.stack.FUEL[0].n--
+    if (becomesThat == null && this.stack.INPUT[0]?.id) {
+      becomesThat = classDB[classDBi[this.stack.INPUT[0].id].smeltedInto].id
+    }
+
+    if (becomesThat) {
+      this.canNeed = {}
+      let cost = classDBi[becomesThat].cost
+      for (let costItem of Object.keys(cost)) {
+        this.canNeed[cost[costItem].id] = cost[costItem].n
       }
-      
-      if (output && hasPlace && this.energy > neededEnergy) {
-        this.power = 100
-        this.energy -= neededEnergy // add time factor
-        invTo.addItem({ id: output.id, n: 1 }, stackName)
-        tile.n--
-        game.res.updateOffscreenMap()
+    } else {
+      this.canNeed = {...this.stack.INPUT.allow, ...this.stack.FUEL.allow}
+    }
+
+    this.canHave = {...this.stack.INPUT.allow, ...this.stack.FUEL.allow}
+
+    for (let costItem of Object.keys(this.canNeed)) {
+      let costItemInt = parseInt(costItem)
+      const existing = this.getNumberOfItems(costItemInt)
+      if (existing < this.canNeed[costItemInt] ) this.need.push(costItemInt)
+    }
+
+    for (let costItem of Object.keys(this.canHave)) {
+      let costItemInt = parseInt(costItem)
+      const existing = this.getNumberOfItems(parseInt(costItemInt))
+      if (existing < this.canHave[costItemInt] ) this.shallNeed.push(costItemInt)
+    }
+
+    if (this.stack.INV) {
+      if (this.stack.INPUT == null) this.stack.INPUT = this.stack.INV[0]
+      else {
+        const inItem = this.stack.INV[0]
+        let targetSlot = 'INPUT'
+        if (classDBi[inItem.id].E) targetSlot = 'FUEL'
+        this.addItem(inItem, targetSlot)
+        delete this.stack.INV
+      }
+    }
+    const stack = ent?.stack
+    if (stack?.FUEL == null ||
+            stack.INPUT == null ||
+            stack.INPUT[0] == null ||
+            stack.INPUT[0].id == null ||
+            classDBi[stack.INPUT[0].id].smeltedInto == null) {
+      ent.state = 0
+      return
+    }
+    if (stack.FUEL[0]?.n >= 1 && this.energy <= 0) {
+      this.energy += classDBi[stack.FUEL[0].id].E
+      stack.FUEL[0].n--
+    }
+
+    if (this.energy && stack.INPUT[0]?.n) {
+      if (ent.state === 0) { this.lastTime = performance.now(); ent.state = 1 };
+      if (ent.state === 1) {
+        const deltaT = performance.now() - this.lastTime
+        const becomesThat = classDB[classDBi[stack.INPUT[0].id].smeltedInto].id
+        if (becomesThat && (deltaT * Tower.P > classDBi[becomesThat].E)) {
+          this.energy -= classDBi[becomesThat].E
+          if (stack.OUTPUT[0] == null) stack.OUTPUT[0] = {id: undefined, n: 0}
+          if (stack.OUTPUT[0].n == null) stack.OUTPUT[0].n = 0
+          this.remItem({id: stack.INPUT[0].id, n:1}, "INPUT", 0)
+          stack.OUTPUT[0].id = becomesThat
+          stack.OUTPUT[0].n++
+          if (window.selEntity == this) game.updateEntityMenu(window.selEntity, true)
+          this.lastTime = performance.now()
+        }
       }
     }
   }
 
   draw (ctx, ent) {
-    ctx.save()
-    ctx.drawImage(Tower.anim1, 0, 0, Tower.size[0] * Settings.tileSize, Tower.size[1] * Settings.tileSize, 0, 0, Tower.size[0] * Settings.tileSize, Tower.size[1] * Settings.tileSize)
-    ctx.fillStyle = 'black'
-    ctx.fillRect(Settings.tileSize * 1.75, Settings.tileSize * 0.5, Settings.tileSize / 4, Settings.tileSize / 4)
-    ctx.translate(Settings.tileSize, Settings.tileSize)
-
-    if (this.pos?.x) {
-      if (this.power) ctx.rotate((game.tick / 100) % (2 * Math.PI))
-    }
-    ctx.translate(-Settings.tileSize, -Settings.tileSize)
-    ctx.drawImage(Tower.anim2, 0, 0, Tower.size[0] * Settings.tileSize, Tower.size[1] * Settings.tileSize, 0, 0, Tower.size[0] * Settings.tileSize, Tower.size[1] * Settings.tileSize)
-    ctx.restore()
+    const mapSize = Tower.size
+    const viewSize = Tower.viewsize
+    ctx.drawImage(Tower.img, 0, 0, Settings.tileSize, Settings.tileSize, 0, -(viewSize[1] - mapSize[1]) * Settings.tileSize, viewSize[0] * Settings.tileSize, viewSize[1] * Settings.tileSize)
   }
-}
 
-if (typeof Image !== 'undefined') {
-  const image = new Image(512, 32)
-  image.src = './' + Tower.type + '/Tower/platform.png'
-  Tower.anim1 = image
-}
-
-if (typeof Image !== 'undefined') {
-  const image = new Image(512, 32)
-  image.src = './' + Tower.type + '/Tower/drill.png'
-  Tower.anim2 = image
+  getStackName (type) {
+    if (type === classDB.Coal.id) return 'FUEL'
+  }
 }
