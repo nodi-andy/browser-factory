@@ -3,7 +3,7 @@
   "version": "0.1.2",
   "description": "",
   "main": "node.js",
-  "type" : "module",
+  "type": "module",
   "scripts": {
     "start": "node server.js",
     "test": "jest --coverage --collectCoverageFrom='./src/**'",
