@@ -158,7 +158,4 @@ export class Tower extends Inventory {
     ctx.drawImage(Tower.img, 0, 0, Settings.tileSize, Settings.tileSize, 0, -(viewSize[1] - mapSize[1]) * Settings.tileSize, viewSize[0] * Settings.tileSize, viewSize[1] * Settings.tileSize)
   }
 
-  getStackName (type) {
-    if (type === classDB.Coal.id) return 'FUEL'
-  }
 }
