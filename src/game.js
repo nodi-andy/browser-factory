@@ -1,4 +1,4 @@
-import { Settings/*, provinces*/ } from './common.js'
+import { Settings, provinces } from './common.js'
 import { ViewModule } from './core/view.js'
 import { TimeLoop } from './core/loop.js'
 import { Inventory } from './core/inventory.js'
@@ -8,7 +8,6 @@ import { World } from './world/world.js'
 import { ResLayer } from './res/resLayer.js'
 import { DialogLayer } from './dialogs/dialogLayer.js'
 import { ControlsLayer } from './controls/controlsLayer.js'
-import { provinces } from './world/germany.js'
 import { elements, version} from './imports.js'
 import * as NC from 'nodicanvas'
 
@@ -330,20 +329,14 @@ if (curGame == null) {
 
 
 
-window.addEventListener('resize', function () { game.resize() })
+window.addEventListener('resize', function () {
+  if (window.game?.resize) window.game.resize()
+})
 
 window.selectProvince = (province) => {
+  if (!province) return
   window.uni.worldLayer.selectedProvince = province
   document.getElementById('switchView').innerHTML = province.name
-}
-
-window.setProvince = (province) => {
-  game = games[province]
-  game.start()
-  game.canvas.style.display = "block"
-
-  window.uni.canvas.style.display = "none"
-  window.uni.stop()
 }
 
 document.getElementById('openNavBtn').onclick = openNav

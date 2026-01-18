@@ -5,6 +5,7 @@ export class World extends NC.NodiGrid {
   constructor (name, gridSize, tileSize, provinces) {
     super(name, gridSize, tileSize)
     this.offscreenCanvas = document.createElement('canvas')
+    this.offscreenCtx = this.offscreenCanvas.getContext('2d', { willReadFrequently: true })
     this.prov = provinces
     this.provName = []
   }
@@ -23,10 +24,10 @@ export class World extends NC.NodiGrid {
   }
 
   updateOffscreenMap (resLayer) {
-    if (window.game?.res?.map == null) return
     resLayer.offscreenCanvas.width = Settings.gridSize.x * Settings.tileSize
     resLayer.offscreenCanvas.height = Settings.gridSize.y * Settings.tileSize
-    const offScreencontext = resLayer.offscreenCanvas.getContext('2d')
+    const offScreencontext = resLayer.offscreenCanvas.getContext('2d', { willReadFrequently: true })
+    resLayer.offscreenCtx = offScreencontext
     const loopDone = resLayer.loopScreenMap(resLayer, offScreencontext)
     if (!loopDone) {
       setTimeout(resLayer.updateOffscreenMap, 500, resLayer)
@@ -42,21 +43,22 @@ export class World extends NC.NodiGrid {
   onMouseDown(e, hit) {
     if (hit) return
     
-    var p = this.offscreenCanvas.getContext('2d').getImageData(e.canvasX, e.canvasY, 1, 1).data;
+    const ctx = this.offscreenCtx || this.offscreenCanvas.getContext('2d', { willReadFrequently: true })
+    var p = ctx.getImageData(e.canvasX, e.canvasY, 1, 1).data;
     var hex = ("000000" + this.rgbToHex(p[0], p[1], p[2])).slice(-6);
+    const provinceKey = this.provName[hex]
+    if (!provinceKey) return
 
-    if (this.selectedProvince == this.prov[this.provName[hex]]) 
-      window.setProvince(this.provName[hex])
-    else 
-      window.selectProvince(this.prov[this.provName[hex]])
+    window.selectProvince(this.prov[provinceKey])
 
-    console.log(this.provName[hex])
+    console.log(provinceKey)
   }
 
   onMouseMove(e, hit) {
     if (hit) return
     
-    var p = this.offscreenCanvas.getContext('2d').getImageData(e.canvasX, e.canvasY, 1, 1).data;
+    const ctx = this.offscreenCtx || this.offscreenCanvas.getContext('2d', { willReadFrequently: true })
+    var p = ctx.getImageData(e.canvasX, e.canvasY, 1, 1).data;
     var hex = ("000000" + this.rgbToHex(p[0], p[1], p[2])).slice(-6);
 
     this.provUnderMouse = this.prov[this.provName[hex]]
