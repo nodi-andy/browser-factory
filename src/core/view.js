@@ -13,18 +13,23 @@ export class ViewModule extends NC.NodiView {
   }
 
   stop() {
-    document.body.removeChild(window.game.canvas)
+    if (this.canvas?.parentElement) {
+      this.canvas.parentElement.removeChild(this.canvas)
+    }
     this.setCanvas(null)
     this.ctx = null
-    window.game.state = window.gameState.stopped
-    window.game.time.stop()
+    this.state = window.gameState.stopped
+    this.time?.stop()
   }
 
   start() {
     this.setCanvas(this.savedCanvas)
-    this.ctx = this.canvas.getContext('2d')
-    window.game.state = window.gameState.running
-    window.game.time.start()
+    if (this.canvas && !this.canvas.parentElement) {
+      document.body.appendChild(this.canvas)
+    }
+    this.ctx = this.canvas?.getContext('2d') ?? null
+    this.state = window.gameState.running
+    this.time?.start()
   }
 
   resize () {

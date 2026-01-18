@@ -1,4 +1,4 @@
-import { Settings, provinces } from './common.js'
+import { Settings/*, provinces*/ } from './common.js'
 import { ViewModule } from './core/view.js'
 import { TimeLoop } from './core/loop.js'
 import { Inventory } from './core/inventory.js'
@@ -8,8 +8,9 @@ import { World } from './world/world.js'
 import { ResLayer } from './res/resLayer.js'
 import { DialogLayer } from './dialogs/dialogLayer.js'
 import { ControlsLayer } from './controls/controlsLayer.js'
-//import { provinces } from './world/germany.js'
+import { provinces } from './world/germany.js'
 import { elements, version} from './imports.js'
+import * as NC from 'nodicanvas'
 
 console.log("📦: Browser factory")
 console.log("🚀: " + version)
@@ -137,7 +138,7 @@ function loadGame (name) {
     window.uni.canvas.width = window.innerWidth
     window.uni.canvas.height = window.innerHeight
     window.uni.canvas.oncontextmenu = function (e) { e.preventDefault() }
-    document.body.appendChild(window.canvas); // adds the canvas to the body element
+    //document.body.appendChild(window.uni.canvas); // adds the canvas to the body element
     window.uni.worldLayer = new World('world', new NC.Vec2(100,100), new NC.Vec2(10,10), provinces)
     window.uni.addLayer(window.uni.worldLayer)
     window.uni.canvas.style.display = "block"
