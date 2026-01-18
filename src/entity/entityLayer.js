@@ -339,11 +339,16 @@ export class EntityLayer extends NC.NodiGrid {
   }
 
   drawEntityCandidate (ctx) {
-    if (Settings.pointer?.stack?.INV?.packs.length == 0) return
     if (window.curResPos == null) return
+    const invStack = Settings.pointer?.stack?.INV
+    if (invStack == null) return
+    const packs = Array.isArray(invStack) ? invStack : invStack.packs
+    if (!Array.isArray(packs) || packs.length === 0) return
+    const firstPack = packs[0]
+    if (!firstPack || firstPack.id == null) return
     // ENTITY CANDIDATE
 
-    const item = classDBi[Settings.pointer?.stack?.INV.packs[0]?.id]
+    const item = classDBi[firstPack.id]
     if (item == null) return
     let size = item.size
     if (size == null) size = [1, 1]
@@ -363,10 +368,10 @@ export class EntityLayer extends NC.NodiGrid {
     else if (item.prototype.drawItems) item.prototype.drawItems(ctx, Settings.pointer.item)
     else ctx.drawImage(item.img, 0, 0)
 
-    if (Settings.pointer?.stack?.INV.packs[0]?.n != null) {
+    if (firstPack.n != null) {
       ctx.font = (Settings.buttonSize.y / 2) + 'px Arial'
       ctx.fillStyle = 'white'
-      ctx.fillText(Settings.pointer?.stack?.INV.packs[0]?.n, 0, 0 + Settings.buttonSize.x)
+      ctx.fillText(firstPack.n, 0, 0 + Settings.buttonSize.x)
     }
     ctx.restore()
   }

@@ -186,10 +186,16 @@ function loadGame (name) {
 
       for (const ent of Object.values(savedProvinceData.ents)) {
         if (ent == null) continue
-        if (ent?.name == "Inventory" || ent.type == null) {
+        if (ent?.name === "Inventory" || ent?.type == null) {
           newProvince.allInvs[ent.id] = new Inventory(ent.pos, ent)
+          continue
+        }
+
+        const entClass = window.classDBi[ent.type] || window.classDB[ent.name]
+        if (typeof entClass === 'function') {
+          newProvince.allInvs[ent.id] = new entClass(ent.pos, ent)
         } else {
-          newProvince.allInvs[ent.id] = new window.classDBi[ent.type](ent.pos, ent)
+          console.warn('Unknown entity type while loading save:', ent)
         }
       }
 
