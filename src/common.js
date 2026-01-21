@@ -18,9 +18,22 @@ export const Settings = {
   tileSize : 64,
   gridSize : new NC.Vec2(160, 90),
   buildDir : 0,
+  buildDirByItemId : {},
   dirToVec : [{ x: 1, y: 0 },{ x: 0, y: 1 },{ x: -1, y: 0 },{ x: 0, y: -1 }],
   dirToAng : [0, 90, 180, 270],
   nbVec : [{ x: 1, y: 0 }, { x: 1, y: -1 }, { x: 0, y: -1 }, { x: -1, y: -1 }, { x: -1, y: 0 }, { x: -1, y: 1 }, { x: 0, y: 1 } , { x: 1, y: 1 }]
+}
+
+export function rememberBuildDir (itemId, dir) {
+  if (itemId == null || !Number.isFinite(dir)) return
+  if (!Settings.buildDirByItemId) Settings.buildDirByItemId = {}
+  Settings.buildDirByItemId[itemId] = dir
+}
+
+export function recallBuildDir (itemId) {
+  if (itemId == null) return
+  const saved = Settings.buildDirByItemId?.[itemId]
+  if (Number.isFinite(saved)) Settings.buildDir = saved
 }
 
 export function dist (a, b) { return Math.hypot(a.x - b.x, a.y - b.y) }

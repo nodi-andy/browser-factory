@@ -14,6 +14,8 @@ export class DialogLayer extends NC.NodiGrid {
     window.entityMenu = new Dialog()
     window.receiptMenu = new Dialog()
     window.selectItemMenu = new Dialog()
+    const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now()
+    this.fpsCounter = { lastSampleAt: now, frames: 0, value: 0 }
   }
 
   onMouseDown (e, hit) {
@@ -59,6 +61,8 @@ export class DialogLayer extends NC.NodiGrid {
     const ctx = view.ctx
     ctx.resetTransform()
     ctx.lineWidth = 1
+    this.updateFpsCounter()
+    if (window.isGodMode) this.drawFpsHud(ctx)
     // CONTENT MENU
     if (Settings.dialogResPos?.x && Settings.dialogResPos?.y) {
       ctx.save()
@@ -133,6 +137,35 @@ export class DialogLayer extends NC.NodiGrid {
         ctx.restore()
       }
     }
+  }
+
+  updateFpsCounter () {
+    const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now()
+    this.fpsCounter.frames += 1
+    const elapsed = now - this.fpsCounter.lastSampleAt
+    if (elapsed >= 500) {
+      this.fpsCounter.value = Math.round((this.fpsCounter.frames * 1000) / elapsed)
+      this.fpsCounter.frames = 0
+      this.fpsCounter.lastSampleAt = now
+    }
+  }
+
+  drawFpsHud (ctx) {
+    const text = `FPS: ${this.fpsCounter.value}`
+    const padding = 6
+    const x = 12
+    const y = 12
+    ctx.save()
+    ctx.font = '14px Arial'
+    const metrics = ctx.measureText(text)
+    const width = Math.ceil(metrics.width) + padding * 2
+    const height = 18 + padding * 2
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.6)'
+    ctx.fillRect(x, y, width, height)
+    ctx.fillStyle = 'rgba(0, 255, 140, 0.95)'
+    ctx.textBaseline = 'top'
+    ctx.fillText(text, x + padding, y + padding)
+    ctx.restore()
   }
 
   createInvMenu (invID) {

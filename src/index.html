@@ -12,16 +12,6 @@
         overflow: hidden;
     }
 
-    .container {
-        display: inline;
-        position: absolute;
-        z-index: 2;
-        right: 0px;
-        padding: 4px;
-        cursor: pointer;
-        background-color:rgb(172, 164, 164);
-    }
-
     .switchView {
         display: inline;
         position: absolute;
@@ -34,62 +24,141 @@
    
     .gameEntry {
         display: flex !important;
-        flex-direction: row;
-        cursor: pointer;
-        background-color:rgb(172, 164, 164);
+        align-items: center;
+        gap: 8px;
+        padding: 8px;
+        border-radius: 8px;
+        background-color: rgb(43, 38, 32);
+        border: 1px solid rgb(75, 63, 50);
     }
 
     .gameEntrySelected{
-        background-color:rgb(196, 36, 36);
+        border-color: rgb(199, 63, 47);
+        box-shadow: inset 0 0 0 1px rgb(199, 63, 47);
     }
 
     .overlay {
-        height: 100%;
-        left: 100%;
-        width: 300px;
         position: fixed;
-        z-index: 1;
-        top: 0;
-        background-color: rgb(0,0,0);
-        background-color: rgba(0,0,0, 0.9);
-        overflow-x: hidden;
-        transition: 0.5s;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 5;
+        background-color: rgba(10, 10, 10, 0.65);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
     }
 
-.overlay-content {
-  position: relative;
-  top: 25%;
-  width: 100%;
-  text-align: center;
-  margin-top: 30px;
-}
+    .overlay.open {
+        opacity: 1;
+        pointer-events: auto;
+    }
 
-.overlay div {
-  padding: 8px;
-  text-decoration: none;
-  font-size: 36px;
-  color: #818181;
-  display: block;
-  transition: 0.3s;
-  cursor: pointer;
-}
+    .overlay-panel {
+        width: min(540px, 92vw);
+        max-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        background-color: rgb(29, 27, 22);
+        border: 1px solid rgb(58, 52, 44);
+        border-radius: 12px;
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+        color: rgb(245, 240, 230);
+    }
 
-.overlay div:hover, .overlay div:focus {
-  color: #f1f1f1;
-}
+    .overlay-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 16px;
+        border-bottom: 1px solid rgb(58, 52, 44);
+    }
+
+    .overlay-title {
+        font-size: 18px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .overlay-close {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        border: 1px solid rgb(98, 84, 66);
+        background: transparent;
+        color: rgb(240, 232, 216);
+        cursor: pointer;
+        font-size: 18px;
+        line-height: 1;
+    }
+
+    .overlay-actions {
+        display: flex;
+        gap: 8px;
+        padding: 12px 16px;
+        border-bottom: 1px solid rgb(58, 52, 44);
+    }
+
+    .overlay-actions button {
+        flex: 1;
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 1px solid rgb(95, 74, 50);
+        background: rgb(47, 42, 34);
+        color: rgb(240, 232, 216);
+        cursor: pointer;
+    }
+
+    .overlay-actions button:hover {
+        background: rgb(59, 52, 42);
+    }
+
+    .savedGameList {
+        padding: 12px 16px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        overflow-y: auto;
+    }
+
+    .gameEntryName {
+        flex: 1;
+        padding: 6px 8px;
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.05);
+        cursor: pointer;
+    }
+
+    .gameEntryAction {
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        border: 1px solid rgb(90, 74, 58);
+        background: transparent;
+        color: rgb(240, 232, 216);
+        cursor: pointer;
+    }
+
+    .gameEntryAction:hover {
+        background: rgb(58, 50, 40);
+    }
 
 .editable {
   display: block;
   width: 100%;
   text-align: center;
-  
-  &:after {
-    content: '|';
-    animation-name:blink;
-    animation-duration:.9s;
-    animation-iteration-count:infinite;
-    animation-timing-function:ease;
-  }
+}
+
+.editable::after {
+  content: '|';
+  animation-name: blink;
+  animation-duration: .9s;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease;
 }
 
 @keyframes blink {
@@ -98,7 +167,7 @@
 }
 
 @media screen and (max-height: 450px) {
-  .overlay a {font-size: 20px}
+  .overlay-panel { max-height: 90vh; }
 }
 </style>
 
@@ -113,14 +182,20 @@
 
 <html>
     <body>
-    <div id="myNav" class="overlay">
-        <div class="overlay-content">
-          <div id = "newGameBtn">New Game</div>
-          <div id = "saveGameBtn">Save</div>
-          <div id="savedGameList"></div>
+    <div id="myNav" class="overlay" aria-hidden="true">
+        <div class="overlay-panel" role="dialog" aria-modal="true">
+          <div class="overlay-header">
+            <div class="overlay-title">Saved Games</div>
+            <button id="closeNavBtn" class="overlay-close" aria-label="Close">×</button>
+          </div>
+          <div class="overlay-actions">
+            <button id="newGameBtn" type="button">New Game</button>
+            <button id="saveGameBtn" type="button">Save</button>
+            <button id="storeBtn" type="button">Store</button>
+          </div>
+          <div id="savedGameList" class="savedGameList"></div>
         </div>
       </div>
-    <div id = "openNavBtn" class="container" style="font-size:30px;cursor:pointer">&#9776;</div>
 </body>
 </html>
 

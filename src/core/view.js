@@ -3,13 +3,19 @@ import { Button } from '../dialogs/button.js'
 import { Inventory,  } from './inventory.js'
 import * as NC from 'nodicanvas'
 
+const DEFAULT_ZOOM_LIMIT = { min: 0.5, max: 2 }
+const SCALE_EPSILON = 1e-6
+const RENDER_WATCHDOG_INTERVAL_MS = 1000
+const RENDER_WATCHDOG_STALL_MS = 2000
+
 export class ViewModule extends NC.NodiView {
   constructor (canvas) {
     super(canvas)
     this.scrollFactor = 0.0005
-    this.zoomLimit = { min: 0.5, max: 2 }
+    this.zoomLimit = { ...DEFAULT_ZOOM_LIMIT }
     this.tick = 0
     this.savedCanvas = this.canvas
+    this.renderWatchdog = { lastRenderAt: 0, timer: null, code: null }
   }
 
   stop() {
@@ -20,6 +26,7 @@ export class ViewModule extends NC.NodiView {
     this.ctx = null
     this.state = window.gameState.stopped
     this.time?.stop()
+    this.stopRenderWatchdog()
   }
 
   start() {
@@ -30,6 +37,7 @@ export class ViewModule extends NC.NodiView {
     this.ctx = this.canvas?.getContext('2d') ?? null
     this.state = window.gameState.running
     this.time?.start()
+    this.startRenderWatchdog()
   }
 
   resize () {
@@ -99,10 +107,59 @@ export class ViewModule extends NC.NodiView {
     this.secureBoundaries()
   }
 
+  applyScale (scale, clamp = true) {
+    if (!Number.isFinite(scale)) return
+    let target = scale
+    if (clamp) {
+      target = Math.min(this.zoomLimit.max, Math.max(target, this.zoomLimit.min))
+    }
+    super.setScale(target)
+    const actual = Number.isFinite(this.sx) ? this.sx : target
+    if (Math.abs(actual - target) <= SCALE_EPSILON || actual === 0) return
+    super.setScale(target / actual)
+  }
+
+  setScale (scale) {
+    this.applyScale(scale, !window.isGodMode)
+  }
+
+  markRender () {
+    if (!this.renderWatchdog) return
+    this.renderWatchdog.lastRenderAt = Date.now()
+    if (this.renderWatchdog.code) {
+      this.renderWatchdog.code = null
+      if (window.renderErrorCode === 'RENDER_STALLED') window.renderErrorCode = null
+    }
+  }
+
+  startRenderWatchdog () {
+    if (!this.renderWatchdog) this.renderWatchdog = { lastRenderAt: 0, timer: null, code: null }
+    this.renderWatchdog.lastRenderAt = Date.now()
+    if (this.renderWatchdog.timer) clearInterval(this.renderWatchdog.timer)
+    this.renderWatchdog.timer = setInterval(() => {
+      if (this.state !== window.gameState.running) return
+      const last = this.renderWatchdog.lastRenderAt || 0
+      const elapsed = Date.now() - last
+      if (elapsed < RENDER_WATCHDOG_STALL_MS) return
+      if (this.renderWatchdog.code === 'RENDER_STALLED') return
+      this.renderWatchdog.code = 'RENDER_STALLED'
+      window.renderErrorCode = 'RENDER_STALLED'
+      const viewName = this.name ? ` (${this.name})` : ''
+      console.error(`[RENDER_STALLED] Render loop stalled${viewName} for ${elapsed}ms.`)
+    }, RENDER_WATCHDOG_INTERVAL_MS)
+  }
+
+  stopRenderWatchdog () {
+    if (!this.renderWatchdog?.timer) return
+    clearInterval(this.renderWatchdog.timer)
+    this.renderWatchdog.timer = null
+  }
+
   onZoom (zoomFactor) {
     if (!window.isDragging) {
       const zoomAmount = (1 - zoomFactor)
-      const newZoom = this.sx * zoomAmount
+      const currentScale = Number.isFinite(this.sx) ? this.sx : 1
+      const newZoom = currentScale * zoomAmount
       // console.log(newZoom)*/
       /* if (DEV) {
                 this.camera.zoom = Math.max( this.camera.zoom, Math.max(canvas.width / (gridSize.x * Settings.tileSize), canvas.height / (gridSize.y * Settings.tileSize)))
@@ -110,7 +167,7 @@ export class ViewModule extends NC.NodiView {
                 this.camera.y += (mousePos.y / this.camera.zoom) - (mousePos.y / (this.camera.zoom / zoomAmount));
                 this.secureBoundaries();
             } else */
-      this.setScale(Math.min(this.zoomLimit.max, Math.max(newZoom, this.zoomLimit.min)))
+      this.applyScale(newZoom, !window.isGodMode)
       // ws.send(JSON.stringify({cmd: "camera", data: camera}));
     }
   }
@@ -166,6 +223,14 @@ export class ViewModule extends NC.NodiView {
     const pack = inv?.stack?.INV.packs
 
     if (pack == null) return
+    if (!Array.isArray(window.invMenu.items)) window.invMenu.items = []
+    const minSlots = 64
+    const neededSlots = Math.max(minSlots, pack.length, window.invMenu.items.length)
+    const invIdForButtons = window.player?.invID ?? inv?.invID
+    for (let i = window.invMenu.items.length; i < neededSlots; i++) {
+      const newButton = new Button((i % 8) * (Settings.buttonSize.x), Math.floor(i / 8) * (Settings.buttonSize.y), undefined, window.invMenu, invIdForButtons)
+      window.invMenu.items.push(newButton)
+    }
 
     for (let i = 0; i < pack.length; i++) {
       const item = pack[i]

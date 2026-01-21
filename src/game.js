@@ -24,11 +24,35 @@ for(let i = 0; i < elements.length; i++) {
   if (window.classDB[key]) window.classDB[key].id = i
 }
 
+function isSavedGameData (raw) {
+  if (!raw) return false
+  let data
+  try {
+    data = JSON.parse(raw)
+  } catch {
+    return false
+  }
+  if (data == null || typeof data !== 'object') return false
+  const provinceKeys = Object.keys(provinces)
+  for (const key of provinceKeys) {
+    const province = data[key]
+    if (province == null || typeof province !== 'object') continue
+    if ('terrain' in province && 'res' in province && 'entity' in province && 'ents' in province) {
+      return true
+    }
+  }
+  return false
+}
+
+function getSavedGameKeys () {
+  const keys = Object.keys(window.localStorage || {})
+  return keys.filter(key => isSavedGameData(window.localStorage.getItem(key)))
+}
 
 function updateNextGameID () {
-  const gamesList = Object.values(Object.keys(window.localStorage))
+  const gamesList = getSavedGameKeys()
   window.nextGameID = 0
-  for (let i = 0; i < gamesList.length; i++) {
+  for (let i = 0; ; i++) {
     if (gamesList.includes('unnamed_' + i) === false) {
       window.nextGameID = i
       break
@@ -38,7 +62,7 @@ function updateNextGameID () {
 
 function updateGameMenu () {
   window.htmlList = document.getElementById('savedGameList')
-  const gamesList = Object.values(Object.keys(window.localStorage))
+  const gamesList = getSavedGameKeys()
   window.htmlList.innerHTML = ''
   for (const gameID in gamesList) {
     if (gamesList[gameID] === 'curGame') continue
@@ -47,13 +71,14 @@ function updateGameMenu () {
     gameDiv.classList.add('gameEntry')
     if (gamesList[gameID] === gameName) gameDiv.classList.add('gameEntrySelected')
     const gameNameDiv = document.createElement('div')
+    gameNameDiv.classList.add('gameEntryName')
     gameNameDiv.onclick = function () { loadGame(this.parentElement.id) }
     gameNameDiv.innerHTML = gamesList[gameID]
     gameDiv.appendChild(gameNameDiv)
 
-    const renameGameDiv = document.createElement('div')
-    renameGameDiv.classList.add('fas')
-    renameGameDiv.classList.add('fa-edit')
+    const renameGameDiv = document.createElement('button')
+    renameGameDiv.type = 'button'
+    renameGameDiv.classList.add('gameEntryAction', 'fas', 'fa-edit')
     renameGameDiv.nameItem = gameNameDiv
     renameGameDiv.onclick = function () {
       this.nameItem.contentEditable = true
@@ -72,9 +97,9 @@ function updateGameMenu () {
     }
     gameDiv.appendChild(renameGameDiv)
 
-    const remGameDiv = document.createElement('div')
-    remGameDiv.classList.add('fas')
-    remGameDiv.classList.add('fa-remove')
+    const remGameDiv = document.createElement('button')
+    remGameDiv.type = 'button'
+    remGameDiv.classList.add('gameEntryAction', 'fas', 'fa-remove')
     remGameDiv.onclick = function () { remGame(this.parentElement.id) }
 
     gameDiv.appendChild(remGameDiv)
@@ -88,11 +113,28 @@ function remGame (gameName) {
   updateGameMenu()
 }
 
-function openNav () {
-  let nav = document.getElementById('myNav')
-  if (nav.style.left == '100%' || nav.style.left == '')  nav.style.left = (window.innerWidth - 300) + 'px'
-  else nav.style.left = '100%'
+function setNavOpen (open) {
+  const nav = document.getElementById('myNav')
+  if (!nav) return
+  nav.classList.toggle('open', open)
+  nav.setAttribute('aria-hidden', open ? 'false' : 'true')
 }
+
+function openNav () {
+  setNavOpen(true)
+}
+
+function closeNav () {
+  setNavOpen(false)
+}
+
+function toggleNav () {
+  const nav = document.getElementById('myNav')
+  const isOpen = nav?.classList.contains('open')
+  setNavOpen(!isOpen)
+}
+window.openNav = openNav
+window.closeNav = closeNav
 
 function loadGame (name) {
 
@@ -115,6 +157,9 @@ function loadGame (name) {
   }
 
   gameName = name
+  if (window.localStorage) {
+    window.localStorage.setItem('curGame', gameName)
+  }
 
   if (provinces.single == null) {
     let showWorldButton = document.createElement('div')
@@ -302,7 +347,7 @@ function saveGame () {
 }
 
 // Save Game Loop
-setInterval(function () {saveGame}, 10000);
+setInterval(saveGame, 60000);
 
 // LOAD IMAGES
 Object.keys(window.classDB).forEach(key => {
@@ -339,9 +384,26 @@ window.selectProvince = (province) => {
   document.getElementById('switchView').innerHTML = province.name
 }
 
-document.getElementById('openNavBtn').onclick = openNav
+const closeNavBtn = document.getElementById('closeNavBtn')
+if (closeNavBtn) closeNavBtn.onclick = closeNav
+const nav = document.getElementById('myNav')
+if (nav) {
+  nav.addEventListener('click', (event) => {
+    if (event.target === nav) closeNav()
+  })
+}
+document.addEventListener('keydown', (event) => {
+  if (event.code === 'Escape') closeNav()
+})
 document.getElementById('saveGameBtn').onclick = saveGame
 document.getElementById('newGameBtn').onclick = loadGame
+const storeBtn = document.getElementById('storeBtn')
+if (storeBtn) {
+  storeBtn.onclick = () => {
+    game.entityLayer.onKeyUp({ code: 'KeyE' })
+    closeNav()
+  }
+}
 
 
 loadGame(curGame)

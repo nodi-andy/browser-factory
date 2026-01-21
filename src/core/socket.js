@@ -22,7 +22,8 @@ function wssend (msg) {
       } */
     }
     if (msg.cmd === 'godmode') {
-      window.player.stacksize = 50
+      window.isGodMode = true
+      window.player.stacksize = 200
       window.player.addItem({ id: classDB.Chest.id, n: 100 })
       window.player.addItem({ id: classDB.Coal.id, n: 100 })
       window.player.addItem({ id: classDB.Copper.id, n: 100 })
@@ -46,6 +47,26 @@ function wssend (msg) {
       window.player.addItem({ id: classDB.AssemblingMachine2.id, n: 100 })
       window.player.addItem({ id: classDB.AssemblingMachine3.id, n: 100 })
       window.player.addItem({ id: classDB.Car.id, n: 100 })
+      const ids = new Set()
+      Object.values(classDBi).forEach(entry => {
+        if (!entry) return
+        if (entry.type !== 'item' && entry.type !== 'entity') return
+        if (entry.name === 'Player' || entry.name === 'Empty' || entry.name === 'Tower') return
+        if (entry.id == null) return
+        ids.add(entry.id)
+      })
+      ids.forEach(id => {
+        window.player.addItem({ id, n: 200 })
+      })
+      game.updateInventoryMenu(window.player)
+    }
+    if (msg.cmd === 'cleanstorage') {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.clear()
+      }
+      if (typeof window !== 'undefined' && window.location) {
+        window.location.reload()
+      }
     }
 
     if (updateInv) {

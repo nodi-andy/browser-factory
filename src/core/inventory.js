@@ -36,16 +36,37 @@ export class Inventory {
     })
   }
   
+  static getFootprint (entity) {
+    let size = classDBi?.[entity?.type]?.size
+    if (!Array.isArray(size) || size.length < 2) size = [1, 1]
+    let width = size[0]
+    let height = size[1]
+    if (!Number.isFinite(width)) width = 1
+    if (!Number.isFinite(height)) height = 1
+    if (entity?.dir != null && Math.abs(entity.dir) % 2 === 1) {
+      const tmp = width
+      width = height
+      height = tmp
+    }
+    return { width, height }
+  }
+
   static checkFreeSpace(entity) {
-    let size = classDBi[entity.type].size
-    for (let i = 0; i < size[0]; i++) {
-      for (let j = 0; j < size[1]; j++) {
-        let p = {x: entity.pos.x + i, y : entity.pos.y + j}
-        let full = game.entityLayer.getInvP(p);
-        if (full && full.id === classDB.Empty.id) full = false
-        if (full == true ||
-            game.terrain.map[p.x][p.y][0] != Grassland.id ||
-            game.res.getResource(p).id == Tree.id ) {
+    const footprint = this.getFootprint(entity)
+    for (let i = 0; i < footprint.width; i++) {
+      for (let j = 0; j < footprint.height; j++) {
+        const x = entity.pos.x + i
+        const y = entity.pos.y + j
+        if (x < 0 || y < 0) return false
+        if (x >= game.terrain.map.length || y >= game.terrain.map[0].length) return false
+
+        let full = game.entityLayer.getInv(x, y)
+        if (full && full.type === classDB.Empty.id) full = false
+        const terrainTile = game.terrain.map[x][y]
+        const resTile = game.res?.getResourceXY(x, y)
+        if (full ||
+            terrainTile?.[0] != Grassland.id ||
+            resTile?.id == Tree.id) {
           return false
         }
       }
@@ -86,7 +107,10 @@ export class Inventory {
     if (data.fromInvID === data.toInvID && data.fromInvKey === data.toInvKey && data.fromStackPos === data.toStackPos) return
   
     const invFrom = game.allInvs[data.fromInvID].stack[data.fromInvKey]
-    if (invFrom.packs[data.fromStackPos] == undefined) return
+    if (invFrom?.packs?.[data.fromStackPos] == undefined) {
+      console.warn('[moveStack] no source pack', data)
+      return
+    }
   
     const from = invFrom.packs[data.fromStackPos]
   
@@ -95,30 +119,56 @@ export class Inventory {
     const toStack = game.allInvs[data.toInvID].stack
     if (toStack[data.fromStackPos]) {
       game.allInvs[data.toInvID].stack[data.toInvKey].packs[data.toStackPos] = from
+      transferedItems = from.n
     } else {
       if (toStack[data.toInvKey] == null) toStack[data.toInvKey] = []
   
+      const destStack = toStack[data.toInvKey]
+      const destPacks = destStack?.packs
+      const packsize = destStack?.packsize ?? 50
+      const maxlen = destStack?.maxlen
+  
       // add items into stack
-      if (toStack[data.toInvKey].packs[data.toStackPos]?.id === from.id) {
+      if (destPacks?.[data.toStackPos]?.id === from.id) {
         transferedItems = from.n
-        if (toStack[data.toInvKey].packs[data.toStackPos].n + transferedItems > 50) transferedItems = 50 - toStack[data.toInvKey].packs[data.toStackPos].n
-        toStack[data.toInvKey].packs[data.toStackPos].n += transferedItems
+        if (destPacks[data.toStackPos].n + transferedItems > packsize) transferedItems = packsize - destPacks[data.toStackPos].n
+        if (transferedItems > 0) destPacks[data.toStackPos].n += transferedItems
   
       // add new stack
       } else {
-        if (toStack[data.toInvKey].allow) {
-          if (toStack[data.toInvKey].allow.hasOwnProperty(from.id)) {
-            transferedItems = from.n
-            if (transferedItems > 50) transferedItems = 50
-            toStack[data.toInvKey].packs.push({id: from.id, n: transferedItems})
-            
-          }
-        } else {
+        const hasAllow = destStack?.allow
+        const allowOk = !hasAllow || destStack.allow.hasOwnProperty(from.id)
+        const atCapacity = Array.isArray(destPacks) && Number.isFinite(maxlen) && destPacks.length >= maxlen
+        if (allowOk && !atCapacity && Array.isArray(destPacks)) {
           transferedItems = from.n
-          if (transferedItems > 50) transferedItems = 50
-          toStack[data.toInvKey].packs.push({id: from.id, n: transferedItems})
+          if (transferedItems > packsize) transferedItems = packsize
+          destPacks.push({id: from.id, n: transferedItems})
         }
       }
+    }
+
+    if (transferedItems <= 0) {
+      const destStack = toStack?.[data.toInvKey]
+      const destPacks = destStack?.packs
+      const reasons = []
+      if (!destStack) reasons.push('missing-destination-stack')
+      if (destStack?.allow && !destStack.allow.hasOwnProperty(from.id)) reasons.push('item-not-allowed')
+      const packsize = destStack?.packsize ?? 50
+      const matchingPack = Array.isArray(destPacks) ? destPacks.find(pack => pack?.id === from.id) : null
+      if (matchingPack && matchingPack.n >= packsize) reasons.push('matching-pack-full')
+      if (!matchingPack && Array.isArray(destPacks) && Number.isFinite(destStack?.maxlen) && destPacks.length >= destStack.maxlen) {
+        reasons.push('destination-stack-full')
+      }
+      const info = {
+        data,
+        from,
+        destStack: destStack ? { maxlen: destStack.maxlen, packsize: destStack.packsize, allow: destStack.allow } : null,
+        destPackCount: Array.isArray(destPacks) ? destPacks.length : null,
+        reasons
+      }
+      window.lastMoveStackFailure = info
+      console.warn('[moveStack] transfer failed', info)
+      return
     }
   
     game.allInvs[data.fromInvID].remItem({id: from.id, n: transferedItems}, data.fromInvKey, data.fromStackPos)

@@ -67,6 +67,7 @@ export class World extends NC.NodiGrid {
   render (view) {
     this.view = view
     const ctx = view.ctx
+    if (view?.markRender) view.markRender()
 
     if (this.offscreenCanvas == null) return
 

@@ -1,4 +1,4 @@
-import { Settings } from '../common.js'
+import { Settings, recallBuildDir } from '../common.js'
 import { Inventory } from '../core/inventory.js'
 
 export class Button {
@@ -84,6 +84,7 @@ export class Button {
         window.curResPos.x = 0
         window.curResPos.y = -2
       }
+      recallBuildDir(Settings.pointer?.stack?.INV?.packs[0]?.id)
     } else if (button === 3) {
       let buttonInv = game.allInvs[this.invID]
       let pack = buttonInv.stack[this.invKey].packs[this.stackPos]
@@ -91,6 +92,7 @@ export class Button {
         let transfer = Math.round(pack.n / 2)
         buttonInv.remItem ({id: pack.id, n: transfer}, this.invKey, this.stackPos)
         Settings.pointer.addItem({id: pack.id, n: transfer}, 'INV', 0) 
+        recallBuildDir(Settings.pointer?.stack?.INV?.packs[0]?.id)
       } else {
         let pointerPack = Settings.pointer?.stack?.INV.packs[0]
         let transfer = Math.round(pointerPack.n / 2)
