@@ -33,10 +33,11 @@ export class StoneFurnace extends Inventory {
     }
 
     this.energy = 0
-    if (this.stack.FUEL == null) this.stack.FUEL = {maxlen: 1, packsize : 50, packs:[]}
-    if (this.stack.INPUT == null) this.stack.INPUT = {maxlen: 1, packsize : 50, packs:[]}
+    this.stack.FUEL = Inventory.normalizeStack(this.stack.FUEL, { maxlen: 1, packsize: 50 })
+    this.stack.INPUT = Inventory.normalizeStack(this.stack.INPUT, { maxlen: 1, packsize: 50 })
     this.state = 0
     this.lastTime = performance.now()
+    this.stack.INV = Inventory.normalizeStack(this.stack.INV, { maxlen: 1 })
     this.stack.INV.visible = false;
   }
 
@@ -47,7 +48,7 @@ export class StoneFurnace extends Inventory {
     let becomesThat = null
 
     if (this.stack.FUEL.packs.length == 0) {
-      this.stack.FUEL = {maxlen: 1, packsize : 50, packs:[]}
+      this.stack.FUEL = Inventory.normalizeStack(this.stack.FUEL, { maxlen: 1, packsize: 50 })
       this.stack.FUEL.allow = {}
       this.stack.FUEL.allow[window.classDB.Coal.id] = 50
       this.stack.FUEL.allow[window.classDB.Wood.id] = 50
@@ -57,7 +58,7 @@ export class StoneFurnace extends Inventory {
    }
 
     if (this.stack.INPUT?.packs.length == 0) {
-      if (this.stack.INPUT == null) this.stack.INPUT = {maxlen: 1, packsize : 50, packs:[]}
+      this.stack.INPUT = Inventory.normalizeStack(this.stack.INPUT, { maxlen: 1, packsize: 50 })
       this.stack.INPUT.allow = {}
       this.stack.INPUT.allow[window.classDB.Iron.id] = 50
       this.stack.INPUT.allow[window.classDB.Copper.id] = 50
@@ -67,14 +68,14 @@ export class StoneFurnace extends Inventory {
       this.stack.INPUT.allow = {}
       this.stack.INPUT.allow[this.stack.INPUT.packs[0].id] = 50
     }
-    if (this.stack.OUTPUT == null) this.stack.OUTPUT = {maxlen: 1, packsize : 50, packs:[]}
+    this.stack.OUTPUT = Inventory.normalizeStack(this.stack.OUTPUT, { maxlen: 1, packsize: 50 })
 
-    if (this.stack.OUTPUT[0]?.id) {
-      becomesThat = this.stack.OUTPUT[0]?.id
+    if (this.stack.OUTPUT.packs[0]?.id) {
+      becomesThat = this.stack.OUTPUT.packs[0]?.id
       let filter = {}
       for (let inputPossible of Object.keys(this.stack.INPUT.allow)) {
         let inputPossibleInt = parseInt(inputPossible)
-        if (classDB[classDBi[inputPossibleInt].smeltedInto]?.id === this.stack.OUTPUT[0]?.id) {
+        if (classDB[classDBi[inputPossibleInt].smeltedInto]?.id === this.stack.OUTPUT.packs[0]?.id) {
           filter[inputPossibleInt] = this.stack.INPUT.allow[inputPossible]
         }
       }

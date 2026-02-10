@@ -243,7 +243,7 @@ export class Player extends Inventory {
 
   setInventory (newInv, newID) {
     game.allInvs[this.invID].stack = JSON.parse(JSON.stringify(newInv.stack))
-    game.allInvs[this.invID].packsize = newInv.packsize
+    Inventory.normalizeEntityStacks(game.allInvs[this.invID])
 
     const currentID = game.allInvs[this.invID].id
     if (newInv.id !== undefined) {

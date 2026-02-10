@@ -9,10 +9,8 @@ export class Pipe extends Inventory {
 
   setup (map, ent) {
     this.stacksize = 8
-    this.packsize = {}
-    this.packsize.INV = 1
-
-    if (this.stack.INV == null) this.stack.INV = [{ n: 0 }]
+    this.stack.INV = Inventory.normalizeStack(this.stack.INV, { maxlen: 1, packsize: 1 })
+    if (this.stack.INV.packs.length === 0) this.stack.INV.packs.push({ id: undefined, n: 0 })
     this.mapsize = { x: Pipe.size[0], y: Pipe.size[1] }
     this.nbInputs = []
   }
@@ -20,7 +18,7 @@ export class Pipe extends Inventory {
   update (map, ent) {
     if (game.tick % 100) return
 
-    if (this.nbInputs.length === 0 || this.stack.INV[0].n === 0) return
+    if (this.nbInputs.length === 0 || this.stack.INV.packs[0].n === 0) return
 
     // INPUT
     let total = 0
@@ -28,14 +26,14 @@ export class Pipe extends Inventory {
     for (const nbID of this.nbInputs) {
       const n = game.allInvs[nbID]
       if (n == null) continue
-      if (n.stack.INV[0].id == null) n.stack.INV[0].id = this.stack.INV[0].id
-      if (n.stack.INV[0].id === this.stack.INV[0].id) {
-        total += n.stack.INV[0].n
+      if (n.stack.INV.packs[0].id == null) n.stack.INV.packs[0].id = this.stack.INV.packs[0].id
+      if (n.stack.INV.packs[0].id === this.stack.INV.packs[0].id) {
+        total += n.stack.INV.packs[0].n
         nSameType++
       }
     }
     nSameType++
-    total += this.stack.INV[0].n
+    total += this.stack.INV.packs[0].n
 
     // PROCESS
     const medVal = Math.floor(total / nSameType)
@@ -44,13 +42,13 @@ export class Pipe extends Inventory {
     for (const nbID of this.nbInputs) {
       const n = game.allInvs[nbID]
       if (n == null) continue
-      if (n.stack.INV[0].id === this.stack.INV[0].id) {
-        n.stack.INV[0].n = medVal
+      if (n.stack.INV.packs[0].id === this.stack.INV.packs[0].id) {
+        n.stack.INV.packs[0].n = medVal
       }
     }
-    this.stack.INV[0].n = medVal
+    this.stack.INV.packs[0].n = medVal
     const rest = total - (medVal * nSameType)
-    this.stack.INV[0].n += rest
+    this.stack.INV.packs[0].n += rest
   }
 
   updateNB () {
@@ -101,6 +99,7 @@ export class Pipe extends Inventory {
   draw (ctx, ent) {
     let img = this.img
     if (ent) img = Pipe.sh
+    if (!img || (typeof img.complete === 'boolean' && img.complete === false)) return
     ctx.drawImage(img, 0, 0, db.size[0] * Settings.tileSize / 2, db.size[1] * Settings.tileSize / 2, 0, 0, db.size[0] * Settings.tileSize, db.size[1] * Settings.tileSize)
   }
 

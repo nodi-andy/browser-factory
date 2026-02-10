@@ -1,8 +1,109 @@
-import { Settings } from '../common.js'
 import { Grassland } from '../terrain/grassland/grassland.js'
 import { Tree } from '../res/tree/tree.js'
 
 export class Inventory {
+  static DEFAULT_PACKSIZE = 50
+  static DEFAULT_MAXLEN = 1
+
+  static normalizePack (pack) {
+    if (!pack || typeof pack !== 'object') return null
+    const id = pack.id
+    const hasId = id !== undefined && id !== null
+    let n = Number.isFinite(pack.n) ? pack.n : (hasId ? 1 : 0)
+    if (!Number.isFinite(n)) n = hasId ? 1 : 0
+    return { id, n }
+  }
+
+  static normalizeAllow (allow, packsize) {
+    if (allow == null) return undefined
+    if (Array.isArray(allow)) {
+      const normalized = {}
+      allow.forEach(id => {
+        if (id != null) normalized[id] = packsize || 1
+      })
+      return normalized
+    }
+    if (typeof allow === 'object') return allow
+    const normalized = {}
+    normalized[allow] = packsize || 1
+    return normalized
+  }
+
+  static createStack (options = {}) {
+    const packsize = Number.isFinite(options.packsize) ? options.packsize : Inventory.DEFAULT_PACKSIZE
+    let maxlen = Number.isFinite(options.maxlen) ? options.maxlen : Inventory.DEFAULT_MAXLEN
+    if (!Number.isFinite(maxlen) || maxlen <= 0) maxlen = Inventory.DEFAULT_MAXLEN
+    const stack = { packs: [], maxlen, packsize }
+    if (options.allow != null) stack.allow = options.allow
+    if (options.visible === false) stack.visible = false
+    if (options.reserved != null) stack.reserved = options.reserved
+    if (options.moving != null) stack.moving = options.moving
+    if (options.full != null) stack.full = options.full
+    return stack
+  }
+
+  static normalizeStack (raw, defaults = {}) {
+    if (raw == null) return Inventory.createStack(defaults)
+
+    const packsize = Number.isFinite(raw.packsize)
+      ? raw.packsize
+      : Number.isFinite(defaults.packsize)
+        ? defaults.packsize
+        : Inventory.DEFAULT_PACKSIZE
+
+    let maxlen = Number.isFinite(raw.maxlen)
+      ? raw.maxlen
+      : Number.isFinite(raw.size)
+        ? raw.size
+        : Number.isFinite(defaults.maxlen)
+          ? defaults.maxlen
+          : Inventory.DEFAULT_MAXLEN
+
+    if (!Number.isFinite(maxlen) || maxlen <= 0) maxlen = Inventory.DEFAULT_MAXLEN
+
+    let packs = []
+    if (Array.isArray(raw)) {
+      packs = raw.map(Inventory.normalizePack).filter(pack => pack)
+    } else if (Array.isArray(raw.packs)) {
+      packs = raw.packs.map(Inventory.normalizePack).filter(pack => pack)
+    } else if (raw.id != null || raw.n != null) {
+      const pack = Inventory.normalizePack(raw)
+      if (pack) packs = [pack]
+    }
+
+    if (packs.length > maxlen) maxlen = packs.length
+
+    const stack = { packs, maxlen, packsize }
+    const allow = Inventory.normalizeAllow(raw.allow ?? defaults.allow, packsize)
+    if (allow != null) stack.allow = allow
+    const visible = raw.visible ?? defaults.visible
+    if (visible === false) stack.visible = false
+    if (raw.reserved != null) stack.reserved = raw.reserved
+    if (raw.moving != null) stack.moving = raw.moving
+    if (raw.full != null) stack.full = raw.full
+
+    return stack
+  }
+
+  static ensureStack (stackMap, key, defaults = {}) {
+    if (!stackMap || !key) return null
+    stackMap[key] = Inventory.normalizeStack(stackMap[key], defaults)
+    return stackMap[key]
+  }
+
+  static normalizeEntityStacks (entity) {
+    if (!entity || typeof entity !== 'object') return
+    if (!entity.stack || typeof entity.stack !== 'object') entity.stack = {}
+    for (const key of Object.keys(entity.stack)) {
+      entity.stack[key] = Inventory.normalizeStack(entity.stack[key])
+    }
+  }
+
+  static isAllowed (stack, id) {
+    if (!stack?.allow) return true
+    if (typeof stack.allow !== 'object') return stack.allow === id
+    return Object.prototype.hasOwnProperty.call(stack.allow, id)
+  }
 
   static mineToInv (minedItem) {
     const newItem = { id: window.classDB[classDBi[minedItem.id].becomes].id, n: 1 }
@@ -79,7 +180,8 @@ export class Inventory {
 
     if (this.checkFreeSpace(newEntity)) {
       let newClass = new classDBi[newEntity.type](newEntity.pos, newEntity)
-      if (newClass){
+      if (newClass) {
+        Inventory.normalizeEntityStacks(newClass)
         game.allInvs.push(newClass)
         return game.allInvs.length - 1
       } else {
@@ -98,71 +200,78 @@ export class Inventory {
       game.allInvs.push(inv)
       inv.id = game.allInvs.length - 1
       game.entityLayer.map[newItem.pos.x][newItem.pos.y] = inv.id
-    } else inv = inv = game.allInvs[invID]
+    } else {
+      inv = game.allInvs[invID]
+    }
     inv.addItem({ id: newItem.inv.item.id, n: 1 })
   }
   
   static moveStack (data) {
-    let transferedItems = 0
+    if (!data) return
     if (data.fromInvID === data.toInvID && data.fromInvKey === data.toInvKey && data.fromStackPos === data.toStackPos) return
-  
-    const invFrom = game.allInvs[data.fromInvID].stack[data.fromInvKey]
-    if (invFrom?.packs?.[data.fromStackPos] == undefined) {
+
+    const fromInv = game.allInvs[data.fromInvID]
+    const toInv = game.allInvs[data.toInvID]
+    if (!fromInv || !toInv) return
+
+    const fromStack = Inventory.ensureStack(fromInv.stack, data.fromInvKey)
+    const toStack = Inventory.ensureStack(toInv.stack, data.toInvKey)
+
+    const from = fromStack?.packs?.[data.fromStackPos]
+    if (!from) {
       console.warn('[moveStack] no source pack', data)
       return
     }
-  
-    const from = invFrom.packs[data.fromStackPos]
-  
-    if (data.toStackPos == null) data.toStackPos = game.allInvs[data.toInvID].stack[data.toInvKey].packs.length - 1
-  
-    const toStack = game.allInvs[data.toInvID].stack
-    if (toStack[data.fromStackPos]) {
-      game.allInvs[data.toInvID].stack[data.toInvKey].packs[data.toStackPos] = from
-      transferedItems = from.n
-    } else {
-      if (toStack[data.toInvKey] == null) toStack[data.toInvKey] = []
-  
-      const destStack = toStack[data.toInvKey]
-      const destPacks = destStack?.packs
-      const packsize = destStack?.packsize ?? 50
-      const maxlen = destStack?.maxlen
-  
-      // add items into stack
-      if (destPacks?.[data.toStackPos]?.id === from.id) {
-        transferedItems = from.n
-        if (destPacks[data.toStackPos].n + transferedItems > packsize) transferedItems = packsize - destPacks[data.toStackPos].n
-        if (transferedItems > 0) destPacks[data.toStackPos].n += transferedItems
-  
-      // add new stack
-      } else {
-        const hasAllow = destStack?.allow
-        const allowOk = !hasAllow || destStack.allow.hasOwnProperty(from.id)
-        const atCapacity = Array.isArray(destPacks) && Number.isFinite(maxlen) && destPacks.length >= maxlen
-        if (allowOk && !atCapacity && Array.isArray(destPacks)) {
-          transferedItems = from.n
-          if (transferedItems > packsize) transferedItems = packsize
-          destPacks.push({id: from.id, n: transferedItems})
+
+    const itemId = from.id
+    const itemCount = Number.isFinite(from.n) ? from.n : 0
+    if (itemId == null || itemCount <= 0) return
+
+    let transferedItems = 0
+    const destPacks = toStack?.packs || (toStack.packs = [])
+    const packsize = Number.isFinite(toStack?.packsize) ? toStack.packsize : Inventory.DEFAULT_PACKSIZE
+    const maxlen = Number.isFinite(toStack?.maxlen) ? toStack.maxlen : Inventory.DEFAULT_MAXLEN
+
+    if (!Inventory.isAllowed(toStack, itemId) || toStack?.full === true) {
+      transferedItems = 0
+    } else if (data.toStackPos != null) {
+      if (data.toStackPos < maxlen) {
+        const destPack = destPacks[data.toStackPos]
+        if (!destPack || destPack.id == null) {
+          transferedItems = Math.min(itemCount, packsize)
+          destPacks[data.toStackPos] = { id: itemId, n: transferedItems }
+        } else if (destPack.id === itemId) {
+          transferedItems = Math.min(itemCount, packsize - destPack.n)
+          if (transferedItems > 0) destPack.n += transferedItems
         }
+      }
+    } else {
+      for (const destPack of destPacks) {
+        if (destPack?.id === itemId && destPack.n < packsize) {
+          transferedItems = Math.min(itemCount, packsize - destPack.n)
+          if (transferedItems > 0) destPack.n += transferedItems
+          break
+        }
+      }
+
+      if (transferedItems === 0 && destPacks.length < maxlen) {
+        transferedItems = Math.min(itemCount, packsize)
+        destPacks.push({ id: itemId, n: transferedItems })
       }
     }
 
     if (transferedItems <= 0) {
-      const destStack = toStack?.[data.toInvKey]
-      const destPacks = destStack?.packs
       const reasons = []
-      if (!destStack) reasons.push('missing-destination-stack')
-      if (destStack?.allow && !destStack.allow.hasOwnProperty(from.id)) reasons.push('item-not-allowed')
-      const packsize = destStack?.packsize ?? 50
-      const matchingPack = Array.isArray(destPacks) ? destPacks.find(pack => pack?.id === from.id) : null
+      if (!toStack) reasons.push('missing-destination-stack')
+      if (toStack?.full) reasons.push('destination-stack-full')
+      if (toStack?.allow && !Inventory.isAllowed(toStack, itemId)) reasons.push('item-not-allowed')
+      const matchingPack = destPacks.find(pack => pack?.id === itemId)
       if (matchingPack && matchingPack.n >= packsize) reasons.push('matching-pack-full')
-      if (!matchingPack && Array.isArray(destPacks) && Number.isFinite(destStack?.maxlen) && destPacks.length >= destStack.maxlen) {
-        reasons.push('destination-stack-full')
-      }
+      if (!matchingPack && destPacks.length >= maxlen) reasons.push('destination-stack-full')
       const info = {
         data,
         from,
-        destStack: destStack ? { maxlen: destStack.maxlen, packsize: destStack.packsize, allow: destStack.allow } : null,
+        destStack: toStack ? { maxlen: toStack.maxlen, packsize: toStack.packsize, allow: toStack.allow } : null,
         destPackCount: Array.isArray(destPacks) ? destPacks.length : null,
         reasons
       }
@@ -170,8 +279,8 @@ export class Inventory {
       console.warn('[moveStack] transfer failed', info)
       return
     }
-  
-    game.allInvs[data.fromInvID].remItem({id: from.id, n: transferedItems}, data.fromInvKey, data.fromStackPos)
+
+    fromInv.remItem({id: itemId, n: transferedItems}, data.fromInvKey, data.fromStackPos)
     // s.sendAll(JSON.stringify({msg:"updateInv", data:game.allInvs}));
     //if (data.fromInvID === 0 || data.toInvID === 0) window.player.setInventory(game.allInvs[0])
     //if (data.fromInvID === window.selEntity?.id || data.toInvID === window.selEntity?.id) game.updateInventoryMenu(window.selEntity)
@@ -179,9 +288,11 @@ export class Inventory {
 
   static name = "Inventory"
   constructor (pos, entData) {
-    this.stack = {INV: {packs: [], maxlen: 1, packsize: 50}}
+    this.stack = { INV: Inventory.createStack({ maxlen: 1, packsize: Inventory.DEFAULT_PACKSIZE }) }
     if (pos) this.pos = { x: pos.x, y: pos.y }
     if (entData) Object.assign(this, entData)
+    Inventory.normalizeEntityStacks(this)
+    if (!this.stack.INV) this.stack.INV = Inventory.createStack({ maxlen: 1, packsize: Inventory.DEFAULT_PACKSIZE })
   }
 
   static getLabel() {
@@ -195,14 +306,11 @@ export class Inventory {
 
   getNumberOfItems (type) {
     let n = 0
-    for(const stackName of Object.keys(this.stack)){
-      if (this.stack[stackName].packs) {
-        for(const pack of this.stack[stackName].packs){
-          if (pack.id === type) n += pack.n
-        }
-      } else {
-        let pack = this.stack[stackName]
-        if (pack.id === type) n += pack.n
+    for (const stackName of Object.keys(this.stack)) {
+      const stack = this.stack[stackName]
+      if (!stack?.packs) continue
+      for (const pack of stack.packs) {
+        if (pack?.id === type) n += pack.n
       }
     }
 
@@ -227,89 +335,116 @@ export class Inventory {
     const keys = Object.keys(this.stack)
     for (let iStack = 0; iStack < keys.length; iStack++) {
       const key = keys[iStack]
-      if (this.stack[key]?.id || this.stack[key].packs[0]?.id) ret++
+      if (this.stack[key]?.packs?.some(pack => pack?.id != null)) ret++
     }
     return ret
   }
 
   // use this.hasPlaceFor()
-  addItem (newItem, stackName, prefPackPos) {
-    if (newItem == null) return false
-    
-    if (stackName !== undefined && prefPackPos !== undefined) {
-      if (this.stack[stackName] == null) this.stack[stackName] = []
-
-      if (this.stack[stackName].packs[prefPackPos] == null) 
-      {
-        this.stack[stackName].packs[prefPackPos] = {id: newItem.id, n: newItem.n}
-        return
-      } else  {
-        this.stack[stackName].packs[prefPackPos].n += newItem.n
-        return
+  addItem (newItem, stackName = 'INV', prefPackPos) {
+    const debug = typeof window !== 'undefined' && window.debugAddItem
+    const reportFailure = (reason, details = {}) => {
+      if (typeof window !== 'undefined') {
+        window.lastAddItemFailure = { reason, item: newItem, stackName, prefPackPos, details }
       }
+      if (debug) console.warn('[addItem]', reason, { item: newItem, stackName, prefPackPos, ...details })
+    }
+    if (newItem == null) {
+      reportFailure('missing-item')
+      return false
     }
 
-    if (stackName == null) stackName = 'INV'
-    if (this.hasPlaceFor(newItem, stackName) === false) return false
-    if (this.stacksize == null) this.stacksize = 1
-
-    if (this.stack[stackName] == null) {
-      if (this.getFilledStackSize() < this.stacksize) {
-        if (this[stackName].packsize === 1) { this.stack[stackName] = {} } else { this.stack[stackName] = [] }
-      } else return false
+    let stack = Inventory.ensureStack(this.stack, stackName)
+    if (!stack) {
+      reportFailure('missing-stack')
+      return false
+    }
+    if (!Inventory.isAllowed(stack, newItem.id)) {
+      reportFailure('not-allowed', { allow: stack.allow })
+      return false
+    }
+    if (stack.full === true) {
+      reportFailure('stack-full-flag', { full: stack.full })
+      return false
     }
 
-    const key = stackName
+    let packs = stack.packs
+    let packsize = Number.isFinite(stack.packsize) ? stack.packsize : Inventory.DEFAULT_PACKSIZE
+    let maxlen = Number.isFinite(stack.maxlen) ? stack.maxlen : Inventory.DEFAULT_MAXLEN
 
-    for (let iPack = 0; iPack < this.stack[key].maxlen; iPack++) {
-      let pack;
-      if (this.stack[key].packs) pack = this.stack[key].packs[iPack]
-      else pack = this.stack[key]
+    if (prefPackPos !== undefined) {
+      if (prefPackPos >= maxlen) {
+        reportFailure('pref-pack-out-of-range', { maxlen })
+        return false
+      }
+      const prefPack = packs[prefPackPos]
+      if (prefPack == null || prefPack.id == null) {
+        packs[prefPackPos] = { id: newItem.id, n: newItem.n }
+        return true
+      }
+      if (prefPack.id === newItem.id && prefPack.n + newItem.n <= packsize) {
+        prefPack.n += newItem.n
+        return true
+      }
+      reportFailure('pref-pack-mismatch-or-full', { existing: prefPack, packsize })
+      return false
+    }
 
-      if (pack == null) {
-        pack = { id: newItem.id, n: newItem.n }
-        this.stack[key].packs.push(pack)
+    if (this.hasPlaceFor(newItem, stackName) === false) {
+      reportFailure('no-space', { maxlen, packsize, packCount: packs.length })
+      return false
+    }
+    stack = this.stack[stackName]
+    packs = stack.packs
+    packsize = Number.isFinite(stack.packsize) ? stack.packsize : Inventory.DEFAULT_PACKSIZE
+    maxlen = Number.isFinite(stack.maxlen) ? stack.maxlen : Inventory.DEFAULT_MAXLEN
+
+    for (let iPack = 0; iPack < packs.length; iPack++) {
+      const pack = packs[iPack]
+      if (!pack || pack.id == null) {
+        packs[iPack] = { id: newItem.id, n: newItem.n }
         return true
-      } else if (pack.id == null) {
-        if (pack.reserved === true) return false
-        this.stack[key].id = newItem.id
-        this.stack[key].n = newItem.n
-        return true
-      } else if (pack.id === newItem.id && pack.n + newItem.n <= this.stack[key].packsize) {
+      } else if (pack.id === newItem.id && pack.n + newItem.n <= packsize) {
         pack.n += newItem.n
         return true
       }
     }
 
+    if (packs.length < maxlen) {
+      packs.push({ id: newItem.id, n: newItem.n })
+      return true
+    }
+
+    reportFailure('stack-at-capacity', { maxlen, packCount: packs.length })
     return false
   }
 
-  hasPlaceFor (newItem, stackName) {
+  hasPlaceFor (newItem, stackName = 'INV', prefPackPos) {
     if (newItem == null) return false
-    if (stackName == null) stackName = 'INV'
-    if (this.stacksize == null) this.stacksize = 1
+    const stack = Inventory.ensureStack(this.stack, stackName)
+    if (!stack || !Inventory.isAllowed(stack, newItem.id)) return false
 
-    if (this.stack[stackName] == null) {
-      if (this.getFilledStackSize() >= this.stacksize) return false
+    if (stack.full === true) return false
+    if (stack.full === false) return true
+
+    const packs = stack.packs
+    const packsize = Number.isFinite(stack.packsize) ? stack.packsize : Inventory.DEFAULT_PACKSIZE
+    const maxlen = Number.isFinite(stack.maxlen) ? stack.maxlen : Inventory.DEFAULT_MAXLEN
+
+    if (prefPackPos !== undefined) {
+      if (prefPackPos >= maxlen) return false
+      const prefPack = packs[prefPackPos]
+      if (prefPack == null || prefPack.id == null) return true
+      return prefPack.id === newItem.id && prefPack.n + newItem.n <= packsize
     }
 
-    if (this.stack[stackName]?.full === true) return false
-    else if (this.stack[stackName]?.full === false) return true
-    else {
-      const key = stackName
-      for (let iPack = 0; iPack < this.stack[key].maxlen; iPack++) {
-        let pack;
-        if (this.stack[key].packs) pack = this.stack[key].packs[iPack]
-        else pack = this.stack[key]
-        if (pack?.id == null) return true
-        if (pack.id === newItem.id) {
-          if (pack.n + newItem.n <= this.stack[key].packsize) {
-            return true
-          }
-        }
-      }
+    for (let iPack = 0; iPack < packs.length; iPack++) {
+      const pack = packs[iPack]
+      if (pack?.id == null) return true
+      if (pack.id === newItem.id && pack.n + newItem.n <= packsize) return true
     }
-    return false
+
+    return packs.length < maxlen
   }
 
   addItems (newItems) {
@@ -321,34 +456,33 @@ export class Inventory {
   }
 
   remItemFromStack (removingItem, stackName) {
-    for (let iPack = 0; iPack < this.stack[stackName].maxlen && removingItem; iPack++) {
-      let pack;
-      if (this.stack[stackName].packs) pack = this.stack[stackName].packs[iPack]
-      else pack = this.stack[stackName]
-
-      if (pack?.id && pack.id === removingItem.id) { // Find the pack
+    const stack = this.stack?.[stackName]
+    if (!stack?.packs) return false
+    for (let iPack = 0; iPack < stack.packs.length && removingItem; iPack++) {
+      const pack = stack.packs[iPack]
+      if (pack?.id && pack.id === removingItem.id) {
         const n = pack.n - removingItem.n
         if (n > 0) {
           pack.n = n
           return true
         } else if (n === 0) {
-          if (this.stack[stackName].packs) {
-            this.stack[stackName].packs.splice(iPack, 1) // Remove empty pack
-            iPack--
-          } else {
-            pack.n--
-            delete pack.id
-          }
+          stack.packs.splice(iPack, 1)
           return true
-        } else return false
+        } else {
+          return false
+        }
       }
     }
+    return false
   }
 
   remItem (removingItem, prefStackName, prefPackPos) {
     if (prefStackName !== undefined && prefPackPos !== undefined) {
-      this.stack[prefStackName].packs[prefPackPos].n -= removingItem.n
-      if (this.stack[prefStackName].packs[prefPackPos].n == 0) this.stack[prefStackName].packs.splice(prefPackPos, 1)
+      const stack = this.stack?.[prefStackName]
+      const pack = stack?.packs?.[prefPackPos]
+      if (!pack) return false
+      pack.n -= removingItem.n
+      if (pack.n <= 0) stack.packs.splice(prefPackPos, 1)
       return true
     }
 
@@ -371,34 +505,36 @@ export class Inventory {
   }
 
   remPack (stackName, packPos) {
-    const stack = this.stack[stackName]
-    if (stack) {
-      const pack = stack[packPos]
-      if (pack) {
-        stack.splice(packPos, 1)
-      }
-    }
+    const stack = this.stack?.[stackName]
+    if (stack?.packs?.[packPos]) stack.packs.splice(packPos, 1)
   }
 
   addPack (stackName, packPos, pack) {
-    if (this.stack[stackName] == null) this.stack[stackName] = []
-    const stack = this.stack[stackName]
-    if (stack?.packs) {
-      stack.packs.splice(packPos, 0, pack)
-    }
+    const stack = Inventory.ensureStack(this.stack, stackName)
+    if (!stack) return
+    const normalized = Inventory.normalizePack(pack) || pack
+    if (packPos == null) stack.packs.push(normalized)
+    else stack.packs.splice(packPos, 0, normalized)
   }
 
   addPacks (stackName, packs) {
-    const stack = this.stack[stackName]
+    const stack = Inventory.ensureStack(this.stack, stackName)
+    if (!stack || !Array.isArray(packs)) return
     for (let pack of packs) {
-      stack.packs.push(pack)
+      const normalized = Inventory.normalizePack(pack)
+      if (normalized) stack.packs.push(normalized)
     }
   }
 
   addStack (stackName, newStack) {
+    if (!newStack) return
+    if (newStack?.packs) {
+      this.addPacks(stackName, newStack.packs)
+      return
+    }
     const keys = Object.keys(newStack)
     for (let pack of keys) {
-      this.addPacks(stackName, newStack[pack].packs)
+      if (newStack[pack]?.packs) this.addPacks(stackName, newStack[pack].packs)
     }
   }
 
@@ -417,9 +553,10 @@ export class Inventory {
   hasPack (stackName, searchItem) {
     if (searchItem?.n == null) return
 
-    const stack = this.stack[stackName]
-    for (let iPack = 0; iPack < stack.length; iPack++) {
-      const pack = stack[iPack]
+    const stack = this.stack?.[stackName]
+    if (!stack?.packs) return
+    for (let iPack = 0; iPack < stack.packs.length; iPack++) {
+      const pack = stack.packs[iPack]
       if (pack?.id === searchItem.id && pack.n >= searchItem.n) return iPack
     }
   }
@@ -428,11 +565,11 @@ export class Inventory {
     const keys = Object.keys(this.stack)
     for (let iStack = 0; iStack < keys.length && searchItem; iStack++) {
       const key = keys[iStack]
-      for (let iPack = 0; iPack < this.stack[key].maxlen && searchItem; iPack++) {
-        let pack;
-        if (this.stack[key].packs) pack = this.stack[key].packs[iPack]
-        else pack = this.stack[key]
-        if (pack?.id === searchItem.id) { // Find the pack
+      const stack = this.stack[key]
+      if (!stack?.packs) continue
+      for (let iPack = 0; iPack < stack.packs.length && searchItem; iPack++) {
+        const pack = stack.packs[iPack]
+        if (pack?.id === searchItem.id) {
           return (pack.n >= searchItem.n || searchItem.n == null)
         }
       }
@@ -450,57 +587,81 @@ export class Inventory {
 
   getItem(filterStack, filterItem) {
     if (filterStack) {
-      if (this.stack[filterStack]) {
-        for(const pack of Object.keys(this.stack[filterStack])) {
-          if (filterItem && this.stack[filterStack].packs[pack]?.id !== filterItem) continue
-          else return this.stack[filterStack].packs[pack]?.id
-        }
-        return null
-      } else {
-        return null
+      const stack = this.stack?.[filterStack]
+      if (!stack?.packs) return null
+      for (const pack of stack.packs) {
+        if (!pack) continue
+        if (filterItem && pack.id !== filterItem) continue
+        return pack.id
       }
+      return null
     }
 
     //iterate all items
     
-    for(const stackName of Object.keys(this.stack)){
-        if (this.stack[stackName].packs) {
-          for(const pack of this.stack[stackName].packs){
-            if (filterItem && pack.id !== filterItem) continue
-            else return pack.id
-          }
-        } else {
-          let pack = this.stack[stackName]
-          if (filterItem && pack.id !== filterItem) continue
-          else if (pack.id) return pack.id
-        }
+    for (const stackName of Object.keys(this.stack)) {
+      const stack = this.stack[stackName]
+      if (!stack?.packs) continue
+      for (const pack of stack.packs) {
+        if (!pack) continue
+        if (filterItem && pack.id !== filterItem) continue
+        if (pack.id != null) return pack.id
+      }
     }
     return null
   }
 
   getStack (pref) {
-    if (pref && this.stack[pref]) 
-      return this.stack[pref]
-    else {
-      Object.keys(this.stack).forEach(stackName => {
-        if (this.stack[stackName].packs[0]?.id) {
-          return this.stack[selectedKey]
-        }
-      })
+    if (pref && this.stack?.[pref]) return this.stack[pref]
+    for (const stackName of Object.keys(this.stack)) {
+      const stack = this.stack[stackName]
+      if (stack?.packs?.[0]?.id != null) return stack
     }
+    return null
   }
 
   getFirstItem () {
-    const firstPack = this.getFirstPack()
-    if (firstPack?.length) return firstPack[0]
-    return firstPack
+    return this.getFirstPack()
   }
 
   getFirstPack (prefStack) {
-    let selectedStack = this.getStack(prefStack)
-    if (Array.isArray(selectedStack)) 
-      return selectedStack[0]
-    else
+    const selectedStack = this.getStack(prefStack)
+    return selectedStack?.packs?.[0] || null
+  }
+}
+
+if (typeof window !== 'undefined') {
+  window.debugInventory = function debugInventory (inv = window.player, options = {}) {
+    if (!inv) {
+      console.warn('[debugInventory] No inventory provided.')
       return null
+    }
+    const stackSummary = {}
+    const stacks = inv.stack || {}
+    Object.keys(stacks).forEach(key => {
+      const stack = stacks[key]
+      const packs = Array.isArray(stack?.packs) ? stack.packs : []
+      const items = packs
+        .filter(pack => pack?.id != null)
+        .map(pack => ({ id: pack.id, n: pack.n }))
+      stackSummary[key] = {
+        maxlen: stack?.maxlen,
+        packsize: stack?.packsize,
+        full: stack?.full,
+        allow: stack?.allow ?? null,
+        allowCount: stack?.allow ? Object.keys(stack.allow).length : 0,
+        packCount: packs.length,
+        items
+      }
+      if (options.raw === true) stackSummary[key].packs = packs
+    })
+    const summary = {
+      id: inv.id,
+      name: inv.name,
+      type: inv.type,
+      stack: stackSummary
+    }
+    console.log('[debugInventory]', summary)
+    return summary
   }
 }

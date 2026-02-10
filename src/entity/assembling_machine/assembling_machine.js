@@ -18,9 +18,7 @@ export class AssemblingMachine extends Inventory {
       }
     }
 
-    this.packsize = 1
     this.stacksize = 4
-    this.packsize = {}
     this.state = 0
     this.lastTime = performance.now()
     this.energy = 0
@@ -31,27 +29,29 @@ export class AssemblingMachine extends Inventory {
   setOutput (out, transferInputToPlayer = true) {
     this.selectedItem = out
     if (this.stack && transferInputToPlayer) {
-      for (const s of Object.keys(this.stack)) {
-        if (s.id === 'PROD') continue
-        if (this.stack[s]?.id) window.player?.addItem(this.stack[s])
-        if (this.stack[s][0]?.id) window.player?.addItems(this.stack[s])
-        delete this.stack[s]
+      for (const key of Object.keys(this.stack)) {
+        if (key === 'PROD') continue
+        const stack = this.stack[key]
+        if (stack?.packs?.length) {
+          stack.packs.forEach(pack => {
+            if (pack?.id != null && pack.n > 0) window.player?.addItem({ id: pack.id, n: pack.n })
+          })
+        }
+        delete this.stack[key]
       }
     }
     if (this.selectedItem == null) return
     const cost = classDBi[this.selectedItem].cost
     if (this.stack == null && this.inv.stack) this.stack = this.inv.stack
     if (this.stack == null) this.stack = {}
-    if (this.stack.OUTPUT == null) this.stack.OUTPUT = []
-    this.stack.OUTPUT.packsize = 1
-    this.stack.OUTPUT.allow = this.selectedItem
+    this.stack.OUTPUT = Inventory.normalizeStack(this.stack.OUTPUT, { maxlen: 1, packsize: 50 })
+    this.stack.OUTPUT.allow = { [this.selectedItem]: 1 }
 
     for (let icost = 0; icost < cost.length; icost++) {
       const item = cost[icost]
       const name = classDBi[item.id].name
-      if (this.stack[name] == null) this.stack[name] = []
-      this.stack[name].packsize = 1
-      this.stack[name].allow = item.id
+      this.stack[name] = Inventory.normalizeStack(this.stack[name], { maxlen: 1, packsize: 50 })
+      this.stack[name].allow = { [item.id]: 1 }
     }
   }
 
@@ -79,11 +79,11 @@ export class AssemblingMachine extends Inventory {
       if (invThis.state === 0) { invThis.lastTime = performance.now(); invThis.state = 1 };
       if (invThis.state === 1 && invThis.selectedItem) {
         const deltaT = performance.now() - this.lastTime
-        if (invThis.stack.OUTPUT[0]?.n == null) invThis.stack.OUTPUT[0] = {id: invThis.selectedItem, n: 0}
-        if (this.stack.OUTPUT[0].n < 100) {
+        if (invThis.stack.OUTPUT.packs[0]?.n == null) invThis.stack.OUTPUT.packs[0] = {id: invThis.selectedItem, n: 0}
+        if (this.stack.OUTPUT.packs[0].n < 100) {
           if (deltaT * AssemblingMachine.P > classDBi[invThis.selectedItem].E) {
             this.energy -= classDBi[invThis.selectedItem].E
-            invThis.stack.OUTPUT[0].n++
+            invThis.stack.OUTPUT.packs[0].n++
             invThis.remItems(cost)
             this.lastTime = performance.now()
           }

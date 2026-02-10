@@ -20,7 +20,7 @@ export class BurnerMiner extends Inventory {
 
   setup (map, ent) {
     if (this.stack == null) this.stack = {}
-    if (this.stack.FUEL == null) this.stack.FUEL = {maxlen: 1, packsize : 50, packs:[]}
+    this.stack.FUEL = Inventory.normalizeStack(this.stack.FUEL, { maxlen: 1, packsize: 50 })
     const size = BurnerMiner.size
     for (let i = 0; i < size[0]; i++) {
       for (let j = 0; j < size[1]; j++) {
@@ -32,7 +32,7 @@ export class BurnerMiner extends Inventory {
   }
 
   update (map, ent) {
-    if (this.stack.FUEL == null) this.stack.FUEL = {maxlen: 1, packsize : 50, packs:[]}
+    this.stack.FUEL = Inventory.normalizeStack(this.stack.FUEL, { maxlen: 1, packsize: 50 })
     if (this.stack.FUEL.packs[0]?.n === 0) this.stack.FUEL.packs.splice(0, 1)
     let fuel = this.stack.FUEL.packs[0]
     if (fuel == null) { this.power = 0; return;}

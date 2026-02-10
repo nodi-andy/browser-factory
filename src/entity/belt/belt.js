@@ -14,17 +14,18 @@ export class Belt extends Inventory {
 
     this.isBelt = true
 
-    if (this.stack.INV == null) this.stack.INV = { n: 1, maxlen: 1 }
-    if (this.stack.L == null) this.stack.L = { n: 1, maxlen: 1 }
-    if (this.stack.R == null) this.stack.R = { n: 1, maxlen: 1 }
-    if (this.stack.LA == null) this.stack.LA = { n: 1, maxlen: 1 }
-    if (this.stack.LB == null) this.stack.LB = { n: 1, maxlen: 1 }
-    if (this.stack.LC == null) this.stack.LC = { n: 1, maxlen: 1 }
-    if (this.stack.LD == null) this.stack.LD = { n: 1, maxlen: 1 }
-    if (this.stack.RA == null) this.stack.RA = { n: 1, maxlen: 1 }
-    if (this.stack.RB == null) this.stack.RB = { n: 1, maxlen: 1 }
-    if (this.stack.RC == null) this.stack.RC = { n: 1, maxlen: 1 }
-    if (this.stack.RD == null) this.stack.RD = { n: 1, maxlen: 1 }
+    const slotDefaults = { maxlen: 1, packsize: 1 }
+    this.stack.INV = Inventory.normalizeStack(this.stack.INV, slotDefaults)
+    this.stack.L = Inventory.normalizeStack(this.stack.L, slotDefaults)
+    this.stack.R = Inventory.normalizeStack(this.stack.R, slotDefaults)
+    this.stack.LA = Inventory.normalizeStack(this.stack.LA, slotDefaults)
+    this.stack.LB = Inventory.normalizeStack(this.stack.LB, slotDefaults)
+    this.stack.LC = Inventory.normalizeStack(this.stack.LC, slotDefaults)
+    this.stack.LD = Inventory.normalizeStack(this.stack.LD, slotDefaults)
+    this.stack.RA = Inventory.normalizeStack(this.stack.RA, slotDefaults)
+    this.stack.RB = Inventory.normalizeStack(this.stack.RB, slotDefaults)
+    this.stack.RC = Inventory.normalizeStack(this.stack.RC, slotDefaults)
+    this.stack.RD = Inventory.normalizeStack(this.stack.RD, slotDefaults)
     this.setupDone = true
     this.decidingMoving = false
     this.movingParts = false
@@ -32,35 +33,40 @@ export class Belt extends Inventory {
 
   shift (from, itfrom, to, itto, deciding) {
 
-    if (from.stack[itfrom]?.id == null) {
-      if (from.stack[itfrom]) {
-        from.stack[itfrom].moving = false
-        from.stack[itfrom].reserved = false
+    const fromSlot = from.stack[itfrom]
+    const fromPack = fromSlot?.packs?.[0]
+    if (fromPack?.id == null) {
+      if (fromSlot) {
+        fromSlot.moving = false
+        fromSlot.reserved = false
       }
       return
     }
-    let toPos = to.stack[itto]
-    if (toPos == null) toPos = {n: 1, maxlen: 1}
+    let toSlot = to.stack[itto]
+    if (toSlot == null) {
+      toSlot = Inventory.createStack({ maxlen: 1, packsize: 1 })
+      to.stack[itto] = toSlot
+    }
 
-    if ( deciding ) {
-      if ( toPos?.reserved === true) {
-        from.stack[itfrom].moving = false
-        from.stack[itfrom].reserved = true
+    if (deciding) {
+      if (toSlot?.reserved === true) {
+        fromSlot.moving = false
+        fromSlot.reserved = true
       } else {
-        from.stack[itfrom].moving = true
-        toPos.reserved = true
+        fromSlot.moving = true
+        toSlot.reserved = true
+      }
+    } else {
+      const toPack = toSlot.packs?.[0]
+      if (fromSlot.moving && (toPack == null || toPack.id == null)) {
+        toSlot.packs = [{ id: fromPack.id, n: fromPack.n }]
+        toSlot.moving = false
+        toSlot.reserved = false
+        fromSlot.packs = []
+        fromSlot.moving = false
+        fromSlot.reserved = false
       }
     }
-    else {
-      
-      if (from.stack[itfrom].moving && toPos.id == null) {
-        to.stack[itto] = from.stack[itfrom]
-        to.stack[itto].moving = false
-        to.stack[itto].reserved = false
-        from.stack[itfrom] = {n: 1, maxlen: 1}
-      }
-      
-    } 
   }
 
   update (map, ent) {
@@ -68,36 +74,39 @@ export class Belt extends Inventory {
     if (!this.setupDone) this.setup()
 
     // ITEM LAID ON BELT
-    if (this.stack.INV?.id) {
-      if (this.stack.L.full) this.stack.R = { id: this.stack.INV.id, n: 1 }
-      else this.stack.L = { id: this.stack.INV.id, n:1 }
-      delete this.stack.INV.id
+    const invPack = this.stack.INV.packs[0]
+    if (invPack?.id != null) {
+      const targetSlot = this.stack.L.full ? this.stack.R : this.stack.L
+      if (targetSlot) targetSlot.packs = [{ id: invPack.id, n: invPack.n ?? 1 }]
+      this.stack.INV.packs = []
     }
 
-    if (this.stack.L?.id) {
-      if (this.stack.LA?.id == null && this.stack.LA?.reserved === false) {
-        this.stack.LA.id = this.stack.L.id
-      } else if (this.stack.LB?.id == null && this.stack.LB?.reserved === false) {
-        this.stack.LB.id = this.stack.L.id
-      } else if (this.stack.LC?.id == null && this.stack.LC?.reserved === false) {
-        this.stack.LC.id = this.stack.L.id
-      } else if (this.stack.LD?.id == null && this.stack.LD?.reserved === false) {
-        this.stack.LD.id = this.stack.L.id
+    const leftPack = this.stack.L.packs[0]
+    if (leftPack?.id != null) {
+      if (this.stack.LA?.packs[0]?.id == null && this.stack.LA?.reserved === false) {
+        this.stack.LA.packs = [{ id: leftPack.id, n: leftPack.n ?? 1 }]
+      } else if (this.stack.LB?.packs[0]?.id == null && this.stack.LB?.reserved === false) {
+        this.stack.LB.packs = [{ id: leftPack.id, n: leftPack.n ?? 1 }]
+      } else if (this.stack.LC?.packs[0]?.id == null && this.stack.LC?.reserved === false) {
+        this.stack.LC.packs = [{ id: leftPack.id, n: leftPack.n ?? 1 }]
+      } else if (this.stack.LD?.packs[0]?.id == null && this.stack.LD?.reserved === false) {
+        this.stack.LD.packs = [{ id: leftPack.id, n: leftPack.n ?? 1 }]
       }
-      delete this.stack.L.id
+      this.stack.L.packs = []
     }
 
-    if (this.stack.R?.id) {
-      if (this.stack.RA?.id == null && this.stack.RA?.reserved === false) {
-        this.stack.RA.id = this.stack.R.id
-      } else if (this.stack.RB?.id == null && this.stack.RB?.reserved === false) {
-        this.stack.RB.id = this.stack.R.id
-      } else if (this.stack.RC?.id == null && this.stack.RC?.reserved === false) {
-        this.stack.RC.id = this.stack.R.id
-      } else if (this.stack.RD?.id == null && this.stack.RD?.reserved === false) {
-        this.stack.RD.id = this.stack.R.id
+    const rightPack = this.stack.R.packs[0]
+    if (rightPack?.id != null) {
+      if (this.stack.RA?.packs[0]?.id == null && this.stack.RA?.reserved === false) {
+        this.stack.RA.packs = [{ id: rightPack.id, n: rightPack.n ?? 1 }]
+      } else if (this.stack.RB?.packs[0]?.id == null && this.stack.RB?.reserved === false) {
+        this.stack.RB.packs = [{ id: rightPack.id, n: rightPack.n ?? 1 }]
+      } else if (this.stack.RC?.packs[0]?.id == null && this.stack.RC?.reserved === false) {
+        this.stack.RC.packs = [{ id: rightPack.id, n: rightPack.n ?? 1 }]
+      } else if (this.stack.RD?.packs[0]?.id == null && this.stack.RD?.reserved === false) {
+        this.stack.RD.packs = [{ id: rightPack.id, n: rightPack.n ?? 1 }]
       }
-      delete this.stack.R.id
+      this.stack.R.packs = []
     }
 
     // BELTS SYSTEM
@@ -170,10 +179,10 @@ export class Belt extends Inventory {
           }
         } else { // No next belt
           if (this.stack.LA) {
-            if (this.stack.LA?.id) this.stack.LA.reserved = true; else this.stack.LA.reserved = false
+            if (this.stack.LA?.packs[0]?.id) this.stack.LA.reserved = true; else this.stack.LA.reserved = false
           }
           if (this.stack.RA) {
-            if (this.stack.RA?.id) this.stack.RA.reserved = true; else this.stack.RA.reserved = false
+            if (this.stack.RA?.packs[0]?.id) this.stack.RA.reserved = true; else this.stack.RA.reserved = false
           }
         }
         // SHIFT ON THE BELT
@@ -184,11 +193,11 @@ export class Belt extends Inventory {
         this.shift(this, 'RC', this, 'RB', this.decidingMoving)
         this.shift(this, 'RD', this, 'RC', this.decidingMoving)
 
-        if (this.stack.L == null) this.stack.L = { n: 1 }
-        if (this.stack.R == null) this.stack.R = { n: 1 }
+        if (this.stack.L == null) this.stack.L = Inventory.createStack({ maxlen: 1, packsize: 1 })
+        if (this.stack.R == null) this.stack.R = Inventory.createStack({ maxlen: 1, packsize: 1 })
     
-        this.stack.L.full = !!((this.stack.LA?.id || this.stack.LA?.reserved) && (this.stack.LB?.id || this.stack.LB?.reserved) && (this.stack.LC?.id || this.stack.LC?.reserved) && (this.stack.LD?.id || this.stack.LD?.reserved))
-        this.stack.R.full = !!((this.stack.RA?.id || this.stack.RA?.reserved) && (this.stack.RB?.id || this.stack.RB?.reserved) && (this.stack.RC?.id || this.stack.RC?.reserved) && (this.stack.RD?.id || this.stack.RD?.reserved))
+        this.stack.L.full = !!((this.stack.LA?.packs[0]?.id || this.stack.LA?.reserved) && (this.stack.LB?.packs[0]?.id || this.stack.LB?.reserved) && (this.stack.LC?.packs[0]?.id || this.stack.LC?.reserved) && (this.stack.LD?.packs[0]?.id || this.stack.LD?.reserved))
+        this.stack.R.full = !!((this.stack.RA?.packs[0]?.id || this.stack.RA?.reserved) && (this.stack.RB?.packs[0]?.id || this.stack.RB?.reserved) && (this.stack.RC?.packs[0]?.id || this.stack.RC?.reserved) && (this.stack.RD?.packs[0]?.id || this.stack.RD?.reserved))
         this.stack.INV.full = (this.stack.L.full && this.stack.R.full)
       }
     }
@@ -208,11 +217,12 @@ export class Belt extends Inventory {
     let pos = 0
     let xpos = 0.6
     const dx = -0.25
-    if (this.stack.LA?.id) {
+    const laPack = this.stack.LA.packs[0]
+    if (laPack?.id) {
       if (this.stack.LA.moving) pos = beltPos
       else pos = 0
       ctx.drawImage(
-        classDBi[this.stack.LA.id].img,
+        classDBi[laPack.id].img,
         0,
         0,
         64,
@@ -224,11 +234,12 @@ export class Belt extends Inventory {
       )
     }
 
-    if (this.stack.RA?.id) {
+    const raPack = this.stack.RA.packs[0]
+    if (raPack?.id) {
       if (this.stack.RA.moving) pos = beltPos
       else pos = 0
       ctx.drawImage(
-        classDBi[this.stack.RA.id].img,
+        classDBi[raPack.id].img,
         0,
         0,
         64,
@@ -241,11 +252,12 @@ export class Belt extends Inventory {
     }
 
     xpos += dx
-    if (this.stack.LB?.id) {
+    const lbPack = this.stack.LB.packs[0]
+    if (lbPack?.id) {
       if (this.stack.LB.moving) pos = beltPos
       else pos = 0
       ctx.drawImage(
-        classDBi[this.stack.LB.id].img,
+        classDBi[lbPack.id].img,
         0,
         0,
         64,
@@ -257,11 +269,12 @@ export class Belt extends Inventory {
       )
     }
 
-    if (this.stack.RB?.id) {
+    const rbPack = this.stack.RB.packs[0]
+    if (rbPack?.id) {
       if (this.stack.RB.moving) pos = beltPos
       else pos = 0
       ctx.drawImage(
-        classDBi[this.stack.RB.id].img,
+        classDBi[rbPack.id].img,
         0,
         0,
         64,
@@ -274,11 +287,12 @@ export class Belt extends Inventory {
     }
 
     xpos += dx
-    if (this.stack.LC?.id) {
+    const lcPack = this.stack.LC.packs[0]
+    if (lcPack?.id) {
       if (this.stack.LC.moving) pos = beltPos
       else pos = 0
       ctx.drawImage(
-        classDBi[this.stack.LC.id].img,
+        classDBi[lcPack.id].img,
         0,
         0,
         64,
@@ -290,11 +304,12 @@ export class Belt extends Inventory {
       )
     }
 
-    if (this.stack.RC?.id) {
+    const rcPack = this.stack.RC.packs[0]
+    if (rcPack?.id) {
       if (this.stack.RC.moving) pos = beltPos
       else pos = 0
       ctx.drawImage(
-        classDBi[this.stack.RC.id].img,
+        classDBi[rcPack.id].img,
         0,
         0,
         64,
@@ -307,11 +322,12 @@ export class Belt extends Inventory {
     }
 
     xpos += dx
-    if (this.stack.LD?.id) {
+    const ldPack = this.stack.LD.packs[0]
+    if (ldPack?.id) {
       if (this.stack.LD.moving) pos = beltPos
       else pos = 0
       ctx.drawImage(
-        classDBi[this.stack.LD.id].img,
+        classDBi[ldPack.id].img,
         0,
         0,
         64,
@@ -323,11 +339,12 @@ export class Belt extends Inventory {
       )
     }
 
-    if (this.stack.RD?.id) {
+    const rdPack = this.stack.RD.packs[0]
+    if (rdPack?.id) {
       if (this.stack.RD.moving) pos = beltPos
       else pos = 0
       ctx.drawImage(
-        classDBi[this.stack.RD.id].img,
+        classDBi[rdPack.id].img,
         0,
         0,
         64,

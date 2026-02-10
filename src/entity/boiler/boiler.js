@@ -9,15 +9,15 @@ export class Boiler extends Inventory {
 
   setup (map, ent) {
     this.stacksize = 8
-    this.packsize = {}
-    this.packsize.INV = 1
-    this.packsize.FUEL = 1
-    this.packsize.OUTPUT = 1
     this.energy = 0
 
-    if (this.stack.FUEL == null) this.stack.FUEL = []
-    if (this.stack.INV == null) this.stack.INV = [{ id: classDB.water.id, n: 0 }]
-    if (this.stack.OUTPUT == null) this.stack.OUTPUT = [{ id: classDB.steam.id, n: 0 }]
+    this.stack.FUEL = Inventory.normalizeStack(this.stack.FUEL, { maxlen: 1 })
+    this.stack.INV = Inventory.normalizeStack(this.stack.INV, { maxlen: 1, packsize: 1 })
+    this.stack.OUTPUT = Inventory.normalizeStack(this.stack.OUTPUT, { maxlen: 1, packsize: 1 })
+    if (this.stack.INV.packs.length === 0) this.stack.INV.packs.push({ id: classDB.water.id, n: 0 })
+    if (this.stack.OUTPUT.packs.length === 0) this.stack.OUTPUT.packs.push({ id: classDB.steam.id, n: 0 })
+    if (this.stack.INV.packs[0].id == null) this.stack.INV.packs[0].id = classDB.water.id
+    if (this.stack.OUTPUT.packs[0].id == null) this.stack.OUTPUT.packs[0].id = classDB.steam.id
 
     this.nbInputs = []
     this.nbOutputs = []
@@ -26,11 +26,11 @@ export class Boiler extends Inventory {
   update (map, ent) {
     if (game.tick % 100) return
 
-    if (this.stack.INV[0].n === 0) return
+    if (this.stack.INV.packs[0].n === 0) return
 
-    if (this.stack.FUEL[0]?.n > 0 && this.energy <= 1) {
-      this.energy += classDBi[this.stack.FUEL[0].id].E // add time factor
-      this.stack.FUEL[0].n--
+    if (this.stack.FUEL.packs[0]?.n > 0 && this.energy <= 1) {
+      this.energy += classDBi[this.stack.FUEL.packs[0].id].E // add time factor
+      this.stack.FUEL.packs[0].n--
     }
 
     // INPUT
@@ -39,32 +39,32 @@ export class Boiler extends Inventory {
     for (const nbID of this.nbInputs) {
       const n = game.allInvs[nbID]
       if (n == null) continue
-      if (n.stack.INV[0].id == null) n.stack.INV[0].id = this.stack.INV[0].id
-      if (n.stack.INV[0].id === this.stack.INV[0].id) {
-        total += n.stack.INV[0].n
+      if (n.stack.INV.packs[0].id == null) n.stack.INV.packs[0].id = this.stack.INV.packs[0].id
+      if (n.stack.INV.packs[0].id === this.stack.INV.packs[0].id) {
+        total += n.stack.INV.packs[0].n
         nSameType++
       }
     }
 
-    total += this.stack.INV[0].n
+    total += this.stack.INV.packs[0].n
     let medVal = Math.floor(total / nSameType)
 
     for (const nbID of this.nbInputs) {
       const n = game.allInvs[nbID]
       if (n == null) continue
-      if (n.stack.INV[0].id === this.stack.INV[0].id) {
-        n.stack.INV[0].n = medVal
+      if (n.stack.INV.packs[0].id === this.stack.INV.packs[0].id) {
+        n.stack.INV.packs[0].n = medVal
       }
     }
     let rest = total - (medVal * nSameType)
-    this.stack.INV[0].n = medVal
-    this.stack.INV[0].n += rest
+    this.stack.INV.packs[0].n = medVal
+    this.stack.INV.packs[0].n += rest
 
     // PROCESS
-    if (this.stack.INV[0].n > 0 && this.energy > 0 && this.stack.OUTPUT[0].n < 100) {
+    if (this.stack.INV.packs[0].n > 0 && this.energy > 0 && this.stack.OUTPUT.packs[0].n < 100) {
       this.energy--
-      this.stack.INV[0].n--
-      this.stack.OUTPUT[0].n++
+      this.stack.INV.packs[0].n--
+      this.stack.OUTPUT.packs[0].n++
     }
 
     // OUTPUT
@@ -73,27 +73,27 @@ export class Boiler extends Inventory {
     for (const nbID of this.nbOutputs) {
       const n = game.allInvs[nbID]
       if (n == null) continue
-      if (n.stack.INV[0].id == null) n.stack.INV[0].id = this.stack.OUTPUT[0].id
-      if (n.stack.INV[0].id === this.stack.OUTPUT[0].id) {
-        total += n.stack.INV[0].n
+      if (n.stack.INV.packs[0].id == null) n.stack.INV.packs[0].id = this.stack.OUTPUT.packs[0].id
+      if (n.stack.INV.packs[0].id === this.stack.OUTPUT.packs[0].id) {
+        total += n.stack.INV.packs[0].n
         nSameType++
       }
     }
 
     nSameType++
-    total += this.stack.OUTPUT[0].n
+    total += this.stack.OUTPUT.packs[0].n
     medVal = Math.floor(total / nSameType)
 
     for (const nbID of this.nbOutputs) {
       const n = game.allInvs[nbID]
       if (n == null) continue
-      if (n.stack.INV[0].id === this.stack.OUTPUT[0].id) {
-        n.stack.INV[0].n = medVal
+      if (n.stack.INV.packs[0].id === this.stack.OUTPUT.packs[0].id) {
+        n.stack.INV.packs[0].n = medVal
       }
     }
     rest = total - (medVal * nSameType)
-    this.stack.OUTPUT[0].n = medVal
-    this.stack.OUTPUT[0].n += rest
+    this.stack.OUTPUT.packs[0].n = medVal
+    this.stack.OUTPUT.packs[0].n += rest
   }
 
   updateNB () {

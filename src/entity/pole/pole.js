@@ -9,10 +9,8 @@ export class Pole extends Inventory {
 
   setup (map, ent) {
     this.stacksize = 8
-    this.packsize = {}
-    this.packsize.INV = 1
-
-    if (this.stack.INV == null) this.stack.INV = [{ n: 0 }]
+    this.stack.INV = Inventory.normalizeStack(this.stack.INV, { maxlen: 1, packsize: 1 })
+    if (this.stack.INV.packs.length === 0) this.stack.INV.packs.push({ id: undefined, n: 0 })
     this.mapsize = { x: classDB.pole.size[0], y: classDB.pole.size[1] }
     this.nbInputs = []
   }
@@ -20,7 +18,7 @@ export class Pole extends Inventory {
   update (map, ent) {
     if (game.tick % 100) return
 
-    if (this.nbInputs.length === 0 || this.stack.INV[0].n === 0) return
+    if (this.nbInputs.length === 0 || this.stack.INV.packs[0].n === 0) return
 
     // INPUT
     let total = 0
@@ -28,17 +26,17 @@ export class Pole extends Inventory {
     for (const nbID of this.nbInputs) {
       const n = game.allInvs[nbID]
       if (n == null) continue
-      let target
-      if (n.stack.INV) target = n.stack.INV
-      else if (n.stack.FUEL) target = n.stack.FUEL
-      if (target[0].id == null) target[0].id = this.stack.INV[0].id
-      if (target[0].id === this.stack.INV[0].id) {
-        total += target[0].n
+      let target = n.stack.INV || n.stack.FUEL
+      if (!target?.packs?.length) target.packs = [{ id: undefined, n: 0 }]
+      const targetPack = target.packs[0]
+      if (targetPack.id == null) targetPack.id = this.stack.INV.packs[0].id
+      if (targetPack.id === this.stack.INV.packs[0].id) {
+        total += targetPack.n
         nSameType++
       }
     }
     nSameType++
-    total += this.stack.INV[0].n
+    total += this.stack.INV.packs[0].n
 
     // PROCESS
     const medVal = Math.floor(total / nSameType)
@@ -47,15 +45,13 @@ export class Pole extends Inventory {
     for (const nbID of this.nbInputs) {
       const n = game.allInvs[nbID]
       if (n == null) continue
-      let target
-      if (n.stack.INV) target = n.stack.INV
-      else if (n.stack.FUEL) target = n.stack.FUEL
-
-      target[0].n = medVal
+      let target = n.stack.INV || n.stack.FUEL
+      if (!target?.packs?.length) target.packs = [{ id: undefined, n: 0 }]
+      target.packs[0].n = medVal
     }
-    this.stack.INV[0].n = medVal
+    this.stack.INV.packs[0].n = medVal
     const rest = total - (medVal * nSameType)
-    this.stack.INV[0].n += rest
+    this.stack.INV.packs[0].n += rest
   }
 
   updateNB () {

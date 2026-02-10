@@ -14,9 +14,7 @@ export class ElectricalMiner extends Inventory {
 
   setup (map, ent) {
     if (this.stack == null) this.stack = {}
-    if (this.stack.FUEL == null) this.stack.FUEL = []
-    this.packsize = {}
-    this.packsize.FUEL = 1
+    this.stack.FUEL = Inventory.normalizeStack(this.stack.FUEL, { maxlen: 1, packsize: 50 })
     const size = classDB.burner_miner.size
     for (let i = 0; i < size[0]; i++) {
       for (let j = 0; j < size[1]; j++) {
@@ -29,11 +27,11 @@ export class ElectricalMiner extends Inventory {
   }
 
   update (map, ent) {
-    if (this.stack.FUEL == null) this.stack.FUEL = []
+    this.stack.FUEL = Inventory.normalizeStack(this.stack.FUEL, { maxlen: 1, packsize: 50 })
 
     if (game.tick % 100 === 0) {
       this.power = 0
-      if (this.stack.FUEL == null || this.stack.FUEL.length === 0) this.stack.FUEL = [ {x: undefined, n: 0} ]
+      if (this.stack.FUEL.packs.length === 0) this.stack.FUEL.packs.push({ id: undefined, n: 0 })
       let output
       let tile = wigamendow.res.map[ent.pos.x][ent.pos.y]
       if (tile?.n === 0) tile = map[ent.pos.x + 1][ent.pos.y]
@@ -55,12 +53,12 @@ export class ElectricalMiner extends Inventory {
         stackName = dirPref[relDir]
       }
 
-      const hasPlace = invTo.hasPlaceFor({ id: output, n: 1 }, stackName)
+      const hasPlace = invTo.hasPlaceFor({ id: output?.id, n: 1 }, stackName)
       const neededEnergy = classDBi[tile.id].E
-      if (this.stack.FUEL[0]?.n > 0 && hasPlace && this.energy <= neededEnergy) {
-        this.energy += classDBi[this.stack.FUEL[0].id].E // add time factor
+      if (this.stack.FUEL.packs[0]?.n > 0 && hasPlace && this.energy <= neededEnergy) {
+        this.energy += classDBi[this.stack.FUEL.packs[0].id].E // add time factor
         this.power = 100
-        this.stack.FUEL[0].n--
+        this.stack.FUEL.packs[0].n--
         tile.n--
       }
 

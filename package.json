@@ -13,10 +13,9 @@
     "verbose": true
   },
   "dependencies": {
-    "express": "^4.17.3",
+    "express": "^4.19.2",
     "express-ws": "^5.0.2",
     "glob": "^8.1.0",
-    "jest-coverage-badges": "^1.1.2",
     "jest-junit": "^13.2.0",
     "perlin-noise": "0.0.1",
     "ws": "^8.5.0"
@@ -33,7 +32,6 @@
   "homepage": "https://github.com/nodi-andy/browser-factorio#readme",
   "devDependencies": {
     "chai": "^4.3.6",
-    "coveralls": "^3.1.1",
     "eslint": "^8.14.0",
     "eslint-config-standard": "^17.0.0",
     "eslint-plugin-import": "^2.26.0",
@@ -41,10 +39,29 @@
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-promise": "^6.0.0",
     "import-glob": "^1.5.0",
-    "istanbul": "^0.4.5",
     "jest": "^28.0.2",
     "mocha": "^9.2.2",
     "nyc": "^15.1.0",
     "prettier": "2.8.3"
+  },
+  "overrides": {
+    "body-parser": "1.20.3",
+    "cookie": "0.7.0",
+    "json5": "2.2.2",
+    "@babel/core": "7.23.2",
+    "@babel/traverse": "7.23.2",
+    "path-to-regexp": "0.1.10",
+    "send": "0.19.0",
+    "serve-static": "1.16.0",
+    "serialize-javascript": "6.0.2",
+    "braces": "3.0.3",
+    "glob": {
+      "minimatch": {
+        "brace-expansion": "2.0.2"
+      }
+    },
+    "express-ws": {
+      "ws": "7.5.10"
+    }
   }
 }

@@ -13,8 +13,7 @@ export class Pump extends Inventory {
 
   setup (map, ent) {
     if (this.stack == null) this.stack = {}
-    this.packsize = {}
-    this.packsize.OUTPUT = 1
+    this.stack.OUTPUT = Inventory.normalizeStack(this.stack.OUTPUT, { maxlen: 1, packsize: 1 })
     /* this.mapsize = {x: classDB.generator.size[0], y: classDB.generator.size[1]};
         if (this.dir === 1 || this.dir === 3) this.mapsize = {x: classDB.generator.size[1], y: classDB.generator.size[0]};
         for(let i = 0; i < this.mapsize.x; i++) {
@@ -25,19 +24,21 @@ export class Pump extends Inventory {
   }
 
   update (map, ent) {
-    if (this.stack.OUTPUT == null) this.stack.OUTPUT = [{ id: classDB.water.id, n: 0 }]
-    const output = this.stack.OUTPUT[0]
+    this.stack.OUTPUT = Inventory.normalizeStack(this.stack.OUTPUT, { maxlen: 1, packsize: 1 })
+    if (this.stack.OUTPUT.packs.length === 0) this.stack.OUTPUT.packs.push({ id: classDB.water.id, n: 0 })
+    const output = this.stack.OUTPUT.packs[0]
+    if (output.id == null) output.id = classDB.water.id
     if (game.tick % 10 === 0 && output?.n < 100) {
       output.n += 1
     }
 
     if (this.nbPipes.length === 0) return
-    if (this.nbPipes[0].stack.INV[0].id == null) this.nbPipes[0].stack.INV[0].id = output.id
-    if (this.nbPipes[0].stack.INV[0].id === output.id) {
-      const total = output.n + this.nbPipes[0].stack.INV[0].n
+    if (this.nbPipes[0].stack.INV.packs[0].id == null) this.nbPipes[0].stack.INV.packs[0].id = output.id
+    if (this.nbPipes[0].stack.INV.packs[0].id === output.id) {
+      const total = output.n + this.nbPipes[0].stack.INV.packs[0].n
       const medVal = Math.floor(total / 2)
-      this.nbPipes[0].stack.INV[0].n = medVal
-      this.stack.OUTPUT[0].n = total - medVal
+      this.nbPipes[0].stack.INV.packs[0].n = medVal
+      this.stack.OUTPUT.packs[0].n = total - medVal
     }
   }
 

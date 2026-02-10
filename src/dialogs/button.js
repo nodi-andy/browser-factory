@@ -44,8 +44,10 @@ export class Button {
     ctx.rect(this.screen.x, this.screen.y, this.size.x, this.size.y)
     ctx.fill()
     ctx.stroke()
-    if (this.item == null && this.inv?.stack && this.inv.stack[this.invKey] && this.inv.stack[this.invKey][this.stackPos]) {
-      this.item = this.inv.stack[this.invKey][this.stackPos]
+    const stack = this.inv?.stack?.[this.invKey]
+    const pack = stack?.packs?.[this.stackPos]
+    if (this.item == null && pack) {
+      this.item = pack
     }
     this.drawItem(ctx)
   }
@@ -74,7 +76,7 @@ export class Button {
   onClick (button) {
     if (button === 1) {
       if (Settings.pointer?.stack?.INV?.packs[0]?.id) {
-        if (Settings.pointer?.stack?.INV.packs[0]?.id === game.allInvs[this.invID].stack[this.invKey][this.stackPos]?.id) {
+        if (Settings.pointer?.stack?.INV.packs[0]?.id === game.allInvs[this.invID].stack[this.invKey].packs[this.stackPos]?.id) {
           Inventory.moveStack({ fromInvID: Settings.pointer.id, fromInvKey: 'INV', fromStackPos: 0, toInvID: this.invID, toInvKey: this.invKey, toStackPos: this.stackPos })
         } else {
           Inventory.moveStack({ fromInvID: Settings.pointer.id, fromInvKey: 'INV', fromStackPos: 0, toInvID: this.invID, toInvKey: this.invKey })
@@ -100,7 +102,7 @@ export class Button {
         if (buttonInv.stack[this.invKey].packs[this.stackPos]) {
           buttonInv.addItem({id: pointerPack.id, n: transfer}, this.invKey, this.stackPos) 
         } else {
-          buttonInv.addItem({id: pointerPack.id, n: transfer}, this.invKey, buttonInv.stack[this.invKey].length) 
+          buttonInv.addItem({id: pointerPack.id, n: transfer}, this.invKey, buttonInv.stack[this.invKey].packs.length) 
         }
       }
     }

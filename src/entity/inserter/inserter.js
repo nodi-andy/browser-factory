@@ -19,12 +19,8 @@ export class Inserter extends Inventory {
   setup (map, ent) {
     if (this.stack == null) this.stack = {}
     this.stacksize = 3
-    if (this.stack.FUEL == null) this.stack.FUEL = []
-    if (this.stack.INV == null) this.stack.INV = []
-
-    if (this.packsize == null) this.packsize = {}
-    this.packsize.INV = 1
-    this.packsize.FUEL = 1
+    this.stack.FUEL = Inventory.normalizeStack(this.stack.FUEL, { maxlen: 1, packsize: 50 })
+    this.stack.INV = Inventory.normalizeStack(this.stack.INV, { maxlen: 1, packsize: 1 })
     if (this.armPos == null) this.armPos = 0
     this.energy = 10 // TBD: electricity
     if (this.isHandFull == null) this.isHandFull = false
@@ -37,10 +33,10 @@ export class Inserter extends Inventory {
   update (map, ent) {
     this.done = true
     if (this.pos) {
-      if (this.stack.FUEL[0]?.n > 0 && this.energy <= 2) {
+      if (this.stack.FUEL.packs[0]?.n > 0 && this.energy <= 2) {
         // TBD: don't use coal until electricity is developed
-        // this.energy += classDBi[this.stack.FUEL[0].id].E // add time factor
-        // this.stack.FUEL[0].n--
+        // this.energy += classDBi[this.stack.FUEL.packs[0].id].E // add time factor
+        // this.stack.FUEL.packs[0].n--
         this.energy = 10
       }
       this.isHandFull = false
@@ -61,24 +57,31 @@ export class Inserter extends Inventory {
       // PICK
       if (this.armPos === 0 && !this.isHandFull && this.energy > 0 && invFrom) {
         let item
+        const resolveStackName = (targetInv, itemId) => {
+          if (!targetInv || itemId == null) return undefined
+          if (typeof targetInv.getStackName === 'function') {
+            const name = targetInv.getStackName(itemId)
+            if (name != null) return name
+          }
+          if (targetInv.stack?.INPUT && targetInv.stack?.FUEL) {
+            return classDBi[itemId]?.E ? 'FUEL' : 'INPUT'
+          }
+          return undefined
+        }
+        const pickForNeed = (needs) => {
+          if (!Array.isArray(needs) || needs.length === 0) return null
+          for (const needId of needs) {
+            if (!invFrom.hasItem({ id: needId })) continue
+            if (!invTo?.hasPlaceFor) return needId
+            const stackName = resolveStackName(invTo, needId)
+            if (invTo.hasPlaceFor({ id: needId, n: 1 }, stackName)) return needId
+          }
+          return null
+        }
         // if picking for a producing machine, pick the needed part
-        if (invTo?.need?.length) {
-          for (let ineed = 0; ineed < invTo.need.length; ineed++) {
-            if (invFrom.hasItem({id: invTo.need[ineed]})) {
-              item = invTo.need[ineed]
-              break
-            }
-          }
-        }
+        if (invTo?.need?.length) item = pickForNeed(invTo.need)
         // if picking for a producing machine, pick any usefull part
-        if (item == null && invTo?.shallNeed?.length) {
-          for (let needItem of invTo.shallNeed) {
-            if (invFrom.hasItem({id: needItem})) {
-              item = needItem
-              break
-            }
-          }
-        }
+        if (item == null && invTo?.shallNeed?.length) item = pickForNeed(invTo.shallNeed)
         //If picking from a producing machine, pick the output
         if (item == null && invFrom.stack.OUTPUT) {
           item = invFrom.getItem('OUTPUT', this.selectedItem)

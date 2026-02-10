@@ -353,22 +353,6 @@ export class EntityLayer extends NC.NodiGrid {
               if (this.map?.[x]) this.map[x][y] = newInv.id
             }
           }
-          if (newInv.type !== classDB.Empty.id && game?.res?.getResourceXY) {
-            let clearedRes = false
-            for (let i = 0; i < footprint.width; i++) {
-              for (let j = 0; j < footprint.height; j++) {
-                const x = newEntity.pos.x + i
-                const y = newEntity.pos.y + j
-                const resTile = game.res.getResourceXY(x, y)
-                if (resTile?.id != null) {
-                  resTile.id = undefined
-                  resTile.n = 0
-                  clearedRes = true
-                }
-              }
-            }
-            if (clearedRes) game.res.updateOffscreenMap()
-          }
           if (newInv?.updateNB) newInv.updateNB()
           if (typeof window !== 'undefined') game.updateInventoryMenu(window.player)
         }

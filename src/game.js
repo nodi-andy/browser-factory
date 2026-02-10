@@ -20,8 +20,13 @@ for(let i = 0; i < elements.length; i++) {
   if (key == null) continue
 
   window.classDB[key] = el[key]
+  // also register a lowercase alias for legacy references (e.g. classDB.steam)
+  try {
+    window.classDB[key.toLowerCase()] = el[key]
+  } catch (e) {}
   window.classDBi[i] = el[key]
   if (window.classDB[key]) window.classDB[key].id = i
+  if (window.classDB[key.toLowerCase()]) window.classDB[key.toLowerCase()].id = i
 }
 
 function isSavedGameData (raw) {
@@ -244,6 +249,10 @@ function loadGame (name) {
       }
 
       newProvince.allInvs.forEach(ent => {
+        if (ent) Inventory.normalizeEntityStacks(ent)
+      })
+
+      newProvince.allInvs.forEach(ent => {
         if (ent?.updateNB) ent.updateNB()
       })
 
@@ -355,7 +364,16 @@ Object.keys(window.classDB).forEach(key => {
     if (window.classDB[key].type == null) return
 
     let costs = window.classDB[key].cost
-    if (costs) costs.forEach(cost => {cost.id = window.classDB[cost.id].id})
+    if (costs) costs.forEach(cost => {
+      if (!cost || cost.id == null) return
+      // if cost.id is already a numeric id, keep it
+      if (typeof cost.id === 'number') return
+      // cost.id expected to be a string name; try direct and lowercase lookups
+      const name = cost.id
+      const target = window.classDB[name] || (typeof name === 'string' ? window.classDB[name.toLowerCase()] : undefined)
+      if (target && target.id != null) cost.id = target.id
+      else console.warn('[game] Unknown cost item:', cost.id, 'for', key)
+    })
 
     let imgName = window.classDB[key].imgName
     if (imgName == null) imgName = key.toLowerCase()

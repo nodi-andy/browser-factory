@@ -62,6 +62,10 @@ export class DialogLayer extends NC.NodiGrid {
     ctx.resetTransform()
     ctx.lineWidth = 1
     this.updateFpsCounter()
+    if (!window.isGodMode) window.godModePopulated = false
+    if (window.isGodMode && !window.godModePopulated && window.ws) {
+      window.ws({ cmd: 'godmode' })
+    }
     if (window.isGodMode) this.drawFpsHud(ctx)
     // CONTENT MENU
     if (Settings.dialogResPos?.x && Settings.dialogResPos?.y) {
@@ -232,6 +236,10 @@ export class DialogLayer extends NC.NodiGrid {
 
       // DRAW ENTITY MENU
     } else if (window.entityMenu.vis) {
+      if (!window.selEntity) {
+        window.entityMenu.vis = false
+        return
+      }
       let dy = Settings.buttonSize.y * 1.5
       context.beginPath()
       context.fillStyle = 'rgba(150, 150, 150, 0.95)'
@@ -239,10 +247,12 @@ export class DialogLayer extends NC.NodiGrid {
       context.font = (Settings.buttonSize.y / 2) + 'px Arial'
       context.fillStyle = 'black'
       let title = ""
-      if (classDBi[window.selEntity.type].getLabel) {
-        title = classDBi[window.selEntity.type].getLabel()
+      const selType = window.selEntity.type
+      const selClass = selType != null ? classDBi[selType] : null
+      if (selClass?.getLabel) {
+        title = selClass.getLabel()
       } else {
-        title = classDBi[window.selEntity.type].name
+        title = selClass?.name || 'Unknown'
       }
       
       context.fillText(title, window.entityMenu.rect.x + Settings.buttonSize.x / 4, window.entityMenu.rect.y + Settings.buttonSize.x / 2)

@@ -23,30 +23,48 @@ function wssend (msg) {
     }
     if (msg.cmd === 'godmode') {
       window.isGodMode = true
-      window.player.stacksize = 200
-      window.player.addItem({ id: classDB.Chest.id, n: 100 })
-      window.player.addItem({ id: classDB.Coal.id, n: 100 })
-      window.player.addItem({ id: classDB.Copper.id, n: 100 })
-      window.player.addItem({ id: classDB.Iron.id, n: 100 })
-      window.player.addItem({ id: classDB.IronPlate.id, n: 500 })
-      window.player.addItem({ id: classDB.Stone.id, n: 50 })
-      window.player.addItem({ id: classDB.Gear.id, n: 50 })
-      window.player.addItem({ id: classDB.IronStick.id, n: 50 })
-      window.player.addItem({ id: classDB.HydraulicPiston.id, n: 50 })
-      window.player.addItem({ id: classDB.Belt1.id, n: 100 })
-      window.player.addItem({ id: classDB.Belt2.id, n: 100 })
-      window.player.addItem({ id: classDB.Belt3.id, n: 100 })
-      window.player.addItem({ id: classDB.BurnerMiner.id, n: 100 })
-      window.player.addItem({ id: classDB.StoneFurnace.id, n: 100 })
-      window.player.addItem({ id: classDB.Inserter.id, n: 100 })
-      window.player.addItem({ id: classDB.InserterLong.id, n: 100 })
-      window.player.addItem({ id: classDB.InserterSmart.id, n: 100 })
-      window.player.addItem({ id: classDB.Circuit.id, n: 100 })
-      window.player.addItem({ id: classDB.CopperCable.id, n: 100 })
-      window.player.addItem({ id: classDB.AssemblingMachine1.id, n: 100 })
-      window.player.addItem({ id: classDB.AssemblingMachine2.id, n: 100 })
-      window.player.addItem({ id: classDB.AssemblingMachine3.id, n: 100 })
-      window.player.addItem({ id: classDB.Car.id, n: 100 })
+      const playerInv = window.player || game?.allInvs?.[game?.playerID]
+      if (!playerInv) return
+      Inventory.ensureStack(playerInv.stack, 'INV', { maxlen: 200, packsize: 9999 })
+      playerInv.stack.INV.maxlen = 200
+      playerInv.stack.INV.packsize = 9999
+      playerInv.stack.INV.full = false
+      delete playerInv.stack.INV.allow
+      const failures = []
+      let added = 0
+      const addGodItem = (item) => {
+        if (!item || item.id == null) {
+          failures.push({ item, reason: 'missing-id' })
+          return false
+        }
+        const ok = playerInv.addItem(item)
+        if (!ok) failures.push({ item, reason: 'add-failed' })
+        else added += 1
+        return ok
+      }
+      addGodItem({ id: classDB.Chest.id, n: 100 })
+      addGodItem({ id: classDB.Coal.id, n: 100 })
+      addGodItem({ id: classDB.Copper.id, n: 100 })
+      addGodItem({ id: classDB.Iron.id, n: 100 })
+      addGodItem({ id: classDB.IronPlate.id, n: 500 })
+      addGodItem({ id: classDB.Stone.id, n: 50 })
+      addGodItem({ id: classDB.Gear.id, n: 50 })
+      addGodItem({ id: classDB.IronStick.id, n: 50 })
+      addGodItem({ id: classDB.HydraulicPiston.id, n: 50 })
+      addGodItem({ id: classDB.Belt1.id, n: 100 })
+      addGodItem({ id: classDB.Belt2.id, n: 100 })
+      addGodItem({ id: classDB.Belt3.id, n: 100 })
+      addGodItem({ id: classDB.BurnerMiner.id, n: 100 })
+      addGodItem({ id: classDB.StoneFurnace.id, n: 100 })
+      addGodItem({ id: classDB.Inserter.id, n: 100 })
+      addGodItem({ id: classDB.InserterLong.id, n: 100 })
+      addGodItem({ id: classDB.InserterSmart.id, n: 100 })
+      addGodItem({ id: classDB.Circuit.id, n: 100 })
+      addGodItem({ id: classDB.CopperCable.id, n: 100 })
+      addGodItem({ id: classDB.AssemblingMachine1.id, n: 100 })
+      addGodItem({ id: classDB.AssemblingMachine2.id, n: 100 })
+      addGodItem({ id: classDB.AssemblingMachine3.id, n: 100 })
+      addGodItem({ id: classDB.Car.id, n: 100 })
       const ids = new Set()
       Object.values(classDBi).forEach(entry => {
         if (!entry) return
@@ -56,9 +74,14 @@ function wssend (msg) {
         ids.add(entry.id)
       })
       ids.forEach(id => {
-        window.player.addItem({ id, n: 200 })
+        addGodItem({ id, n: 200 })
       })
-      game.updateInventoryMenu(window.player)
+      window.lastGodmodeReport = { added, failed: failures }
+      if (failures.length) {
+        console.warn('[godmode] failed to add items', failures)
+      }
+      window.godModePopulated = true
+      game.updateInventoryMenu(playerInv)
     }
     if (msg.cmd === 'cleanstorage') {
       if (typeof window !== 'undefined' && window.localStorage) {

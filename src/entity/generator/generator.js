@@ -9,14 +9,14 @@ export class Generator extends Inventory {
 
   setup (map, ent) {
     this.stacksize = 8
-    this.packsize = {}
-    this.packsize.INV = 1
-    this.packsize.OUTPUT = 1
-
-    if (this.stack.INV == null) this.stack.INV = [{ id: classDB.steam.id, n: 0 }]
-    if (this.stack.OUTPUT == null) this.stack.OUTPUT = [{ id: classDB.coulomb.id, n: 0 }]
-    this.mapsize = { x: classDB.generator.size[0], y: classDB.generator.size[1] }
-    if (this.dir === 1 || this.dir === 3) this.mapsize = { x: classDB.generator.size[1], y: classDB.generator.size[0] }
+    this.stack.INV = Inventory.normalizeStack(this.stack.INV, { maxlen: 1, packsize: 1 })
+    this.stack.OUTPUT = Inventory.normalizeStack(this.stack.OUTPUT, { maxlen: 1, packsize: 1 })
+    if (this.stack.INV.packs.length === 0) this.stack.INV.packs.push({ id: classDB.steam.id, n: 0 })
+    if (this.stack.OUTPUT.packs.length === 0) this.stack.OUTPUT.packs.push({ id: classDB.coulomb.id, n: 0 })
+    if (this.stack.INV.packs[0].id == null) this.stack.INV.packs[0].id = classDB.steam.id
+    if (this.stack.OUTPUT.packs[0].id == null) this.stack.OUTPUT.packs[0].id = classDB.coulomb.id
+    this.mapsize = { x: db.size[0], y: db.size[1] }
+    if (this.dir === 1 || this.dir === 3) this.mapsize = { x: db.size[1], y: db.size[0] }
     for (let i = 0; i < this.mapsize.x; i++) {
       for (let j = 0; j < this.mapsize.y; j++) {
         game.entityLayer.getInv(ent.pos.x + i, ent.pos.y + j, this.id)
@@ -33,31 +33,31 @@ export class Generator extends Inventory {
     for (const nbID of this.nbInputs) {
       const n = game.allInvs[nbID]
       if (n == null) continue
-      if (n.stack.INV[0].id == null) n.stack.INV[0].id = this.stack.INV[0].id
-      if (n.stack.INV[0].id === this.stack.INV[0].id) {
-        total += n.stack.INV[0].n
+      if (n.stack.INV.packs[0].id == null) n.stack.INV.packs[0].id = this.stack.INV.packs[0].id
+      if (n.stack.INV.packs[0].id === this.stack.INV.packs[0].id) {
+        total += n.stack.INV.packs[0].n
         nSameType++
       }
     }
 
-    total += this.stack.INV[0].n
+    total += this.stack.INV.packs[0].n
     let medVal = Math.floor(total / nSameType)
 
     for (const nbID of this.nbInputs) {
       const n = game.allInvs[nbID]
       if (n == null) continue
-      if (n.stack.INV[0].id === this.stack.INV[0].id) {
-        n.stack.INV[0].n = medVal
+      if (n.stack.INV.packs[0].id === this.stack.INV.packs[0].id) {
+        n.stack.INV.packs[0].n = medVal
       }
     }
     let rest = total - (medVal * nSameType)
-    this.stack.INV[0].n = medVal
-    this.stack.INV[0].n += rest
+    this.stack.INV.packs[0].n = medVal
+    this.stack.INV.packs[0].n += rest
 
     // PROCESS
-    if (this.stack.INV[0].n > 0 && this.stack.OUTPUT[0].n < 100) {
-      this.stack.INV[0].n--
-      this.stack.OUTPUT[0].n++
+    if (this.stack.INV.packs[0].n > 0 && this.stack.OUTPUT.packs[0].n < 100) {
+      this.stack.INV.packs[0].n--
+      this.stack.OUTPUT.packs[0].n++
     }
 
     // OUTPUT
@@ -66,27 +66,27 @@ export class Generator extends Inventory {
     for (const nbID of this.nbOutputs) {
       const n = game.allInvs[nbID]
       if (n == null) continue
-      if (n.stack.INV[0].id == null) n.stack.INV[0].id = this.stack.OUTPUT[0].id
-      if (n.stack.INV[0].id === this.stack.OUTPUT[0].id) {
-        total += n.stack.INV[0].n
+      if (n.stack.INV.packs[0].id == null) n.stack.INV.packs[0].id = this.stack.OUTPUT.packs[0].id
+      if (n.stack.INV.packs[0].id === this.stack.OUTPUT.packs[0].id) {
+        total += n.stack.INV.packs[0].n
         nSameType++
       }
     }
 
     nSameType++
-    total += this.stack.OUTPUT[0].n
+    total += this.stack.OUTPUT.packs[0].n
     medVal = Math.floor(total / nSameType)
 
     for (const nbID of this.nbOutputs) {
       const n = game.allInvs[nbID]
       if (n == null) continue
-      if (n.stack.INV[0].id === this.stack.OUTPUT[0].id) {
-        n.stack.INV[0].n = medVal
+      if (n.stack.INV.packs[0].id === this.stack.OUTPUT.packs[0].id) {
+        n.stack.INV.packs[0].n = medVal
       }
     }
     rest = total - (medVal * nSameType)
-    this.stack.OUTPUT[0].n = medVal
-    this.stack.OUTPUT[0].n += rest
+    this.stack.OUTPUT.packs[0].n = medVal
+    this.stack.OUTPUT.packs[0].n += rest
   }
 
   updateNB () {
@@ -105,9 +105,9 @@ export class Generator extends Inventory {
   }
 
   draw (ctx, ent) {
-    const mapSize = classDB.generator.size
-    const viewSize = classDB.generator.viewsize
-    ctx.drawImage(classDB.generator.img, 0, 0, mapSize[0] * Settings.tileSize / 2, mapSize[1] * Settings.tileSize / 2, 0, 0, viewSize[0] * Settings.tileSize, (mapSize[1] - viewSize[1]) * Settings.tileSize)
+    const mapSize = db.size
+    const viewSize = db.viewsize
+    ctx.drawImage(db.img, 0, 0, mapSize[0] * Settings.tileSize / 2, mapSize[1] * Settings.tileSize / 2, 0, 0, viewSize[0] * Settings.tileSize, (mapSize[1] - viewSize[1]) * Settings.tileSize)
   }
 }
 
