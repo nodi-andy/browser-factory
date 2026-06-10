@@ -34,4 +34,7 @@ app.get('/imports.js', function (req, res) {
   
 
 const port = process.env.PORT || 8080
-app.listen(port)
+app.listen(port, () => {
+    const baseUrl = `http://localhost:${port}`
+    console.log(`Server running at ${baseUrl}`)
+})

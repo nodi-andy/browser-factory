@@ -1,4 +1,5 @@
 import { Settings } from '../common.js'
+import { gameSetup } from '../gameConfig.js'
 import { noise } from '../core/perlin.js'
 import * as NC from 'nodicanvas'
 
@@ -7,6 +8,10 @@ export class Terrain extends NC.NodiGrid {
     super(name, gridSize, tileSize)
     this.offscreenCanvas = document.createElement('canvas')
     this.map = map
+    if (gameSetup?.world?.terrain?.mode === 'flat') {
+      this.map = this.createFlatWorldMap(this.map)
+      return
+    }
     if (this.map == null) {
       this.map = Array(this.gridSize.x).fill(0).map(() => Array(this.gridSize.y).fill(0).map(() => [undefined, 0]))
       this.createWorld(gridSize.x, gridSize.y)
@@ -25,9 +30,36 @@ export class Terrain extends NC.NodiGrid {
     return map
   }
 
+  createFlatWorldMap (sourceMap) {
+    const terrainSetup = gameSetup?.world?.terrain || {}
+    const floorId = classDB?.[terrainSetup.floorTile]?.id ?? classDB?.Grassland?.id
+    const wallId = classDB?.[terrainSetup.wallTile]?.id ?? classDB?.Hills?.id ?? floorId
+    const safeFloorId = floorId ?? wallId ?? classDB?.Grassland?.id ?? 0
+    const safeWallId = wallId ?? safeFloorId
+    const borderWalls = terrainSetup.borderWalls === true
+    const width = this.gridSize.x
+    const height = this.gridSize.y
+
+    const normalizedMap = Array(width).fill(0).map(() => Array(height).fill(0).map(() => [safeFloorId, 0]))
+    for (let ax = 0; ax < width; ax++) {
+      for (let ay = 0; ay < height; ay++) {
+        const isBorder = ax === 0 || ay === 0 || ax === width - 1 || ay === height - 1
+        const defaultId = (borderWalls && isBorder) ? safeWallId : safeFloorId
+        normalizedMap[ax][ay] = [defaultId, (ax * 3 + ay) % 4]
+      }
+    }
+
+    return normalizedMap
+  }
+
   createWorld (x, y) {
+    const terrainSetup = gameSetup?.world?.terrain || {}
+    if (terrainSetup.mode === 'flat') {
+      this.map = this.createFlatWorldMap(this.map)
+      return
+    }
+
     this.perlinmap = Terrain.generateTerrain(this.gridSize.x, this.gridSize.y)
-    // discrete perlin
     for (let ax = 0; ax < this.map.length; ax++) {
       for (let ay = 0; ay < this.map[ax].length; ay++) {
         const perlinVal = this.perlinmap[ax * this.gridSize.y + ay]
@@ -36,7 +68,6 @@ export class Terrain extends NC.NodiGrid {
         else if (perlinVal < 2) resVal = [classDB.Sea.id, 0]
         else if (perlinVal < 9) resVal = [classDB.Grassland.id, Math.round(Math.random() * 3)]
         else resVal = [classDB.Hills.id, Math.round(Math.random() * 3)]
-
         this.map[ax][ay] = resVal
       }
     }

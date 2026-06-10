@@ -1,6 +1,7 @@
 import { Settings } from '../common.js'
 import { Dialog } from '../dialogs/dialog.js'
 import { Button } from '../dialogs/button.js'
+import { getInventoryLayout } from '../gameConfig.js'
 import { Inventory } from '../core/inventory.js'
 
 import * as NC from 'nodicanvas'
@@ -175,11 +176,12 @@ export class DialogLayer extends NC.NodiGrid {
   createInvMenu (invID) {
     // INV MENU
     if (window.invMenu) {
-      for (let i = 0; i < 8; i++) {
-        for (let j = 0; j < 8; j++) {
-          const newButton = new Button(j * Settings.buttonSize.x, i * Settings.buttonSize.y, undefined, window.invMenu, invID)
-          window.invMenu.items.push(newButton)
-        }
+      const invLayout = getInventoryLayout()
+      for (let i = 0; i < invLayout.slots; i++) {
+        const x = (i % invLayout.columns) * Settings.buttonSize.x
+        const y = Math.floor(i / invLayout.columns) * Settings.buttonSize.y
+        const newButton = new Button(x, y, undefined, window.invMenu, invID)
+        window.invMenu.items.push(newButton)
       }
     }
     // this.resize()

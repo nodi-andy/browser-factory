@@ -1,4 +1,5 @@
 import { Settings, dist, rememberBuildDir } from '../common.js'
+import { gameSetup, isEntityAllowed } from '../gameConfig.js'
 import { Inventory } from '../core/inventory.js'
 import { wssend } from '../core/socket.js'
 import * as NC from 'nodicanvas'
@@ -52,6 +53,7 @@ export class EntityLayer extends NC.NodiGrid {
       if (itemId != null) rememberBuildDir(itemId, Settings.buildDir)
     }
     if (e.code === 'KeyE') {
+      if (gameSetup.id === 'kitchen') return
       game.updateInventoryMenu(window.player)
       window.invMenu.vis = !window.invMenu.vis
       window.craftMenu.vis = window.invMenu.vis
@@ -65,6 +67,7 @@ export class EntityLayer extends NC.NodiGrid {
     const pointerId = Settings.pointer?.stack?.INV.packs[0]?.id
     const pointerItem = classDBi[pointerId]
     if (pointerItem?.type === 'entity') {
+      if (!isEntityAllowed(pointerId)) return
       const candidate = { pos: { x: tileCoordinate.x, y: tileCoordinate.y }, dir: Settings.buildDir, type: pointerId }
       if (!Inventory.checkFreeSpace(candidate)) return
       wssend({ cmd: 'addEntityByClick', data: candidate })
@@ -299,6 +302,7 @@ export class EntityLayer extends NC.NodiGrid {
 
   addEntityFromCursor (newEntity, updateDir) {
     if (!newEntity) return
+    if (!isEntityAllowed(newEntity.type)) return
     let inv = game.entityLayer.getInv(newEntity.pos.x, newEntity.pos.y)
     let pack = Settings.pointer?.stack?.INV.packs[0];
 
@@ -316,6 +320,7 @@ export class EntityLayer extends NC.NodiGrid {
 
   addEntity (newEntity) {
     if (!newEntity) return
+    if (!isEntityAllowed(newEntity.type)) return
     let inv = game.entityLayer.getInv(newEntity.pos.x, newEntity.pos.y)
     let newInv;
     if (inv == null || inv?.type === classDB.Empty.id) {

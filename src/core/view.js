@@ -1,4 +1,5 @@
 import { Settings } from '../common.js'
+import { getCraftingLayout, getInventoryLayout } from '../gameConfig.js'
 import { Button } from '../dialogs/button.js'
 import { Inventory,  } from './inventory.js'
 import * as NC from 'nodicanvas'
@@ -52,15 +53,23 @@ export class ViewModule extends NC.NodiView {
       Settings.buttonSize.y = this.canvas.height / 10
     }
     if (window.invMenu) {
-      window.invMenu.rect.x = this.canvas.width / 2 - Settings.buttonSize.x * 8.5
-      window.invMenu.rect.y = this.canvas.height / 2 - Settings.buttonSize.y * 4
+      const invLayout = getInventoryLayout()
+      const craftLayout = getCraftingLayout()
+      const maxRows = Math.max(invLayout.rows, craftLayout.rows)
+      window.invMenu.rect.x = this.canvas.width / 2 - Settings.buttonSize.x * (invLayout.columns + 0.5)
+      window.invMenu.rect.y = this.canvas.height / 2 - Settings.buttonSize.y * (maxRows / 2)
+      window.invMenu.rect.w = invLayout.columns * Settings.buttonSize.x
+      window.invMenu.rect.h = invLayout.rows * Settings.buttonSize.y
     }
 
     if (window.craftMenu && window.selectItemMenu) {
+      const craftLayout = getCraftingLayout()
+      const invLayout = getInventoryLayout()
+      const maxRows = Math.max(invLayout.rows, craftLayout.rows)
       window.craftMenu.rect.x = this.canvas.width / 2 + Settings.buttonSize.x * 0.5
-      window.craftMenu.rect.y = this.canvas.height / 2 - Settings.buttonSize.y * 4
-      window.craftMenu.rect.w = 8 * Settings.buttonSize.x
-      window.craftMenu.rect.h = 8 * Settings.buttonSize.y
+      window.craftMenu.rect.y = this.canvas.height / 2 - Settings.buttonSize.y * (maxRows / 2)
+      window.craftMenu.rect.w = craftLayout.columns * Settings.buttonSize.x
+      window.craftMenu.rect.h = craftLayout.rows * Settings.buttonSize.y
 
       window.entityMenu.rect.x = window.craftMenu.rect.x
       window.entityMenu.rect.y = window.craftMenu.rect.y
@@ -178,12 +187,14 @@ export class ViewModule extends NC.NodiView {
     if (!window.player) return
 
     const items = window.player.output
+    const craftLayout = getCraftingLayout()
+    const columns = craftLayout.columns
     let pos = 0
     window.craftMenu.items = []
     items.forEach(item => {
       let i = window.classDB[item]
       if (i == null) return
-      const newButton = new Button((pos % 8) * (Settings.buttonSize.x), Math.floor(pos / 8) * (Settings.buttonSize.y), { id: i.id, n: 0 }, window.craftMenu, window.player.invID)
+      const newButton = new Button((pos % columns) * (Settings.buttonSize.x), Math.floor(pos / columns) * (Settings.buttonSize.y), { id: i.id, n: 0 }, window.craftMenu, window.player.invID)
       newButton.onClick = () => {
         Inventory.craftToInv(window.player, [i])
       }
@@ -192,6 +203,9 @@ export class ViewModule extends NC.NodiView {
       if (newButton.x + newButton.size.x > window.craftMenu.rect.w) window.craftMenu.rect.w = newButton.x + newButton.size.x
       if (newButton.y + newButton.size.y > window.craftMenu.rect.h) window.craftMenu.rect.h = newButton.y + newButton.size.y
     })
+    const usedRows = Math.max(craftLayout.rows, Math.ceil(Math.max(items.length, 1) / columns))
+    window.craftMenu.rect.w = columns * Settings.buttonSize.x
+    window.craftMenu.rect.h = usedRows * Settings.buttonSize.y
   }
 
   // SELECT ITEM MENU
@@ -224,11 +238,13 @@ export class ViewModule extends NC.NodiView {
 
     if (pack == null) return
     if (!Array.isArray(window.invMenu.items)) window.invMenu.items = []
-    const minSlots = 64
+    const invLayout = getInventoryLayout()
+    const minSlots = invLayout.slots
+    const columns = invLayout.columns
     const neededSlots = Math.max(minSlots, pack.length, window.invMenu.items.length)
     const invIdForButtons = window.player?.invID ?? inv?.invID
     for (let i = window.invMenu.items.length; i < neededSlots; i++) {
-      const newButton = new Button((i % 8) * (Settings.buttonSize.x), Math.floor(i / 8) * (Settings.buttonSize.y), undefined, window.invMenu, invIdForButtons)
+      const newButton = new Button((i % columns) * (Settings.buttonSize.x), Math.floor(i / columns) * (Settings.buttonSize.y), undefined, window.invMenu, invIdForButtons)
       window.invMenu.items.push(newButton)
     }
 
@@ -238,8 +254,8 @@ export class ViewModule extends NC.NodiView {
       window.invMenu.items[i].invID = window.player.invID
       window.invMenu.items[i].invKey = 'INV'
       window.invMenu.items[i].stackPos = i
-      window.invMenu.items[i].x = (i % 8) * (Settings.buttonSize.x)
-      window.invMenu.items[i].y = Math.floor(i / 8) * (Settings.buttonSize.y)
+      window.invMenu.items[i].x = (i % columns) * (Settings.buttonSize.x)
+      window.invMenu.items[i].y = Math.floor(i / columns) * (Settings.buttonSize.y)
     }
 
     for (let i = pack.length; i < window.invMenu.items.length; i++) {
@@ -247,8 +263,8 @@ export class ViewModule extends NC.NodiView {
       window.invMenu.items[i].invID = window.player.invID
       window.invMenu.items[i].invKey = 'INV'
       window.invMenu.items[i].stackPos = i
-      window.invMenu.items[i].x = (i % 8) * (Settings.buttonSize.x)
-      window.invMenu.items[i].y = Math.floor(i / 8) * (Settings.buttonSize.y)
+      window.invMenu.items[i].x = (i % columns) * (Settings.buttonSize.x)
+      window.invMenu.items[i].y = Math.floor(i / columns) * (Settings.buttonSize.y)
     }
 
     for (const craftItem of window.craftMenu.items) {

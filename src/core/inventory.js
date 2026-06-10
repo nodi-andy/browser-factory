@@ -1,4 +1,4 @@
-import { Grassland } from '../terrain/grassland/grassland.js'
+import { gameSetup } from '../gameConfig.js'
 import { Tree } from '../res/tree/tree.js'
 
 export class Inventory {
@@ -122,15 +122,17 @@ export class Inventory {
   static craftToInv (inv, items) {
     if (!items) return
     items.forEach(item => {
+      const cost = Array.isArray(item?.cost) ? item.cost : null
+      if (!cost || cost.length === 0) return false
       let itemsExist = true
-      for (let c = 0; c < item.cost.length && itemsExist; c++) {
+      for (let c = 0; c < cost.length && itemsExist; c++) {
         itemsExist = false
-        itemsExist = inv.hasItems(item.cost)
+        itemsExist = inv.hasItems(cost)
       }
       if (itemsExist) {
         const newItem = { id: item.id, n: 1 }
         window.player.addItem(newItem)
-        inv.remItems(item.cost)
+        inv.remItems(cost)
         game.updateInventoryMenu(window.player)
       }
       return itemsExist
@@ -154,6 +156,7 @@ export class Inventory {
 
   static checkFreeSpace(entity) {
     const footprint = this.getFootprint(entity)
+    const buildableTerrain = classDB?.[gameSetup?.world?.terrain?.floorTile]?.id ?? classDB?.Grassland?.id
     for (let i = 0; i < footprint.width; i++) {
       for (let j = 0; j < footprint.height; j++) {
         const x = entity.pos.x + i
@@ -166,7 +169,7 @@ export class Inventory {
         const terrainTile = game.terrain.map[x][y]
         const resTile = game.res?.getResourceXY(x, y)
         if (full ||
-            terrainTile?.[0] != Grassland.id ||
+            terrainTile?.[0] != buildableTerrain ||
             resTile?.id == Tree.id) {
           return false
         }

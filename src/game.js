@@ -9,10 +9,13 @@ import { ResLayer } from './res/resLayer.js'
 import { DialogLayer } from './dialogs/dialogLayer.js'
 import { ControlsLayer } from './controls/controlsLayer.js'
 import { elements, version} from './imports.js'
+import { applyStartingInventory, gameSetup } from './gameConfig.js'
 import * as NC from 'nodicanvas'
 
 console.log("📦: Browser factory")
 console.log("🚀: " + version)
+
+console.log('setup:', gameSetup.id)
 
 for(let i = 0; i < elements.length; i++) {
   let el = elements[i]
@@ -141,6 +144,33 @@ function toggleNav () {
 window.openNav = openNav
 window.closeNav = closeNav
 
+function ensureWorkshopBootstrap (province) {
+  if (gameSetup.id !== 'kitchen') return
+  if (!province?.entityLayer || !province?.allInvs) return
+  const inputType = window.classDB?.InputUnit?.id
+  const benchType = window.classDB?.WorkshopBench?.id
+  const inserterType = window.classDB?.Inserter?.id
+  const chestType = window.classDB?.Chest?.id
+  if (inputType == null || benchType == null || inserterType == null || chestType == null) return
+
+  const hasBench = Object.values(province.allInvs).some(ent => ent?.type === benchType)
+  if (hasBench) return
+
+  const placements = [
+    { pos: { x: 3, y: 5 }, type: inputType, dir: 0, sourceItem: 'Wood', label: 'Wood In' },
+    { pos: { x: 5, y: 3 }, type: inputType, dir: 0, sourceItem: 'IronPlate', label: 'Iron In' },
+    { pos: { x: 5, y: 5 }, type: benchType, dir: 0 },
+    { pos: { x: 7, y: 5 }, type: chestType, dir: 0 },
+    { pos: { x: 4, y: 5 }, type: inserterType, dir: 0 },
+    { pos: { x: 5, y: 4 }, type: inserterType, dir: 1 },
+    { pos: { x: 6, y: 5 }, type: inserterType, dir: 0 }
+  ]
+
+  placements.forEach((entry) => {
+    province.entityLayer.addEntity(entry)
+  })
+}
+
 function loadGame (name) {
 
   if (window.game) {
@@ -153,10 +183,12 @@ function loadGame (name) {
   if (name == null || typeof(name) == 'object') name = 'unnamed_' + window.nextGameID
 
   let savedData = JSON.parse(window.localStorage.getItem(name))
-  
-  if (!savedData) {
-     createGame(name)
+  const savedSetupId = savedData?.setup
+  const isSetupCompatible = savedData &&
+    (savedSetupId === gameSetup.id || (savedSetupId == null && gameSetup.id === 'factorio'))
 
+  if (!isSetupCompatible) {
+    createGame(name)
     // try again, after creation
     savedData = JSON.parse(window.localStorage.getItem(name))
   }
@@ -255,6 +287,7 @@ function loadGame (name) {
       newProvince.allInvs.forEach(ent => {
         if (ent?.updateNB) ent.updateNB()
       })
+      ensureWorkshopBootstrap(newProvince)
 
       newProvince.player = newProvince.allInvs[newProvince.playerID]
       Settings.pointer = newProvince.allInvs[1]
@@ -324,6 +357,7 @@ function createGame (name) {
     games[key].invID = games[key].allInvs.length - 1
     games[key].allInvs[1] = new Inventory()
     games[key].allInvs[1].id = 1
+    applyStartingInventory(games[key].player)
   })
   window.player = game.player
   saveGame()
@@ -340,6 +374,7 @@ function saveGame () {
 
   let gameContent = {}
   gameContent.version = window.games.version
+  gameContent.setup = gameSetup.id
   provinceList.forEach(provinceName => {
     let province = games[provinceName]
     gameContent[provinceName]  = {terrain: province.terrain.map, res: province.res.map, entity: province.entityLayer.map, ents: province.allInvs, playerID: province.playerID }
@@ -375,6 +410,7 @@ Object.keys(window.classDB).forEach(key => {
       else console.warn('[game] Unknown cost item:', cost.id, 'for', key)
     })
 
+    if (window.classDB[key].useGeneratedImage === true && window.classDB[key].img) return
     let imgName = window.classDB[key].imgName
     if (imgName == null) imgName = key.toLowerCase()
     const image = new Image(Settings.tileSize, Settings.tileSize)

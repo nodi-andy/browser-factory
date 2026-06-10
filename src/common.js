@@ -1,4 +1,5 @@
 import * as NC from 'nodicanvas'
+import { gameSetup } from './gameConfig.js'
 
 window.classDB = {}
 window.classDBi = {}
@@ -9,14 +10,14 @@ window.gameState ={"loading": 1, "running": 2, "stopping": 3, "stopped": 4}
 export const provinces = {
   "single" : {
       name: "Main",
-      gridSize: {x: 80, y: 60 }
+      gridSize: {x: gameSetup.world.gridSize.x, y: gameSetup.world.gridSize.y }
   }
 }
 
 export const Settings = {
   buttonSize : { x: 68, y: 68 },
   tileSize : 64,
-  gridSize : new NC.Vec2(160, 90),
+  gridSize : new NC.Vec2(gameSetup.world.gridSize.x, gameSetup.world.gridSize.y),
   buildDir : 0,
   buildDirByItemId : {},
   dirToVec : [{ x: 1, y: 0 },{ x: 0, y: 1 },{ x: -1, y: 0 },{ x: 0, y: -1 }],

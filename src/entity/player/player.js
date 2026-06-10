@@ -1,4 +1,5 @@
 import { Settings, toUnitV } from '../../common.js'
+import { gameSetup, getPlayerCraftableList } from '../../gameConfig.js'
 import { Inventory } from '../../core/inventory.js'
 import * as NC from 'nodicanvas'
 
@@ -23,7 +24,7 @@ export class Player extends Inventory {
   }
 
   setup (map, inv) {
-    this.stack.INV.maxlen = 64
+    this.stack.INV.maxlen = gameSetup?.player?.inventorySlots || 64
     if (this.tilePos == null) {
       this.tilePos = new NC.Vec2(game.entityLayer.gridSize.x / 2, game.entityLayer.gridSize.y / 2)
     }
@@ -33,7 +34,7 @@ export class Player extends Inventory {
     if (this.pos?.x == null || this.pos?.y == null) {
       this.pos = { x: 0, y: 0 }
     }
-    this.output = ["Wood", "StoneFurnace", "BurnerMiner", "Chest", "IronStick", "Gear", "HydraulicPiston", "Belt1", "Belt2", "Belt3", "Inserter", "InserterLong", "InserterSmart", "CopperCable", "Circuit", "AssemblingMachine1", "AssemblingMachine2", "AssemblingMachine3", "Car"]
+    this.output = getPlayerCraftableList().filter(name => classDB?.[name]?.id != null)
     this.name = "Player"
     this.dir = { x: 0, y: 0 }
     this.live = 100
@@ -46,14 +47,37 @@ export class Player extends Inventory {
     this.workProgress = 0
     this.miningTimer = 0
     this.invID = 0
+    if (this.heldItem == null) this.heldItem = null
   }
 
   update (map, ent) {
     this.tilePos = game.entityLayer.worldToTile(this.pos)
-    while (this.checkCollision(this.tilePos)) {
+    const width = Math.max(1, Settings.gridSize.x)
+    const height = Math.max(1, Settings.gridSize.y)
+    const minX = width > 2 ? 1 : 0
+    const minY = height > 2 ? 1 : 0
+    const maxX = width > 2 ? width - 2 : width - 1
+    const maxY = height > 2 ? height - 2 : height - 1
+    let corrected = false
+    const originalTileX = this.tilePos.x
+    const originalTileY = this.tilePos.y
+    this.tilePos.x = Math.min(maxX, Math.max(minX, this.tilePos.x))
+    this.tilePos.y = Math.min(maxY, Math.max(minY, this.tilePos.y))
+    if (this.tilePos.x !== originalTileX || this.tilePos.y !== originalTileY) corrected = true
+
+    let searchSteps = 0
+    const maxSearchSteps = width * height
+    while (this.checkCollision(this.tilePos) && searchSteps < maxSearchSteps) {
+      corrected = true
       this.tilePos.x++
-      this.pos = { x: this.tilePos.x * Settings.tileSize, y: this.tilePos.y * Settings.tileSize }
+      if (this.tilePos.x > maxX) {
+        this.tilePos.x = minX
+        this.tilePos.y++
+        if (this.tilePos.y > maxY) this.tilePos.y = minY
+      }
+      searchSteps++
     }
+    if (corrected) this.pos = game.entityLayer.tileToWorld(this.tilePos)
 
     this.unitdir = toUnitV(this.dir)
     const entTile = game.entityLayer.worldToTile(this.pos)
@@ -115,6 +139,27 @@ export class Player extends Inventory {
   draw (ctx, ent) {
     if (this.car != null) return
     ctx.translate(this.pos.x, this.pos.y)
+    if (gameSetup.id === 'kitchen') {
+      ctx.fillStyle = '#1f2a36'
+      ctx.beginPath()
+      ctx.arc(0, -52, 13, 0, Math.PI * 2)
+      ctx.fill()
+
+      ctx.fillStyle = '#4f87c2'
+      ctx.fillRect(-14, -44, 28, 32)
+
+      ctx.fillStyle = '#e1e9f2'
+      ctx.fillRect(-16, -11, 12, 17)
+      ctx.fillRect(4, -11, 12, 17)
+
+      ctx.fillStyle = '#243443'
+      ctx.fillRect(-14, -26, 28, 4)
+
+      if (this.heldItem != null && classDBi?.[this.heldItem]?.img) {
+        ctx.drawImage(classDBi[this.heldItem].img, 0, 0, 64, 64, -10, -76, 20, 20)
+      }
+      return
+    }
     ctx.drawImage(Player.img, this.ss.x * 96, this.ss.y * 132, 96, 132, -48, -100, 96, 132)
 
     ctx.beginPath()
@@ -169,8 +214,32 @@ export class Player extends Inventory {
 
   fetchTile (x, y) {
     const e = game.entityLayer.getInv(x, y)
-    if (e?.type === classDB.Empty.id || e?.isBelt) {
+    const isInputUnit = e?.type === classDB?.InputUnit?.id
+    if (gameSetup.id === 'kitchen') {
+      if (this.heldItem != null && e && !isInputUnit) {
+        let targetStack
+        if (typeof e.getStackName === 'function') targetStack = e.getStackName(this.heldItem)
+        if (typeof e.hasPlaceFor === 'function' && typeof e.addItem === 'function' &&
+          e.hasPlaceFor({ id: this.heldItem, n: 1 }, targetStack) &&
+          e.addItem({ id: this.heldItem, n: 1 }, targetStack)) {
+          this.heldItem = null
+        }
+        return
+      }
+
+      if (this.heldItem == null && (e?.type === classDB.Empty.id || e?.isBelt || isInputUnit)) {
+        const pickedItem = e.getItem()
+        if (pickedItem == null) return
+        if (isInputUnit || (typeof e.remItem === 'function' && e.remItem({ id: pickedItem, n: 1 }))) {
+          this.heldItem = pickedItem
+        }
+      }
+      return
+    }
+
+    if (e?.type === classDB.Empty.id || e?.isBelt || isInputUnit) {
       const pickedItem = e.getItem()
+      if (pickedItem == null) return
       e.moveItemTo({id: pickedItem, n:1}, this)
       if (pickedItem?.reserved === true) pickedItem.reserved = false
     }
@@ -196,11 +265,13 @@ export class Player extends Inventory {
   }
 
   checkCollision (pos) {
-    if (game.terrain.map == null) return
-    const terrain = classDBi[game.terrain.map[pos.x][pos.y][0]]
-    if (terrain.playerCanWalkOn === false) return true
+    if (game?.terrain?.map == null) return true
+    const terrainTile = game.terrain.map?.[pos.x]?.[pos.y]
+    if (!Array.isArray(terrainTile)) return true
+    const terrain = classDBi?.[terrainTile[0]]
+    if (!terrain || terrain.playerCanWalkOn === false) return true
 
-    const building = game.entityLayer.map[pos.x][pos.y]
+    const building = game.entityLayer.map?.[pos.x]?.[pos.y]
     if (building == null) return false
     const buildingType = game.allInvs[building]?.type
     if (buildingType) {
